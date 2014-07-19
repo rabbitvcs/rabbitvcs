@@ -34,16 +34,6 @@ ENCODING = "UTF-8"
 def callback_notify_null(val):
     pass
 
-def callback_get_user():
-    from pwd import getpwuid
-    pwuid = getpwuid(os.getuid())
-    
-    user = pwuid[0]
-    fullname = pwuid[4]
-    host = os.getenv("HOSTNAME")
-    
-    return (fullname, "%s@%s" % (user, host))
-
 def callback_get_cancel():
     return False
 
@@ -56,7 +46,6 @@ class GittyupClient:
     def __init__(self, path=None, create=False):
         self.callback_notify = callback_notify_null
         self.callback_progress_update = None
-        self.callback_get_user = callback_get_user
         self.callback_get_cancel = callback_get_cancel
 
         self.global_ignore_patterns = []
@@ -316,23 +305,7 @@ class GittyupClient:
     def _load_config(self):
         self.config = self.repo.get_config_stack()
 
-    def _get_config_user(self):
-        try:
-            config_user_name = self.config.get(("user", ), "name")
-            config_user_email = self.config.get(("user", ), "email")
-            if config_user_name == "" or config_user_email == "":
-                raise KeyError()
-        except KeyError:
-            (config_user_name, config_user_email) = self.callback_get_user()
-            
-            if config_user_name == None and config_user_email == None:
-                return None
-            
-        self.config.set(("user", ), "name", config_user_name)
-        self.config.set(("user", ), "email", config_user_email)
-        self.config.writable.write_to_path()
-        return "%s <%s>" % (config_user_name, config_user_email)
-    
+   
     def _write_packed_refs(self, refs):
         packed_refs_str = ""
         for ref,sha in refs.items():
@@ -1846,9 +1819,6 @@ class GittyupClient:
     def set_callback_progress_update(self, func):
         self.callback_progress_update = func
 
-    def set_callback_get_user(self, func):
-        self.callback_get_user = func
-    
     def set_callback_get_cancel(self, func):
         self.callback_get_cancel = func
     
