@@ -1742,24 +1742,19 @@ class GittyupClient:
         @param  revision: The revision/tree/commit of the source file being exported
 
         """
-        
-        tmp_file = get_tmp_path("rabbitvcs-git-export.tar")
-        cmd1 = ["git", "archive", "--format", "tar", "-o", tmp_file, revision, path]
-        cmd2 = ["tar", "-xf", tmp_file, "-C", dest_path]
-        
-        if not os.path.isdir(dest_path):
-            os.mkdir(dest_path)
+        tree_root = self.repo[revision].tree
 
-        try:
-            (status, stdout, stderr) = GittyupCommand(cmd1, cwd=self.repo.path, notify=self.notify, cancel=self.get_cancel).execute()
-            (status, stdout, stderr) = GittyupCommand(cmd2, cwd=self.repo.path, notify=self.notify, cancel=self.get_cancel).execute()
-        except GittyupCommandError, e:
-            self.callback_notify(e)
-            stdout = []
-            
+        (mode, sha) = tree_lookup_path(self.repo.object_store.__getitem__,
+                tree_root, path)
+
+        if stat.S_ISDIR(mode):
+            os.mkdir(dest_path)
+        else:
+            with open(dest_path, 'w') as f:
+                f.write(blob.as_raw_string())
+
         self.notify("%s at %s exported to %s" % (path, revision, dest_path))
-        return "\n".join(stdout)      
-    
+
     def clean(self, path, remove_dir=True, remove_ignored_too=False, 
             remove_only_ignored=False, dry_run=False, force=True):
         
