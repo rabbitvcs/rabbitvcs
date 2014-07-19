@@ -30,37 +30,35 @@ else:
     c = GittyupLocalFallbackConfig(DIR)
     
     # Create config items
-    c.set("core", "filemode", True)
-    c.set("core", "repositoryformatversion", 0)
-
-    # Add comments
-    c.set_comment("core", "filemode", ["Regular comment"])
-    c.set_inline_comment("core", "repositoryformatversion", "inline repo format comment")
+    c.set(("core", ), "filemode", "True")
+    c.set(("core", ), "repositoryformatversion", "0")
 
     # Create new section/items and then rename them
-    c.set("newsection", "newitem", "Val A")
-    c.rename_section("newsection", "newsection_RE")    
-    c.rename("newsection_RE", "newitem", "newitem_RE")
+    c.set(("newsection", ), "newitem", "Val A")
+    c.rename_section(("newsection", ), ("newsection-RE", ))
+    c.rename(("newsection-RE", ), "newitem", "newitem-RE")
     c.write()
 
     del c
     
     c = GittyupLocalFallbackConfig(DIR)
 
-    assert (c.has("newsection_RE", "newitem_RE"))
-    assert (c.get_comment("core", "filemode")[0].find("Regular comment") != -1)
-    assert (c.get_inline_comment("core", "repositoryformatversion").find("inline repo format comment") != -1)
+    assert (c.has(("newsection-re", ), "newitem-re")), c._local._config
     
     del c
 
     c = GittyupConfig("./data/config/config.example")
     
-    assert (c.has("diff", "renames"))
+    assert (c.has(("diff", ), "renames"))
     
     del c
     
     c = GittyupSystemConfig()
-    c.set("section", "key", "value")
-    c.write()
+    c.set(("section", ), "key", "value")
+    try:
+        c.write()
+    except OSError:
+        # This requires write access to system config, so allow it to fail.
+        pass
 
     print "config.py pass"

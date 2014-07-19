@@ -212,7 +212,7 @@ class GittyupClient:
         files.append(excludefile)
         
         try:
-            core_excludesfile = self.config.get("core", "excludesfile")
+            core_excludesfile = self.config.get(("core", ), "excludesfile")
             if core_excludesfile:
                 files.append(core_excludesfile)
         except KeyError:
@@ -321,8 +321,8 @@ class GittyupClient:
 
     def _get_config_user(self):
         try:
-            config_user_name = self.config.get("user", "name")
-            config_user_email = self.config.get("user", "email")
+            config_user_name = self.config.get(("user", ), "name")
+            config_user_email = self.config.get(("user", ), "email")
             if config_user_name == "" or config_user_email == "":
                 raise KeyError()
         except KeyError:
@@ -331,8 +331,8 @@ class GittyupClient:
             if config_user_name == None and config_user_email == None:
                 return None
             
-        self.config.set("user", "name", config_user_name)
-        self.config.set("user", "email", config_user_email)
+        self.config.set(("user", ), "name", config_user_name)
+        self.config.set(("user", ), "email", config_user_email)
         self.config.write()
         return "%s <%s>" % (config_user_name, config_user_email)
     

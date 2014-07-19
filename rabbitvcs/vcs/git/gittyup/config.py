@@ -5,7 +5,7 @@
 import os
 import warnings
 
-from _configobj.configobj import ConfigObj
+from dulwich.config import ConfigFile
 
 def get_local_config_path(repository_path):
     return repository_path + "/.git/config"
@@ -20,32 +20,39 @@ class GittyupConfig:
     def __init__(self, path):
         """
         Provides direct access to any arbitrary git config file
-        
+
         @type   path    string
         @param  path    The git config file path
-        
+
         """
         self.path = path
-        self._config = ConfigObj(path, indent_type="\t")
-    
+        if os.path.exists(path):
+            self._config = ConfigFile.from_path(path)
+        else:
+            self._config = ConfigFile()
+
     def set(self, section, key, value):
         if section not in self._config:
             self._config[section] = {}
-        
+
         self._config[section][key] = value
-    
+
     def get(self, section, key):
         try:
-            return self._config[section][key]
+            return self._config.get((section,), key)
         except KeyError:
             return u""
 
     def has(self, section, key=None):
-        if section in self._config:
-            if key is None:
-                return True
+        if key is None:
+            return (section in self._config.itersections())
+        else:
+            try:
+                self._config.get(section, key)
+            except KeyError:
+                return False
             else:
-                return (key in self._config[section])
+                return True
 
     def rename(self, section, old_key, new_key):
         self._config[section][new_key] = self._config[section][old_key]
@@ -110,7 +117,7 @@ class GittyupConfig:
             del self._config.comments[section]
         
     def write(self):
-        self._config.write()
+        self._config.write_to_path(self.path)
 
 class GittyupLocalConfig(GittyupConfig):
     def __init__(self, repository_path):
@@ -141,7 +148,7 @@ class GittyupSystemConfig(GittyupConfig):
 
     def write(self):
         try:
-            self._config.write()
+            self._config.write_to_path(self.path)
         except IOError, e:
             warnings.warn("Can't write to system git config file, %s" % str(e), UserWarning)
 
