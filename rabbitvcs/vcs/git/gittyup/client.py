@@ -8,7 +8,6 @@ import re
 import shutil
 import fnmatch
 import time
-from string import ascii_letters, digits
 from datetime import datetime
 from mimetypes import guess_type
 
@@ -30,7 +29,6 @@ from command import GittyupCommand
 import Tkinter
 import tkMessageBox
 
-TZ = -1 * time.timezone
 ENCODING = "UTF-8"
 
 def callback_notify_null(val):
@@ -804,66 +802,36 @@ class GittyupClient:
         @param  commit_all: Stage all changed files before committing
         
         """
-
-        if not committer:
-            committer = self._get_config_user()
-            if not committer:
-                raise GittyupCommandError("A committer was not specified")
-        if not author:
-            author = self._get_config_user()
-            if not author:
-                raise GittyupCommandError("An author was not specified")
-
         if commit_all:
             self.stage_all()
 
-
-        commit = dulwich.objects.Commit()
-        commit.message = message
-        commit.tree = commit_index(self.repo.object_store, self._get_index())
-
         initial_commit = False
-        try:
-            commit.parents = (parents and parents or [self.repo.head()])
-        except KeyError:
-            # The initial commit has no parent
-            initial_commit = True
-            pass
 
-        commit.committer = committer
-        commit.commit_time = (commit_time and commit_time or int(time.time()))
-        commit.commit_timezone = (commit_timezone and commit_timezone or TZ)
-        
-        commit.author = author
-        commit.author_time = (author_time and author_time or int(time.time()))
-        commit.author_timezone = (author_timezone and author_timezone or TZ)        
-        
-        commit.encoding = (encoding and encoding or ENCODING)
+        if encoding is None:
+            encoding = ENCODING
 
-        self.repo.object_store.add_object(commit)
-        
-        self.repo.refs["HEAD"] = commit.id
-        
-        if initial_commit:
-            self.track("refs/heads/master")
+        commit_id = self.repo.do_commit(message=message, committer=committer,
+                commit_timestamp=commit_time, commit_timezone=commit_timezone,
+                author=author, author_timestamp=author_time,
+                author_timezone=author_timezone, encoding=encoding,
+                merge_heads=parents)
 
-        # Get the branch for this repository.
         branch_full = self.repo.refs.read_ref("HEAD")
 
-        if (branch_full != None):
+        if branch_full is not None:
             branch_components = re.search("refs/heads/(.+)", branch_full)
 
             if (branch_components != None):
                 branch = branch_components.group(1)
 
-                self.notify("[" + commit.id + "] -> " + branch)
+                self.notify("[" + commit_id + "] -> " + branch)
                 self.notify("To branch: " + branch)
-        
+
         #Print tree changes.
         #dulwich.patch.write_tree_diff(sys.stdout, self.repo.object_store, commit.tree, commit.id)
 
-        return commit.id
-    
+        return commit_id
+
     def remove(self, paths):
         """
         Remove path from the repository.  Also deletes the local file.
