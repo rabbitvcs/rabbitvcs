@@ -13,6 +13,7 @@ from mimetypes import guess_type
 
 import subprocess
 
+from dulwich.client import get_transport_and_path
 import dulwich.errors
 import dulwich.repo
 import dulwich.porcelain
@@ -1129,15 +1130,10 @@ class GittyupClient:
         
         """
         
-        client, host_path = util.get_transport_and_path(host)
+        client, host_path = get_transport_and_path(host)
 
-        graphwalker = self.repo.get_graph_walker()
-        f, commit = self.repo.object_store.add_pack()
-        refs = client.fetch_pack(host_path, self.repo.object_store.determine_wants_all, 
-                          graphwalker, f.write, self.callback_notify)
+        refs = client.fetch(host_path, self.repo, progrress=self.callback_notify)
 
-        commit()
-        
         return refs
     
     def merge(self, branch):
