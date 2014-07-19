@@ -311,10 +311,7 @@ class GittyupClient:
         fd = open(os.path.join(self.repo.controldir(), "packed-refs"), "wb")
         fd.write(packed_refs_str)
         fd.close()
-    
-    def _remove_from_index(self, index, key):
-        del index._byname[key]
-    
+
     #
     # Start Public Methods
     #
@@ -416,7 +413,7 @@ class GittyupClient:
                     self.stage(abs_path)
 
             if status == MissingStatus:
-                self._remove_from_index(index, status.path)
+                del index[status.path]
                 index.write()
 
     def unstage(self, paths):
@@ -456,7 +453,7 @@ class GittyupClient:
                     
                     index[relative_path] = (ctime, mtime, dev, ino, mode, uid, gid, size, blob_id, flags)
                 else:
-                    self._remove_from_index(index, relative_path)
+                    del index[relative_path]
             else:
                 if relative_path in tree:
                     index[relative_path] = (0, 0, 0, 0, tree[relative_path][0], 0, 0, 0, tree[relative_path][1], 0)
@@ -819,7 +816,7 @@ class GittyupClient:
         for path in paths:
             relative_path = self.get_relative_path(path)
             if relative_path in index:
-                self._remove_from_index(index, relative_path)
+                del index[relative_path]
                 os.remove(path)
 
         index.write()        
@@ -858,7 +855,7 @@ class GittyupClient:
                 new_path = os.path.join(new_path, os.path.basename(source_file))
 
             index[new_path] = index[source_file]
-            self._remove_from_index(index, source_file)
+            del index[source_file]
 
         index.write()
         
