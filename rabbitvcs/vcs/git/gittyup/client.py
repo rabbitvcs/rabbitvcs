@@ -16,6 +16,7 @@ import subprocess
 
 import dulwich.errors
 import dulwich.repo
+import dulwich.porcelain
 import dulwich.objects
 from dulwich.pack import Pack
 from dulwich.index import commit_index, write_index_dict, SHA1Writer
@@ -1326,17 +1327,8 @@ class GittyupClient:
         @param  revision: The revision to tag.  Defaults to HEAD
         
         """
-        
-        self._get_config_user()
+        dulwich.porcelain.tag(self.repo, name, objectish=revision, message=message)
 
-        cmd = ["git", "tag", "-m", message, name, revision]
-
-        try:
-            (status, stdout, stderr) = GittyupCommand(cmd, cwd=self.repo.path, notify=self.notify, cancel=self.get_cancel).execute()
-        except GittyupCommandError, e:
-            self.callback_notify(e)
-            return         
-    
     def tag_delete(self, name):
         """
         Delete a tag
