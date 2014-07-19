@@ -18,7 +18,6 @@ import dulwich.errors
 import dulwich.repo
 import dulwich.porcelain
 import dulwich.objects
-from dulwich.pack import Pack
 from dulwich.index import commit_index, write_index_dict, SHA1Writer
 #from dulwich.patch import write_tree_diff
 
