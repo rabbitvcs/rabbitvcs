@@ -25,7 +25,6 @@ from dulwich.index import commit_index, write_index_dict, SHA1Writer
 from exceptions import *
 import util
 from objects import *
-from config import GittyupLocalFallbackConfig
 from command import GittyupCommand
 
 import Tkinter
@@ -317,7 +316,7 @@ class GittyupClient:
             file.close()
 
     def _load_config(self):
-        self.config = GittyupLocalFallbackConfig(self.repo.path)
+        self.config = self.repo.get_config_stack()
 
     def _get_config_user(self):
         try:
@@ -333,7 +332,7 @@ class GittyupClient:
             
         self.config.set(("user", ), "name", config_user_name)
         self.config.set(("user", ), "email", config_user_email)
-        self.config.write()
+        self.config.writable.write_to_path()
         return "%s <%s>" % (config_user_name, config_user_email)
     
     def _write_packed_refs(self, refs):

@@ -11,7 +11,6 @@ def cleanup(modules):
 modules = [
     "branch.py", 
     "stage.py",
-    "config.py",
     "commit.py",
     "tag.py",
     "remove.py",
