@@ -302,16 +302,6 @@ class GittyupClient:
     def _load_config(self):
         self.config = self.repo.get_config_stack()
 
-   
-    def _write_packed_refs(self, refs):
-        packed_refs_str = ""
-        for ref,sha in refs.items():
-            packed_refs_str = "%s %s\n" % (sha, ref)
-        
-        fd = open(os.path.join(self.repo.controldir(), "packed-refs"), "wb")
-        fd.write(packed_refs_str)
-        fd.close()
-
     #
     # Start Public Methods
     #
@@ -366,13 +356,7 @@ class GittyupClient:
     
     def head(self):
         return self.repo.refs["HEAD"]
-    
-    def get_sha1_from_refspec(self, refspec):
-        if refspec in self.repo.refs:
-            return self.repo.refs[refspec]
-        else:
-            return None
-    
+
     def stage(self, paths):
         """
         Stage files to be committed or tracked
