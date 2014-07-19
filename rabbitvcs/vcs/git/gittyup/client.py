@@ -18,7 +18,7 @@ import dulwich.errors
 import dulwich.repo
 import dulwich.porcelain
 import dulwich.objects
-from dulwich.index import commit_index, write_index_dict, SHA1Writer
+from dulwich.index import write_index_dict, SHA1Writer
 #from dulwich.patch import write_tree_diff
 
 from exceptions import *
@@ -95,9 +95,6 @@ class GittyupClient:
             tree = dulwich.objects.Tree()
 
         return tree
-
-    def _get_working_tree(self):
-        return self.repo[commit_index(self.repo.object_store, self._get_index())]
 
     def _get_tree_from_sha1(self, sha1):
         return self.repo[self.repo[sha1].tree]
