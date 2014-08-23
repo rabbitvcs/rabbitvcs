@@ -8,43 +8,31 @@ import re
 import shutil
 import fnmatch
 import time
-from string import ascii_letters, digits
 from datetime import datetime
 from mimetypes import guess_type
 
 import subprocess
 
+from dulwich.client import get_transport_and_path
 import dulwich.errors
 import dulwich.repo
+import dulwich.porcelain
 import dulwich.objects
-from dulwich.pack import Pack
-from dulwich.index import commit_index, write_index_dict, SHA1Writer
+from dulwich.index import write_index_dict, SHA1Writer
 #from dulwich.patch import write_tree_diff
 
 from exceptions import *
 import util
 from objects import *
-from config import GittyupLocalFallbackConfig
 from command import GittyupCommand
 
 import Tkinter
 import tkMessageBox
 
-TZ = -1 * time.timezone
 ENCODING = "UTF-8"
 
 def callback_notify_null(val):
     pass
-
-def callback_get_user():
-    from pwd import getpwuid
-    pwuid = getpwuid(os.getuid())
-    
-    user = pwuid[0]
-    fullname = pwuid[4]
-    host = os.getenv("HOSTNAME")
-    
-    return (fullname, "%s@%s" % (user, host))
 
 def callback_get_cancel():
     return False
@@ -58,7 +46,6 @@ class GittyupClient:
     def __init__(self, path=None, create=False):
         self.callback_notify = callback_notify_null
         self.callback_progress_update = None
-        self.callback_get_user = callback_get_user
         self.callback_get_cancel = callback_get_cancel
 
         self.global_ignore_patterns = []
@@ -108,9 +95,6 @@ class GittyupClient:
             tree = dulwich.objects.Tree()
 
         return tree
-
-    def _get_working_tree(self):
-        return self.repo[commit_index(self.repo.object_store, self._get_index())]
 
     def _get_tree_from_sha1(self, sha1):
         return self.repo[self.repo[sha1].tree]
@@ -211,7 +195,7 @@ class GittyupClient:
         files.append(excludefile)
         
         try:
-            core_excludesfile = self.config.get("core", "excludesfile")
+            core_excludesfile = self.config.get(("core", ), "excludesfile")
             if core_excludesfile:
                 files.append(core_excludesfile)
         except KeyError:
@@ -316,37 +300,8 @@ class GittyupClient:
             file.close()
 
     def _load_config(self):
-        self.config = GittyupLocalFallbackConfig(self.repo.path)
+        self.config = self.repo.get_config_stack()
 
-    def _get_config_user(self):
-        try:
-            config_user_name = self.config.get("user", "name")
-            config_user_email = self.config.get("user", "email")
-            if config_user_name == "" or config_user_email == "":
-                raise KeyError()
-        except KeyError:
-            (config_user_name, config_user_email) = self.callback_get_user()
-            
-            if config_user_name == None and config_user_email == None:
-                return None
-            
-        self.config.set("user", "name", config_user_name)
-        self.config.set("user", "email", config_user_email)
-        self.config.write()
-        return "%s <%s>" % (config_user_name, config_user_email)
-    
-    def _write_packed_refs(self, refs):
-        packed_refs_str = ""
-        for ref,sha in refs.items():
-            packed_refs_str = "%s %s\n" % (sha, ref)
-        
-        fd = open(os.path.join(self.repo.controldir(), "packed-refs"), "wb")
-        fd.write(packed_refs_str)
-        fd.close()
-    
-    def _remove_from_index(self, index, key):
-        del index._byname[key]
-    
     #
     # Start Public Methods
     #
@@ -401,13 +356,7 @@ class GittyupClient:
     
     def head(self):
         return self.repo.refs["HEAD"]
-    
-    def get_sha1_from_refspec(self, refspec):
-        if refspec in self.repo.refs:
-            return self.repo.refs[refspec]
-        else:
-            return None
-    
+
     def stage(self, paths):
         """
         Stage files to be committed or tracked
@@ -448,7 +397,7 @@ class GittyupClient:
                     self.stage(abs_path)
 
             if status == MissingStatus:
-                self._remove_from_index(index, status.path)
+                del index[status.path]
                 index.write()
 
     def unstage(self, paths):
@@ -488,7 +437,7 @@ class GittyupClient:
                     
                     index[relative_path] = (ctime, mtime, dev, ino, mode, uid, gid, size, blob_id, flags)
                 else:
-                    self._remove_from_index(index, relative_path)
+                    del index[relative_path]
             else:
                 if relative_path in tree:
                     index[relative_path] = (0, 0, 0, 0, tree[relative_path][0], 0, 0, 0, tree[relative_path][1], 0)
@@ -804,66 +753,36 @@ class GittyupClient:
         @param  commit_all: Stage all changed files before committing
         
         """
-
-        if not committer:
-            committer = self._get_config_user()
-            if not committer:
-                raise GittyupCommandError("A committer was not specified")
-        if not author:
-            author = self._get_config_user()
-            if not author:
-                raise GittyupCommandError("An author was not specified")
-
         if commit_all:
             self.stage_all()
 
-
-        commit = dulwich.objects.Commit()
-        commit.message = message
-        commit.tree = commit_index(self.repo.object_store, self._get_index())
-
         initial_commit = False
-        try:
-            commit.parents = (parents and parents or [self.repo.head()])
-        except KeyError:
-            # The initial commit has no parent
-            initial_commit = True
-            pass
 
-        commit.committer = committer
-        commit.commit_time = (commit_time and commit_time or int(time.time()))
-        commit.commit_timezone = (commit_timezone and commit_timezone or TZ)
-        
-        commit.author = author
-        commit.author_time = (author_time and author_time or int(time.time()))
-        commit.author_timezone = (author_timezone and author_timezone or TZ)        
-        
-        commit.encoding = (encoding and encoding or ENCODING)
+        if encoding is None:
+            encoding = ENCODING
 
-        self.repo.object_store.add_object(commit)
-        
-        self.repo.refs["HEAD"] = commit.id
-        
-        if initial_commit:
-            self.track("refs/heads/master")
+        commit_id = self.repo.do_commit(message=message, committer=committer,
+                commit_timestamp=commit_time, commit_timezone=commit_timezone,
+                author=author, author_timestamp=author_time,
+                author_timezone=author_timezone, encoding=encoding,
+                merge_heads=parents)
 
-        # Get the branch for this repository.
         branch_full = self.repo.refs.read_ref("HEAD")
 
-        if (branch_full != None):
+        if branch_full is not None:
             branch_components = re.search("refs/heads/(.+)", branch_full)
 
             if (branch_components != None):
                 branch = branch_components.group(1)
 
-                self.notify("[" + commit.id + "] -> " + branch)
+                self.notify("[" + commit_id + "] -> " + branch)
                 self.notify("To branch: " + branch)
-        
+
         #Print tree changes.
         #dulwich.patch.write_tree_diff(sys.stdout, self.repo.object_store, commit.tree, commit.id)
 
-        return commit.id
-    
+        return commit_id
+
     def remove(self, paths):
         """
         Remove path from the repository.  Also deletes the local file.
@@ -881,7 +800,7 @@ class GittyupClient:
         for path in paths:
             relative_path = self.get_relative_path(path)
             if relative_path in index:
-                self._remove_from_index(index, relative_path)
+                del index[relative_path]
                 os.remove(path)
 
         index.write()        
@@ -920,7 +839,7 @@ class GittyupClient:
                 new_path = os.path.join(new_path, os.path.basename(source_file))
 
             index[new_path] = index[source_file]
-            self._remove_from_index(index, source_file)
+            del index[source_file]
 
         index.write()
         
@@ -1188,15 +1107,10 @@ class GittyupClient:
         
         """
         
-        client, host_path = util.get_transport_and_path(host)
+        client, host_path = get_transport_and_path(host)
 
-        graphwalker = self.repo.get_graph_walker()
-        f, commit = self.repo.object_store.add_pack()
-        refs = client.fetch_pack(host_path, self.repo.object_store.determine_wants_all, 
-                          graphwalker, f.write, self.callback_notify)
+        refs = client.fetch(host_path, self.repo, progrress=self.callback_notify)
 
-        commit()
-        
         return refs
     
     def merge(self, branch):
@@ -1326,17 +1240,8 @@ class GittyupClient:
         @param  revision: The revision to tag.  Defaults to HEAD
         
         """
-        
-        self._get_config_user()
+        dulwich.porcelain.tag(self.repo, name, objectish=revision, message=message)
 
-        cmd = ["git", "tag", "-m", message, name, revision]
-
-        try:
-            (status, stdout, stderr) = GittyupCommand(cmd, cwd=self.repo.path, notify=self.notify, cancel=self.get_cancel).execute()
-        except GittyupCommandError, e:
-            self.callback_notify(e)
-            return         
-    
     def tag_delete(self, name):
         """
         Delete a tag
@@ -1354,20 +1259,15 @@ class GittyupClient:
     def tag_list(self):
         """
         Return a list of Tag objects
-        
-        """
-    
-        refs = self.repo.get_refs()
 
-        tags = []
-        for ref,tag_sha in refs.items():
-            if ref.startswith("refs/tags"):
-                if type(self.repo[tag_sha]) == dulwich.objects.Commit:
-                    tag = CommitTag(ref[10:], tag_sha, self.repo[tag_sha])
-                else:
-                    tag = Tag(tag_sha, self.repo[tag_sha])
-                tags.append(tag)
-        
+        """
+        for name, tag_sha in self.repo.refs.as_dict("refs/tags"):
+            if type(self.repo[tag_sha]) == dulwich.objects.Commit:
+                tag = CommitTag(name, tag_sha, self.repo[tag_sha])
+            else:
+                tag = Tag(tag_sha, self.repo[tag_sha])
+            tags.append(tag)
+
         return tags
 
     def status_porcelain(self, path):
@@ -1823,24 +1723,19 @@ class GittyupClient:
         @param  revision: The revision/tree/commit of the source file being exported
 
         """
-        
-        tmp_file = get_tmp_path("rabbitvcs-git-export.tar")
-        cmd1 = ["git", "archive", "--format", "tar", "-o", tmp_file, revision, path]
-        cmd2 = ["tar", "-xf", tmp_file, "-C", dest_path]
-        
-        if not os.path.isdir(dest_path):
-            os.mkdir(dest_path)
+        tree_root = self.repo[revision].tree
 
-        try:
-            (status, stdout, stderr) = GittyupCommand(cmd1, cwd=self.repo.path, notify=self.notify, cancel=self.get_cancel).execute()
-            (status, stdout, stderr) = GittyupCommand(cmd2, cwd=self.repo.path, notify=self.notify, cancel=self.get_cancel).execute()
-        except GittyupCommandError, e:
-            self.callback_notify(e)
-            stdout = []
-            
+        (mode, sha) = tree_lookup_path(self.repo.object_store.__getitem__,
+                tree_root, path)
+
+        if stat.S_ISDIR(mode):
+            os.mkdir(dest_path)
+        else:
+            with open(dest_path, 'w') as f:
+                f.write(blob.as_raw_string())
+
         self.notify("%s at %s exported to %s" % (path, revision, dest_path))
-        return "\n".join(stdout)      
-    
+
     def clean(self, path, remove_dir=True, remove_ignored_too=False, 
             remove_only_ignored=False, dry_run=False, force=True):
         
@@ -1892,9 +1787,6 @@ class GittyupClient:
     def set_callback_progress_update(self, func):
         self.callback_progress_update = func
 
-    def set_callback_get_user(self, func):
-        self.callback_get_user = func
-    
     def set_callback_get_cancel(self, func):
         self.callback_get_cancel = func
     

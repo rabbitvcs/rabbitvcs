@@ -24,7 +24,7 @@ For subversion:
     subversion >= 1.4.6
 
 For git:
-    dulwich >= 0.6.1
+    dulwich >= 0.9.7
     git
 
 Recommends:
