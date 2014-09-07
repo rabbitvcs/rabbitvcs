@@ -150,7 +150,7 @@ class GitRemotes(InterfaceView):
         dialog.title(label + " Git Remote")
         dialog.resizable(0,0)
         dialog["padx"] = 40
-        dialog["pady"] = 20
+        dialog["pady"] = 15
 
         # Create Name label.
         entryLabel = Label(dialog)
@@ -162,7 +162,7 @@ class GitRemotes(InterfaceView):
         txtName["width"] = 50
         txtName.bind("<Return>", (lambda event: self.onSave(dialog, txtName.get(), txtHost.get(), name)))
         txtName.bind("<KP_Enter>", (lambda event: self.onSave(dialog, txtName.get(), txtHost.get(), name)))
-        txtName.grid(row=0, column=1, columnspan=2)
+        txtName.grid(row=0, column=1, columnspan=60)
         txtName.focus();
 
         # Create Host label.
@@ -175,7 +175,7 @@ class GitRemotes(InterfaceView):
         txtHost["width"] = 50
         txtHost.bind("<Return>", (lambda event: self.onSave(dialog, txtName.get(), txtHost.get(), name)))
         txtHost.bind("<KP_Enter>", (lambda event: self.onSave(dialog, txtName.get(), txtHost.get(), name)))
-        txtHost.grid(row=1, column=1, columnspan=2)
+        txtHost.grid(row=1, column=1, columnspan=60)
 
         # Create OK button.
         button = Button(dialog, width=5, text="OK", command = (lambda: self.onSave(dialog, txtName.get(), txtHost.get(), name)))
@@ -183,7 +183,7 @@ class GitRemotes(InterfaceView):
 
         # Create Cancel button.
         button = Button(dialog, width=5, text="Cancel", command = (lambda: dialog.destroy()))
-        button.grid(row=2, column=2)
+        button.grid(row=2, column=60)
 
         # Set default value, if editing.
         if name:
