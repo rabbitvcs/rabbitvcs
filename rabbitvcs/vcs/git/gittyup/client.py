@@ -965,7 +965,7 @@ class GittyupClient:
     def onUsername(self, window, username, remoteKey, originalRemoteUrl, isOk):
         if isOk == True:
             if username == "":
-                tkMessageBox.showinfo("debug", "Please enter a username.", parent=window)
+                tkMessageBox.showinfo("Error", "Please enter a username.", parent=window)
                 return
             else:
                 # Insert password into url.
@@ -985,7 +985,7 @@ class GittyupClient:
     def onPassword(self, window, password, remoteKey, originalRemoteUrl, isOk):
         if isOk == True:
             if password == "":
-                tkMessageBox.showinfo("debug", "Please enter a password.", parent=window)
+                tkMessageBox.showinfo("Error", "Please enter a password.", parent=window)
                 return
             else:
                 # Insert password into url.
