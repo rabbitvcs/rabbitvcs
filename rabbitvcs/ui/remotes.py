@@ -179,11 +179,11 @@ class GitRemotes(InterfaceView):
 
         # Create OK button.
         button = Button(dialog, width=5, text="OK", command = (lambda: self.onSave(dialog, txtName.get(), txtHost.get(), name)))
-        button.grid(row=2, column=1)
+        button.grid(row=2, column=60)
 
         # Create Cancel button.
         button = Button(dialog, width=5, text="Cancel", command = (lambda: dialog.destroy()))
-        button.grid(row=2, column=60)
+        button.grid(row=2, column=59)
 
         # Set default value, if editing.
         if name:
