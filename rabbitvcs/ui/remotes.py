@@ -59,6 +59,8 @@ class GitRemotes(InterfaceView):
         window.resizable(0,0)
         window["padx"] = 0
         window["pady"] = 0
+        window.bind("<Escape>", (lambda event: window.destroy()))
+        self.window = window
 
         # Create treeview.
         self.treeView = ttk.Treeview(window, show="headings", columns=("Name", "Host"))
@@ -68,9 +70,10 @@ class GitRemotes(InterfaceView):
         self.treeView.heading("Host", text="Host")
         self.treeView.bind("<Delete>", (lambda event: self.onRemove()))
         self.treeView.bind("<Return>", (lambda event: self.onEdit()))
-        self.treeView.bind("<KP_Enter>", self.OnClick)
-        self.treeView.bind("<Double-1>", self.OnClick)
-
+        self.treeView.bind("<Escape>", (lambda event: window.destroy()))
+        self.treeView.bind("<KP_Enter>", self.OnDoubleClick)
+        self.treeView.bind("<Double-1>", self.OnDoubleClick)
+        
         # Setup grid.
         self.treeView.grid(row=0, column=0, columnspan=80)
         
@@ -93,6 +96,9 @@ class GitRemotes(InterfaceView):
         # Load remotes from Git.
         self.load()
 
+        # Position window in center of screen.
+        self.center(window)
+
         # Display window.
         window.mainloop()
 
@@ -104,8 +110,11 @@ class GitRemotes(InterfaceView):
         # Get the selected value.
         name, host = self.getSelectedValues()
 
-        # Display edit dialog.
-        self.dialog(name, host)
+        if name and host:
+            # Display edit dialog.
+            self.dialog(name, host)
+        else:
+            tkMessageBox.showinfo("Error", "Please select a Git remote to edit.", parent=self.window)
 
     def onRemove(self):
         # Get the selected value.
@@ -119,23 +128,35 @@ class GitRemotes(InterfaceView):
 
                 # Reload items in treeview.
                 self.load()
+        else:
+            tkMessageBox.showinfo("Error", "Please select a Git remote to remove.", parent=self.window)
 
     def onSave(self, window, name, host, originalName = None):
-        # Close dialog window.
-        window.destroy()
+        if name and host:
+            # Close dialog window.
+            window.destroy()
 
-        if originalName:
-            # Edit existing remote.
-            self.git.remote_set_url(originalName, host)
-            self.git.remote_rename(originalName, name)
+            if originalName:
+                # Edit existing remote.
+                self.git.remote_set_url(originalName, host)
+                self.git.remote_rename(originalName, name)
+            else:
+                # Save new remote.
+                self.git.remote_add(name, host)
+
+            # Reload items in treeview.
+            self.load()
+
+            # Find the newly added/edited row and select it.
+            for i in self.treeView.get_children():
+                item = self.treeView.item(i)
+                if str(item["values"][0]) == name:
+                    self.treeView.selection_set(i)
+                    break
         else:
-            # Save new remote.
-            self.git.remote_add(name, host)
+            tkMessageBox.showinfo("Error", "Please enter a Git remote name and host url.", parent=window)
 
-        # Reload items in treeview.
-        self.load()
-
-    def OnClick(self, event):
+    def OnDoubleClick(self, event):
         self.onEdit()
 
     def dialog(self, name = None, host = None):
@@ -162,8 +183,9 @@ class GitRemotes(InterfaceView):
         txtName["width"] = 50
         txtName.bind("<Return>", (lambda event: self.onSave(dialog, txtName.get(), txtHost.get(), name)))
         txtName.bind("<KP_Enter>", (lambda event: self.onSave(dialog, txtName.get(), txtHost.get(), name)))
+        txtName.bind("<Escape>", (lambda event: dialog.destroy()))
         txtName.grid(row=0, column=1, columnspan=60)
-        txtName.focus();
+        txtName.focus()
 
         # Create Host label.
         entryLabel2 = Label(dialog)
@@ -175,6 +197,7 @@ class GitRemotes(InterfaceView):
         txtHost["width"] = 50
         txtHost.bind("<Return>", (lambda event: self.onSave(dialog, txtName.get(), txtHost.get(), name)))
         txtHost.bind("<KP_Enter>", (lambda event: self.onSave(dialog, txtName.get(), txtHost.get(), name)))
+        txtHost.bind("<Escape>", (lambda event: dialog.destroy()))
         txtHost.grid(row=1, column=1, columnspan=60)
 
         # Create OK button.
@@ -189,6 +212,9 @@ class GitRemotes(InterfaceView):
         if name:
             txtName.insert(0, name)
             txtHost.insert(0, host)
+
+        # Position window in center of screen.
+        self.center(dialog)
 
         # Show dialog.
         dialog.mainloop()
@@ -205,12 +231,26 @@ class GitRemotes(InterfaceView):
         for remote in self.remote_list:
             self.treeView.insert("", 0, values=(remote["name"], remote["host"]))
 
-    def getSelected(self):
-        # Get id of selected row in treeview.
-        selectedId = self.treeView.selection()[0]
+        # Select the first item.
+        for i in self.treeView.get_children():
+            self.treeView.selection_set(i)
+            self.treeView.focus_set()
+            self.treeView.focus(i)
+            break
 
-        # Get selected item.
-        selectedItem = self.treeView.item(selectedId)
+    def getSelected(self):
+        # Set default return value.
+        selectedItem = None
+
+        # Get current selection.
+        selection = self.treeView.selection()
+
+        if selection:
+            # Get id of selected row in treeview.
+            selectedId = selection[0]
+
+            # Get selected item.
+            selectedItem = self.treeView.item(selectedId)
 
         return selectedItem
 
@@ -218,12 +258,28 @@ class GitRemotes(InterfaceView):
         # Get selected item.
         selectedItem = self.getSelected()
 
-        return str(selectedItem["values"][0]), str(selectedItem["values"][1])
+        if selectedItem:
+            return str(selectedItem["values"][0]), str(selectedItem["values"][1])
+        else:
+            return None, None
+
+    def center(self, window):
+        # Apparently a common hack to get the window size. Temporarily hide the
+        # window to avoid update_idletasks() drawing the window in the wrong
+        # position.
+        window.withdraw()
+        window.update_idletasks()  # Update "requested size" from geometry manager
+
+        x = (window.winfo_screenwidth() - window.winfo_reqwidth()) / 2
+        y = (window.winfo_screenheight() - window.winfo_reqheight()) / 2
+        window.geometry("+%d+%d" % (x, y))
+
+        # This seems to draw the window frame immediately, so only call deiconify()
+        # after setting correct window position
+        window.deiconify()
 
 if __name__ == "__main__":
     from rabbitvcs.ui import main
     (options, paths) = main(usage="Usage: rabbitvcs branch-manager path")
     
     window = GitRemotes(paths[0])
-    window.register_gtk_quit()
-    gtk.main()
