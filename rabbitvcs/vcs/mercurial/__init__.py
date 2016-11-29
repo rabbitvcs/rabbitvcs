@@ -23,6 +23,7 @@
 """
 Concrete VCS implementation for Mercurial functionality.
 """
+from __future__ import absolute_import
 
 import os.path
 from datetime import datetime
@@ -37,6 +38,7 @@ import rabbitvcs.vcs.log
 import rabbitvcs.vcs.mercurial.util
 from rabbitvcs.vcs.branch import BranchEntry
 from rabbitvcs.util.log import Log
+import six
 
 log = Log("rabbitvcs.vcs.mercurial")
 
@@ -60,13 +62,13 @@ class Revision:
 
     def __unicode__(self):
         if self.value:
-            return unicode(self.value)
+            return six.text_type(self.value)
         else:
             return self.kind
             
     def short(self):
         if self.value:
-            return unicode(self.value)[0:7]
+            return six.text_type(self.value)[0:7]
         else:
             return self.kind
 
@@ -243,7 +245,7 @@ class Mercurial:
         st = self.status(path)
         try:
             return st.is_versioned()
-        except Exception, e:
+        except Exception as e:
             log.error(e)
             return False
 

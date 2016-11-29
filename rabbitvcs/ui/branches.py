@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 #
 # This is an extension to the Nautilus file manager to allow better 
 # integration with the Subversion source control system.
@@ -38,9 +39,10 @@ from rabbitvcs.ui.dialog import DeleteConfirmation
 import rabbitvcs.util.helper
 import rabbitvcs.vcs
 
-import xml.sax.saxutils as saxutils
+from xml.sax import saxutils
 
 from rabbitvcs import gettext
+import six
 _ = gettext.gettext
 
 STATE_ADD = 0
@@ -267,7 +269,7 @@ class GitBranchManager(InterfaceView):
         
         revision = "HEAD"
         if self.revision:
-            revision = unicode(self.git.get_active_branch().name)
+            revision = six.text_type(self.git.get_active_branch().name)
 
         self.items_treeview.unselect_all()
         self.branch_entry.set_text("")
@@ -292,7 +294,7 @@ class GitBranchManager(InterfaceView):
 
         if self.selected_branch:
             self.branch_entry.set_text(self.selected_branch.name)
-            self.revision_label.set_text(unicode(self.selected_branch.revision))
+            self.revision_label.set_text(six.text_type(self.selected_branch.revision))
             self.message_label.set_text(self.selected_branch.message.rstrip("\n"))
             if self.selected_branch.tracking:
                 self.checkout_checkbox.set_active(True)

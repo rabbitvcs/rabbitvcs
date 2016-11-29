@@ -25,8 +25,10 @@
 UI layer.
 
 """
+from __future__ import absolute_import
 
 import os
+from six.moves import range
 
 try:
     from gi.repository import GObject as gobject

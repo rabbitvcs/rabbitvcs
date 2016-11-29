@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 #
 # This is an extension to the Nautilus file manager to allow better 
 # integration with the Subversion source control system.
@@ -144,7 +145,7 @@ class Settings(InterfaceView):
             checker_service = session_bus.get_object(
                                     rabbitvcs.services.checkerservice.SERVICE,
                                     rabbitvcs.services.checkerservice.OBJECT_PATH)
-        except dbus.DBusException, ex:
+        except dbus.DBusException as ex:
             if report_failure:
                 rabbitvcs.ui.dialog.MessageBox(CHECKER_SERVICE_ERROR)
         

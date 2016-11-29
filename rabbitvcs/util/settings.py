@@ -25,6 +25,8 @@
 Everything related retrieving and storing configuration keys.
 
 """
+from __future__ import absolute_import
+from __future__ import print_function
 
 import os
 from os.path import dirname
@@ -60,7 +62,7 @@ def get_home_folder():
     # Make sure the directories are there
     if not os.path.isdir(config_home):
         # FIXME: what if somebody places a file in there?
-        os.makedirs(config_home, 0700)
+        os.makedirs(config_home, 0o700)
 
     return config_home
 
@@ -153,7 +155,7 @@ class SettingsManager:
         try:
             returner = self.settings[section][keyword]
         except KeyError:
-            print "Error: section %s:%s doesn't exist" % (section, keyword)
+            print("Error: section %s:%s doesn't exist" % (section, keyword))
 
         return returner
         
@@ -262,7 +264,7 @@ class SettingsManager:
         try:
             returner = DEFAULT_SETTINGS[section][keyword]
         except KeyError:
-            print "Error: section %s:%s doesn't exist" % (section, keyword)
+            print("Error: section %s:%s doesn't exist" % (section, keyword))
             
         return returner
 
@@ -295,7 +297,7 @@ class SettingsManager:
                         created = True
                     except IOError:
                         # Paranoid again?
-                        print "Could not back up user configuration."
+                        print("Could not back up user configuration.")
                         
                     if created:
                         self.settings.reset()

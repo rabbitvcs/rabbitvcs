@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 #
 # This is an extension to the Nautilus file manager to allow better 
 # integration with the Subversion source control system.
@@ -33,6 +34,7 @@ from rabbitvcs.ui.action import SVNAction, GitAction
 import rabbitvcs.vcs
 
 from rabbitvcs import gettext
+import six
 _ = gettext.gettext
 
 class SVNOpen(InterfaceNonView):
@@ -56,7 +58,7 @@ class SVNOpen(InterfaceNonView):
         self.vcs = rabbitvcs.vcs.VCS()
         self.svn = self.vcs.svn()
 
-        if revision and type(revision) in (str, unicode):
+        if revision and type(revision) in (str, six.text_type):
             revision_obj = self.svn.revision("number", number=revision)
         else:
             revision_obj = self.svn.revision("HEAD")
@@ -102,7 +104,7 @@ class GitOpen(InterfaceNonView):
         else:
             revision_obj = self.git.revision("HEAD")
 
-        dest_dir = rabbitvcs.util.helper.get_tmp_path("rabbitvcs-" + unicode(revision))
+        dest_dir = rabbitvcs.util.helper.get_tmp_path("rabbitvcs-" + six.text_type(revision))
         
         self.git.export(
             path,

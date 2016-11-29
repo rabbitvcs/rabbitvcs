@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 #
 # command.py
 #
@@ -7,7 +8,7 @@ import fcntl
 import select
 import os
 
-from exceptions import GittyupCommandError
+from .exceptions import GittyupCommandError
 
 def notify_func(data):
     pass

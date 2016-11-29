@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 # This file was originally obtained from:
 # http://git.gnome.org/cgit/meld/tree/meld/ui/wraplabel.py
 # ...and added here by Jason

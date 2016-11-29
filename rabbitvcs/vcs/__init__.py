@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 #
 # This is an extension to the Nautilus file manager to allow better 
 # integration with the Subversion source control system.
@@ -49,7 +50,7 @@ def guess(path):
         }
         
         while path_to_check != "/" and path_to_check != "":
-            for folder, client in folders.items():
+            for folder, client in list(folders.items()):
                 if os.path.isdir(os.path.join(path_to_check, folder)):
                     cache = {
                         "vcs": client,
@@ -62,7 +63,7 @@ def guess(path):
     path_to_check = "./" + path.split("@")[0]
 
     while path_to_check != "/" and path_to_check != "":
-        for folder, client in folders.items():
+        for folder, client in list(folders.items()):
             if os.path.isdir(os.path.join(path_to_check, folder)):
                 cache = {
                     "vcs": client,
@@ -100,7 +101,7 @@ class VCS:
                 from rabbitvcs.vcs.svn import SVN
                 self.clients[VCS_SVN] = SVN()
                 return self.clients[VCS_SVN]
-            except Exception, e:
+            except Exception as e:
                 logger.debug("Unable to load SVN module: %s" % e)
                 logger.exception(e)
                 self.clients[VCS_SVN] = self.dummy()
@@ -132,7 +133,7 @@ class VCS:
                 
                 self.clients[VCS_GIT] = git
                 return self.clients[VCS_GIT]
-            except Exception, e:
+            except Exception as e:
                 logger.debug("Unable to load Git module: %s" % e)
                 logger.exception(e)
                 self.clients[VCS_GIT] = self.dummy()
@@ -164,7 +165,7 @@ class VCS:
 
                 self.clients[VCS_MERCURIAL] = mercurial
                 return self.clients[VCS_MERCURIAL]
-            except Exception, e:
+            except Exception as e:
                 logger.debug("Unable to load Mercurial module: %s" % e)
                 logger.exception(e)
                 self.clients[VCS_MERCURIAL] = self.dummy()

@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 #
 # This is an extension to the Nautilus file manager to allow better 
 # integration with the Subversion source control system.
@@ -21,7 +22,7 @@
 #
 
 import os.path
-import thread
+import six.moves._thread
 
 import pygtk
 import gobject
@@ -36,6 +37,7 @@ import rabbitvcs.util.helper
 import rabbitvcs.vcs
 
 from rabbitvcs import gettext
+import six
 _ = gettext.gettext
 
 DATETIME_FORMAT = rabbitvcs.util.helper.DT_FORMAT_THISWEEK
@@ -108,8 +110,8 @@ class GitPush(Push):
         """
         
         try:
-            thread.start_new_thread(self.load_logs, ())
-        except Exception, e:
+            six.moves._thread.start_new_thread(self.load_logs, ())
+        except Exception as e:
             log.exception(e)
 
     def load_logs(self):
@@ -160,7 +162,7 @@ class GitPush(Push):
                 remote_log_item = self.remote_log[0]
 
             if (remote_log_item is None or
-                    unicode(remote_log_item.revision) != unicode(item.revision)):
+                    six.text_type(remote_log_item.revision) != six.text_type(item.revision)):
                 self.log_table.append([
                     rabbitvcs.util.helper.format_datetime(item.date),
                     rabbitvcs.util.helper.format_long_text(item.message.rstrip("\n"))

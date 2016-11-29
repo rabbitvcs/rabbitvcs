@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 #!/usr/bin/python
 
 from sys import argv

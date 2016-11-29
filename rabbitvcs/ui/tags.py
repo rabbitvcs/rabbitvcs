@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 #
 # This is an extension to the Nautilus file manager to allow better 
 # integration with the Subversion source control system.
@@ -39,6 +40,7 @@ import rabbitvcs.util.helper
 import rabbitvcs.vcs
 
 from rabbitvcs import gettext
+import six
 _ = gettext.gettext
 
 STATE_ADD = 0
@@ -108,7 +110,7 @@ class GitTagManager(InterfaceView):
         self.start_point_entry.set_size_request(300, -1)
         self.start_point_container = gtk.HBox(False, 0)
         if self.revision_obj.value:
-            self.start_point_entry.set_text(unicode(self.revision_obj))
+            self.start_point_entry.set_text(six.text_type(self.revision_obj))
         self.log_dialog_button = gtk.Button()
         self.log_dialog_button.connect("clicked", self.on_log_dialog_button_clicked)
         image = gtk.Image()

@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 #
 # This is an extension to the Nautilus file manager to allow better 
 # integration with the Subversion source control system.
@@ -33,6 +34,7 @@ from rabbitvcs.util.contextmenuitems import *
 import rabbitvcs.ui.action
 from rabbitvcs.ui.dialog import MessageBox
 from rabbitvcs import gettext
+import six
 _ = gettext.gettext
 
 class Changes(InterfaceView):
@@ -211,8 +213,8 @@ class Changes(InterfaceView):
             rev2 = self.get_second_revision()
             
             rabbitvcs.util.helper.launch_ui_window("diff", [
-                "%s@%s" % (url1, unicode(rev1)),
-                "%s@%s" % (url2, unicode(rev2)),
+                "%s@%s" % (url1, six.text_type(rev1)),
+                "%s@%s" % (url2, six.text_type(rev2)),
                 "%s" % (sidebyside and "-s" or ""),
                 "--vcs=%s" % self.get_vcs_name()
             ])
@@ -229,8 +231,8 @@ class Changes(InterfaceView):
         url2 = self.second_urls.get_active_text()
 
         rabbitvcs.util.helper.launch_ui_window("diff", [
-            "%s@%s" % (url1, unicode(rev1)),
-            "%s@%s" % (url2, unicode(rev2)),
+            "%s@%s" % (url1, six.text_type(rev1)),
+            "%s@%s" % (url2, six.text_type(rev2)),
             "--vcs=%s" % self.get_vcs_name()
         ])
 
@@ -485,7 +487,7 @@ class ChangesContextMenuCallbacks:
         rabbitvcs.util.helper.launch_ui_window("open", [
             "--vcs=%s" % self.caller.get_vcs_name(),
             url,
-            "-r%s" % unicode(rev)            
+            "-r%s" % six.text_type(rev)            
         ])
 
     def open_second(self, widget, data=None):
@@ -498,7 +500,7 @@ class ChangesContextMenuCallbacks:
         rabbitvcs.util.helper.launch_ui_window("open", [
             "--vcs=%s" % self.caller.get_vcs_name(),
             url,
-            "-r%s" % unicode(rev)            
+            "-r%s" % six.text_type(rev)            
         ])
 
     def view_diff(self, widget, data=None):
@@ -518,8 +520,8 @@ class ChangesContextMenuCallbacks:
             rev2 = self.caller.get_second_revision()
             
             rabbitvcs.util.helper.launch_ui_window("diff", [
-                "%s@%s" % (url1, unicode(rev1)), 
-                "%s@%s" % (url2, unicode(rev2)), 
+                "%s@%s" % (url1, six.text_type(rev1)), 
+                "%s@%s" % (url2, six.text_type(rev2)), 
                 "-s",
                 "--vcs=%s" % self.caller.get_vcs_name()
             ])

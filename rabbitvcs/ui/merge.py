@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 #
 # This is an extension to the Nautilus file manager to allow better 
 # integration with the Subversion source control system.
@@ -34,6 +35,7 @@ import rabbitvcs.ui.widget
 import rabbitvcs.util.helper
 
 from rabbitvcs import gettext
+import six
 _ = gettext.gettext
 
 class SVNMerge(InterfaceView):
@@ -540,7 +542,7 @@ class GitMerge(BranchMerge):
                 from_info = log[0]
                 self.info['from']['author'].set_text(from_info.author)
                 self.info['from']['date'].set_text(rabbitvcs.util.helper.format_datetime(from_info.date))
-                self.info['from']['revision'].set_text(unicode(from_info.revision)[0:7])
+                self.info['from']['revision'].set_text(six.text_type(from_info.revision)[0:7])
                 self.info['from']['message'].set_text(cgi.escape(rabbitvcs.util.helper.format_long_text(from_info.message, 500)))
 
     def on_from_branches_changed(self, widget):

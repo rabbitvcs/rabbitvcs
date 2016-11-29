@@ -25,6 +25,7 @@
 All sorts of helper functions.
 
 """
+from __future__ import absolute_import
 
 from collections import deque
 import locale
@@ -39,7 +40,14 @@ import shutil
 import hashlib
 
 import urllib
-import urlparse
+try:
+    import urlparse
+except ImportError:
+    # The urlparse module is renamed to urllib.parse in Python 3. 
+    import urllib.parse as urlparse
+
+from six.moves import filter
+from six.moves import range
 
 try:
     from gi.repository import GObject as gobject
@@ -158,7 +166,7 @@ def in_rich_compare(item, list):
         for thing in list:
             try:
                 in_list = item == thing
-            except AttributeError, e:
+            except AttributeError as e:
                 pass
     
     return in_list
@@ -186,7 +194,7 @@ def get_home_folder():
     # Make sure the directories are there
     if not os.path.isdir(config_home):
         # FIXME: what if somebody places a file in there?
-        os.makedirs(config_home, 0700)
+        os.makedirs(config_home, 0o700)
 
     return config_home
     
@@ -645,7 +653,7 @@ def launch_ui_window(filename, args=[], block=False):
 
     if os.path.exists(path):
         executable = sys.executable
-        if "PYTHON" in os.environ.keys():
+        if "PYTHON" in list(os.environ.keys()):
             executable = os.environ["PYTHON"]
         proc = subprocess.Popen([executable, path] + args, env=env)
 
@@ -892,7 +900,7 @@ def walk_tree_depth_first(tree, show_levels=False,
             else:
                 value = node
             
-            if filter and not filter(value):
+            if filter and not list(filter(value)):
                 continue
             
             if show_levels:

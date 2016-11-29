@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 #
 # This is an extension to the Nautilus file manager to allow better 
 # integration with the Subversion source control system.
@@ -60,13 +61,13 @@ class SVNRevisionProperties(PropertiesBase):
                 self.get_widget("path").get_text(),
                 self.revision_obj
             )
-        except Exception, e:
+        except Exception as e:
             log.exception(e)
             rabbitvcs.ui.dialog.MessageBox(_("Unable to retrieve properties list"))
             self.proplist = {}
         
         if self.proplist:
-            for key,val in self.proplist.items():
+            for key,val in list(self.proplist.items()):
                 self.table.append([False, key,val.rstrip()])
 
     def save(self):

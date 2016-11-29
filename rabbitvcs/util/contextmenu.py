@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+from __future__ import print_function
 #
 # This is an extension to the Nautilus file manager to allow better 
 # integration with the Subversion source control system.
@@ -23,6 +25,7 @@
 import os.path
 from time import sleep
 from collections import deque
+from six.moves import range
 
 try:
     from gi.repository import GObject as gobject
@@ -42,7 +45,7 @@ from rabbitvcs.util.settings import SettingsManager
 import rabbitvcs.util.helper
 
 # Yes, * imports are bad. You write it out then.
-from contextmenuitems import *
+from .contextmenuitems import *
 
 log = Log("rabbitvcs.util.contextmenu")
 _ = gettext.gettext
@@ -640,16 +643,16 @@ class ContextMenuConditions:
             "has_obstructed"                : lambda path: "obstructed" in self.text_statuses
         }
         
-        for key,func in checks.items():
+        for key,func in list(checks.items()):
             self.path_dict[key] = False
 
         # Each path gets tested for each check
         # If a check has returned True for any path, skip it for remaining paths
         for path in paths:
-            for key, func in checks.items():
+            for key, func in list(checks.items()):
                 try:
                     self.path_dict[key] = func(path)
-                except KeyError, e:
+                except KeyError as e:
                     self.path_dict[key] = False
 
     def checkout(self, data=None):
@@ -1079,8 +1082,8 @@ class GtkFilesContextMenuConditions(ContextMenuConditions):
             for status in statuses_tmp:
                 self.statuses[status.path] = status
 
-        self.text_statuses = [self.statuses[key].simple_content_status() for key in self.statuses.keys()]
-        self.prop_statuses = [self.statuses[key].simple_metadata_status() for key in self.statuses.keys()]
+        self.text_statuses = [self.statuses[key].simple_content_status() for key in list(self.statuses.keys())]
+        self.prop_statuses = [self.statuses[key].simple_metadata_status() for key in list(self.statuses.keys())]
         
 class GtkFilesContextMenu:
     """
@@ -1218,8 +1221,8 @@ class MainContextMenuConditions(ContextMenuConditions):
             for status in statuses_tmp:
                 self.statuses[status.path] = status
 
-        self.text_statuses = [self.statuses[key].simple_content_status() for key in self.statuses.keys()]
-        self.prop_statuses = [self.statuses[key].simple_metadata_status() for key in self.statuses.keys()]
+        self.text_statuses = [self.statuses[key].simple_content_status() for key in list(self.statuses.keys())]
+        self.prop_statuses = [self.statuses[key].simple_metadata_status() for key in list(self.statuses.keys())]
 
 class MainContextMenu:
     """
@@ -1371,7 +1374,7 @@ class MainContextMenu:
                 (MenuAbout, None)
             ])
         ]
-        self.structure = filter(None, self.structure)
+        self.structure = [_f for _f in self.structure if _f]
     def get_menu(self):
         pass
 
@@ -1391,14 +1394,14 @@ def TestMenuItemFunctions():
     import inspect
     import types
     
-    import contextmenuitems
+    from . import contextmenuitems
     
     menu_item_subclasses = []
     
     # Let's create a list of all MenuItem subclasses
     for name in dir(contextmenuitems):
         entity = getattr(contextmenuitems, name)
-        if type(entity) == types.ClassType:
+        if type(entity) == type:
             mro = inspect.getmro(entity)
             if (entity is not contextmenuitems.MenuItem and
                 contextmenuitems.MenuItem in mro):
@@ -1423,11 +1426,11 @@ def TestMenuItemFunctions():
     for cls in menu_item_subclasses:
         item = cls(ContextMenuConditions(), ContextMenuCallbacks(None, None, None, None))
         if not item.found_condition:
-            print "Did not find condition function in ContextMenuConditions " \
-                  "for %s (type: %s)" % (item.identifier, cls)
+            print("Did not find condition function in ContextMenuConditions " \
+                  "for %s (type: %s)" % (item.identifier, cls))
         if not item.callback:
-            print "Did not find callback function in ContextMenuCallbacks " \
-                  "for %s (type: %s)" % (item.identifier, cls)
+            print("Did not find callback function in ContextMenuCallbacks " \
+                  "for %s (type: %s)" % (item.identifier, cls))
             
 
 if __name__ == "__main__":

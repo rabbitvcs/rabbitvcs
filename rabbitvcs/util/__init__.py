@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 #
 # This is an extension to the Nautilus file manager to allow better 
 # integration with the Subversion source control system.
@@ -117,7 +118,7 @@ class FunctionQueue:
             
             try:
                 func.start()
-            except Exception, e:
+            except Exception as e:
                 logger.exception()
                 if self._exception:
                     self._exception.set_args(e)

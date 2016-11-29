@@ -8,6 +8,7 @@ Because we're shiny, we use Cairo to do this, and because we're naughty
 we cheat and draw over the bits of the TreeViewColumn that are supposed to
 just be for the background.
 """
+from __future__ import absolute_import
 
 __copyright__ = "Copyright 2005 Canonical Ltd."
 __author__    = "Scott James Remnant <scott@ubuntu.com>"
@@ -50,7 +51,7 @@ class CellRendererGraph(gtk.GenericCellRenderer):
         if property.name == "graph":
             (self.node, self.in_lines, self.out_lines) = value
         else:
-            raise AttributeError, "no such property: '%s'" % property.name
+            raise AttributeError("no such property: '%s'" % property.name)
 
     def box_size(self, widget):
         """Calculate box size based on widget's font.

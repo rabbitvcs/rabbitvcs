@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+from __future__ import print_function
 #
 # test/stage.py
 #
@@ -20,7 +22,7 @@ DIR = "commit"
 if options.cleanup:
     rmtree(DIR, ignore_errors=True)
 
-    print "commit.py clean"
+    print("commit.py clean")
 else:
     if os.path.isdir(DIR):
         raise SystemExit("This test script has already been run.  Please call this script with --cleanup to start again")
@@ -39,4 +41,4 @@ else:
     g.stage([DIR+"/test1.txt"])
     g.commit("Second commit", author="Alex Plumb <alexplumb@gmail.com>")
     
-    print "commit.py pass"
+    print("commit.py pass")

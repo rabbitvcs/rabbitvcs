@@ -27,6 +27,8 @@ TODO
     3.  or figure out a way to use the regular nautilus extension's menu items/logic
     4.  or clean up the current menuitem logic in some other way
 """
+from __future__ import absolute_import
+import six
 
 __version__ = "0.13.beta1"
 
@@ -306,7 +308,7 @@ class RabbitVCS(nautilus.InfoProvider, nautilus.MenuProvider, nautilus.ColumnPro
 
         path = gnomevfs.get_local_path_from_uri(file.get_uri())
 
-        window.set_data("base_dir", os.path.realpath(unicode(path)))
+        window.set_data("base_dir", os.path.realpath(six.text_type(path)))
 
         if not os.path.isdir(os.path.join(path,".svn")):
             items = [     ('NautilusPython::svncheckout_file_item', 'Checkout' , 'Checkout code from an SVN repository', self.OnCheckout, "rabbitvcs-checkout")

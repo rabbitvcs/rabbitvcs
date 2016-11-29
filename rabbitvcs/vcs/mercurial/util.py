@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 #
 # This is an extension to the Nautilus file manager to allow better 
 # integration with the Subversion source control system.
@@ -57,15 +58,15 @@ def relativepath(fromdir, tofile):
     f2dirname = os.path.abspath(fromdir)
     f1parts = splitall(f1dirname)
     f2parts = splitall(f2dirname)
-    if hasdrive and (f1parts[0].lower() <> f2parts[0].lower()):
+    if hasdrive and (f1parts[0].lower() != f2parts[0].lower()):
         "Return absolute path since we are on different drives."
         return f1name
     while f1parts and f2parts:
         if hasdrive:
-            if f1parts[0].lower() <> f2parts[0].lower():
+            if f1parts[0].lower() != f2parts[0].lower():
                 break
         else:
-            if f1parts[0] <> f2parts[0]:
+            if f1parts[0] != f2parts[0]:
                 break
         del f1parts[0]
         del f2parts[0]

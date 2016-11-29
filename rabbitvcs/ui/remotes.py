@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+from __future__ import print_function
 #
 # This is an extension to the Nautilus file manager to allow better 
 # integration with the Subversion source control system.
@@ -109,7 +111,7 @@ class GitRemotes(InterfaceView):
         else:
             (name, host) = self.items_treeview.get_row(row)
             if name and host:
-                print "Adding"
+                print("Adding")
                 self.git.remote_add(name, host)
                 self.load()
 

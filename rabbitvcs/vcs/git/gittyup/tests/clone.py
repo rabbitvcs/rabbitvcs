@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+from __future__ import print_function
 #
 # test/clone.py
 #
@@ -19,7 +21,7 @@ DIR = "clone"
 if options.cleanup:
     rmtree(DIR, ignore_errors=True)
 
-    print "clone.py clean"
+    print("clone.py clean")
 else:
     if os.path.isdir(DIR):
         raise SystemExit("This test script has already been run.  Please call this script with --cleanup to start again")
@@ -28,4 +30,4 @@ else:
     g.clone("git://github.com/adamplumb/sprout.git", DIR)
 
 
-    print "clone.py pass"
+    print("clone.py pass")

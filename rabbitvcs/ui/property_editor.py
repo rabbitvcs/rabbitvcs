@@ -28,6 +28,8 @@ To this effect, changes are applied immediately... no saving lists of changes to
 apply later, no trying to keep track of what was done recursively and what
 wasn't; just do the work and make sure the UI is sensible.
 """
+from __future__ import absolute_import
+from __future__ import print_function
 
 import os.path
 
@@ -140,7 +142,7 @@ class PropEditor(InterfaceView, GtkContextMenuCaller):
         return path.replace("file://", "")
 
     def on_note_box_add(self, *args, **kwargs):
-        print "Added!"
+        print("Added!")
     
     def refresh(self):
         self.table.clear()
@@ -150,11 +152,11 @@ class PropEditor(InterfaceView, GtkContextMenuCaller):
         try:
             propdets = self.svn.propdetails(self.path)
                        
-        except Exception, e:
+        except Exception as e:
             log.exception(e)
             rabbitvcs.ui.dialog.MessageBox(_("Unable to retrieve properties list"))
         
-        for propname, details in propdets.items():
+        for propname, details in list(propdets.items()):
             
             self.table.append(
                 [propname, details["value"], "N/A", details["status"]]
@@ -212,7 +214,7 @@ class PropEditor(InterfaceView, GtkContextMenuCaller):
         propdetails = self.svn.propdetails(self.path)
         
         filtered_details = {}
-        for propname, detail in propdetails.items():
+        for propname, detail in list(propdetails.items()):
             if propname in selected_propnames:
                 filtered_details[propname] = detail
         
@@ -232,17 +234,17 @@ class PropMenuCallbacks:
         self.svn = self.vcs.svn()
 
     def property_edit(self, widget, *args):
-        if self.propdetails.keys():
-            propname  = self.propdetails.keys()[0]
+        if list(self.propdetails.keys()):
+            propname  = list(self.propdetails.keys())[0]
             self.caller.edit_property(propname)
             
     def property_delete(self, widget, *args):
-        for propname in self.propdetails.keys():
+        for propname in list(self.propdetails.keys()):
             self.svn.propdel(self.path, propname, recurse=False)
         self.caller.refresh()
     
     def property_delete_recursive(self, widget, *args):
-        for propname in self.propdetails.keys():
+        for propname in list(self.propdetails.keys()):
             self.svn.propdel(self.path, propname, recurse=True)
         self.caller.refresh()
     
@@ -261,11 +263,11 @@ class PropMenuConditions:
     
     def all_modified(self):
         return all([detail["status"] != "unchanged"
-                       for (propname, detail) in self.propdetails.items()])
+                       for (propname, detail) in list(self.propdetails.items())])
     
     def all_not_deleted(self):
         return all([detail["status"] != "deleted"
-                       for (propname, detail) in self.propdetails.items()])
+                       for (propname, detail) in list(self.propdetails.items())])
     
     def property_revert(self):
         return False
@@ -275,7 +277,7 @@ class PropMenuConditions:
         return self.all_not_deleted()
     
     def property_edit(self):
-        return len(self.propdetails.keys()) == 1
+        return len(list(self.propdetails.keys())) == 1
 
 if __name__ == "__main__":
     # These are some dumb tests before I add any functionality.

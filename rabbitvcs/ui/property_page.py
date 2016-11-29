@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 #
 # This is an extension to the Nautilus file manager to allow better 
 # integration with the Subversion source control system.
@@ -21,6 +22,7 @@
 import os.path
 
 import os
+import six
 if "NAUTILUS_PYTHON_REQUIRE_GTK3" in os.environ and os.environ["NAUTILUS_PYTHON_REQUIRE_GTK3"]:
     from gi.repository import Gtk as gtk
     GTK3 = True
@@ -75,7 +77,7 @@ class PropertyPage(rabbitvcs.ui.GtkBuilderWidgetWrapper):
                                         expand=False,
                                         fill=False,
                                         padding=0)
-            except Exception, ex:
+            except Exception as ex:
                 log.exception(ex)
                 raise
                    
@@ -101,8 +103,8 @@ class FileInfoPane(rabbitvcs.ui.GtkBuilderWidgetWrapper):
 
         self.get_widget("vcs_type").set_text(self.status.vcs_type)
         
-        self.get_widget("content_status").set_text(unicode(self.status.simple_content_status()))
-        self.get_widget("prop_status").set_text(unicode(self.status.simple_metadata_status()))
+        self.get_widget("content_status").set_text(six.text_type(self.status.simple_content_status()))
+        self.get_widget("prop_status").set_text(six.text_type(self.status.simple_metadata_status()))
         
 
         self.set_icon_from_status(self.get_widget("content_status_icon"),

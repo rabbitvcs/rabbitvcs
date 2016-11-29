@@ -1,3 +1,6 @@
+from __future__ import absolute_import
+import six
+from six.moves import range
 #
 # This is an extension to the Nautilus file manager to allow better 
 # integration with the Subversion source control system.
@@ -282,13 +285,13 @@ class TableBase:
         
         """
         
-        from renderers.graphcell import CellRendererGraph
+        from .renderers.graphcell import CellRendererGraph
 
-        if not flags.has_key("sortable"):
+        if "sortable" not in flags:
             flags["sortable"] = False
-        if not flags.has_key("sort_on"):
+        if "sort_on" not in flags:
             flags["sort_on"] = -1
-        if not flags.has_key("editable"):
+        if "editable" not in flags:
             flags["editable"] = ()
     
         self.treeview = treeview
@@ -326,7 +329,7 @@ class TableBase:
                 cellpb.set_property('yalign', 0)
                 col.pack_start(cellpb, False)
                 data = None
-                if callbacks.has_key("file-column-callback"):
+                if "file-column-callback" in callbacks:
                     data = {
                         "callback": callbacks["file-column-callback"],
                         "column": i
@@ -615,7 +618,7 @@ class TableBase:
         for row in self.data:
             line = []
             for cell in row:
-                line.append(unicode(cell))
+                line.append(six.text_type(cell))
             lines.append("\t".join(line))
         
         return "\n".join(lines)
@@ -708,7 +711,7 @@ class TableBase:
         
         status = self.data[real_path][colnum]
         
-        if status not in STATUS_EMBLEMS.keys():
+        if status not in list(STATUS_EMBLEMS.keys()):
             status = "error"
              
         icon = "emblem-" + STATUS_EMBLEMS[status]
@@ -850,7 +853,7 @@ class TextView:
         if HAS_GTKSPELL and spellcheck:
             try:
                 gtkspell.Spell(self.view)
-            except Exception, e:
+            except Exception as e:
                 log.exception(e)
         
     def get_text(self):

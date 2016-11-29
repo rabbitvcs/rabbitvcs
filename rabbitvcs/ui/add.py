@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 #
 # This is an extension to the Nautilus file manager to allow better
 # integration with the Subversion source control system.
@@ -21,7 +22,7 @@
 #
 
 import os
-import thread
+import six.moves._thread
 from time import sleep
 
 import pygtk
@@ -147,8 +148,8 @@ class Add(InterfaceView, GtkContextMenuCaller):
         """
 
         try:
-            thread.start_new_thread(self.load, ())
-        except Exception, e:
+            six.moves._thread.start_new_thread(self.load, ())
+        except Exception as e:
             log.exception(e)
 
     def delete_items(self, widget, data=None):

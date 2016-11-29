@@ -24,6 +24,7 @@
 Unit tests for the top-level rabbitvcs package.
 
 """
+from __future__ import absolute_import
 
 # make sure the current working copy is in sys.path before anything else
 from os.path import abspath, dirname, join, normpath
@@ -34,7 +35,7 @@ sys.path.insert(0, toplevel)
 from unittest import TestCase, main
 import traceback
 
-import nautilus
+from . import nautilus
 import pysvn
 import rabbitvcs
 from rabbitvcs.util.extensions.nautilus import RabbitVCS

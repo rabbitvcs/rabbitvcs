@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+from __future__ import print_function
 #!/usr/bin/env python
 
 # If you didn't know already, this is a Python distutils setup script. It borrows
@@ -160,7 +162,7 @@ dist = setup(
 if sys.argv[1] == "install":
 
     if os.uname()[0] != 'Darwin':
-        print "Running gtk-update-icon-cache-3.0"
+        print("Running gtk-update-icon-cache-3.0")
         
         subprocess.Popen(
             ["gtk-update-icon-cache-3.0", icon_theme_directory], 

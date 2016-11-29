@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 #
 # This is an extension to the Nautilus file manager to allow better 
 # integration with the Subversion source control system.
@@ -21,7 +22,7 @@
 #
 
 import os
-import thread
+import six.moves._thread
 
 import pygtk
 import gobject
@@ -166,8 +167,8 @@ class Commit(InterfaceView, GtkContextMenuCaller):
         """
         
         try:
-            thread.start_new_thread(self.load, ())
-        except Exception, e:
+            six.moves._thread.start_new_thread(self.load, ())
+        except Exception as e:
             log.exception(e)
 
     def show_files_table_popup_menu(self, treeview, data):
@@ -300,7 +301,7 @@ class SVNCommit(Commit):
                 elif status == rabbitvcs.vcs.status.status_missing:
                     self.vcs.svn().update(item)
                     self.vcs.svn().remove(item)
-            except Exception, e:
+            except Exception as e:
                 log.exception(e)
 
         ticks = added + len(items)*2
@@ -358,7 +359,7 @@ class GitCommit(Commit):
                 else:
                     self.git.stage(item)
                     staged += 1
-            except Exception, e:
+            except Exception as e:
                 log.exception(e)
 
         ticks = staged + len(items)*2
@@ -421,7 +422,7 @@ class MercurialCommit(Commit):
                 else:
                     self.mercurial.add(item)
                     staged += 1
-            except Exception, e:
+            except Exception as e:
                 log.exception(e)
 
         ticks = staged + len(items)*2

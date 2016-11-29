@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 #
 # This is an extension to the Nautilus file manager to allow better 
 # integration with the Subversion source control system.
@@ -785,7 +786,7 @@ class RabbitVCSAction(gtk.Action):
         if self.stock_id:
             try:
                 self.set_icon_name(self.stock_id)
-            except AttributeError, e:
+            except AttributeError as e:
                 menu_item.set_image(gtk.image_new_from_icon_name(self.stock_id, gtk.ICON_SIZE_MENU))
 
         if self.sub_actions is not None:

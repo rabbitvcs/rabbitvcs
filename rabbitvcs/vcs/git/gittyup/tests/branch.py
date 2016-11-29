@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+from __future__ import print_function
 #
 # test/stage.py
 #
@@ -19,7 +21,7 @@ DIR = "branch"
 if options.cleanup:
     rmtree(DIR, ignore_errors=True)
 
-    print "branch.py clean"
+    print("branch.py clean")
 else:
     if os.path.isdir(DIR):
         raise SystemExit("This test script has already been run.  Please call this script with --cleanup to start again")
@@ -59,4 +61,4 @@ else:
     # Make sure we are now tracking master
     assert (g.is_tracking("refs/heads/master"))
 
-    print "branch.py pass"
+    print("branch.py pass")

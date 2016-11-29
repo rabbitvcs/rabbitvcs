@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 #
 # This is an extension to the Nautilus file manager to allow better 
 # integration with the Subversion source control system.
@@ -20,7 +21,7 @@
 # along with RabbitVCS;  If not, see <http://www.gnu.org/licenses/>.
 #
 
-import thread
+import six.moves._thread
 
 import os
 import pygtk
@@ -102,8 +103,8 @@ class SVNLock(InterfaceView, GtkContextMenuCaller):
         """
         
         try:
-            thread.start_new_thread(self.load, ())
-        except Exception, e:
+            six.moves._thread.start_new_thread(self.load, ())
+        except Exception as e:
             log.exception(e)
 
     def load(self):

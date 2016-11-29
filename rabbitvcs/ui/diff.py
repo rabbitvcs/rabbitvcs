@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 #
 # This is an extension to the Nautilus file manager to allow better 
 # integration with the Subversion source control system.
@@ -20,7 +21,7 @@
 # along with RabbitVCS;  If not, see <http://www.gnu.org/licenses/>.
 #
 
-import thread
+import six.moves._thread
 
 import pygtk
 import gobject
@@ -106,8 +107,8 @@ class SVNDiff(Diff):
         self.revision2 = self.get_revision_object(revision2, "working")
 
         try:
-            thread.start_new_thread(self.launch, ())
-        except Exception, e:
+            six.moves._thread.start_new_thread(self.launch, ())
+        except Exception as e:
             log.exception(e)
         
         self.start_loading()
@@ -207,8 +208,8 @@ class GitDiff(Diff):
         self.revision2 = self.get_revision_object(revision2, "WORKING")
 
         try:
-            thread.start_new_thread(self.launch, ())
-        except Exception, e:
+            six.moves._thread.start_new_thread(self.launch, ())
+        except Exception as e:
             log.exception(e)
         
         self.start_loading()
@@ -236,7 +237,7 @@ class GitDiff(Diff):
         file = open(path, "wb")
         try:
             file.write(data)
-        except Exception, e:
+        except Exception as e:
             log.exception(e)
         finally:
             file.close()

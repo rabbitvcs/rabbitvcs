@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 #
 # This is an extension to the Nautilus file manager to allow better 
 # integration with the Subversion source control system.
@@ -28,6 +29,7 @@ from datetime import datetime
 import rabbitvcs.vcs
 
 from rabbitvcs.util.log import Log
+from six.moves import range
 
 log = Log("rabbitvcs.vcs.status")
 
@@ -92,13 +94,13 @@ class StatusCache(object):
 
             try:
                 author_index = self.authors.index(status.author)
-            except ValueError, e:
+            except ValueError as e:
                 self.authors.append(status.author)
                 author_index = len(self.authors) -1
 
             try:
                 revision_index = self.revisions.index(status.revision)
-            except ValueError, e:
+            except ValueError as e:
                 self.revisions.append(status.revision)
                 revision_index = len(self.revisions) -1
             
@@ -109,7 +111,7 @@ class StatusCache(object):
                 author_index,
                 status.date
             )
-        except Exception, e:
+        except Exception as e:
             log.debug(e)
             
     def __getitem__(self, path):
@@ -123,13 +125,13 @@ class StatusCache(object):
             
             return Status(path, content, metadata, revision=revision, 
                 author=author, date=date)
-        except Exception, e:
+        except Exception as e:
             log.debug(e)
 
     def __delitem__(self, path):
         try:
             del self.cache[path]
-        except KeyError, e:
+        except KeyError as e:
             log.debug(e)
 
             
@@ -139,7 +141,7 @@ class StatusCache(object):
     def find_path_statuses(self, path):
         statuses = []
         if os.path.isdir(path):
-            for key, value in self.cache.items():
+            for key, value in list(self.cache.items()):
                 if key.startswith(path):
                     statuses.append(self.__getitem__(key))
         else:

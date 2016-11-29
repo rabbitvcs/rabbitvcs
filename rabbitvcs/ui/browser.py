@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 #
 # This is an extension to the Nautilus file manager to allow better 
 # integration with the Subversion source control system.
@@ -21,7 +22,7 @@
 #
 
 import os.path
-import thread
+import six.moves._thread
 
 import pygtk
 import gobject

@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+from __future__ import print_function
 #
 # test/stage.py
 #
@@ -20,7 +22,7 @@ DIR = "remove"
 if options.cleanup:
     rmtree(DIR, ignore_errors=True)
 
-    print "remove.py clean"
+    print("remove.py clean")
 else:
     if os.path.isdir(DIR):
         raise SystemExit("This test script has already been run.  Please call this script with --cleanup to start again")
@@ -53,4 +55,4 @@ else:
     assert (not g.is_staged(DIR+"/test.txt"))
     assert (st[0] == NormalStatus)
     
-    print "remove.py pass"
+    print("remove.py pass")

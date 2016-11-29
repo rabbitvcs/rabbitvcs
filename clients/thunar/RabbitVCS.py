@@ -25,6 +25,7 @@ Our module for everything related to the Thunar extension.
 """
 
 from __future__ import with_statement
+from __future__ import absolute_import
 import copy
 import os.path
 from os.path import isdir, isfile, realpath, basename
@@ -48,6 +49,7 @@ from rabbitvcs.util.decorators import timeit, disable
 from rabbitvcs.util.contextmenu import MainContextMenu, SEPARATOR
 
 from rabbitvcs.util.log import Log, reload_log_settings
+import six
 log = Log("rabbitvcs.util.extensions.thunarx.RabbitVCS")
 
 from rabbitvcs import gettext
@@ -176,7 +178,7 @@ class RabbitVCS(thunarx.MenuProvider, thunarx.PropertyPageProvider):
         paths = []
         for item in items:
             if self.valid_uri(item.get_uri()):
-                path = realpath(unicode(self.get_local_path(item), "utf-8"))
+                path = realpath(six.text_type(self.get_local_path(item), "utf-8"))
                 paths.append(path)
                 self.nautilusVFSFile_table[path] = item
 
@@ -203,7 +205,7 @@ class RabbitVCS(thunarx.MenuProvider, thunarx.PropertyPageProvider):
         """
         
         if not self.valid_uri(item.get_uri()): return
-        path = realpath(unicode(self.get_local_path(item), "utf-8"))
+        path = realpath(six.text_type(self.get_local_path(item), "utf-8"))
         self.nautilusVFSFile_table[path] = item
         
         # log.debug("get_background_items() called")
@@ -307,7 +309,7 @@ class RabbitVCS(thunarx.MenuProvider, thunarx.PropertyPageProvider):
         paths = []
         for item in items:
             if self.valid_uri(item.get_uri()):
-                path = realpath(unicode(self.get_local_path(item), "utf-8"))
+                path = realpath(six.text_type(self.get_local_path(item), "utf-8"))
                 paths.append(path)
                 self.nautilusVFSFile_table[path] = item
 

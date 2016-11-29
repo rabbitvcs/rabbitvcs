@@ -26,6 +26,9 @@ Our module for everything related to the Nautilus extension.
 
 """
 from __future__ import with_statement
+from __future__ import absolute_import
+import six
+from six.moves import range
 
 def log_all_exceptions(type, value, tb):
     import sys, traceback
@@ -40,7 +43,7 @@ def log_all_exceptions(type, value, tb):
     try:
         import rabbitvcs.ui.dialog
         rabbitvcs.ui.dialog.ErrorNotification(text)
-    except Exception, ex:
+    except Exception as ex:
         log.exception("Additional exception when attempting"
                       " to display error dialog.")
         log.exception(ex)
@@ -287,7 +290,7 @@ class RabbitVCS(Nemo.InfoProvider, Nemo.MenuProvider,
         status = None
         # Could replace with (st for st in self.... if st.path ...).next()
         # Need to catch exception
-        for idx in xrange(len(self.statuses_from_callback)):
+        for idx in range(len(self.statuses_from_callback)):
             found = (self.statuses_from_callback[idx].path) == path
             if found: break
 
@@ -340,7 +343,7 @@ class RabbitVCS(Nemo.InfoProvider, Nemo.MenuProvider,
             "age": age
         }
 
-        for key, value in values.items():
+        for key, value in list(values.items()):
             item.add_string_attribute(key, value)
 
     def update_status(self, item, path, status):
@@ -424,7 +427,7 @@ class RabbitVCS(Nemo.InfoProvider, Nemo.MenuProvider,
         import cProfile
         import rabbitvcs.util.helper
         
-        path = unicode(gnomevfs.get_local_path_from_uri(item.get_uri()),
+        path = six.text_type(gnomevfs.get_local_path_from_uri(item.get_uri()),
                        "utf-8").replace("/", ":")
         
         profile_data_file = os.path.join(
