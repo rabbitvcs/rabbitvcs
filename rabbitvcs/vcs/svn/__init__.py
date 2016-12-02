@@ -1215,7 +1215,7 @@ class SVN:
         return returner
 
     def export(self, src_url_or_path, dest_path, revision=Revision("head"),
-            recurse=True, ignore_externals=False, force=False, native_eol=None):
+            recurse=True, ignore_externals=False, force=False, native_eol=None, silent_fail=False):
 
         """
         Export files from either a working copy or repository into a local
@@ -1236,13 +1236,20 @@ class SVN:
         @type   recurse: boolean
         @param  recurse: Whether or not to run a recursive checkout.
 
+        @type   silent_fail: boolean
+        @param  silent_fail: If export fails, simply return None
+
         """
         revision=Revision("head")
 
-
-
-        return self.client.export(src_url_or_path, dest_path, force,
-            revision.primitive(), native_eol, ignore_externals, recurse)
+        try:
+            return self.client.export(src_url_or_path, dest_path, force,
+                revision.primitive(), native_eol, ignore_externals, recurse)
+        except pysvn.ClientError, e:
+            if silent_fail:
+                return None
+            else:
+                raise e
 
     def import_(self, path, url, log_message, ignore=False):
 
