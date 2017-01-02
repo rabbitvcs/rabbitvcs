@@ -61,4 +61,4 @@ Most likely it is located at `/usr/lib/pymodules/python2.7/rabbitvcs`. In case o
 
 References
 ----------
-Homepage: http://www.rabbitvcs.org
+Homepage: http://rabbitvcs.org
