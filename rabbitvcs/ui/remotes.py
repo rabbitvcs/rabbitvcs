@@ -37,129 +37,249 @@ from rabbitvcs.ui.dialog import DeleteConfirmation
 import rabbitvcs.util.helper
 import rabbitvcs.vcs
 
+from Tkinter import *
+import ttk
+import tkMessageBox
+
 from rabbitvcs import gettext
 _ = gettext.gettext
-
-STATE_ADD = 0
-STATE_EDIT = 1
 
 class GitRemotes(InterfaceView):
     """
     Provides a UI interface to manage items
-    
     """
     
-    state = STATE_ADD
-    
     def __init__(self, path):
-        InterfaceView.__init__(self, "manager", "Manager")
         self.vcs = rabbitvcs.vcs.VCS()
         self.git = self.vcs.git(path)
-        
-        self.get_widget("Manager").set_title(_("Remote Repository Manager"))
-        self.get_widget("items_label").set_markup(_("<b>Remote Repositories</b>"))
-        
-        self.selected_branch = None
-        self.items_treeview = rabbitvcs.ui.widget.Table(
-            self.get_widget("items_treeview"),
-            [gobject.TYPE_STRING, gobject.TYPE_STRING], 
-            [_("Name"), _("Host")],
-            callbacks={
-                "mouse-event":   self.on_treeview_mouse_event,
-                "key-event":     self.on_treeview_key_event,
-                "cell-edited":   self.on_treeview_cell_edited_event
-            },
-            flags={
-                "sortable": True,
-                "sort_on": 0,
-                "editable": [0,1]
-            }
-        )
 
+        # Create main window.
+        window = Tk()
+        window.title("Remote Repository Manager")
+        window.resizable(0,0)
+        window["padx"] = 0
+        window["pady"] = 0
+        window.bind("<Escape>", (lambda event: window.destroy()))
+        self.window = window
+
+        # Create treeview.
+        self.treeView = ttk.Treeview(window, show="headings", columns=("Name", "Host"))
+        self.treeView.column("Name", width=200)
+        self.treeView.column("Host", width=500)
+        self.treeView.heading("Name", text="Name")
+        self.treeView.heading("Host", text="Host")
+        self.treeView.bind("<Delete>", (lambda event: self.onRemove()))
+        self.treeView.bind("<Return>", (lambda event: self.onEdit()))
+        self.treeView.bind("<Escape>", (lambda event: window.destroy()))
+        self.treeView.bind("<KP_Enter>", self.OnDoubleClick)
+        self.treeView.bind("<Double-1>", self.OnDoubleClick)
+        
+        # Setup grid.
+        self.treeView.grid(row=0, column=0, columnspan=80)
+        
+        # Create Add button.
+        button = Button(window, width=5, text="Add", command = (lambda: self.onAdd()))
+        button.grid(row=1, column=0)
+
+        # Create Edit button.
+        button = Button(window, width=5, text="Edit", command = (lambda: self.onEdit()))
+        button.grid(row=1, column=1)
+
+        # Create Remove button.
+        button = Button(window, width=5, text="Remove", command = (lambda: self.onRemove()))
+        button.grid(row=1, column=2)
+
+        # Create Close button.
+        button = Button(window, width=5, text="Close", command = (lambda: window.destroy()))
+        button.grid(row=1, column=79)
+
+        # Load remotes from Git.
         self.load()
-        
-    def load(self):
-        self.items_treeview.clear()
 
-        self.remote_list = self.git.remote_list()
-        for remote in self.remote_list:
-            self.items_treeview.append([remote["name"], remote["host"]])
+        # Position window in center of screen.
+        self.center(window)
 
-    def save(self, row, column, data):
-        row = int(row)
-        
-        if row in self.remote_list:
-            remote = self.remote_list[int(row)]
-            
-            name = remote["name"]
-            if column == 0:
-                name = data
+        # Display window.
+        window.mainloop()
 
-            host = remote["host"]
-            if column == 1:
-                host = data
-            
-            if name != remote["name"]:
-                self.git.remote_rename(remote["name"], name)
-            
-            if host != remote["host"]:
-                self.git.remote_set_url(remote["name"], host)
+    def onAdd(self):
+        # Display add dialog.
+        self.dialog()
 
-            self.load()
+    def onEdit(self):
+        # Get the selected value.
+        name, host = self.getSelectedValues()
+
+        if name and host:
+            # Display edit dialog.
+            self.dialog(name, host)
         else:
-            (name, host) = self.items_treeview.get_row(row)
-            if name and host:
-                print "Adding"
-                self.git.remote_add(name, host)
+            tkMessageBox.showinfo("Error", "Please select a Git remote to edit.", parent=self.window)
+
+    def onRemove(self):
+        # Get the selected value.
+        name, host = self.getSelectedValues()
+
+        # Show a confirm prompt to delete the Git remote.
+        if name:
+            if tkMessageBox.askyesno("Delete Remote", "Are you sure you want to delete \"" + name + "\"?"):
+                # Delete the Git remote.
+                self.git.remote_delete(name)
+
+                # Reload items in treeview.
                 self.load()
+        else:
+            tkMessageBox.showinfo("Error", "Please select a Git remote to remove.", parent=self.window)
 
-    def on_add_clicked(self, widget):
-        self.show_add()
+    def onSave(self, window, name, host, originalName = None):
+        if name and host:
+            # Close dialog window.
+            window.destroy()
 
-    def on_delete_clicked(self, widget):
-        selected = self.items_treeview.get_selected_row_items(0)
-    
-        confirm = rabbitvcs.ui.dialog.Confirmation(_("Are you sure you want to delete %s?" % ", ".join(selected)))
-        result = confirm.run()
-        
-        if result == gtk.RESPONSE_OK or result == True:
-            for remote in selected:
-                self.git.remote_delete(remote)
-            
+            if originalName:
+                # Edit existing remote.
+                self.git.remote_set_url(originalName, host)
+                self.git.remote_rename(originalName, name)
+            else:
+                # Save new remote.
+                self.git.remote_add(name, host)
+
+            # Reload items in treeview.
             self.load()
 
-    def on_treeview_key_event(self, treeview, data=None):
-        if gtk.gdk.keyval_name(data.keyval) in ("Up", "Down", "Return"):
-            self.on_treeview_event(treeview, data)
+            # Find the newly added/edited row and select it.
+            for i in self.treeView.get_children():
+                item = self.treeView.item(i)
+                if str(item["values"][0]) == name:
+                    self.treeView.selection_set(i)
+                    break
+        else:
+            tkMessageBox.showinfo("Error", "Please enter a Git remote name and host url.", parent=window)
 
-    def on_treeview_mouse_event(self, treeview, data=None):
-        self.on_treeview_event(treeview, data)
+    def OnDoubleClick(self, event):
+        self.onEdit()
 
-    def on_treeview_cell_edited_event(self, cell, row, data, column):
-        self.items_treeview.set_row_item(row, column, data)
-        self.save(row, column, data)
+    def dialog(self, name = None, host = None):
+        label = "Add"
+        if name:
+            label = "Edit"
 
-    def on_treeview_event(self, treeview, data):
-        selected = self.items_treeview.get_selected_row_items(0)
-        if len(selected) > 0:
-            if len(selected) == 1:
-                self.show_edit(selected[0])
-            self.get_widget("delete").set_sensitive(True)
+        # Create add dialog.
+        dialog = Tk()
 
-    def show_add(self):
-        self.state = STATE_ADD
-        self.items_treeview.unselect_all()
-        
-        self.items_treeview.append(["", ""])
-        self.items_treeview.focus(1, 0)
-    
-    def show_edit(self, remote_name):
-        self.state = STATE_EDIT
+        # Setup add dialog.
+        dialog.title(label + " Git Remote")
+        dialog.resizable(0,0)
+        dialog["padx"] = 40
+        dialog["pady"] = 15
+
+        # Create Name label.
+        entryLabel = Label(dialog)
+        entryLabel["text"] = "Name:"
+        entryLabel.grid(row=0, column=0)
+
+        # Create Name textbox.
+        txtName = Entry(dialog)
+        txtName["width"] = 50
+        txtName.bind("<Return>", (lambda event: self.onSave(dialog, txtName.get(), txtHost.get(), name)))
+        txtName.bind("<KP_Enter>", (lambda event: self.onSave(dialog, txtName.get(), txtHost.get(), name)))
+        txtName.bind("<Escape>", (lambda event: dialog.destroy()))
+        txtName.grid(row=0, column=1, columnspan=60)
+        txtName.focus()
+
+        # Create Host label.
+        entryLabel2 = Label(dialog)
+        entryLabel2["text"] = "Host:"
+        entryLabel2.grid(row=1, column=0)
+
+        # Create Host textbox.
+        txtHost = Entry(dialog)
+        txtHost["width"] = 50
+        txtHost.bind("<Return>", (lambda event: self.onSave(dialog, txtName.get(), txtHost.get(), name)))
+        txtHost.bind("<KP_Enter>", (lambda event: self.onSave(dialog, txtName.get(), txtHost.get(), name)))
+        txtHost.bind("<Escape>", (lambda event: dialog.destroy()))
+        txtHost.grid(row=1, column=1, columnspan=60)
+
+        # Create OK button.
+        button = Button(dialog, width=5, text="OK", command = (lambda: self.onSave(dialog, txtName.get(), txtHost.get(), name)))
+        button.grid(row=2, column=60)
+
+        # Create Cancel button.
+        button = Button(dialog, width=5, text="Cancel", command = (lambda: dialog.destroy()))
+        button.grid(row=2, column=59)
+
+        # Set default value, if editing.
+        if name:
+            txtName.insert(0, name)
+            txtHost.insert(0, host)
+
+        # Position window in center of screen.
+        self.center(dialog)
+
+        # Show dialog.
+        dialog.mainloop()
+
+    def load(self):
+        # Clear items from treeview.
+        for i in self.treeView.get_children():
+            self.treeView.delete(i)
+
+        # Get list of git remote hosts.
+        self.remote_list = self.git.remote_list()
+
+        # Insert each remote into the treeview.
+        for remote in self.remote_list:
+            self.treeView.insert("", 0, values=(remote["name"], remote["host"]))
+
+        # Select the first item.
+        for i in self.treeView.get_children():
+            self.treeView.selection_set(i)
+            self.treeView.focus_set()
+            self.treeView.focus(i)
+            break
+
+    def getSelected(self):
+        # Set default return value.
+        selectedItem = None
+
+        # Get current selection.
+        selection = self.treeView.selection()
+
+        if selection:
+            # Get id of selected row in treeview.
+            selectedId = selection[0]
+
+            # Get selected item.
+            selectedItem = self.treeView.item(selectedId)
+
+        return selectedItem
+
+    def getSelectedValues(self):
+        # Get selected item.
+        selectedItem = self.getSelected()
+
+        if selectedItem:
+            return str(selectedItem["values"][0]), str(selectedItem["values"][1])
+        else:
+            return None, None
+
+    def center(self, window):
+        # Apparently a common hack to get the window size. Temporarily hide the
+        # window to avoid update_idletasks() drawing the window in the wrong
+        # position.
+        window.withdraw()
+        window.update_idletasks()  # Update "requested size" from geometry manager
+
+        x = (window.winfo_screenwidth() - window.winfo_reqwidth()) / 2
+        y = (window.winfo_screenheight() - window.winfo_reqheight()) / 2
+        window.geometry("+%d+%d" % (x, y))
+
+        # This seems to draw the window frame immediately, so only call deiconify()
+        # after setting correct window position
+        window.deiconify()
 
 if __name__ == "__main__":
     from rabbitvcs.ui import main
     (options, paths) = main(usage="Usage: rabbitvcs branch-manager path")
     
     window = GitRemotes(paths[0])
-    window.register_gtk_quit()
-    gtk.main()
