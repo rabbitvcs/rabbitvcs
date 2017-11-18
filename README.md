@@ -14,7 +14,7 @@ System Requirements
 * python-simplejson >= 2.1.1
 
 For spell checking of commit messages:
-* python-gtkspell
+* python-gtkspell (newer versions of ubuntu, this is called python-gtkspellcheck)
 
 For subversion:
 * python-svn >= 1.7.2
@@ -23,7 +23,7 @@ For subversion:
 For git:
 * dulwich >= 0.9.7
 * git
-* tkinter (for now)
+* tkinter (for now, newer versions of ubuntu this is called python-tk)
 
 Recommends:
 * meld (graphical diff tool)
@@ -32,6 +32,11 @@ Recommends:
 For Debian-based distros you can run: 
 ```
 # apt-get install python-gtk2 python-configobj python-gobject python-simplejson python-gtkspell python-svn subversion python-dulwich git meld tkinter
+```
+
+For newer versions of Ubuntu where package names are slightly different:
+```
+# apt-get install python-gtk2 python-configobj python-gobject python-simplejson python-gtkspellcheck python-svn subversion python-dulwich git meld python-tk
 ```
 
 For Fedora-based distros you can run:
