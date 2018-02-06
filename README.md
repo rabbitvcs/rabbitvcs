@@ -31,11 +31,6 @@ Recommends:
 
 For Debian-based distros you can run: 
 ```
-# apt-get install python-gtk2 python-configobj python-gobject python-simplejson python-gtkspell python-svn subversion python-dulwich git meld tkinter
-```
-
-For newer versions of Ubuntu where package names are slightly different:
-```
 # apt-get install python-gtk2 python-configobj python-gobject python-simplejson python-gtkspellcheck python-svn subversion python-dulwich git meld python-tk
 ```
 
