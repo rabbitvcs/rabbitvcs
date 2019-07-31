@@ -31,6 +31,7 @@ from rabbitvcs.ui.action import SVNAction
 import rabbitvcs.vcs
 import rabbitvcs.ui.widget
 from rabbitvcs.util import helper
+from rabbitvcs.util.strings import S
 
 from rabbitvcs import gettext
 _ = gettext.gettext
@@ -257,7 +258,7 @@ class SVNMerge(InterfaceView):
                 next = 1
                 self.type = "range"
                 if self.revision_range:
-                    self.get_widget("mergerange_revisions").set_text(self.revision_range)
+                    self.get_widget("mergerange_revisions").set_text(S(self.revision_range).display())
             elif self.get_widget("mergetype_tree_opt").get_active():
                 next = 2
                 self.type = "tree"
@@ -280,7 +281,7 @@ class SVNMerge(InterfaceView):
                 self.repo_paths
             )
             self.mergerange_repos.set_child_text(self.root_url)
-            self.get_widget("mergerange_working_copy").set_text(self.path)
+            self.get_widget("mergerange_working_copy").set_text(S(self.path).display())
 
         self.mergerange_check_ready()
 
@@ -298,7 +299,7 @@ class SVNMerge(InterfaceView):
 
     def on_mergerange_log1_closed(self, data):
         if not data is None:
-            self.get_widget("mergerange_revisions").set_text(data)
+            self.get_widget("mergerange_revisions").set_text(S(data).display())
 
     def on_mergerange_from_urls_changed(self, widget):
         self.mergerange_check_ready()
@@ -329,7 +330,7 @@ class SVNMerge(InterfaceView):
                 self.repo_paths
             )
             self.merge_reintegrate_repos.cb.connect("changed", self.on_merge_reintegrate_from_urls_changed)
-            self.get_widget("merge_reintegrate_working_copy").set_text(self.path)
+            self.get_widget("merge_reintegrate_working_copy").set_text(S(self.path).display())
 
         if not hasattr(self, "merge_reintegrate_revision"):
             self.merge_reintegrate_revision = rabbitvcs.ui.widget.RevisionSelector(
@@ -371,7 +372,7 @@ class SVNMerge(InterfaceView):
                 self.get_widget("mergetree_to_urls"),
                 self.repo_paths
             )
-            self.get_widget("mergetree_working_copy").set_text(self.path)
+            self.get_widget("mergetree_working_copy").set_text(S(self.path).display())
 
     def on_mergetree_from_show_log_clicked(self, widget):
         SVNLogDialog(
@@ -381,7 +382,7 @@ class SVNMerge(InterfaceView):
         )
 
     def on_mergetree_from_show_log_closed(self, data):
-        self.get_widget("mergetree_from_revision_number").set_text(data)
+        self.get_widget("mergetree_from_revision_number").set_text(S(data).display())
         self.get_widget("mergetree_from_revision_number_opt").set_active(True)
 
     def on_mergetree_to_show_log_clicked(self, widget):
@@ -392,7 +393,7 @@ class SVNMerge(InterfaceView):
         )
 
     def on_mergetree_to_show_log_closed(self, data):
-        self.get_widget("mergetree_to_revision_number").set_text(data)
+        self.get_widget("mergetree_to_revision_number").set_text(S(data).display())
         self.get_widget("mergetree_to_revision_number_opt").set_active(True)
 
     def on_mergetree_working_copy_show_log_clicked(self, widget):
@@ -469,7 +470,7 @@ class GitMerge(BranchMerge):
 
         self.active_branch = self.git.get_active_branch()
         if self.active_branch:
-            self.get_widget("to_branch").set_text(self.active_branch.name + " (" + self.active_branch.revision[0:7] + ")")
+            self.get_widget("to_branch").set_text(S(self.active_branch.name + " (" + self.active_branch.revision[0:7] + ")").display())
         else:
             self.get_widget("to_branch").set_text(_("No active branch"))
 
@@ -538,10 +539,10 @@ class GitMerge(BranchMerge):
             log = self.git.log(self.path, limit=1, revision=from_branch, showtype="branch")
             if log:
                 from_info = log[0]
-                self.info['from']['author'].set_text(from_info.author)
+                self.info['from']['author'].set_text(S(from_info.author).display())
                 self.info['from']['date'].set_text(helper.format_datetime(from_info.date))
-                self.info['from']['revision'].set_text(helper.to_text(from_info.revision)[0:7])
-                self.info['from']['message'].set_text(helper.html_escape(helper.format_long_text(from_info.message, 500)))
+                self.info['from']['revision'].set_text(S(from_info.revision).display()[0:7])
+                self.info['from']['message'].set_text(S(helper.html_escape(helper.format_long_text(from_info.message, 500))).display())
 
     def on_from_branches_changed(self, widget):
         self.update_branch_info()

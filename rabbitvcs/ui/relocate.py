@@ -30,6 +30,7 @@ from rabbitvcs.ui.action import SVNAction
 from rabbitvcs.ui.dialog import MessageBox
 import rabbitvcs.vcs
 import rabbitvcs.util.helper
+from rabbitvcs.util.strings import S
 
 from rabbitvcs import gettext
 _ = gettext.gettext
@@ -54,7 +55,7 @@ class Relocate(InterfaceView):
         self.vcs = rabbitvcs.vcs.VCS()
         self.svn = self.vcs.svn()
 
-        repo = self.svn.get_repo_url(self.path)
+        repo = S(self.svn.get_repo_url(self.path)).display()
         self.get_widget("from_url").set_text(repo)
         self.get_widget("to_url").set_text(repo)
 

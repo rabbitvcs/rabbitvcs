@@ -49,6 +49,7 @@ from six.moves import range
 from six.moves.urllib.parse import urlparse, urlunparse, quote, quote_plus, unquote, unquote_plus
 
 import rabbitvcs.util.settings
+from rabbitvcs.util.strings import *
 
 from rabbitvcs.util.log import Log
 log = Log("rabbitvcs.util.helper")
@@ -97,22 +98,7 @@ def gobject_threads_init():
     if compare_version(GObject.pygobject_version, [3, 10, 2]) < 0:
         GObject.threads_init()
 
-def to_text(s):
-    """
-    We cannot use a six.text_type() constructor alone as a bytes to text
-    converter because it uses the str() function that stores the bytes type
-    mark in the result under Python 3.
-    Instead, decode it as UTF-8.
-    """
-
-    if isinstance(s, bytearray):
-        s = bytes(s)
-    if not isinstance(s, six.text_type):
-        if isinstance(s, bytes):
-            s = s.decode("utf-8")
-    return six.text_type(s)
-
-def to_bytes(s, encoding = "utf-8"):
+def to_bytes(s, encoding=UTF8_ENCODING):
     """
     Convert string in arguments to bytes in the given encoding.
     """
@@ -151,7 +137,7 @@ def run_in_main_thread(func, *args, **kwargs):
 
 def get_tmp_path(filename):
     day = datetime.datetime.now().day
-    day_string = (str(day) + str(os.geteuid())).encode("utf-8")
+    day_string = S(str(day) + str(os.geteuid())).bytes()
     m = hashlib.md5(day_string).hexdigest()[0:10]
 
     tmpdir = "/tmp/rabbitvcs-%s" %m
@@ -202,10 +188,7 @@ def format_long_text(text, cols = None, line1only = False):
 
 def format_datetime(dt, format=None):
     if format:
-        enc = locale.getpreferredencoding(False)
-        if enc is None or len(enc) == 0:
-            enc = "UTF8"
-        return dt.strftime(format).decode(enc)
+        return S(dt.strftime(format), None).unicode()
 
     now = datetime.datetime.now()
     delta = now - dt
@@ -732,7 +715,7 @@ def save_repository_path(path):
         paths.pop()
 
     f = open(get_repository_paths_path(), "w")
-    f.write(to_text("\n".join(paths).encode("utf-8")))
+    f.write(S("\n".join(paths)))
     f.close()
 
 def launch_ui_window(filename, args=[], block=False):

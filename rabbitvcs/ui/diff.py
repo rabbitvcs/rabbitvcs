@@ -33,6 +33,7 @@ from rabbitvcs.ui import InterfaceNonView
 import rabbitvcs.vcs
 from rabbitvcs.ui.action import SVNAction, GitAction
 import rabbitvcs.util.helper
+from rabbitvcs.util.strings import S
 from rabbitvcs.util.log import Log
 
 log = Log("rabbitvcs.ui.diff")
@@ -147,7 +148,7 @@ class SVNDiff(Diff):
             diff_text = ""
 
         fh = tempfile.mkstemp("-rabbitvcs-" + str(self.revision1) + "-" + str(self.revision2) + ".diff")
-        os.write(fh[0], diff_text.encode("utf-8"))
+        os.write(fh[0], S(diff_text).bytes())
         os.close(fh[0])
         rabbitvcs.util.helper.open_item(fh[1])
 
@@ -225,7 +226,7 @@ class GitDiff(Diff):
         file = open(path, "wb")
         try:
             try:
-                file.write(data.encode("utf-8"))
+                file.write(S(data).bytes())
             except Exception as e:
                 log.exception(e)
         finally:
@@ -254,7 +255,7 @@ class GitDiff(Diff):
             diff_text = ""
 
         fh = tempfile.mkstemp("-rabbitvcs-" + str(self.revision1)[:5] + "-" + str(self.revision2)[:5] + ".diff")
-        os.write(fh[0], diff_text.encode("utf-8"))
+        os.write(fh[0], S(diff_text).bytes())
         os.close(fh[0])
         rabbitvcs.util.helper.open_item(fh[1])
 

@@ -76,11 +76,12 @@ import rabbitvcs.vcs.status
 from rabbitvcs.util.helper import launch_ui_window, launch_diff_tool
 from rabbitvcs.util.helper import get_file_extension, get_common_directory
 from rabbitvcs.util.helper import pretty_timedelta
-from rabbitvcs.util.helper import to_text
 
 from rabbitvcs.util.decorators import timeit, disable
 
 from rabbitvcs.util.contextmenu import MenuBuilder, MainContextMenu, SEPARATOR, ContextMenuConditions
+
+from rabbitvcs.util.strings import S
 
 import rabbitvcs.ui
 import rabbitvcs.ui.property_page
@@ -438,8 +439,7 @@ class RabbitVCS(Caja.InfoProvider, Caja.MenuProvider,
         import cProfile
         import rabbitvcs.util.helper
 
-        path = to_text(gnomevfs.get_local_path_from_uri(item.get_uri()),
-                       "utf-8").replace("/", ":")
+        path = S(gnomevfs.get_local_path_from_uri(item.get_uri())).replace("/", ":")
 
         profile_data_file = os.path.join(
                                rabbitvcs.util.helper.get_home_folder(),

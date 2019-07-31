@@ -82,7 +82,9 @@ from rabbitvcs.util.helper import launch_ui_window, launch_diff_tool
 from rabbitvcs.util.helper import get_file_extension, get_common_directory
 from rabbitvcs.util.helper import get_home_folder
 from rabbitvcs.util.helper import pretty_timedelta
-from rabbitvcs.util.helper import to_text, unquote_url
+from rabbitvcs.util.helper import unquote_url
+
+from rabbitvcs.util.strings import S
 
 from rabbitvcs.util.decorators import timeit, disable
 
@@ -441,8 +443,7 @@ class RabbitVCS(Nemo.InfoProvider, Nemo.MenuProvider,
     def get_background_items_profile(self, window, item):
         import cProfile
 
-        path = to_text(gnomevfs.get_local_path_from_uri(item.get_uri()),
-                       "utf-8").replace("/", ":")
+        path = S(gnomevfs.get_local_path_from_uri(item.get_uri())).replace("/", ":")
 
         profile_data_file = os.path.join(
             get_home_folder(),

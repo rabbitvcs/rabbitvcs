@@ -35,6 +35,7 @@ import rabbitvcs.ui.widget
 import rabbitvcs.ui.dialog
 import rabbitvcs.vcs
 from rabbitvcs.util import helper
+from rabbitvcs.util.strings import S
 from rabbitvcs.util.log import Log
 
 log = Log("rabbitvcs.ui.lock")
@@ -179,7 +180,7 @@ class SVNLock(InterfaceView, GtkContextMenuCaller):
         dialog = rabbitvcs.ui.dialog.PreviousMessages()
         message = dialog.run()
         if message is not None:
-            self.message.set_text(message)
+            self.message.set_text(S(message).display())
 
 
 

@@ -36,6 +36,7 @@ from rabbitvcs.ui.log import log_dialog_factory
 import rabbitvcs.ui.widget
 from rabbitvcs.ui.dialog import DeleteConfirmation
 from rabbitvcs.util import helper
+from rabbitvcs.util.strings import S
 import rabbitvcs.vcs
 
 from xml.sax import saxutils
@@ -265,12 +266,12 @@ class GitBranchManager(InterfaceView):
         if self.revision:
             active_branch = self.git.get_active_branch()
             if active_branch:
-                revision = helper.to_text(active_branch.name)
+                revision = S(active_branch.name)
 
         self.items_treeview.unselect_all()
         self.branch_entry.set_text("")
         self.save_button.set_label(_("Add"))
-        self.start_point_entry.set_text(revision)
+        self.start_point_entry.set_text(S(revision).display())
         self.track_checkbox.set_active(True)
         self.checkout_checkbox.set_sensitive(True)
         self.checkout_checkbox.set_active(False)
@@ -289,9 +290,9 @@ class GitBranchManager(InterfaceView):
         self.save_button.set_label(_("Save"))
 
         if self.selected_branch:
-            self.branch_entry.set_text(self.selected_branch.name)
-            self.revision_label.set_text(helper.to_text(self.selected_branch.revision))
-            self.message_label.set_text(self.selected_branch.message.rstrip("\n"))
+            self.branch_entry.set_text(S(self.selected_branch.name).display())
+            self.revision_label.set_text(S(self.selected_branch.revision).display())
+            self.message_label.set_text(S(self.selected_branch.message.rstrip("\n")).display())
             if self.selected_branch.tracking:
                 self.checkout_checkbox.set_active(True)
                 self.checkout_checkbox.set_sensitive(False)
@@ -310,7 +311,8 @@ class GitBranchManager(InterfaceView):
 
     def on_log_dialog_closed(self, data):
         if data:
-            self.start_point_entry.set_text(data)
+            self.start_point_entry.set_text(S(data).display())
+
 
 if __name__ == "__main__":
     from rabbitvcs.ui import main, REVISION_OPT, VCS_OPT

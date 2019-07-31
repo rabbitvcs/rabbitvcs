@@ -29,6 +29,7 @@ from rabbitvcs.ui import InterfaceView
 import rabbitvcs.ui.widget
 import rabbitvcs.ui.dialog
 import rabbitvcs.vcs
+from rabbitvcs.util.strings import S
 from rabbitvcs.util.log import Log
 
 log = Log("rabbitvcs.ui.properties")
@@ -56,7 +57,7 @@ class PropertiesBase(InterfaceView):
             _("Properties - %s") % path
         )
 
-        self.get_widget("path").set_text(path)
+        self.get_widget("path").set_text(S(path).display())
 
         self.table = rabbitvcs.ui.widget.Table(
             self.get_widget("table"),

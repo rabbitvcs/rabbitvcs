@@ -28,6 +28,7 @@ from gi.repository import Gtk, GObject, Gdk
 from rabbitvcs.ui.properties import PropertiesBase
 import rabbitvcs.ui.widget
 import rabbitvcs.ui.dialog
+from rabbitvcs.util.strings import S
 import rabbitvcs.vcs
 from rabbitvcs.util.log import Log
 from rabbitvcs.ui.action import SVNAction
@@ -45,7 +46,7 @@ class SVNRevisionProperties(PropertiesBase):
 
         if not self.svn.is_path_repository_url(path):
             self.path = self.svn.get_repo_url(path)
-            self.get_widget("path").set_text(self.path)
+            self.get_widget("path").set_text(S(self.path).display())
 
         self.revision = revision
         self.revision_obj = None

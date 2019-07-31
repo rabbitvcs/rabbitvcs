@@ -30,6 +30,7 @@ from rabbitvcs.ui.action import SVNAction
 import rabbitvcs.ui.widget
 import rabbitvcs.ui.dialog
 import rabbitvcs.util.helper
+from rabbitvcs.util.strings import S
 
 from rabbitvcs import gettext
 _ = gettext.gettext
@@ -45,7 +46,7 @@ class SVNImport(InterfaceView):
         self.svn = self.vcs.svn()
 
         if self.svn.is_in_a_or_a_working_copy(path):
-            self.get_widget("repository").set_text(self.svn.get_repo_url(path))
+            self.get_widget("repository").set_text(S(self.svn.get_repo_url(path)).display())
 
         self.repositories = rabbitvcs.ui.widget.ComboBox(
             self.get_widget("repositories"),
@@ -89,7 +90,7 @@ class SVNImport(InterfaceView):
         dialog = rabbitvcs.ui.dialog.PreviousMessages()
         message = dialog.run()
         if message is not None:
-            self.message.set_text(message)
+            self.message.set_text(S(message).display())
 
 
 

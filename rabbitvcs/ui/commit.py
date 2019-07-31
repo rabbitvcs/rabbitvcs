@@ -37,6 +37,7 @@ import rabbitvcs.ui.widget
 import rabbitvcs.ui.dialog
 import rabbitvcs.util
 from rabbitvcs.util import helper
+from rabbitvcs.util.strings import S
 from rabbitvcs.util.log import Log
 from rabbitvcs.util.decorators import gtk_unsafe
 import rabbitvcs.vcs.status
@@ -233,7 +234,7 @@ class Commit(InterfaceView, GtkContextMenuCaller):
         dialog = rabbitvcs.ui.dialog.PreviousMessages()
         message = dialog.run()
         if message is not None:
-            self.message.set_text(message)
+            self.message.set_text(S(message).display())
 
     def populate_files_table(self):
         """
@@ -279,7 +280,7 @@ class SVNCommit(Commit):
         self.get_widget("commit_to_box").show()
 
         self.get_widget("to").set_text(
-            self.vcs.svn().get_repo_url(self.base_dir)
+            S(self.vcs.svn().get_repo_url(self.base_dir)).display()
         )
 
         self.items = None
@@ -348,7 +349,7 @@ class GitCommit(Commit):
         active_branch = self.git.get_active_branch()
         if active_branch:
             self.get_widget("to").set_text(
-                active_branch.name
+                S(active_branch.name).display()
             )
         else:
             self.get_widget("to").set_text("No active branch")

@@ -48,6 +48,7 @@ except (ImportError, ValueError):
 
 from rabbitvcs.util.decorators import gtk_unsafe
 from rabbitvcs.util import helper
+from rabbitvcs.util.strings import S
 import rabbitvcs.vcs
 
 from rabbitvcs import gettext
@@ -487,7 +488,7 @@ class TableBase:
     @gtk_unsafe
     def append(self, row):
         # Python 3 needs type conversions.
-        self.data.append([item if coltype != GObject.TYPE_STRING else helper.to_text(item) for coltype, item in zip(self.coltypes, row)])
+        self.data.append([S(item).display() if self.coltypes[i] in [GObject.TYPE_STRING, str] else item for i, item in enumerate(row)])
 
     @gtk_unsafe
     def remove(self, index):
@@ -538,7 +539,6 @@ class TableBase:
                     item = row[column]
 
                 returner.append(item)
-
         return returner
 
     def scroll_to_bottom(self):
@@ -598,7 +598,7 @@ class TableBase:
         for row in self.data:
             line = []
             for cell in row:
-                line.append(helper.to_text(cell))
+                line.append(S(cell))
             lines.append("\t".join(line))
 
         return "\n".join(lines)
@@ -889,7 +889,7 @@ class ComboBox:
         self.cb.set_active(index)
 
     def set_child_text(self, text):
-        self.cb.get_child().set_text(text)
+        self.cb.get_child().set_text(S(text).display())
 
     def set_sensitive(self, val):
         self.cb.set_sensitive(val)
@@ -905,7 +905,7 @@ class TextView:
             self.view = widget
         self.buffer = Gtk.TextBuffer()
         self.view.set_buffer(self.buffer)
-        self.buffer.set_text(value)
+        self.buffer.set_text(S(value).display())
 
         if HAS_GTKSPELL and spellcheck:
             try:
@@ -926,11 +926,13 @@ class TextView:
             True
         )
 
+    @gtk_unsafe
     def set_text(self, text):
-        self.buffer.set_text(text)
+        self.buffer.set_text(S(text).display())
 
+    @gtk_unsafe
     def append_text(self, text):
-        self.buffer.set_text(self.get_text() + text)
+        self.buffer.set_text(S(self.get_text() + text).display())
 
 class SourceView(TextView):
     def __init__(self, widget=None, value=""):
@@ -940,7 +942,7 @@ class SourceView(TextView):
             else:
                 self.view = widget
             self.buffer = GtkSourceView.SourceBuffer()
-            self.buffer.set_text(value)
+            self.buffer.set_text(S(value).display())
 
             if HAS_GTKSPELL:
                 GtkSpell.Spell(self.view)
@@ -984,7 +986,7 @@ class ProgressBar:
 
     @gtk_unsafe
     def set_text(self, text):
-        self.view.set_text(text)
+        self.view.set_text(S(text).display())
 
 class RevisionSelector:
     """
@@ -1091,7 +1093,7 @@ class RevisionSelector:
     def __log_closed(self, data):
         if data is not None:
             self.revision_kind_opt.set_active(1)
-            self.revision_entry.set_text(data)
+            self.revision_entry.set_text(S(data).display())
 
     def __revision_kind_changed(self, widget):
         self.determine_widget_sensitivity()
@@ -1191,7 +1193,7 @@ class RevisionSelector:
     def set_kind_number(self, number=None):
         self.revision_kind_opt.set_active(1)
         if number is not None:
-            self.revision_entry.set_text(str(number))
+            self.revision_entry.set_text(S(number).display())
         self.determine_widget_sensitivity()
 
     def set_kind_working(self):
@@ -1326,7 +1328,7 @@ class GitRepositorySelector:
     def __update_host(self):
         repo = self.repository_opt.get_active_text()
         try:
-            self.host.set_text(self.git.config_get(("remote", repo), "url").decode("utf-8"))
+            self.host.set_text(S(self.git.config_get(("remote", repo), "url")).display())
         except KeyError as e:
             log.error("Missing remote %s config key" % repo)
 
@@ -1426,7 +1428,7 @@ class MultiFileTextEditor:
             add_label = Gtk.Label(label = _("Add line:"))
             add_label.set_alignment(0, 0.5)
             self.add_entry = Gtk.Entry()
-            self.add_entry.set_text(line_content)
+            self.add_entry.set_text(S(line_content).display())
             self.add_entry.set_hexpand(True)
             add_button = Gtk.Button(_("Add"))
             add_button.connect("clicked", self.__add_button_clicked)
@@ -1465,12 +1467,12 @@ class MultiFileTextEditor:
         else:
             current_text = text
 
-        self.textview.set_text(current_text)
+        self.textview.set_text(S(current_text).display())
 
     def load_file(self, path):
         if os.path.exists(path):
             fh = open(path, "r")
-            self.textview.set_text(fh.read())
+            self.textview.set_text(S(fh.read()).display())
             fh.close()
         else:
             self.textview.set_text("")

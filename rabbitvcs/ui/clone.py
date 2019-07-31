@@ -33,6 +33,7 @@ import rabbitvcs.ui.widget
 import rabbitvcs.ui.dialog
 import rabbitvcs.ui.action
 from rabbitvcs.util import helper
+from rabbitvcs.util.strings import S
 import rabbitvcs.vcs
 
 from rabbitvcs import gettext
@@ -87,7 +88,7 @@ class GitClone(Checkout):
             append = append[:-4]
 
         helper.run_in_main_thread(self.get_widget("destination").set_text,
-                                  os.path.join(self.destination, append))
+                                  S(os.path.join(self.destination, append)).display())
         self.check_form()
 
     def default_text(self):

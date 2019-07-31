@@ -30,6 +30,7 @@ from .objects import *
 from .command import GittyupCommand
 
 from rabbitvcs.util import helper
+from rabbitvcs.util.strings import *
 
 import six.moves.tkinter
 import six.moves.tkinter_messagebox
@@ -70,7 +71,7 @@ def get_tmp_path(filename):
     return os.path.join(tmpdir, filename)
 
 class GittyupClient:
-    UTF8 = "utf-8"
+    UTF8 = UTF8_ENCODING
 
     def __init__(self, path=None, create=False):
         self.callback_notify = callback_notify_null
@@ -359,8 +360,8 @@ class GittyupClient:
 
     def _get_config_user(self):
         try:
-            config_user_name = helper.to_text(self._config_get(("user", ), "name"))
-            config_user_email = helper.to_text(self._config_get(("user", ), "email"))
+            config_user_name = S(self._config_get(("user", ), "name"))
+            config_user_email = S(self._config_get(("user", ), "email"))
             if config_user_name == "" or config_user_email == "":
                 raise KeyError()
         except KeyError:
@@ -376,7 +377,10 @@ class GittyupClient:
 
     def string_unescape(self, s):
         # Portable utf-8 string unescape.
-        return b"".join([struct.pack("B", ord(x)) for x in s.encode("ascii").decode("unicode_escape")]).decode("utf-8")
+        if isinstance(s, six.text_type):
+            s = s.encode(IDENTITY_ENCODING)
+        s = S(s.decode("unicode_escape"), IDENTITY_ENCODING)
+        return S(s.bytes(IDENTITY_ENCODING))
 
     #
     # Start Public Methods
@@ -402,7 +406,7 @@ class GittyupClient:
         return self.repo.path
 
     def find_repository_path(self, path):
-        path_to_check = path
+        path_to_check = S(path)
         while path_to_check != "/" and path_to_check != "":
             if os.path.isdir(os.path.join(path_to_check, ".git")):
                 return path_to_check
@@ -412,11 +416,13 @@ class GittyupClient:
         return None
 
     def get_relative_path(self, path):
+        path = S(path)
         if path == self.repo.path:
             return "."
         return util.relativepath(self.repo.path, path)
 
     def get_absolute_path(self, path):
+        path = S(path)
         if path == ".":
             return self.repo.path
         return os.path.join(self.repo.path, path).rstrip("/")
@@ -456,7 +462,7 @@ class GittyupClient:
                 "path": absolute_path,
                 "mime_type": guess_type(absolute_path)[0]
             })
-            to_stage.append(relative_path)
+            to_stage.append(S(relative_path))
         self.repo.stage(to_stage)
 
     def stage_all(self):
@@ -493,7 +499,7 @@ class GittyupClient:
             paths = [paths]
 
         for path in paths:
-            relative_path = self.get_relative_path(path).encode("utf-8")
+            relative_path = S(self.get_relative_path(path)).bytes()
             if relative_path in index:
                 if relative_path in tree:
                     (ctime, mtime, dev, ino, mode, uid, gid, size, blob_id, flags) = index[relative_path]
@@ -862,9 +868,8 @@ class GittyupClient:
             if (branch_components != None):
                 branch = branch_components.group(1)
 
-                self.notify("[%s] -> %s" % (helper.to_text(commit_id),
-                                            helper.to_text(branch)))
-                self.notify("To branch: " + helper.to_text(branch))
+                self.notify("[%s] -> %s" % (S(commit_id), S(branch)))
+                self.notify("To branch: " + S(branch))
 
         #Print tree changes.
         #dulwich.patch.write_tree_diff(sys.stdout, self.repo.object_store, commit.tree, commit.id)
@@ -1096,7 +1101,7 @@ class GittyupClient:
 
         if remoteKey.find("://") == -1:
             # Get existing url from config, otherwise just use what was provided (the url from cloning, etc).
-            originalRemoteUrl = helper.to_text(self._config_get(remoteKey, "url"))
+            originalRemoteUrl = S(self._config_get(remoteKey, "url"))
 
         if originalRemoteUrl.find('@') == -1:
             # No username or password. Prompt for both. Create dialog.
@@ -1153,7 +1158,7 @@ class GittyupClient:
 
         if remoteKey.find("://") == -1:
             # Get existing url from config, otherwise just use what was provided (the url from cloning, etc).
-            originalRemoteUrl = helper.to_text(self._config_get(remoteKey, "url"))
+            originalRemoteUrl = S(self._config_get(remoteKey, "url"))
 
         # If the url contains a username (@) without a password (:), then prompt for a password.
         if originalRemoteUrl.find('@') > -1 and originalRemoteUrl.rfind(':') <= 5:
@@ -1366,7 +1371,7 @@ class GittyupClient:
 
         """
 
-        ref_name = helper.to_bytes("refs/tags/%s" % name)
+        ref_name = S("refs/tags/%s" % name).bytes()
         refs = self.repo.get_refs()
         if ref_name in refs:
             del self.repo.refs[ref_name]
@@ -1380,8 +1385,8 @@ class GittyupClient:
         refs = self.repo.get_refs()
 
         tags = []
-        for ref,tag_sha in list(refs.items()):
-            if helper.to_text(ref).startswith("refs/tags"):
+        for ref, tag_sha in list(refs.items()):
+            if S(ref).startswith("refs/tags"):
                 if type(self.repo[tag_sha]) == dulwich.objects.Commit:
                     tag = CommitTag(ref[10:], tag_sha, self.repo[tag_sha])
                 else:

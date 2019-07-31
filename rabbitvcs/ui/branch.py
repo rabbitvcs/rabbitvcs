@@ -30,6 +30,7 @@ import rabbitvcs.ui.widget
 import rabbitvcs.ui.dialog
 import rabbitvcs.ui.action
 import rabbitvcs.util.helper
+from rabbitvcs.util.strings import S
 import rabbitvcs.vcs
 import rabbitvcs.vcs.status
 
@@ -117,7 +118,7 @@ class SVNBranch(InterfaceView):
         dialog = rabbitvcs.ui.dialog.PreviousMessages()
         message = dialog.run()
         if message is not None:
-            self.message.set_text(message)
+            self.message.set_text(S(message).display())
 
     def on_repo_browser_clicked(self, widget, data=None):
         from rabbitvcs.ui.browser import SVNBrowserDialog

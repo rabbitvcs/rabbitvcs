@@ -36,6 +36,7 @@ import rabbitvcs.ui.widget
 from rabbitvcs.ui.dialog import DeleteConfirmation
 from rabbitvcs.ui.log import log_dialog_factory
 from rabbitvcs.util import helper
+from rabbitvcs.util.strings import S
 import rabbitvcs.vcs
 
 from rabbitvcs import gettext
@@ -111,7 +112,7 @@ class GitTagManager(InterfaceView):
         self.start_point_entry.set_size_request(300, -1)
         self.start_point_entry.set_hexpand(True)
         if self.revision_obj.value:
-            self.start_point_entry.set_text(helper.to_text(self.revision_obj))
+            self.start_point_entry.set_text(S(self.revision_obj).display())
         self.log_dialog_button = Gtk.Button()
         self.log_dialog_button.connect("clicked", self.on_log_dialog_button_clicked)
         image = Gtk.Image()
@@ -288,16 +289,16 @@ class GitTagManager(InterfaceView):
     def show_detail(self, tag_name):
         self.selected_tag = None
         for item in self.tag_list:
-            if helper.to_text(item.name) == tag_name:
+            if S(item.name) == tag_name:
                 self.selected_tag = item
                 break
 
         self.save_button.set_label(_("Save"))
         if self.selected_tag:
-            self.tag_entry.set_text(helper.to_text(self.selected_tag.name))
-            self.revision_label.set_text(helper.to_text(self.selected_tag.sha))
-            self.message_label.set_text(helper.to_text(self.selected_tag.message).rstrip("\n"))
-            self.tagger_label.set_text(helper.to_text(self.selected_tag.tagger))
+            self.tag_entry.set_text(S(self.selected_tag.name).display())
+            self.revision_label.set_text(S(self.selected_tag.sha).display())
+            self.message_label.set_text(S(self.selected_tag.message).display().rstrip("\n"))
+            self.tagger_label.set_text(S(self.selected_tag.tagger).display())
             self.date_label.set_text(helper.format_datetime(datetime.fromtimestamp(self.selected_tag.tag_time)))
 
             self.show_rows(self.view_rows)
@@ -312,7 +313,8 @@ class GitTagManager(InterfaceView):
 
     def on_log_dialog_closed(self, data):
         if data:
-            self.start_point_entry.set_text(data)
+            self.start_point_entry.set_text(S(data).display())
+
 
 if __name__ == "__main__":
     from rabbitvcs.ui import main, REVISION_OPT, VCS_OPT

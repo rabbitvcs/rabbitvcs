@@ -31,6 +31,7 @@ from rabbitvcs.ui import InterfaceView
 import rabbitvcs.ui.widget
 import rabbitvcs.ui.wraplabel
 import rabbitvcs.util.helper
+from rabbitvcs.util.strings import S
 
 ERROR_NOTICE = _("""\
 An error has occurred in the RabbitVCS Nautilus extension. Please contact the \
@@ -69,7 +70,7 @@ class PreviousMessages(InterfaceView):
             self.message_table.append([entry[0],entry[1]])
 
         if len(self.entries) > 0:
-            self.message.set_text(self.entries[0][1])
+            self.message.set_text(S(self.entries[0][1]).display())
 
     def run(self):
 
@@ -98,7 +99,7 @@ class PreviousMessages(InterfaceView):
 
         if selection:
             selected_message = selection[-1]
-            self.message.set_text(selected_message)
+            self.message.set_text(S(selected_message).display())
 
 class FolderChooser:
     def __init__(self):
@@ -207,7 +208,7 @@ class SSLClientCertPrompt(InterfaceView):
         filechooser = FileChooser()
         cert = filechooser.run()
         if cert is not None:
-            self.get_widget("sslclientcert_path").set_text(cert)
+            self.get_widget("sslclientcert_path").set_text(S(cert).display())
 
     def run(self):
         self.dialog = self.get_widget("SSLClientCertPrompt")
@@ -315,7 +316,7 @@ class FileSaveAs:
 class Confirmation(InterfaceView):
     def __init__(self, message=_("Are you sure you want to continue?")):
         InterfaceView.__init__(self, "dialogs/confirmation", "Confirmation")
-        self.get_widget("confirm_message").set_text(message)
+        self.get_widget("confirm_message").set_text(S(message).display())
 
     def run(self):
         dialog = self.get_widget("Confirmation")
@@ -328,7 +329,7 @@ class Confirmation(InterfaceView):
 class MessageBox(InterfaceView):
     def __init__(self, message):
         InterfaceView.__init__(self, "dialogs/message_box", "MessageBox")
-        self.get_widget("messagebox_message").set_text(message)
+        self.get_widget("messagebox_message").set_text(S(message).display())
 
         dialog = self.get_widget("MessageBox")
         dialog.run()
@@ -383,10 +384,10 @@ class OneLineTextChange(InterfaceView):
         self.label = self.get_widget("label")
 
         if label:
-            self.label.set_text(label)
+            self.label.set_text(S(label).display())
 
         if current_text:
-            self.new_text.set_text(current_text)
+            self.new_text.set_text(S(current_text).display())
 
         self.dialog = self.get_widget("OneLineTextChange")
 
@@ -502,7 +503,7 @@ class ConflictDecision(InterfaceView):
     def __init__(self, filename=""):
 
         InterfaceView.__init__(self, "dialogs/conflict_decision", "ConflictDecision")
-        self.get_widget("filename").set_text(filename)
+        self.get_widget("filename").set_text(S(filename).display())
 
     def run(self):
         """

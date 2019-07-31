@@ -59,6 +59,7 @@ import dbus.service
 import rabbitvcs.util.decorators
 import rabbitvcs.util._locale
 from rabbitvcs.util import helper
+from rabbitvcs.util.strings import S
 import rabbitvcs.services.service
 from rabbitvcs.services.statuschecker import StatusChecker
 
@@ -171,7 +172,7 @@ class StatusCheckerService(dbus.service.Object):
                       summary=False):
         """ Requests a status check from the underlying status checker.
         """
-        status = self.status_checker.check_status(helper.to_text(path),
+        status = self.status_checker.check_status(S(path),
                                                   recurse=recurse,
                                                   summary=summary,
                                                   invalidate=invalidate)
@@ -182,7 +183,7 @@ class StatusCheckerService(dbus.service.Object):
     def GenerateMenuConditions(self, paths):
         upaths = []
         for path in paths:
-            upaths.append(helper.to_text(path))
+            upaths.append(S(path))
 
         path_dict = self.status_checker.generate_menu_conditions(upaths)
         return json.dumps(path_dict)

@@ -38,6 +38,7 @@ import rabbitvcs.ui.dialog
 import rabbitvcs.ui.action
 import rabbitvcs.vcs
 from rabbitvcs.util import helper
+from rabbitvcs.util.strings import S
 from rabbitvcs.util.log import Log
 from rabbitvcs.util.decorators import gtk_unsafe
 
@@ -58,9 +59,9 @@ class SVNBrowser(InterfaceView, GtkContextMenuCaller):
         self.url = ""
         if self.svn.is_in_a_or_a_working_copy(url):
             action = rabbitvcs.ui.action.SVNAction(self.svn, notification=False, run_in_thread=False)
-            self.url = action.run_single(self.svn.get_repo_url, url)
+            self.url = S(action.run_single(self.svn.get_repo_url, url))
         elif self.svn.is_path_repository_url(url):
-            self.url = url
+            self.url = S(url)
 
         self.urls = rabbitvcs.ui.widget.ComboBox(
             self.get_widget("urls"),
@@ -287,7 +288,7 @@ class SVNBrowser(InterfaceView, GtkContextMenuCaller):
         BrowserContextMenu(self, data, None, self.vcs, paths).show()
 
     def set_url_clipboard(self, url):
-        self.url_clipboard.set_text(url, -1)
+        self.url_clipboard.set_text(S(url).display(), -1)
 
     def get_repo_root_url(self):
         return self.repo_root_url

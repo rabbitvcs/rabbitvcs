@@ -36,6 +36,7 @@ from rabbitvcs.ui.action import SVNAction, GitAction
 import rabbitvcs.ui.widget
 from rabbitvcs.ui.dialog import MessageBox, Loading
 import rabbitvcs.util.helper
+from rabbitvcs.util.strings import S
 import rabbitvcs.vcs
 from rabbitvcs.util.decorators import gtk_unsafe
 
@@ -78,14 +79,14 @@ class Annotate(InterfaceView):
 
     def on_from_log_closed(self, data):
         if data is not None:
-            self.get_widget("from").set_text(data)
+            self.get_widget("from").set_text(S(data).display())
 
     def on_to_show_log_clicked(self, widget, data=None):
         log_dialog_factory(self.path, ok_callback=self.on_to_log_closed)
 
     def on_to_log_closed(self, data):
         if data is not None:
-            self.get_widget("to").set_text(data)
+            self.get_widget("to").set_text(S(data).display())
 
     def enable_saveas(self):
         self.get_widget("save").set_sensitive(True)
@@ -121,8 +122,8 @@ class SVNAnnotate(Annotate):
             revision = "HEAD"
 
         self.path = path
-        self.get_widget("from").set_text(str(1))
-        self.get_widget("to").set_text(str(revision))
+        self.get_widget("from").set_text("1")
+        self.get_widget("to").set_text(S(revision).display())
 
         self.table = rabbitvcs.ui.widget.Table(
             self.get_widget("table"),
@@ -226,7 +227,7 @@ class GitAnnotate(Annotate):
             revision = "HEAD"
 
         self.path = path
-        self.get_widget("to").set_text(str(revision))
+        self.get_widget("to").set_text(S(revision).display())
 
         self.table = rabbitvcs.ui.widget.Table(
             self.get_widget("table"),

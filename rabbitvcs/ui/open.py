@@ -33,6 +33,7 @@ from rabbitvcs.ui.action import SVNAction, GitAction
 
 import rabbitvcs.vcs
 from rabbitvcs.util import helper
+from rabbitvcs.util.strings import S
 
 from rabbitvcs import gettext
 _ = gettext.gettext
@@ -107,7 +108,7 @@ class GitOpen(InterfaceNonView):
         else:
             revision_obj = self.git.revision("HEAD")
 
-        dest_dir = helper.get_tmp_path("rabbitvcs-" + helper.to_text(revision))
+        dest_dir = helper.get_tmp_path("rabbitvcs-" + S(revision))
 
         self.git.export(
             path,

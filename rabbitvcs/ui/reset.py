@@ -34,6 +34,7 @@ from rabbitvcs.ui import InterfaceView
 from rabbitvcs.ui.action import GitAction
 import rabbitvcs.ui.widget
 import rabbitvcs.util.helper
+from rabbitvcs.util.strings import S
 import rabbitvcs.vcs
 
 from rabbitvcs import gettext
@@ -54,7 +55,7 @@ class GitReset(InterfaceView):
         if revision:
             self.revision_obj = self.git.revision(revision)
 
-        self.get_widget("path").set_text(path)
+        self.get_widget("path").set_text(S(path).display())
 
         self.revision_selector = rabbitvcs.ui.widget.RevisionSelector(
             self.get_widget("revision_container"),
@@ -109,7 +110,7 @@ class GitReset(InterfaceView):
         chooser = rabbitvcs.ui.dialog.FolderChooser()
         path = chooser.run()
         if path is not None:
-            self.get_widget("path").set_text(path)
+            self.get_widget("path").set_text(S(path).display())
 
     def on_path_changed(self, widget, data=None):
         self.check_path()

@@ -34,7 +34,7 @@ import rabbitvcs.vcs
 from rabbitvcs.services.checkerservice import StatusCheckerStub as StatusChecker
 from rabbitvcs.ui import STATUS_EMBLEMS
 
-from rabbitvcs.util import helper
+from rabbitvcs.util.strings import S
 from rabbitvcs.util.log import Log
 log = Log("rabbitvcs.ui.property_page")
 
@@ -88,17 +88,17 @@ class FileInfoPane(rabbitvcs.ui.GtkBuilderWidgetWrapper):
         self.vcs = vcs or rabbitvcs.vcs.VCS()
         self.checker = StatusChecker()
 
-        self.get_widget("file_name").set_text(os.path.basename(path))
+        self.get_widget("file_name").set_text(S(os.path.basename(path)).display())
 
         self.status = self.checker.check_status(path,
                                                 recurse = False,
                                                 invalidate = False,
                                                 summary = False)
 
-        self.get_widget("vcs_type").set_text(self.status.vcs_type)
+        self.get_widget("vcs_type").set_text(S(self.status.vcs_type).display())
 
-        self.get_widget("content_status").set_text(helper.to_text(self.status.simple_content_status()))
-        self.get_widget("prop_status").set_text(helper.to_text(self.status.simple_metadata_status()))
+        self.get_widget("content_status").set_text(S(self.status.simple_content_status()).display())
+        self.get_widget("prop_status").set_text(S(self.status.simple_metadata_status()).display())
 
 
         self.set_icon_from_status(self.get_widget("content_status_icon"),
@@ -140,14 +140,14 @@ class FileInfoPane(rabbitvcs.ui.GtkBuilderWidgetWrapper):
 
     def get_additional_info_svn(self):
 
-        repo_url = self.vcs.svn().get_repo_url(self.path)
+        repo_url = S(self.vcs.svn().get_repo_url(self.path))
 
         return [
             (_("Repository URL"), repo_url)]
 
     def get_additional_info_git(self):
 
-        repo_url = self.vcs.git().config_get(("remote", "origin"), "url").decode("utf-8")
+        repo_url = S(self.vcs.git().config_get(("remote", "origin"), "url"))
         return [
             (_("Repository URL"), repo_url)]
 

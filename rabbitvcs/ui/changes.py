@@ -31,6 +31,7 @@ import rabbitvcs.ui.widget
 from rabbitvcs.util import helper
 from rabbitvcs.util.contextmenu import GtkContextMenu
 from rabbitvcs.util.contextmenuitems import *
+from rabbitvcs.util.strings import S
 import rabbitvcs.ui.action
 from rabbitvcs.ui.dialog import MessageBox
 
@@ -213,8 +214,8 @@ class Changes(InterfaceView):
             rev2 = self.get_second_revision()
 
             helper.launch_ui_window("diff", [
-                "%s@%s" % (url1, helper.to_text(rev1)),
-                "%s@%s" % (url2, helper.to_text(rev2)),
+                "%s@%s" % (url1, S(rev1)),
+                "%s@%s" % (url2, S(rev2)),
                 "%s" % (sidebyside and "-s" or ""),
                 "--vcs=%s" % self.get_vcs_name()
             ])
@@ -231,8 +232,8 @@ class Changes(InterfaceView):
         url2 = self.second_urls.get_active_text()
 
         helper.launch_ui_window("diff", [
-            "%s@%s" % (url1, helper.to_text(rev1)),
-            "%s@%s" % (url2, helper.to_text(rev2)),
+            "%s@%s" % (url1, S(rev1)),
+            "%s@%s" % (url2, S(rev2)),
             "--vcs=%s" % self.get_vcs_name()
         ])
 
@@ -491,7 +492,7 @@ class ChangesContextMenuCallbacks:
         helper.launch_ui_window("open", [
             "--vcs=%s" % self.caller.get_vcs_name(),
             url,
-            "-r%s" % helper.to_text(rev)
+            "-r%s" % S(rev)
         ])
 
     def open_second(self, widget, data=None):
@@ -504,7 +505,7 @@ class ChangesContextMenuCallbacks:
         helper.launch_ui_window("open", [
             "--vcs=%s" % self.caller.get_vcs_name(),
             url,
-            "-r%s" % helper.to_text(rev)
+            "-r%s" % S(rev)
         ])
 
     def view_diff(self, widget, data=None):
@@ -524,8 +525,8 @@ class ChangesContextMenuCallbacks:
             rev2 = self.caller.get_second_revision()
 
             helper.launch_ui_window("diff", [
-                "%s@%s" % (url1, helper.to_text(rev1)),
-                "%s@%s" % (url2, helper.to_text(rev2)),
+                "%s@%s" % (url1, S(rev1)),
+                "%s@%s" % (url2, S(rev2)),
                 "-s",
                 "--vcs=%s" % self.caller.get_vcs_name()
             ])

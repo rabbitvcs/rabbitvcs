@@ -33,6 +33,7 @@ import rabbitvcs.ui.widget
 import rabbitvcs.ui.dialog
 import rabbitvcs.util.settings
 import rabbitvcs.util.helper
+from rabbitvcs.util.strings import S
 
 import rabbitvcs.services.checkerservice
 from rabbitvcs.services.checkerservice import StatusCheckerStub
@@ -77,22 +78,22 @@ class Settings(InterfaceView):
         )
         self.default_commit_message = rabbitvcs.ui.widget.TextView(self.get_widget("default_commit_message"))
         self.default_commit_message.set_text(
-            self.settings.get_multiline("general", "default_commit_message")
+            S(self.settings.get_multiline("general", "default_commit_message")).display()
         )
         self.get_widget("diff_tool").set_text(
-            self.settings.get("external", "diff_tool")
+            S(self.settings.get("external", "diff_tool")).display()
         )
         self.get_widget("diff_tool_swap").set_active(
             int(self.settings.get("external", "diff_tool_swap"))
         )
         self.get_widget("merge_tool").set_text(
-            self.settings.get("external", "merge_tool")
+            S(self.settings.get("external", "merge_tool")).display()
         )
         self.get_widget("cache_number_repositories").set_text(
-            str(self.settings.get("cache", "number_repositories"))
+            S(self.settings.get("cache", "number_repositories")).display()
         )
         self.get_widget("cache_number_messages").set_text(
-            str(self.settings.get("cache", "number_messages"))
+            S(self.settings.get("cache", "number_messages")).display()
         )
 
         self.logging_type = rabbitvcs.ui.widget.ComboBox(
@@ -165,8 +166,8 @@ class Settings(InterfaceView):
         self.get_widget("stop_checker").set_sensitive(bool(checker_service))
 
         if(checker_service):
-            self.get_widget("checker_type").set_text(checker_service.CheckerType())
-            self.get_widget("pid").set_text(str(checker_service.PID()))
+            self.get_widget("checker_type").set_text(S(checker_service.CheckerType()).display())
+            self.get_widget("pid").set_text(S(checker_service.PID()).display())
 
             memory = checker_service.MemoryUsage()
 
@@ -175,7 +176,7 @@ class Settings(InterfaceView):
             else:
                 self.get_widget("memory_usage").set_text(CHECKER_UNKNOWN_INFO)
 
-            self.get_widget("locale").set_text(".".join(checker_service.SetLocale()))
+            self.get_widget("locale").set_text(S(".".join(checker_service.SetLocale())).display())
 
             self._populate_info_table(checker_service.ExtraInformation())
 
@@ -310,7 +311,7 @@ class Settings(InterfaceView):
         path = chooser.run()
         if not path is None:
             path = path.replace("file://", "")
-            self.get_widget("diff_tool").set_text(path)
+            self.get_widget("diff_tool").set_text(S(path).display())
 
     def on_cache_clear_repositories_clicked(self, widget):
         confirmation = rabbitvcs.ui.dialog.Confirmation(

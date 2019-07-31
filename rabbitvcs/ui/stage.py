@@ -34,6 +34,7 @@ import rabbitvcs.ui.widget
 import rabbitvcs.ui.dialog
 import rabbitvcs.ui.action
 import rabbitvcs.util.helper
+from rabbitvcs.util.strings import S
 from rabbitvcs.util.log import Log
 
 import rabbitvcs.vcs

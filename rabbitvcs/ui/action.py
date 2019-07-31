@@ -37,6 +37,7 @@ import rabbitvcs.ui.dialog
 import rabbitvcs.util
 import rabbitvcs.vcs
 from rabbitvcs.util import helper
+from rabbitvcs.util.strings import S
 from rabbitvcs.ui.dialog import MessageBox
 from rabbitvcs.util.decorators import gtk_unsafe
 
@@ -538,7 +539,7 @@ class VCSAction(threading.Thread):
         """
 
         if message is not None:
-            self.notification.get_widget("status").set_text(message)
+            self.notification.get_widget("status").set_text(S(message).display())
 
     def append(self, func, *args, **kwargs):
         """

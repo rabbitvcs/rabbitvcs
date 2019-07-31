@@ -44,7 +44,7 @@ import rabbitvcs.util.contextmenuitems
 import rabbitvcs.ui.widget
 import rabbitvcs.ui.dialog
 import rabbitvcs.vcs
-from rabbitvcs.util.helper import format_long_text
+from rabbitvcs.util.strings import S
 from rabbitvcs.vcs.svn import Revision
 from rabbitvcs.util.log import Log
 
@@ -95,7 +95,7 @@ class PropEditor(InterfaceView, GtkContextMenuCaller):
 
         self.path = path
 
-        self.get_widget("wc_text").set_text(self.get_local_path(os.path.realpath(path)))
+        self.get_widget("wc_text").set_text(S(self.get_local_path(os.path.realpath(path))).display())
 
         self.vcs = rabbitvcs.vcs.VCS()
         self.svn = self.vcs.svn()
@@ -105,7 +105,7 @@ class PropEditor(InterfaceView, GtkContextMenuCaller):
             self.close()
             return
 
-        self.get_widget("remote_uri_text").set_text(self.svn.get_repo_url(path))
+        self.get_widget("remote_uri_text").set_text(S(self.svn.get_repo_url(path)).display())
 
         self.table = rabbitvcs.ui.widget.Table(
             self.get_widget("table"),

@@ -28,6 +28,7 @@ gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
 
 import rabbitvcs.util.helper
+from rabbitvcs.util.strings import S
 
 from rabbitvcs import gettext
 _ = gettext.gettext
@@ -271,8 +272,7 @@ class MenuItem(object):
         return menuitem
 
     def make_label(self):
-        label = self.label.replace('_', '__')
-
+        label = S(self.label).display().replace('_', '__')
         return label
 
 class MenuSeparator(MenuItem):

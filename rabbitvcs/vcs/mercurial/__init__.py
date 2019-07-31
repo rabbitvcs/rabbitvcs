@@ -30,7 +30,7 @@ from datetime import datetime
 
 from mercurial import commands, ui, hg
 
-from rabbitvcs.util import helper
+from rabbitvcs.util.strings import S
 
 import rabbitvcs.vcs
 import rabbitvcs.vcs.status
@@ -59,23 +59,22 @@ class Revision:
 
         self.is_revision_object = True
 
-    def __unicode__(self):
+    def __str__(self):
         if self.value:
-            return helper.to_text(self.value)
-        else:
-            return self.kind
+            return S(self.value)
+        return S(self.kind)
+
+    def __unicode__(self):
+        return self.__str__().unicode()
 
     def short(self):
         if self.value:
-            return helper.to_text(self.value)[0:7]
+            return S(self.value)[0:7]
         else:
             return self.kind
 
-    def __str__(self):
-        return self.__unicode__()
-
     def __repr__(self):
-        return self.__unicode__()
+        return self.__str__()
 
     def primitive(self):
         return self.value

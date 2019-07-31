@@ -31,6 +31,7 @@ from rabbitvcs.ui import InterfaceView
 import rabbitvcs.ui.widget
 import rabbitvcs.ui.dialog
 import rabbitvcs.ui.action
+from rabbitvcs.util.strings import S
 from rabbitvcs.util import helper
 import rabbitvcs.vcs
 from rabbitvcs.ui.updateto import GitUpdateToRevision
@@ -66,7 +67,7 @@ class Checkout(InterfaceView):
         self.destination = helper.get_user_path()
         if path is not None:
             self.destination = path
-            self.get_widget("destination").set_text(path)
+            self.get_widget("destination").set_text(S(path).display())
 
         if url is not None:
             self.repositories.set_child_text(url)
@@ -91,7 +92,7 @@ class Checkout(InterfaceView):
         chooser = rabbitvcs.ui.dialog.FolderChooser()
         path = chooser.run()
         if path is not None:
-            self.get_widget("destination").set_text(path)
+            self.get_widget("destination").set_text(S(path).display())
 
     def on_repositories_key_released(self, widget, data, userdata=None):
         if Gdk.keyval_name(data.keyval) == "Return":
@@ -194,7 +195,7 @@ class SVNCheckout(Checkout):
                 break
 
         self.get_widget("destination").set_text(
-            os.path.join(self.destination, append)
+            S(os.path.join(self.destination, append)).display()
         )
 
         self.check_form()

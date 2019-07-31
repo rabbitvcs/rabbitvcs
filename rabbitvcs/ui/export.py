@@ -32,7 +32,8 @@ from rabbitvcs.ui.checkout import SVNCheckout
 from rabbitvcs.ui.clone import GitClone
 from rabbitvcs.ui.dialog import MessageBox
 from rabbitvcs.ui.action import SVNAction, GitAction
-import rabbitvcs.util.helper
+from rabbitvcs.util.strings import S
+import rabbitvcs.vcs
 
 from rabbitvcs import gettext
 _ = gettext.gettext
@@ -61,7 +62,7 @@ class SVNExport(SVNCheckout):
             # Path is not a working copy so the user probably wants to export
             # TO this path
             self.repositories.set_child_text("")
-            self.get_widget("destination").set_text(path)
+            self.get_widget("destination").set_text(S(path).display())
 
     def on_ok_clicked(self, widget):
         url = self.repositories.get_active_text()
@@ -189,7 +190,7 @@ class GitExport(GitClone):
                 break
 
         self.get_widget("destination").set_text(
-            os.path.join(self.destination, append)
+            S(os.path.join(self.destination, append)).display()
         )
 
         self.check_form()

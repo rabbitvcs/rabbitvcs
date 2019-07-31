@@ -28,6 +28,8 @@ import gi
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk, GObject, Pango
 
+from rabbitvcs.util.strings import S
+
 class WrapLabel(Gtk.Label):
     __gtype_name__ = 'WrapLabel'
 
@@ -39,7 +41,7 @@ class WrapLabel(Gtk.Label):
         self.layout.set_wrap(Pango.WrapMode.WORD_CHAR)
 
         if str != None:
-            self.set_text(str)
+            self.set_text(S(str).display())
 
         self.set_alignment(0.0, 0.0)
 
@@ -54,7 +56,7 @@ class WrapLabel(Gtk.Label):
         self.__set_wrap_width(allocation.width)
 
     def set_text(self, str):
-        Gtk.Label.set_text(self, str)
+        Gtk.Label.set_text(self, S(str).display())
         self.__set_wrap_width(self.__wrap_width)
 
     def set_markup(self, str):

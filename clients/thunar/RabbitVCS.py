@@ -32,7 +32,6 @@ from os.path import isdir, isfile, realpath, basename
 import datetime
 import time
 import threading
-import urllib
 
 import gi
 gi.require_version("Gtk", "3.0")
@@ -48,7 +47,8 @@ import rabbitvcs.ui.property_page
 from rabbitvcs.util.helper import launch_ui_window, launch_diff_tool
 from rabbitvcs.util.helper import get_file_extension, get_common_directory
 from rabbitvcs.util.helper import pretty_timedelta
-from rabbitvcs.util.helper import to_text, unquote
+from rabbitvcs.util.helper import unquote
+from rabbitvcs.util.strings import S
 from rabbitvcs.util.decorators import timeit, disable
 from rabbitvcs.util.contextmenu import MenuBuilder, MainContextMenu, SEPARATOR
 
@@ -181,7 +181,7 @@ class RabbitVCS(GObject.GObject, Thunarx.MenuProvider, Thunarx.PropertyPageProvi
         paths = []
         for item in items:
             if self.valid_uri(item.get_uri()):
-                path = realpath(to_text(self.get_local_path(item)))
+                path = realpath(S(self.get_local_path(item)))
                 paths.append(path)
                 self.nautilusVFSFile_table[path] = item
 
@@ -208,7 +208,7 @@ class RabbitVCS(GObject.GObject, Thunarx.MenuProvider, Thunarx.PropertyPageProvi
         """
 
         if not self.valid_uri(item.get_uri()): return
-        path = realpath(to_text(self.get_local_path(item)))
+        path = realpath(S(self.get_local_path(item)))
         self.nautilusVFSFile_table[path] = item
 
         # log.debug("get_background_items() called")
@@ -312,7 +312,7 @@ class RabbitVCS(GObject.GObject, Thunarx.MenuProvider, Thunarx.PropertyPageProvi
         paths = []
         for item in items:
             if self.valid_uri(item.get_uri()):
-                path = realpath(to_text(self.get_local_path(item)))
+                path = realpath(S(self.get_local_path(item)))
                 paths.append(path)
                 self.nautilusVFSFile_table[path] = item
 

@@ -47,6 +47,7 @@ import logging
 import logging.handlers
 
 from rabbitvcs.util.settings import SettingsManager, get_home_folder
+from rabbitvcs.util.strings import *
 
 LEVELS = {
     "debug":    logging.DEBUG,
@@ -248,7 +249,7 @@ class FileLog(BaseLog):
 
         BaseLog.__init__(self, logger, level)
         self.set_handler(
-            logging.handlers.TimedRotatingFileHandler(LOG_PATH, "D", 1, 7, "utf-8"),
+            logging.handlers.TimedRotatingFileHandler(LOG_PATH, "D", 1, 7, UTF8_ENCODING),
             FILE_FORMAT
         )
 
@@ -277,7 +278,7 @@ class DualLog(BaseLog):
 
         BaseLog.__init__(self, logger, level)
         self.set_handler(
-            logging.handlers.TimedRotatingFileHandler(LOG_PATH, "D", 1, 7, "utf-8"),
+            logging.handlers.TimedRotatingFileHandler(LOG_PATH, "D", 1, 7, UTF8_ENCODING),
             FILE_FORMAT
         )
         self.set_handler(logging.StreamHandler(), CONSOLE_FORMAT)
