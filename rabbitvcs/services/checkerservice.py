@@ -167,23 +167,25 @@ class StatusCheckerService(dbus.service.Object):
     def CheckerType(self):
         return self.status_checker.CHECKER_NAME
 
-    @dbus.service.method(INTERFACE, in_signature='sbbb', out_signature='s')
+    @dbus.service.method(INTERFACE, in_signature='aybbb', out_signature='s')
     def CheckStatus(self, path, recurse=False, invalidate=False,
                       summary=False):
         """ Requests a status check from the underlying status checker.
+            Path is given as an array of bytes instead of a string because
+            dbus does not support strings with invalid characters.
         """
-        status = self.status_checker.check_status(S(path),
+        status = self.status_checker.check_status(S(bytearray(path)),
                                                   recurse=recurse,
                                                   summary=summary,
                                                   invalidate=invalidate)
 
         return self.encoder.encode(status)
 
-    @dbus.service.method(INTERFACE, in_signature='as', out_signature='s')
+    @dbus.service.method(INTERFACE, in_signature='aay', out_signature='s')
     def GenerateMenuConditions(self, paths):
         upaths = []
         for path in paths:
-            upaths.append(S(path))
+            upaths.append(S(bytearray(path)))
 
         path_dict = self.status_checker.generate_menu_conditions(upaths)
         return json.dumps(path_dict)
@@ -308,7 +310,7 @@ class StatusCheckerStub:
         status = None
 
         try:
-            json_status = self.status_checker.CheckStatus(path,
+            json_status = self.status_checker.CheckStatus(bytearray(S(path).bytes()),
                                                           recurse, invalidate,
                                                           summary,
                                                           dbus_interface=INTERFACE,
@@ -333,9 +335,11 @@ class StatusCheckerStub:
             # Note that this a closure referring to the outer functions callback
             # parameter
             status = self.decoder.decode(json_status)
-            assert status.path == path, "Status check returned the wrong path "\
+            path1 = S(path)
+            path2 = S(status.path)
+            assert path1 == path2, "Status check returned the wrong path "\
                                         "(asked about %s, got back %s)" % \
-                                        (path, status.path)
+                                        (path1.display(), path2.display())
             callback(status)
 
         def reply_handler(*args, **kwargs):
@@ -349,7 +353,7 @@ class StatusCheckerStub:
             callback(rabbitvcs.vcs.status.Status.status_error(path))
 
         try:
-            self.status_checker.CheckStatus(path,
+            self.status_checker.CheckStatus(bytearray(S(path).bytes()),
                                             recurse, invalidate,
                                             summary,
                                             dbus_interface=INTERFACE,
@@ -396,8 +400,9 @@ class StatusCheckerStub:
             self._connect_to_checker()
             callback(provider, base_dir, paths, {})
 
+        bpaths = [bytearray(S(p).bytes()) for p in paths]
         try:
-            self.status_checker.GenerateMenuConditions(paths,
+            self.status_checker.GenerateMenuConditions(bpaths,
                                             dbus_interface=INTERFACE,
                                             timeout=TIMEOUT,
                                             reply_handler=reply_handler,
