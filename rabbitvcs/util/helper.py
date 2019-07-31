@@ -46,7 +46,7 @@ from gi.repository import GLib
 import six
 from six.moves import filter
 from six.moves import range
-from six.moves.urllib.parse import urlparse, urlunparse, quote, quote_plus, unquote, unquote_plus
+import six.moves.urllib.parse
 
 import rabbitvcs.util.settings
 from rabbitvcs.util.decorators import structure_map
@@ -907,39 +907,70 @@ def create_path_revision_string(path, revision=None):
 def url_join(path, *args):
     return "/".join([path.rstrip("/")] + list(args))
 
+def _quote(text):
+    return six.moves.urllib.parse.quote(text,
+                                        encoding=UTF8_ENCODING,
+                                        errors=SURROGATEESCAPE)
+
+def _quote_plus(text):
+    return six.moves.urllib.parse.quote_plus(text,
+                                             encoding=UTF8_ENCODING,
+                                             errors=SURROGATEESCAPE)
+
+def _unquote(text):
+    return six.moves.urllib.parse.unquote(text,
+                                          encoding=UTF8_ENCODING,
+                                          errors=SURROGATEESCAPE)
+
+def _unquote_plus(text):
+    return six.moves.urllib.parse.unquote_plus(text,
+                                               encoding=UTF8_ENCODING,
+                                               errors=SURROGATEESCAPE)
+
+quote = _quote
+quote_plus = _quote_plus
+unquote = _unquote
+unquote_plus = _unquote_plus
+
+try:
+    unquote("")
+except TypeError:
+    quote = six.moves.urllib.parse.quote
+    quote_plus = six.moves.urllib.parse.quote_plus
+    unquote = six.moves.urllib.parse.unquote
+    unquote_plus = six.moves.urllib.parse.unquote_plus
+
 def quote_url(url_text):
-    (scheme, netloc, path, params, query, fragment) = urlparse(url_text)
+    (scheme, netloc, path, params, query, fragment) = six.moves.urllib.parse.urlparse(url_text)
     # netloc_quoted = quote(netloc)
     path_quoted = quote(path)
     params_quoted = quote(query)
     query_quoted = quote_plus(query)
     fragment_quoted = quote(fragment)
 
-    url_quoted = urlunparse(
-                            (scheme,
-                             netloc,
-                             path_quoted,
-                             params_quoted,
-                             query_quoted,
-                             fragment_quoted))
+    url_quoted = six.moves.urllib.parse.urlunparse((scheme,
+                                                    netloc,
+                                                    path_quoted,
+                                                    params_quoted,
+                                                    query_quoted,
+                                                    fragment_quoted))
 
     return url_quoted
 
 def unquote_url(url_text):
-    (scheme, netloc, path, params, query, fragment) = urlparse(url_text)
+    (scheme, netloc, path, params, query, fragment) = six.moves.urllib.parse.urlparse(url_text)
     # netloc_unquoted = unquote(netloc)
     path_unquoted = unquote(path)
     params_unquoted = unquote(query)
     query_unquoted = unquote_plus(query)
     fragment_unquoted = unquote(fragment)
 
-    url_unquoted = urlunparse(
-                            (scheme,
-                             netloc,
-                             path_unquoted,
-                             params_unquoted,
-                             query_unquoted,
-                             fragment_unquoted))
+    url_unquoted = six.moves.urllib.parse.urlunparse((scheme,
+                                                      netloc,
+                                                      path_unquoted,
+                                                      params_unquoted,
+                                                      query_unquoted,
+                                                      fragment_unquoted))
 
     return url_unquoted
 
