@@ -49,6 +49,7 @@ from six.moves import range
 from six.moves.urllib.parse import urlparse, urlunparse, quote, quote_plus, unquote, unquote_plus
 
 import rabbitvcs.util.settings
+from rabbitvcs.util.decorators import structure_map
 from rabbitvcs.util.strings import *
 
 from rabbitvcs.util.log import Log
@@ -98,18 +99,19 @@ def gobject_threads_init():
     if compare_version(GObject.pygobject_version, [3, 10, 2]) < 0:
         GObject.threads_init()
 
+@structure_map
 def to_bytes(s, encoding=UTF8_ENCODING):
     """
-    Convert string in arguments to bytes in the given encoding.
+    Convert string (whatever type it is) to bytes in the given encoding.
     """
-    if isinstance(s, str):
-        return s.encode(encoding)
-    if isinstance(s, list):
-        return [to_bytes(x, encoding) for x in s]
-    if isinstance(s, set):
-        return {to_bytes(x, encoding) for x in s}
-    if isinstance(s, dict):
-        return {x: to_bytes(s[x], encoding) for x in s}
+    if isinstance(s, six.text_type):
+        return S(s).bytes(encoding)
+    if isinstance(s, bytearray):
+        if encoding.lower() == UTF8_ENCODING:
+            return s
+        return bytearray(S(s).bytes(encoding))
+    if isinstance(s, bytes) and encoding.lower() != UTF8_ENCODING:
+        return S(s).bytes(encoding)
     return s
 
 def run_in_main_thread(func, *args, **kwargs):
