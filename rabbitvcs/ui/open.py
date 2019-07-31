@@ -64,7 +64,7 @@ class SVNOpen(InterfaceNonView):
         self.vcs = rabbitvcs.vcs.VCS()
         self.svn = self.vcs.svn()
 
-        if revision and type(revision) in (str, six.text_type):
+        if revision and isinstance(revision, (str, six.text_type)):
             revision_obj = self.svn.revision("number", number=revision)
         else:
             revision_obj = self.svn.revision("HEAD")
