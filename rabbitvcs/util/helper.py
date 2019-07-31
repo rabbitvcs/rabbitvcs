@@ -39,7 +39,7 @@ import time
 import shutil
 import hashlib
 import threading
-import encodings
+import codecs
 
 from gi.repository import GLib
 
@@ -1073,8 +1073,7 @@ def parse_patch_output(patch_file, base_dir, strip=0):
                                       env = env)
 
     # Intialise things...
-    out = encodings.utf_8.StreamReader(patch_proc.stdout,
-                                       errors='backslashreplace')
+    out = codecs.getreader(UTF8_ENCODING)(patch_proc.stdout, SURROGATEESCAPE)
     line = out.readline()
     patch_match = PATCHING_RE.match(line)
 

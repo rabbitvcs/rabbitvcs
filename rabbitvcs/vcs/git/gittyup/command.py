@@ -6,10 +6,13 @@ from __future__ import absolute_import
 import subprocess
 import fcntl
 import select
-import encodings
+import codecs
 import os
 
 from .exceptions import GittyupCommandError
+
+from rabbitvcs.util.strings import *
+
 
 def notify_func(data):
     pass
@@ -54,8 +57,7 @@ class GittyupCommand:
                                 close_fds=True,
                                 preexec_fn=os.setsid)
 
-        out = encodings.utf_8.StreamReader(proc.stdout,
-                                           errors='backslashreplace')
+        out = codecs.getreader(UTF8_ENCODING)(proc.stdout, SURROGATEESCAPE)
         stdout = []
 
         while True:
