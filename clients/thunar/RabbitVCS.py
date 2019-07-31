@@ -33,9 +33,13 @@ import datetime
 import time
 import threading
 
+from rabbitvcs.util import helper
+
 import gi
 gi.require_version("Gtk", "3.0")
+sa = helper.SanitizeArgv()
 from gi.repository import GObject, Gtk, Thunarx
+sa.restore()
 
 from rabbitvcs.vcs.svn import SVN
 

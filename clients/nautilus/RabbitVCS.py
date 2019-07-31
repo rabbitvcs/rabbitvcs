@@ -62,7 +62,11 @@ import os.path
 from os.path import isdir, isfile, realpath, basename, dirname
 import datetime
 
+from rabbitvcs.util import helper
+
+sa = helper.SanitizeArgv()
 from gi.repository import Nautilus, GObject, Gtk, GdkPixbuf
+sa.restore()
 
 import pysvn
 
@@ -72,6 +76,7 @@ import rabbitvcs.vcs.status
 from rabbitvcs.util.helper import launch_ui_window, launch_diff_tool
 from rabbitvcs.util.helper import get_file_extension, get_common_directory
 from rabbitvcs.util.helper import pretty_timedelta
+from rabbitvcs.util.helper import unquote_url
 
 from rabbitvcs.util.decorators import timeit, disable
 
@@ -266,7 +271,7 @@ class RabbitVCS(Nautilus.InfoProvider, Nautilus.MenuProvider,
 
         if not self.valid_uri(item.get_uri()): return Nautilus.OperationResult.FAILED
 
-        path = rabbitvcs.util.helper.unquote_url(self.get_local_path(item.get_uri()))
+        path = unquote_url(self.get_local_path(item.get_uri()))
 
         # log.debug("update_file_info() called for %s" % path)
 
@@ -383,7 +388,7 @@ class RabbitVCS(Nautilus.InfoProvider, Nautilus.MenuProvider,
         paths = []
         for item in items:
             if self.valid_uri(item.get_uri()):
-                path = rabbitvcs.util.helper.unquote_url(self.get_local_path(item.get_uri()))
+                path = unquote_url(self.get_local_path(item.get_uri()))
                 paths.append(path)
                 self.nautilusVFSFile_table[path] = item
 
@@ -418,12 +423,11 @@ class RabbitVCS(Nautilus.InfoProvider, Nautilus.MenuProvider,
     # rename the real function "get_background_items_real".
     def get_background_items_profile(self, window, item):
         import cProfile
-        import rabbitvcs.util.helper
 
         path = S(gnomevfs.get_local_path_from_uri(item.get_uri())).replace("/", ":")
 
         profile_data_file = os.path.join(
-                               rabbitvcs.util.helper.get_home_folder(),
+                               helper.get_home_folder(),
                                "checkerservice_%s.stats" % path)
 
         prof = cProfile.Profile()
@@ -449,7 +453,7 @@ class RabbitVCS(Nautilus.InfoProvider, Nautilus.MenuProvider,
         """
 
         if not self.valid_uri(item.get_uri()): return
-        path = rabbitvcs.util.helper.unquote_url(self.get_local_path(item.get_uri()))
+        path = unquote_url(self.get_local_path(item.get_uri()))
         self.nautilusVFSFile_table[path] = item
 
         # log.debug("get_background_items_full() called")
@@ -602,7 +606,7 @@ class RabbitVCS(Nautilus.InfoProvider, Nautilus.MenuProvider,
 
         for item in items:
             if self.valid_uri(item.get_uri()):
-                path = rabbitvcs.util.helper.unquote_url(self.get_local_path(item.get_uri()))
+                path = unquote_url(self.get_local_path(item.get_uri()))
 
                 if self.vcs_client.is_in_a_or_a_working_copy(path):
                     paths.append(path)

@@ -22,20 +22,22 @@ from __future__ import absolute_import
 #
 
 import os
+from datetime import datetime
+import time
+
+from rabbitvcs.util import helper
 
 from gi import require_version
 require_version("Gtk", "3.0")
+sa = helper.SanitizeArgv()
 from gi.repository import Gtk, GObject, Gdk, GLib
-
-from datetime import datetime
-import time
+sa.restore()
 
 from rabbitvcs.ui import InterfaceView
 from rabbitvcs.ui.log import log_dialog_factory
 from rabbitvcs.ui.action import SVNAction, GitAction
 import rabbitvcs.ui.widget
 from rabbitvcs.ui.dialog import MessageBox, Loading
-import rabbitvcs.util.helper
 from rabbitvcs.util.strings import S
 import rabbitvcs.vcs
 from rabbitvcs.util.decorators import gtk_unsafe
@@ -43,7 +45,7 @@ from rabbitvcs.util.decorators import gtk_unsafe
 from rabbitvcs import gettext
 _ = gettext.gettext
 
-DATETIME_FORMAT = rabbitvcs.util.helper.LOCAL_DATETIME_FORMAT
+DATETIME_FORMAT = helper.LOCAL_DATETIME_FORMAT
 
 class Annotate(InterfaceView):
     """
@@ -195,7 +197,7 @@ class SVNAnnotate(Annotate):
                 str(int(item["number"]) + 1),
                 str(item["revision"].number),
                 item["author"],
-                rabbitvcs.util.helper.format_datetime(date),
+                helper.format_datetime(date),
                 item["line"]
             ])
 
@@ -211,7 +213,7 @@ class SVNAnnotate(Annotate):
                 str(int(item["number"]) + 1),
                 str(item["revision"].number),
                 item["author"],
-                rabbitvcs.util.helper.format_datetime(date),
+                helper.format_datetime(date),
                 item["line"]
             )
 
@@ -281,7 +283,7 @@ class GitAnnotate(Annotate):
                 str(item["number"]),
                 item["revision"][:7],
                 item["author"],
-                rabbitvcs.util.helper.format_datetime(item["date"]),
+                helper.format_datetime(item["date"]),
                 item["line"]
             ])
 
@@ -294,7 +296,7 @@ class GitAnnotate(Annotate):
                 str(item["number"]),
                 item["revision"][:7],
                 item["author"],
-                rabbitvcs.util.helper.format_datetime(item["date"]),
+                helper.format_datetime(item["date"]),
                 item["line"]
             )
 
@@ -311,6 +313,7 @@ def annotate_factory(vcs, path, revision=None):
         vcs = guess["vcs"]
 
     return classes_map[vcs](path, revision)
+
 
 if __name__ == "__main__":
     from rabbitvcs.ui import main, REVISION_OPT, VCS_OPT

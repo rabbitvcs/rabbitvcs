@@ -24,12 +24,15 @@ from gettext import gettext as _
 import os
 import gi
 
+from rabbitvcs.util import helper
+
 gi.require_version("Gtk", "3.0")
+sa = helper.SanitizeArgv()
 from gi.repository import Gtk
+sa.restore()
 from gi.repository import Pluma, GObject, Peas
 
 
-import rabbitvcs.util.helper
 from rabbitvcs.vcs import create_vcs_instance
 from rabbitvcs.util.contextmenu import GtkFilesContextMenuConditions, \
     GtkFilesContextMenuCallbacks, MainContextMenu, MainContextMenuCallbacks, \

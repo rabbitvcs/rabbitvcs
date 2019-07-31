@@ -24,10 +24,13 @@ from __future__ import absolute_import
 import os
 import six.moves._thread
 from time import sleep
+from rabbitvcs.util import helper
 
 import gi
 gi.require_version("Gtk", "3.0")
+sa = helper.SanitizeArgv()
 from gi.repository import Gtk, GObject, Gdk
+sa.restore()
 
 from rabbitvcs.ui import InterfaceView
 from rabbitvcs.util.contextmenu import GtkFilesContextMenu, GtkContextMenuCaller
@@ -263,6 +266,7 @@ class AddQuiet:
 
         self.action.append(self.svn.add, paths)
         self.action.schedule()
+
 
 if __name__ == "__main__":
     from rabbitvcs.ui import main, BASEDIR_OPT, QUIET_OPT

@@ -23,9 +23,13 @@ from __future__ import absolute_import
 
 import os.path
 
+from rabbitvcs.util import helper
+
 import gi
 gi.require_version("Gtk", "3.0")
+sa = helper.SanitizeArgv()
 from gi.repository import Gtk, GObject, Gdk
+sa.restore()
 
 from rabbitvcs.ui import InterfaceNonView
 from rabbitvcs.ui.action import SVNAction
@@ -47,7 +51,7 @@ class ApplyPatch(InterfaceNonView):
         InterfaceNonView.__init__(self)
         self.paths = paths
         self.vcs = rabbitvcs.vcs.VCS()
-        self.common = rabbitvcs.util.helper.get_common_directory(paths)
+        self.common = helper.get_common_directory(paths)
 
     def choose_patch_path(self):
         path = None
@@ -158,6 +162,7 @@ classes_map = {
 def applypatch_factory(paths):
     guess = rabbitvcs.vcs.guess(paths[0])
     return classes_map[guess["vcs"]](paths)
+
 
 if __name__ == "__main__":
     from rabbitvcs.ui import main

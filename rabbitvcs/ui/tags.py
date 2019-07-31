@@ -22,20 +22,22 @@ from __future__ import absolute_import
 #
 
 import os
+from datetime import datetime
+import time
+
+from rabbitvcs.util import helper
 
 import gi
 gi.require_version("Gtk", "3.0")
+sa = helper.SanitizeArgv()
 from gi.repository import Gtk, GObject, Gdk, Pango
-
-from datetime import datetime
-import time
+sa.restore()
 
 from rabbitvcs.ui import InterfaceView
 from rabbitvcs.ui.action import GitAction
 import rabbitvcs.ui.widget
 from rabbitvcs.ui.dialog import DeleteConfirmation
 from rabbitvcs.ui.log import log_dialog_factory
-from rabbitvcs.util import helper
 from rabbitvcs.util.strings import S
 import rabbitvcs.vcs
 

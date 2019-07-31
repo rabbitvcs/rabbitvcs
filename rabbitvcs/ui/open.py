@@ -24,15 +24,18 @@ from __future__ import absolute_import
 from os import getcwd
 import os.path
 
+from rabbitvcs.util import helper
+
 import gi
 gi.require_version("Gtk", "3.0")
+sa = helper.SanitizeArgv()
 from gi.repository import Gtk, GObject, Gdk
+sa.restore()
 
 from rabbitvcs.ui import InterfaceNonView
 from rabbitvcs.ui.action import SVNAction, GitAction
 
 import rabbitvcs.vcs
-from rabbitvcs.util import helper
 from rabbitvcs.util.strings import S
 
 from rabbitvcs import gettext
@@ -138,6 +141,7 @@ def open_factory(vcs, path, revision):
         vcs = guess["vcs"]
 
     return classes_map[vcs](path, revision)
+
 
 if __name__ == "__main__":
     from rabbitvcs.ui import main, REVISION_OPT, VCS_OPT

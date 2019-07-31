@@ -69,9 +69,13 @@ import os.path
 from os.path import isdir, isfile, realpath, basename
 import datetime
 
+from rabbitvcs.util import helper
+
 import gi
 gi.require_version('Nemo', '3.0')
+sa = helper.SanitizeArgv()
 from gi.repository import Nemo, GObject, Gtk, GdkPixbuf
+sa.restore()
 
 import pysvn
 

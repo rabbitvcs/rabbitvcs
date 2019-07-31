@@ -22,21 +22,23 @@ from __future__ import absolute_import
 #
 
 import os
+import tempfile
+import shutil
 import six.moves._thread
+
+from rabbitvcs.util import helper
 
 import gi
 gi.require_version("Gtk", "3.0")
+sa = helper.SanitizeArgv()
 from gi.repository import Gtk, GObject, Gdk
-import os
-import tempfile
-import shutil
+sa.restore()
 
 from rabbitvcs.ui import InterfaceView
 from rabbitvcs.ui.action import SVNAction, GitAction
 import rabbitvcs.ui.widget
 import rabbitvcs.ui.dialog
 import rabbitvcs.util
-from rabbitvcs.util import helper
 from rabbitvcs.util.log import Log
 from rabbitvcs.ui.commit import SVNCommit, GitCommit
 
@@ -274,6 +276,7 @@ classes_map = {
 def createpatch_factory(paths, base_dir):
     guess = rabbitvcs.vcs.guess(paths[0])
     return classes_map[guess["vcs"]](paths, base_dir)
+
 
 if __name__ == "__main__":
     from rabbitvcs.ui import main, BASEDIR_OPT

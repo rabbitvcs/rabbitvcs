@@ -33,9 +33,13 @@ from __future__ import print_function
 
 import os.path
 
+from rabbitvcs.util import helper
+
 import gi
 gi.require_version("Gtk", "3.0")
+sa = helper.SanitizeArgv()
 from gi.repository import Gtk, GObject, Gdk
+sa.restore()
 
 from rabbitvcs.ui import InterfaceView
 from rabbitvcs.util.contextmenu import GtkContextMenu, GtkContextMenuCaller
@@ -279,6 +283,7 @@ class PropMenuConditions:
 
     def property_edit(self):
         return len(list(self.propdetails.keys())) == 1
+
 
 if __name__ == "__main__":
     # These are some dumb tests before I add any functionality.

@@ -27,7 +27,7 @@ import gi
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
 
-import rabbitvcs.util.helper
+from rabbitvcs.util import helper
 from rabbitvcs.util.strings import S
 
 from rabbitvcs import gettext
@@ -762,7 +762,7 @@ def get_ignore_list_items(paths):
     # These are ignore-by-extension items
     ignorebyfileext_index = 0
     for path in paths:
-        extension = rabbitvcs.util.helper.get_file_extension(path)
+        extension = helper.get_file_extension(path)
 
         ext_str = "*%s"%extension
         if ext_str not in added_ignore_labels:

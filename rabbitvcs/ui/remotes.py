@@ -24,9 +24,13 @@ from __future__ import print_function
 
 import os
 
+from rabbitvcs.util import helper
+
 import gi
 gi.require_version("Gtk", "3.0")
+sa = helper.SanitizeArgv()
 from gi.repository import Gtk, GObject, Gdk, Pango
+sa.restore()
 
 from datetime import datetime
 import time
@@ -35,7 +39,6 @@ from rabbitvcs.ui import InterfaceView
 from rabbitvcs.ui.action import GitAction
 import rabbitvcs.ui.widget
 from rabbitvcs.ui.dialog import DeleteConfirmation
-import rabbitvcs.util.helper
 import rabbitvcs.vcs
 
 from rabbitvcs import gettext
@@ -156,6 +159,7 @@ class GitRemotes(InterfaceView):
 
     def show_edit(self, remote_name):
         self.state = STATE_EDIT
+
 
 if __name__ == "__main__":
     from rabbitvcs.ui import main

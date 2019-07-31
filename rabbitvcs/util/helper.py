@@ -1162,3 +1162,40 @@ def parse_patch_output(patch_file, base_dir, strip=0):
     patch_proc.wait() # Don't leave process running...
     return
 
+
+"""
+In Python 3, Gdk.init_check() encodes sys.argv without handling surrogates,
+causing an UnicodeEncodeError exception while importing Gdk.
+The following class implements a mechanism to avoid that:
+- The first Gdk import performed by a program should be preceded by
+  a SanitizeArgv object creation.
+- After Gdk import, call this object's method restore().
+For this reason, the current module MAY NOT import Gdk, directly or
+indirectly.
+"""
+
+class SanitizeArgv():
+    def __init__(self):
+        self.argmap = None
+        if len(sys.argv) and isinstance(sys.argv[0], six.text_type):
+            argmap = []
+            newargv = []
+            for arg in sys.argv:
+                newarg = S(arg).display()
+                newargv.append(newarg)
+                argmap.append((newarg, arg))
+                if arg != newarg:
+                    self.argmap = argmap
+            if self.argmap:
+                sys.argv = newargv
+
+    def restore(self):
+        if self.argmap:
+            newargv = []
+            i = 0
+            for arg in sys.argv:
+                while arg != self.argmap[i][0]:
+                    i += 1
+                newargv.append(self.argmap[i][1])
+                i += 1
+            sys.argv = newargv

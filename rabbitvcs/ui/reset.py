@@ -23,9 +23,13 @@ from __future__ import absolute_import
 
 import os
 
+from rabbitvcs.util import helper
+
 import gi
 gi.require_version("Gtk", "3.0")
+sa = helper.SanitizeArgv()
 from gi.repository import Gtk, GObject, Gdk, Pango
+sa.restore()
 
 from datetime import datetime
 import time
@@ -33,7 +37,6 @@ import time
 from rabbitvcs.ui import InterfaceView
 from rabbitvcs.ui.action import GitAction
 import rabbitvcs.ui.widget
-import rabbitvcs.util.helper
 from rabbitvcs.util.strings import S
 import rabbitvcs.vcs
 
@@ -120,6 +123,7 @@ class GitReset(InterfaceView):
         root = self.git.find_repository_path(path)
         if root != path:
             self.get_widget("none_opt").set_active(True)
+
 
 if __name__ == "__main__":
     from rabbitvcs.ui import main, REVISION_OPT, VCS_OPT

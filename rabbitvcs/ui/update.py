@@ -21,9 +21,13 @@ from __future__ import absolute_import
 # along with RabbitVCS;  If not, see <http://www.gnu.org/licenses/>.
 #
 
+from rabbitvcs.util import helper
+
 import gi
 gi.require_version("Gtk", "3.0")
+sa = helper.SanitizeArgv()
 from gi.repository import Gtk, GObject, Gdk
+sa.restore()
 
 from rabbitvcs.ui import InterfaceNonView, InterfaceView
 from rabbitvcs.ui.action import SVNAction, GitAction
@@ -133,6 +137,7 @@ classes_map = {
 def update_factory(paths):
     guess = rabbitvcs.vcs.guess(paths[0])
     return classes_map[guess["vcs"]](paths)
+
 
 if __name__ == "__main__":
     from rabbitvcs.ui import main

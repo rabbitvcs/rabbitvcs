@@ -22,13 +22,17 @@ from __future__ import absolute_import
 #
 
 import os.path
+
+from rabbitvcs.util import helper
+
 import gi
 gi.require_version("Gtk", "3.0")
+sa = helper.SanitizeArgv()
 from gi.repository import Gtk, GObject, Gdk
+sa.restore()
 
 from rabbitvcs.ui import InterfaceView
 import rabbitvcs.ui.widget
-from rabbitvcs.util import helper
 from rabbitvcs.util.contextmenu import GtkContextMenu
 from rabbitvcs.util.contextmenuitems import *
 from rabbitvcs.util.strings import S
@@ -585,6 +589,7 @@ def changes_factory(vcs, path1=None, revision1=None, path2=None, revision2=None)
         vcs = guess["vcs"]
 
     return classes_map[vcs](path1, revision1, path2, revision2)
+
 
 if __name__ == "__main__":
     from rabbitvcs.ui import main, VCS_OPT

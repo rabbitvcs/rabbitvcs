@@ -21,15 +21,18 @@ from __future__ import absolute_import
 # along with RabbitVCS;  If not, see <http://www.gnu.org/licenses/>.
 #
 
+from rabbitvcs.util import helper
+
 import gi
 gi.require_version("Gtk", "3.0")
+sa = helper.SanitizeArgv()
 from gi.repository import Gtk, GObject, Gdk
+sa.restore()
 
 from rabbitvcs.ui import InterfaceView
 import rabbitvcs.ui.widget
 import rabbitvcs.ui.dialog
 import rabbitvcs.ui.action
-import rabbitvcs.util.helper
 from rabbitvcs.util.strings import S
 import rabbitvcs.vcs
 import rabbitvcs.vcs.status
@@ -57,14 +60,14 @@ class SVNBranch(InterfaceView):
 
         status = self.vcs.status(self.path)
 
-        repo_paths = rabbitvcs.util.helper.get_repository_paths()
+        repo_paths = helper.get_repository_paths()
         self.from_urls = rabbitvcs.ui.widget.ComboBox(
             self.get_widget("from_urls"),
             repo_paths
         )
         self.to_urls = rabbitvcs.ui.widget.ComboBox(
             self.get_widget("to_urls"),
-            rabbitvcs.util.helper.get_repository_paths()
+            helper.get_repository_paths()
         )
 
         repository_url = self.svn.get_repo_url(path)
@@ -103,7 +106,7 @@ class SVNBranch(InterfaceView):
         self.action.set_log_message(self.message.get_text())
 
         self.action.append(
-            rabbitvcs.util.helper.save_log_message,
+            helper.save_log_message,
             self.message.get_text()
         )
 
@@ -138,6 +141,7 @@ def branch_factory(vcs, path, revision=None):
         vcs = guess["vcs"]
 
     return classes_map[vcs](path, revision)
+
 
 if __name__ == "__main__":
     from rabbitvcs.ui import main, REVISION_OPT, VCS_OPT

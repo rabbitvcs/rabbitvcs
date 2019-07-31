@@ -24,9 +24,13 @@ from __future__ import absolute_import
 from os import getcwd
 import os.path
 
+from rabbitvcs.util import helper
+
 import gi
 gi.require_version("Gtk", "3.0")
+sa = helper.SanitizeArgv()
 from gi.repository import Gtk, GObject, Gdk
+sa.restore()
 
 from rabbitvcs.ui import InterfaceNonView, InterfaceView
 from rabbitvcs.ui.action import SVNAction, GitAction
@@ -119,6 +123,7 @@ classes_map = {
 def ignore_factory(path, pattern):
     guess = rabbitvcs.vcs.guess(path)
     return classes_map[guess["vcs"]](path, pattern)
+
 
 if __name__ == "__main__":
     from rabbitvcs.ui import main

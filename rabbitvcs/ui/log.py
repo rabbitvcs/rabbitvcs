@@ -27,9 +27,13 @@ from datetime import datetime
 
 import os.path
 
+from rabbitvcs.util import helper
+
 import gi
 gi.require_version("Gtk", "3.0")
+sa = helper.SanitizeArgv()
 from gi.repository import Gtk, GObject, Gdk
+sa.restore()
 
 from rabbitvcs.ui import InterfaceView
 from rabbitvcs.ui.action import SVNAction, GitAction, vcs_action_factory
@@ -38,7 +42,6 @@ from rabbitvcs.util.contextmenu import GtkContextMenu
 from rabbitvcs.util.contextmenuitems import *
 from rabbitvcs.util.decorators import gtk_unsafe
 import rabbitvcs.ui.widget
-from rabbitvcs.util import helper
 from rabbitvcs.util.strings import S
 import rabbitvcs.vcs
 
@@ -1673,6 +1676,7 @@ def log_dialog_factory(path, ok_callback=None, multiple=False, vcs=None):
         vcs = guess["vcs"]
 
     return dialogs_map[vcs](path, ok_callback, multiple)
+
 
 if __name__ == "__main__":
     from rabbitvcs.ui import main, VCS_OPT

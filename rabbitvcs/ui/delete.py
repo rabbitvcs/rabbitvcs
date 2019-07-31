@@ -23,9 +23,13 @@ from __future__ import absolute_import
 
 import os.path
 
+from rabbitvcs.util import helper
+
 from gi import require_version
 require_version("Gtk", "3.0")
+sa = helper.SanitizeArgv()
 from gi.repository import Gtk, GObject
+sa.restore()
 
 from rabbitvcs.ui import InterfaceNonView
 from rabbitvcs.ui.action import SVNAction
@@ -81,7 +85,7 @@ class Delete(InterfaceNonView):
 
             if unversioned:
                 for path in unversioned:
-                    rabbitvcs.util.helper.delete_item(path)
+                    helper.delete_item(path)
 
 class SVNDelete(Delete):
     def __init__(self, paths):
@@ -107,6 +111,7 @@ classes_map = {
 def delete_factory(paths):
     guess = rabbitvcs.vcs.guess(paths[0])
     return classes_map[guess["vcs"]](paths)
+
 
 if __name__ == "__main__":
     from rabbitvcs.ui import main

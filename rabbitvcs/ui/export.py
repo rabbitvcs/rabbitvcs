@@ -23,9 +23,13 @@ from __future__ import absolute_import
 
 import os.path
 
+from rabbitvcs.util import helper
+
 import gi
 gi.require_version("Gtk", "3.0")
+sa = helper.SanitizeArgv()
 from gi.repository import Gtk, GObject, Gdk
+sa.restore()
 
 from rabbitvcs.ui import InterfaceView
 from rabbitvcs.ui.checkout import SVNCheckout
@@ -93,7 +97,7 @@ class SVNExport(SVNCheckout):
 
         self.action.append(self.action.set_header, _("Export"))
         self.action.append(self.action.set_status, _("Running Export Command..."))
-        self.action.append(rabbitvcs.util.helper.save_repository_path, url)
+        self.action.append(helper.save_repository_path, url)
         self.action.append(
             self.svn.export,
             url,
@@ -162,7 +166,7 @@ class GitExport(GitClone):
 
         self.action.append(self.action.set_header, _("Export"))
         self.action.append(self.action.set_status, _("Running Export Command..."))
-        self.action.append(rabbitvcs.util.helper.save_repository_path, url)
+        self.action.append(helper.save_repository_path, url)
         self.action.append(
             self.git.export,
             url,
@@ -209,6 +213,7 @@ def export_factory(vcs, path, revision=None):
         vcs = rabbitvcs.vcs.VCS_SVN
 
     return classes_map[vcs](path, revision)
+
 
 if __name__ == "__main__":
     from rabbitvcs.ui import main, REVISION_OPT, VCS_OPT

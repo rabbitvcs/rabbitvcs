@@ -23,16 +23,19 @@ from __future__ import absolute_import
 
 import os.path
 
+from rabbitvcs.util import helper
+
 import gi
 gi.require_version("Gtk", "3.0")
+sa = helper.SanitizeArgv()
 from gi.repository import Gtk, GObject, Gdk
+sa.restore()
 
 from rabbitvcs.ui import InterfaceView
 import rabbitvcs.ui.widget
 import rabbitvcs.ui.dialog
 import rabbitvcs.ui.action
 from rabbitvcs.util.strings import S
-from rabbitvcs.util import helper
 import rabbitvcs.vcs
 from rabbitvcs.ui.updateto import GitUpdateToRevision
 from rabbitvcs import gettext
@@ -237,6 +240,7 @@ def checkout_factory(vcs, path=None, url=None, revision=None, quiet=False):
             return GitCheckout(path, url, revision)
 
     return classes_map[vcs](path, url, revision)
+
 
 if __name__ == "__main__":
     from rabbitvcs.ui import main, REVISION_OPT, VCS_OPT, QUIET_OPT

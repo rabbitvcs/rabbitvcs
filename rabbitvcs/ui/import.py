@@ -21,15 +21,18 @@ from __future__ import absolute_import
 # along with RabbitVCS;  If not, see <http://www.gnu.org/licenses/>.
 #
 
+from rabbitvcs.util import helper
+
 import gi
 gi.require_version("Gtk", "3.0")
+sa = helper.SanitizeArgv()
 from gi.repository import Gtk, GObject, Gdk
+sa.restore()
 
 from rabbitvcs.ui import InterfaceView
 from rabbitvcs.ui.action import SVNAction
 import rabbitvcs.ui.widget
 import rabbitvcs.ui.dialog
-import rabbitvcs.util.helper
 from rabbitvcs.util.strings import S
 
 from rabbitvcs import gettext
@@ -50,7 +53,7 @@ class SVNImport(InterfaceView):
 
         self.repositories = rabbitvcs.ui.widget.ComboBox(
             self.get_widget("repositories"),
-            rabbitvcs.util.helper.get_repository_paths()
+            helper.get_repository_paths()
         )
 
         self.message = rabbitvcs.ui.widget.TextView(
@@ -101,6 +104,7 @@ classes_map = {
 def import_factory(path):
     vcs = rabbitvcs.vcs.VCS_SVN
     return classes_map[vcs](path)
+
 
 if __name__ == "__main__":
     from rabbitvcs.ui import main

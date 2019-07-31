@@ -21,18 +21,22 @@ from __future__ import absolute_import
 # along with RabbitVCS;  If not, see <http://www.gnu.org/licenses/>.
 #
 
-import gi
-gi.require_version("Gtk", "3.0")
-from gi.repository import Gtk, Gdk, GLib
 import os
 from shutil import rmtree
 import tempfile
+
+from rabbitvcs.util import helper
+
+import gi
+gi.require_version("Gtk", "3.0")
+sa = helper.SanitizeArgv()
+from gi.repository import Gtk, Gdk, GLib
+sa.restore()
 
 from rabbitvcs import TEMP_DIR_PREFIX
 from rabbitvcs.ui import InterfaceNonView
 import rabbitvcs.vcs
 from rabbitvcs.ui.action import SVNAction, GitAction
-import rabbitvcs.util.helper
 from rabbitvcs.util.strings import S
 from rabbitvcs.util.log import Log
 
@@ -69,7 +73,7 @@ class Diff(InterfaceNonView):
             self.stop_loading()
 
     def _build_export_path(self, index, revision, path):
-        dest = rabbitvcs.util.helper.get_tmp_path("rabbitvcs-%s-%s-%s" % (str(index), str(revision)[:5], os.path.basename(path)))
+        dest = helper.get_tmp_path("rabbitvcs-%s-%s-%s" % (str(index), str(revision)[:5], os.path.basename(path)))
         if os.path.exists(dest):
             if os.path.isdir(dest):
                 rmtree(dest, ignore_errors=True)
@@ -150,7 +154,7 @@ class SVNDiff(Diff):
         fh = tempfile.mkstemp("-rabbitvcs-" + str(self.revision1) + "-" + str(self.revision2) + ".diff")
         os.write(fh[0], S(diff_text).bytes())
         os.close(fh[0])
-        rabbitvcs.util.helper.open_item(fh[1])
+        helper.open_item(fh[1])
 
     def launch_sidebyside_diff(self):
         """
@@ -188,7 +192,7 @@ class SVNDiff(Diff):
             )
             action.stop_loader()
 
-        rabbitvcs.util.helper.launch_diff_tool(dest1, dest2)
+        helper.launch_diff_tool(dest1, dest2)
 
 class GitDiff(Diff):
     def __init__(self, path1, revision1=None, path2=None, revision2=None,
@@ -257,7 +261,7 @@ class GitDiff(Diff):
         fh = tempfile.mkstemp("-rabbitvcs-" + str(self.revision1)[:5] + "-" + str(self.revision2)[:5] + ".diff")
         os.write(fh[0], S(diff_text).bytes())
         os.close(fh[0])
-        rabbitvcs.util.helper.open_item(fh[1])
+        helper.open_item(fh[1])
 
     def launch_sidebyside_diff(self):
         """
@@ -291,7 +295,7 @@ class GitDiff(Diff):
         else:
             dest2 = self.path2
 
-        rabbitvcs.util.helper.launch_diff_tool(dest1, dest2)
+        helper.launch_diff_tool(dest1, dest2)
 
 classes_map = {
     rabbitvcs.vcs.VCS_SVN: SVNDiff,
@@ -305,6 +309,7 @@ def diff_factory(vcs, path1, revision_obj1, path2=None, revision_obj2=None, side
 
     return classes_map[vcs](path1, revision_obj1, path2, revision_obj2, sidebyside)
 
+
 if __name__ == "__main__":
     from rabbitvcs.ui import main, VCS_OPT
     (options, args) = main([
@@ -316,9 +321,9 @@ if __name__ == "__main__":
         usage="Usage: rabbitvcs diff [url1@rev1] [url2@rev2]"
     )
 
-    pathrev1 = rabbitvcs.util.helper.parse_path_revision_string(args.pop(0))
+    pathrev1 = helper.parse_path_revision_string(args.pop(0))
     pathrev2 = (None, None)
     if len(args) > 0:
-        pathrev2 = rabbitvcs.util.helper.parse_path_revision_string(args.pop(0))
+        pathrev2 = helper.parse_path_revision_string(args.pop(0))
 
     diff_factory(options.vcs, pathrev1[0], pathrev1[1], pathrev2[0], pathrev2[1], sidebyside=options.sidebyside)

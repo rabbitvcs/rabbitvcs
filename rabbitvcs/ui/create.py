@@ -24,9 +24,13 @@ from __future__ import absolute_import
 import os
 import subprocess
 
+from rabbitvcs.util import helper
+
 import gi
 gi.require_version("Gtk", "3.0")
+sa = helper.SanitizeArgv()
 from gi.repository import Gtk, GObject, Gdk
+sa.restore()
 
 import rabbitvcs.ui.dialog
 from rabbitvcs.ui.action import GitAction
@@ -76,6 +80,7 @@ classes_map = {
     rabbitvcs.vcs.VCS_SVN: SVNCreate,
     rabbitvcs.vcs.VCS_GIT: GitCreate
 }
+
 
 if __name__ == "__main__":
     from rabbitvcs.ui import main, VCS_OPT, VCS_OPT_ERROR

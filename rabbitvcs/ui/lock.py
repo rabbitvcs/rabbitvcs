@@ -22,11 +22,15 @@ from __future__ import absolute_import
 #
 
 import six.moves._thread
-
 import os
+
+from rabbitvcs.util import helper
+
 import gi
 gi.require_version("Gtk", "3.0")
+sa = helper.SanitizeArgv()
 from gi.repository import Gtk, GObject, Gdk
+sa.restore()
 
 from rabbitvcs.ui import InterfaceView
 from rabbitvcs.ui.action import SVNAction
@@ -34,7 +38,6 @@ from rabbitvcs.util.contextmenu import GtkFilesContextMenu, GtkContextMenuCaller
 import rabbitvcs.ui.widget
 import rabbitvcs.ui.dialog
 import rabbitvcs.vcs
-from rabbitvcs.util import helper
 from rabbitvcs.util.strings import S
 from rabbitvcs.util.log import Log
 
@@ -191,6 +194,7 @@ classes_map = {
 def lock_factory(paths, base_dir):
     guess = rabbitvcs.vcs.guess(paths[0])
     return classes_map[guess["vcs"]](paths, base_dir)
+
 
 if __name__ == "__main__":
     from rabbitvcs.ui import main, BASEDIR_OPT

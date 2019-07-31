@@ -23,9 +23,13 @@ from __future__ import absolute_import
 
 import six.moves._thread
 
+from rabbitvcs.util import helper
+
 import gi
 gi.require_version("Gtk", "3.0")
+sa = helper.SanitizeArgv()
 from gi.repository import Gtk, GObject, Gdk
+sa.restore()
 
 from rabbitvcs.ui import InterfaceView
 from rabbitvcs.ui.add import Add
@@ -33,7 +37,6 @@ from rabbitvcs.ui.action import SVNAction
 import rabbitvcs.ui.widget
 import rabbitvcs.ui.dialog
 import rabbitvcs.ui.action
-import rabbitvcs.util.helper
 from rabbitvcs.util.log import Log
 
 import rabbitvcs.vcs
@@ -55,7 +58,7 @@ class GitUnstage(Add):
             self.files_table.append([
                 True,
                 item.path,
-                rabbitvcs.util.helper.get_file_extension(item.path)
+                helper.get_file_extension(item.path)
             ])
 
     def on_ok_clicked(self, widget):
@@ -102,6 +105,7 @@ quiet_classes_map = {
 def unstage_factory(classes_map, paths, base_dir=None):
     guess = rabbitvcs.vcs.guess(paths[0])
     return classes_map[guess["vcs"]](paths, base_dir)
+
 
 if __name__ == "__main__":
     from rabbitvcs.ui import main, BASEDIR_OPT, QUIET_OPT

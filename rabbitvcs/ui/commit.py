@@ -23,12 +23,15 @@ from __future__ import absolute_import
 
 import os
 import six.moves._thread
+from time import sleep
+
+from rabbitvcs.util import helper
 
 from gi import require_version
 require_version("Gtk", "3.0")
+sa = helper.SanitizeArgv()
 from gi.repository import Gtk, GObject, Gdk, GLib
-
-from time import sleep
+sa.restore()
 
 from rabbitvcs.ui import InterfaceView
 from rabbitvcs.util.contextmenu import GtkFilesContextMenu, GtkContextMenuCaller
@@ -36,7 +39,6 @@ import rabbitvcs.ui.action
 import rabbitvcs.ui.widget
 import rabbitvcs.ui.dialog
 import rabbitvcs.util
-from rabbitvcs.util import helper
 from rabbitvcs.util.strings import S
 from rabbitvcs.util.log import Log
 from rabbitvcs.util.decorators import gtk_unsafe
@@ -412,6 +414,7 @@ classes_map = {
 def commit_factory(paths, base_dir=None, message=None):
     guess = rabbitvcs.vcs.guess(paths[0])
     return classes_map[guess["vcs"]](paths, base_dir, message)
+
 
 if __name__ == "__main__":
     from rabbitvcs.ui import main, BASEDIR_OPT

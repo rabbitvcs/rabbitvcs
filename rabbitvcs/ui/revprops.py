@@ -21,9 +21,13 @@ from __future__ import absolute_import
 # along with RabbitVCS;  If not, see <http://www.gnu.org/licenses/>.
 #
 
+from rabbitvcs.util import helper
+
 import gi
 gi.require_version("Gtk", "3.0")
+sa = helper.SanitizeArgv()
 from gi.repository import Gtk, GObject, Gdk
+sa.restore()
 
 from rabbitvcs.ui.properties import PropertiesBase
 import rabbitvcs.ui.widget
@@ -103,6 +107,7 @@ class SVNRevisionProperties(PropertiesBase):
 
         self.close()
 
+
 if __name__ == "__main__":
     from rabbitvcs.ui import main, VCS_OPT
     (options, args) = main(
@@ -110,7 +115,7 @@ if __name__ == "__main__":
         usage="Usage: rabbitvcs revprops [url1@rev1]"
     )
 
-    pathrev = rabbitvcs.util.helper.parse_path_revision_string(args.pop(0))
+    pathrev = helper.parse_path_revision_string(args.pop(0))
     window = SVNRevisionProperties(pathrev[0], pathrev[1])
     window.register_gtk_quit()
     Gtk.main()

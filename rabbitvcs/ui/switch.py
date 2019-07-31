@@ -21,15 +21,19 @@ from __future__ import absolute_import
 # along with RabbitVCS;  If not, see <http://www.gnu.org/licenses/>.
 #
 
+from rabbitvcs.util import helper
+
 import gi
 gi.require_version("Gtk", "3.0")
+sa = helper.SanitizeArgv()
 from gi.repository import Gtk, GObject, Gdk
+sa.restore()
 
 from rabbitvcs.ui import InterfaceView
 from rabbitvcs.ui.action import SVNAction
 import rabbitvcs.ui.widget
 import rabbitvcs.ui.dialog
-import rabbitvcs.util.helper
+from rabbitvcs.util.strings import *
 
 from rabbitvcs import gettext
 _ = gettext.gettext
@@ -42,10 +46,10 @@ class SVNSwitch(InterfaceView):
         self.vcs = rabbitvcs.vcs.VCS()
         self.svn = self.vcs.svn()
 
-        self.get_widget("path").set_text(self.path)
+        self.get_widget("path").set_text(S(self.path).display())
         self.repositories = rabbitvcs.ui.widget.ComboBox(
             self.get_widget("repositories"),
-            rabbitvcs.util.helper.get_repository_paths()
+            helper.get_repository_paths()
         )
 
         self.revision_selector = rabbitvcs.ui.widget.RevisionSelector(
@@ -56,7 +60,7 @@ class SVNSwitch(InterfaceView):
             expand=True
         )
 
-        self.repositories.set_child_text(rabbitvcs.util.helper.unquote_url(self.svn.get_repo_url(self.path)))
+        self.repositories.set_child_text(helper.unquote_url(self.svn.get_repo_url(self.path)))
 
     def on_ok_clicked(self, widget):
         url = self.repositories.get_active_text()
@@ -74,11 +78,11 @@ class SVNSwitch(InterfaceView):
 
         self.action.append(self.action.set_header, _("Switch"))
         self.action.append(self.action.set_status, _("Running Switch Command..."))
-        self.action.append(rabbitvcs.util.helper.save_repository_path, url)
+        self.action.append(helper.save_repository_path, url)
         self.action.append(
             self.svn.switch,
             self.path,
-            rabbitvcs.util.helper.quote_url(url),
+            helper.quote_url(url),
             revision=revision
         )
         self.action.append(self.action.set_status, _("Completed Switch"))
@@ -92,6 +96,7 @@ classes_map = {
 def switch_factory(path, revision=None):
     guess = rabbitvcs.vcs.guess(path)
     return classes_map[guess["vcs"]](path, revision)
+
 
 if __name__ == "__main__":
     from rabbitvcs.ui import main, REVISION_OPT

@@ -30,15 +30,18 @@ from __future__ import absolute_import
 import os
 from six.moves import range
 
+from rabbitvcs.util import helper
+
 import gi
 gi.require_version("Gtk", "3.0")
+sa = helper.SanitizeArgv()
 from gi.repository import Gtk, Gdk, GLib
+sa.restore()
 
 from rabbitvcs import APP_NAME, LOCALE_DIR, gettext
 _ = gettext.gettext
 
 import rabbitvcs.vcs.status
-from rabbitvcs.util import helper
 
 REVISION_OPT = (["-r", "--revision"], {"help":"specify the revision number"})
 BASEDIR_OPT = (["-b", "--base-dir"], {})

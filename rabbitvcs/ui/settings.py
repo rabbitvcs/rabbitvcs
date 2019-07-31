@@ -25,14 +25,14 @@ import os
 
 import gi
 gi.require_version("Gtk", "3.0")
+sa = helper.SanitizeArgv()
 from gi.repository import Gtk, GObject, Gdk, Pango
-import dbus
+sa.restore()
 
 from rabbitvcs.ui import InterfaceView
 import rabbitvcs.ui.widget
 import rabbitvcs.ui.dialog
 import rabbitvcs.util.settings
-import rabbitvcs.util.helper
 from rabbitvcs.util.strings import S
 
 import rabbitvcs.services.checkerservice
@@ -318,7 +318,7 @@ class Settings(InterfaceView):
             _("Are you sure you want to clear your repository paths?")
         )
         if confirmation.run() == Gtk.ResponseType.OK:
-            path = rabbitvcs.util.helper.get_repository_paths_path()
+            path = helper.get_repository_paths_path()
             fh = open(path, "w")
             fh.write("")
             fh.close()
@@ -329,7 +329,7 @@ class Settings(InterfaceView):
             _("Are you sure you want to clear your previous messages?")
         )
         if confirmation.run() == Gtk.ResponseType.OK:
-            path = rabbitvcs.util.helper.get_previous_messages_path()
+            path = helper.get_previous_messages_path()
             fh = open(path, "w")
             fh.write("")
             fh.close()
@@ -340,7 +340,7 @@ class Settings(InterfaceView):
             _("Are you sure you want to clear your authentication information?")
         )
         if confirmation.run() == Gtk.ResponseType.OK:
-            home_dir = rabbitvcs.util.helper.get_user_path()
+            home_dir = helper.get_user_path()
             subpaths = [
                 '/.subversion/auth/svn.simple',
                 '/.subversion/auth/svn.ssl.server',

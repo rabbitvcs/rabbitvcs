@@ -26,16 +26,19 @@ import os.path
 import six.moves._thread
 import shutil
 
+from rabbitvcs.util import helper
+
 import gi
 gi.require_version("Gtk", "3.0")
+sa = helper.SanitizeArgv()
 from gi.repository import Gtk, GObject, Gdk
+sa.restore()
 
 from rabbitvcs.ui import InterfaceNonView
 from rabbitvcs.ui.action import SVNAction, GitAction
 import rabbitvcs.ui.widget
 import rabbitvcs.ui.dialog
 import rabbitvcs.ui.action
-import rabbitvcs.util.helper
 from rabbitvcs.util.log import Log
 
 log = Log("rabbitvcs.ui.editconflicts")
@@ -87,7 +90,7 @@ class SVNEditConflicts(InterfaceNonView):
             ancestor, theirs = self.get_revisioned_paths(path)
 
             log.debug("launching merge tool with base: %s, mine: %s, theirs: %s, merged: %s"%(ancestor, working, theirs, path))
-            rabbitvcs.util.helper.launch_merge_tool(base=ancestor, mine=working, theirs=theirs, merged=path)
+            helper.launch_merge_tool(base=ancestor, mine=working, theirs=theirs, merged=path)
 
             dialog = rabbitvcs.ui.dialog.MarkResolvedPrompt()
             mark_resolved = dialog.run()
@@ -147,7 +150,7 @@ class GitEditConflicts(InterfaceNonView):
         self.vcs = rabbitvcs.vcs.VCS()
         self.git = self.vcs.git(path)
 
-        rabbitvcs.util.helper.launch_merge_tool(self.path)
+        helper.launch_merge_tool(self.path)
 
         self.close()
 
@@ -159,6 +162,7 @@ classes_map = {
 def editconflicts_factory(path):
     guess = rabbitvcs.vcs.guess(path)
     return classes_map[guess["vcs"]](path)
+
 
 if __name__ == "__main__":
     from rabbitvcs.ui import main, BASEDIR_OPT

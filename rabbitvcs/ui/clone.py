@@ -23,16 +23,19 @@ from __future__ import absolute_import
 
 import os.path
 
+from rabbitvcs.util import helper
+
 import gi
 gi.require_version("Gtk", "3.0")
+sa = helper.SanitizeArgv()
 from gi.repository import Gtk, GObject, Gdk
+sa.restore()
 
 from rabbitvcs.ui import InterfaceView
 from rabbitvcs.ui.checkout import Checkout
 import rabbitvcs.ui.widget
 import rabbitvcs.ui.dialog
 import rabbitvcs.ui.action
-from rabbitvcs.util import helper
 from rabbitvcs.util.strings import S
 import rabbitvcs.vcs
 
@@ -113,6 +116,7 @@ classes_map = {
 
 def clone_factory(classes_map, vcs, path=None, url=None):
     return classes_map[vcs](path, url)
+
 
 if __name__ == "__main__":
     from rabbitvcs.ui import main, VCS_OPT

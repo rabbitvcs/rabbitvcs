@@ -25,9 +25,13 @@ import os
 import six.moves._thread
 from time import sleep
 
+from rabbitvcs.util import helper
+
 import gi
 gi.require_version("Gtk", "3.0")
+sa = helper.SanitizeArgv()
 from gi.repository import Gtk, GObject, Gdk
+sa.restore()
 
 from rabbitvcs.ui import InterfaceView
 from rabbitvcs.util.contextmenu import GtkFilesContextMenu, GtkContextMenuCaller
@@ -35,7 +39,6 @@ import rabbitvcs.ui.widget
 import rabbitvcs.ui.dialog
 import rabbitvcs.ui.action
 import rabbitvcs.vcs
-from rabbitvcs.util import helper
 from rabbitvcs.util.log import Log
 from rabbitvcs.vcs.status import Status
 
@@ -241,6 +244,7 @@ quiet_classes_map = {
 def revert_factory(classes_map, paths, base_dir=None):
     guess = rabbitvcs.vcs.guess(paths[0])
     return classes_map[guess["vcs"]](paths, base_dir)
+
 
 if __name__ == "__main__":
     from rabbitvcs.ui import main, BASEDIR_OPT, QUIET_OPT

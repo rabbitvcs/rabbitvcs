@@ -24,9 +24,13 @@ from __future__ import absolute_import
 import six.moves._thread
 import threading
 
+from rabbitvcs.util import helper
+
 import gi
 gi.require_version("Gtk", "3.0")
+sa = helper.SanitizeArgv()
 from gi.repository import Gtk, GObject, Gdk
+sa.restore()
 
 from rabbitvcs.ui import InterfaceView
 from rabbitvcs.util.contextmenu import GtkFilesContextMenu, \
@@ -36,7 +40,6 @@ from rabbitvcs.util.contextmenuitems import MenuItem, MenuUpdate, \
 import rabbitvcs.ui.widget
 import rabbitvcs.ui.dialog
 import rabbitvcs.ui.action
-from rabbitvcs.util import helper
 from rabbitvcs.util.log import Log
 from rabbitvcs.util.decorators import gtk_unsafe
 
@@ -348,6 +351,7 @@ classes_map = {
 def checkmods_factory(paths, base_dir):
     guess = rabbitvcs.vcs.guess(paths[0])
     return classes_map[guess["vcs"]](paths, base_dir)
+
 
 if __name__ == "__main__":
     from rabbitvcs.ui import main, BASEDIR_OPT
