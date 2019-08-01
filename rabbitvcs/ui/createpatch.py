@@ -39,6 +39,7 @@ from rabbitvcs.ui.action import SVNAction, GitAction
 import rabbitvcs.ui.widget
 import rabbitvcs.ui.dialog
 import rabbitvcs.util
+from rabbitvcs.util.strings import S
 from rabbitvcs.util.log import Log
 from rabbitvcs.ui.commit import SVNCommit, GitCommit
 
@@ -85,15 +86,16 @@ class CreatePatch:
 
         self.files_table = rabbitvcs.ui.widget.Table(
             self.get_widget("files_table"),
-            [GObject.TYPE_BOOLEAN, rabbitvcs.ui.widget.TYPE_PATH,
+            [GObject.TYPE_BOOLEAN, rabbitvcs.ui.widget.TYPE_HIDDEN_OBJECT,
+                rabbitvcs.ui.widget.TYPE_PATH,
                 GObject.TYPE_STRING, GObject.TYPE_STRING, GObject.TYPE_STRING],
-            [rabbitvcs.ui.widget.TOGGLE_BUTTON, _("Path"), _("Extension"),
+            [rabbitvcs.ui.widget.TOGGLE_BUTTON, "", _("Path"), _("Extension"),
                 _("Text Status"), _("Property Status")],
             filters=[{
                 "callback": rabbitvcs.ui.widget.path_filter,
                 "user_data": {
                     "base_dir": base_dir,
-                    "column": 1
+                    "column": 2
                 }
             }],
             callbacks={
@@ -103,7 +105,7 @@ class CreatePatch:
             },
             flags={
                 "sortable": True,
-                "sort_on": 1
+                "sort_on": 2
             }
         )
         self.files_table.allow_multiple()

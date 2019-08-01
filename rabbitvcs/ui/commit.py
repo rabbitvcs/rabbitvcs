@@ -82,16 +82,17 @@ class Commit(InterfaceView, GtkContextMenuCaller):
 
         self.files_table = rabbitvcs.ui.widget.Table(
             self.get_widget("files_table"),
-            [GObject.TYPE_BOOLEAN, rabbitvcs.ui.widget.TYPE_PATH,
+            [GObject.TYPE_BOOLEAN, rabbitvcs.ui.widget.TYPE_HIDDEN_OBJECT,
+                rabbitvcs.ui.widget.TYPE_PATH,
                 GObject.TYPE_STRING, rabbitvcs.ui.widget.TYPE_STATUS,
                 GObject.TYPE_STRING],
-            [rabbitvcs.ui.widget.TOGGLE_BUTTON, _("Path"), _("Extension"),
+            [rabbitvcs.ui.widget.TOGGLE_BUTTON, "", _("Path"), _("Extension"),
                 _("Text Status"), _("Property Status")],
             filters=[{
                 "callback": rabbitvcs.ui.widget.path_filter,
                 "user_data": {
                     "base_dir": base_dir,
-                    "column": 1
+                    "column": 2
                 }
             }],
             callbacks={
@@ -102,7 +103,7 @@ class Commit(InterfaceView, GtkContextMenuCaller):
             },
             flags={
                 "sortable": True,
-                "sort_on": 1
+                "sort_on": 2
             }
         )
         self.files_table.allow_multiple()
@@ -264,6 +265,7 @@ class Commit(InterfaceView, GtkContextMenuCaller):
 
             self.files_table.append([
                 checked,
+                S(item.path),
                 item.path,
                 helper.get_file_extension(item.path),
                 item.simple_content_status(),

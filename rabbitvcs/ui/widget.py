@@ -66,6 +66,7 @@ TYPE_ELLIPSIZED = 'TYPE_ELLIPSIZED'
 TYPE_GRAPH = 'TYPE_GRAPH'
 TYPE_MARKUP = 'TYPE_MARKUP'
 TYPE_HIDDEN = 'TYPE_HIDDEN'
+TYPE_HIDDEN_OBJECT = 'TYPE_HIDDEN_OBJECT'
 
 ELLIPSIZE_COLUMN_CHARS = 20
 
@@ -343,7 +344,11 @@ class TableBase:
                 col.set_attributes(cell, text=i)
             elif coltypes[i] == TYPE_HIDDEN:
                 coltypes[i] = str
-                col = Gtk.TreeViewColumn(name, cell)
+                col = Gtk.TreeViewColumn(name)
+                col.set_visible(False)
+            elif coltypes[i] == TYPE_HIDDEN_OBJECT:
+                coltypes[i] = GObject.TYPE_PYOBJECT
+                col = Gtk.TreeViewColumn(name)
                 col.set_visible(False)
             elif coltypes[i] == TYPE_ELLIPSIZED:
                 coltypes[i] = str
@@ -486,9 +491,12 @@ class TableBase:
             self._reassert_selection = True
 
     @gtk_unsafe
+    def real_append(self, row):
+        self.data.append(row)
+
     def append(self, row):
         # Python 3 needs type conversions.
-        self.data.append([S(item).display() if self.coltypes[i] in [GObject.TYPE_STRING, str] else item for i, item in enumerate(row)])
+        self.real_append([S(item).display() if self.coltypes[i] in [GObject.TYPE_STRING, str] else item for i, item in enumerate(row)])
 
     @gtk_unsafe
     def remove(self, index):

@@ -58,6 +58,7 @@ class GitStage(Add):
         for item in self.items:
             self.files_table.append([
                 True,
+                S(item.path),
                 item.path,
                 helper.get_file_extension(item.path)
             ])

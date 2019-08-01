@@ -391,9 +391,9 @@ class SVNLog(Log):
 
         self.paths_table = rabbitvcs.ui.widget.Table(
             self.get_widget("paths_table"),
-            [GObject.TYPE_STRING, GObject.TYPE_STRING,
-                GObject.TYPE_STRING, GObject.TYPE_STRING],
-            [_("Action"), _("Path"),
+            [GObject.TYPE_STRING, rabbitvcs.ui.widget.TYPE_HIDDEN_OBJECT,
+                GObject.TYPE_STRING, GObject.TYPE_STRING, GObject.TYPE_STRING],
+            [_("Action"), "", _("Path"),
                 _("Copy From Path"), _("Copy From Revision")],
             callbacks={
                 "mouse-event":      self.on_paths_table_mouse_event,
@@ -401,7 +401,7 @@ class SVNLog(Log):
             },
             flags={
                 "sortable": True,
-                "sort_on": 1
+                "sort_on": 2
             }
         )
 
@@ -617,6 +617,7 @@ class SVNLog(Log):
         for subitem in subitems:
             self.paths_table.append([
                 subitem[0],
+                S(subitem[1]),
                 subitem[1],
                 subitem[2],
                 S(subitem[3])
@@ -679,8 +680,9 @@ class GitLog(Log):
 
         self.paths_table = rabbitvcs.ui.widget.Table(
             self.get_widget("paths_table"),
-            [GObject.TYPE_STRING, GObject.TYPE_STRING],
-            [_("Action"), _("Path")],
+            [GObject.TYPE_STRING, rabbitvcs.ui.widget.TYPE_HIDDEN_OBJECT,
+                GObject.TYPE_STRING],
+            [_("Action"), "", _("Path")],
             callbacks={
                 "mouse-event":      self.on_paths_table_mouse_event,
                 "row-activated":    self.on_paths_table_row_activated
@@ -895,6 +897,7 @@ class GitLog(Log):
         for subitem in subitems:
             self.paths_table.append([
                 subitem[0],
+                S(subitem[1]),
                 subitem[1]
             ])
 

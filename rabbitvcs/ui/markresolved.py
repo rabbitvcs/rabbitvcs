@@ -36,6 +36,7 @@ from rabbitvcs.ui.action import SVNAction
 import rabbitvcs.ui.widget
 import rabbitvcs.ui.dialog
 import rabbitvcs.ui.action
+from rabbitvcs.util.strings import S
 from rabbitvcs.util.log import Log
 
 log = Log("rabbitvcs.ui.markresolved")
@@ -48,9 +49,11 @@ class SVNMarkResolved(Add):
         window.set_title(_("Mark as Resolved"))
         self.svn = self.vcs.svn()
         self.statuses = self.svn.STATUSES_FOR_RESOLVE
-        columns[0] = [GObject.TYPE_BOOLEAN, rabbitvcs.ui.widget.TYPE_PATH,
+        columns[0] = [GObject.TYPE_BOOLEAN,
+                rabbitvcs.ui.widget.TYPE_HIDDEN_OBJECT,
+                rabbitvcs.ui.widget.TYPE_PATH,
                 GObject.TYPE_STRING, GObject.TYPE_STRING, GObject.TYPE_STRING],
-        columns[1] = [rabbitvcs.ui.widget.TOGGLE_BUTTON, _("Path"),
+        columns[1] = [rabbitvcs.ui.widget.TOGGLE_BUTTON, "", _("Path"),
                 _("Extension"), _("Text Status"), _("Property Status")]
 
     def populate_files_table(self):
@@ -58,6 +61,7 @@ class SVNMarkResolved(Add):
         for item in self.items:
             self.files_table.append([
                 True,
+                S(item.path),
                 item.path,
                 helper.get_file_extension(item.path),
                 item.simple_content_status(),

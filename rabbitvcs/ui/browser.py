@@ -90,32 +90,34 @@ class SVNBrowser(InterfaceView, GtkContextMenuCaller):
         self.items = []
         self.list_table = rabbitvcs.ui.widget.Table(
             self.get_widget("list"),
-            [rabbitvcs.ui.widget.TYPE_PATH, GObject.TYPE_INT,
+            [rabbitvcs.ui.widget.TYPE_HIDDEN_OBJECT,
+                rabbitvcs.ui.widget.TYPE_PATH, GObject.TYPE_INT,
                 GObject.TYPE_INT, GObject.TYPE_STRING, GObject.TYPE_FLOAT],
-            [_("Path"), _("Revision"), _("Size"), _("Author"), _("Date")],
+            ["", _("Path"), _("Revision"), _("Size"), _("Author"), _("Date")],
             filters=[{
                 "callback": self.file_filter,
-                "user_data": {
-                    "column": 0
-                }
-            },{
-                "callback": self.revision_filter,
                 "user_data": {
                     "column": 1
                 }
             },{
-                "callback": self.size_filter,
+                "callback": self.revision_filter,
                 "user_data": {
                     "column": 2
                 }
             },{
+                "callback": self.size_filter,
+                "user_data": {
+                    "column": 3
+                }
+            },{
                 "callback": self.date_filter,
                 "user_data": {
-                    "column": 4
+                    "column": 5
                 }
             }],
             filter_types=[GObject.TYPE_STRING, GObject.TYPE_STRING,
-                GObject.TYPE_STRING, GObject.TYPE_STRING, GObject.TYPE_STRING],
+                GObject.TYPE_STRING, GObject.TYPE_STRING,
+                GObject.TYPE_STRING, GObject.TYPE_STRING],
             callbacks={
                 "file-column-callback": self.file_column_callback,
                 "row-activated": self.on_row_activated,
@@ -154,9 +156,10 @@ class SVNBrowser(InterfaceView, GtkContextMenuCaller):
         self.items = self.action.get_result(item_index)
         self.items.sort(key = self.sort_files_key)
 
-        self.list_table.append(["..", 0, 0, "", 0])
+        self.list_table.append([S(".."), "..", 0, 0, "", 0])
         for item,locked in self.items[1:]:
             self.list_table.append([
+                S(item.path),
                 item.path,
                 item.created_rev.number,
                 item.size,

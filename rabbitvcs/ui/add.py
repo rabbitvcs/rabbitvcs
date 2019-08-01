@@ -38,6 +38,7 @@ import rabbitvcs.ui.widget
 import rabbitvcs.ui.dialog
 import rabbitvcs.ui.action
 from rabbitvcs.util import helper
+from rabbitvcs.util.strings import S
 import rabbitvcs.vcs
 from rabbitvcs.util.log import Log
 from rabbitvcs.vcs.status import Status
@@ -75,9 +76,11 @@ class Add(InterfaceView, GtkContextMenuCaller):
             if rabbitvcs.vcs.guess(path)['vcs'] == rabbitvcs.vcs.VCS_SVN:
                 self.get_widget("show_ignored").set_sensitive(False)
 
-        columns = [[GObject.TYPE_BOOLEAN, rabbitvcs.ui.widget.TYPE_PATH,
+        columns = [[GObject.TYPE_BOOLEAN,
+                    rabbitvcs.ui.widget.TYPE_HIDDEN_OBJECT,
+                    rabbitvcs.ui.widget.TYPE_PATH,
                     GObject.TYPE_STRING],
-                   [rabbitvcs.ui.widget.TOGGLE_BUTTON, _("Path"),
+                   [rabbitvcs.ui.widget.TOGGLE_BUTTON, "", _("Path"),
                     _("Extension")]]
 
         self.setup(self.get_widget("Add"), columns)
@@ -90,7 +93,7 @@ class Add(InterfaceView, GtkContextMenuCaller):
                 "callback": rabbitvcs.ui.widget.path_filter,
                 "user_data": {
                     "base_dir": base_dir,
-                    "column": 1
+                    "column": 2
                 }
             }],
             callbacks={
@@ -140,6 +143,7 @@ class Add(InterfaceView, GtkContextMenuCaller):
         for item in self.items:
             self.files_table.append([
                 True,
+                S(item.path),
                 item.path,
                 helper.get_file_extension(item.path)
             ])

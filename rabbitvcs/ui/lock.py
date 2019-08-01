@@ -70,7 +70,8 @@ class SVNLock(InterfaceView, GtkContextMenuCaller):
 
         self.files_table = rabbitvcs.ui.widget.Table(
             self.get_widget("files_table"),
-            [GObject.TYPE_BOOLEAN, rabbitvcs.ui.widget.TYPE_PATH, GObject.TYPE_STRING,
+            [GObject.TYPE_BOOLEAN, rabbitvcs.ui.widget.TYPE_HIDDEN_OBJECT,
+                rabbitvcs.ui.widget.TYPE_PATH, GObject.TYPE_STRING,
                 GObject.TYPE_STRING],
             [rabbitvcs.ui.widget.TOGGLE_BUTTON, _("Path"), _("Extension"),
                 _("Locked")],
@@ -78,7 +79,7 @@ class SVNLock(InterfaceView, GtkContextMenuCaller):
                 "callback": rabbitvcs.ui.widget.path_filter,
                 "user_data": {
                     "base_dir": base_dir,
-                    "column": 1
+                    "column": 2
                 }
             }],
             callbacks={
@@ -128,6 +129,7 @@ class SVNLock(InterfaceView, GtkContextMenuCaller):
 
             self.files_table.append([
                 True,
+                S(item.path),
                 item.path,
                 helper.get_file_extension(item.path),
                 locked

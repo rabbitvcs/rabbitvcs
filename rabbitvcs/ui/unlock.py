@@ -37,6 +37,7 @@ from rabbitvcs.ui.action import SVNAction
 import rabbitvcs.ui.widget
 import rabbitvcs.ui.dialog
 import rabbitvcs.ui.action
+from rabbitvcs.util.strings import S
 from rabbitvcs.util.log import Log
 
 log = Log("rabbitvcs.ui.unlock")
@@ -85,6 +86,7 @@ class SVNUnlock(Add):
 
             self.files_table.append([
                 True,
+                S(item.path),
                 item.path,
                 helper.get_file_extension(item.path)
             ])

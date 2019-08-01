@@ -22,6 +22,9 @@ from __future__ import absolute_import
 #
 
 import os
+import dbus
+
+from rabbitvcs.util import helper
 
 import gi
 gi.require_version("Gtk", "3.0")

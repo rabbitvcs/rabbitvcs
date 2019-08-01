@@ -39,6 +39,7 @@ import rabbitvcs.ui.widget
 import rabbitvcs.ui.dialog
 import rabbitvcs.ui.action
 import rabbitvcs.vcs
+from rabbitvcs.util.strings import S
 from rabbitvcs.util.log import Log
 from rabbitvcs.vcs.status import Status
 
@@ -72,14 +73,14 @@ class Revert(InterfaceView, GtkContextMenuCaller):
         self.statuses = self.vcs.statuses_for_revert(paths)
         self.files_table = rabbitvcs.ui.widget.Table(
             self.get_widget("files_table"),
-            [GObject.TYPE_BOOLEAN, rabbitvcs.ui.widget.TYPE_PATH,
-                GObject.TYPE_STRING],
-            [rabbitvcs.ui.widget.TOGGLE_BUTTON, _("Path"), _("Extension")],
+            [GObject.TYPE_BOOLEAN, rabbitvcs.ui.widget.TYPE_HIDDEN_OBJECT,
+                rabbitvcs.ui.widget.TYPE_PATH, GObject.TYPE_STRING],
+            [rabbitvcs.ui.widget.TOGGLE_BUTTON, "", _("Path"), _("Extension")],
             filters=[{
                 "callback": rabbitvcs.ui.widget.path_filter,
                 "user_data": {
                     "base_dir": base_dir,
-                    "column": 1
+                    "column": 2
                 }
             }],
             callbacks={
@@ -90,17 +91,6 @@ class Revert(InterfaceView, GtkContextMenuCaller):
         )
 
         self.initialize_items()
-
-    def populate_files_table(self):
-        self.files_table.clear()
-        for item in self.items:
-            self.files_table.append([
-                True,
-                item.path,
-                helper.get_file_extension(item.path),
-                item.simple_content_status(),
-                item.simple_metadata_status()
-            ])
 
     def on_ok_clicked(self, widget):
         return True
@@ -117,6 +107,7 @@ class Revert(InterfaceView, GtkContextMenuCaller):
         for item in self.items:
             self.files_table.append([
                 True,
+                S(item.path),
                 item.path,
                 helper.get_file_extension(item.path)
             ])
