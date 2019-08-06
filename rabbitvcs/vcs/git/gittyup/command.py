@@ -57,7 +57,7 @@ class GittyupCommand:
                                 close_fds=True,
                                 preexec_fn=os.setsid)
 
-        out = codecs.getreader(UTF8_ENCODING)(proc.stdout, SURROGATEESCAPE)
+        out = codecs.getreader(UTF8_ENCODING)(proc.stdout, SURROGATE_ESCAPE)
         stdout = []
 
         while True:

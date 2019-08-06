@@ -910,22 +910,22 @@ def url_join(path, *args):
 def _quote(text):
     return six.moves.urllib.parse.quote(text,
                                         encoding=UTF8_ENCODING,
-                                        errors=SURROGATEESCAPE)
+                                        errors=SURROGATE_ESCAPE)
 
 def _quote_plus(text):
     return six.moves.urllib.parse.quote_plus(text,
                                              encoding=UTF8_ENCODING,
-                                             errors=SURROGATEESCAPE)
+                                             errors=SURROGATE_ESCAPE)
 
 def _unquote(text):
     return six.moves.urllib.parse.unquote(text,
                                           encoding=UTF8_ENCODING,
-                                          errors=SURROGATEESCAPE)
+                                          errors=SURROGATE_ESCAPE)
 
 def _unquote_plus(text):
     return six.moves.urllib.parse.unquote_plus(text,
                                                encoding=UTF8_ENCODING,
-                                               errors=SURROGATEESCAPE)
+                                               errors=SURROGATE_ESCAPE)
 
 quote = _quote
 quote_plus = _quote_plus
@@ -1104,7 +1104,7 @@ def parse_patch_output(patch_file, base_dir, strip=0):
                                       env = env)
 
     # Intialise things...
-    out = codecs.getreader(UTF8_ENCODING)(patch_proc.stdout, SURROGATEESCAPE)
+    out = codecs.getreader(UTF8_ENCODING)(patch_proc.stdout, SURROGATE_ESCAPE)
     line = out.readline()
     patch_match = PATCHING_RE.match(line)
 
