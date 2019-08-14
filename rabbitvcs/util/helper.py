@@ -77,7 +77,7 @@ DT_FORMAT_THISWEEK = _("%a %I:%M%p")
 DT_FORMAT_THISYEAR = _("%b %d")
 DT_FORMAT_ALL = _("%b %d %Y")
 
-LINE_BREAK_CHAR = u'\u23CE'
+LINE_BREAK_CHAR = six.unichr(0x23CE)
 
 
 def compare_version(version1, version2, length = None):
@@ -178,13 +178,13 @@ def format_long_text(text, cols = None, line1only = False):
     line. If the param "cols" is given, the text
     beyond cols is replaced by "...".
     """
-    text = text.strip().replace(u"\n", LINE_BREAK_CHAR)
+    text = S(text.strip()).unicode().replace(six.u("\n"), LINE_BREAK_CHAR)
     if line1only:
         i = text.find(LINE_BREAK_CHAR)
         if i >= 0:
             text = text[:i]
     if cols and len(text) > cols:
-        text = u"%s..." % text[0:cols]
+        text = six.u("%s...") % text[0:cols]
 
     return text
 
