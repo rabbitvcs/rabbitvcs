@@ -171,7 +171,7 @@ class S(str):
         def encode(self, encoding=UTF8_ENCODING, errors=SURROGATE_ESCAPE):
             encoding, errors = self._codeargs(encoding, errors)
             if encoding.lower() == UTF8_ENCODING:
-                return self
+                return str(self)
             value = super(S, self).decode(UTF8_ENCODING, SURROGATE_ESCAPE)
             return value.encode(encoding, errors)
 
@@ -182,7 +182,7 @@ class S(str):
         def display(self, encoding=None, errors='replace'):
             encoding, errors = self._codeargs(encoding, errors)
             if encoding.lower() == UTF8_ENCODING:
-                return self
+                return str(self)
             value = super(S, self).decode(UTF8_ENCODING, 'replace')
             return value.encode(encoding, errors)
 
@@ -203,7 +203,7 @@ class S(str):
             return super(S, self).encode(encoding, errors)
 
         def decode(self, encoding=UTF8_ENCODING, errors=SURROGATE_ESCAPE):
-            return self;
+            return str(self);
 
         def display(self, encoding=None, errors='replace'):
             return RE_SURROGATE.sub(six.unichr(0xFFFD), self)

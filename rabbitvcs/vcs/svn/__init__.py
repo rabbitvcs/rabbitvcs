@@ -40,6 +40,7 @@ from rabbitvcs.util import helper
 from rabbitvcs.util.log import Log
 from rabbitvcs.util.decorators import structure_map
 from rabbitvcs.util.strings import *
+import six
 from six.moves import map
 from six.moves import range
 
@@ -52,16 +53,18 @@ _ = gettext.gettext
 commit_completed = "commit_completed"
 
 @structure_map
-def pure_str(obj):
+def pure_unicode(obj):
     """
-    Map object string subclass components to real str type.
+    Map object string subclass components to real unicode type.
 
     Pysvn (using PyCXX) does not like string subclasses as arguments and
-    requires unsubclassed string objects. This function is called each time
-    there is a risk of passing string subclass objects to the pysvn API.
+    requires unsubclassed string/unicode objects. In addition, it fails on
+    Python2 non-ascii byte strings when converting them to utf-8.
+    This function is called each time there is a risk of passing string or
+    unicode objects to the pysvn API.
     """
-    if isinstance(obj, str):
-        obj = str(obj)
+    if isinstance(obj, (six.string_types, six.text_type)):
+        obj = S(obj).unicode()
     return obj
 
 
@@ -263,11 +266,12 @@ class SVN:
 
         """
 
-        if path in self.cache:
+        spath = S(path)
+        if spath in self.cache:
             if invalidate:
-                del self.cache[path]
+                del self.cache[spath]
             else:
-                return self.cache.find_path_statuses(path)
+                return self.cache.find_path_statuses(spath)
 
         on_error = rabbitvcs.vcs.status.Status.status_unknown(path)
 
@@ -287,12 +291,13 @@ class SVN:
                 for st in pysvn_statuses:
                     # If not recursing, only return the item in question (if a file)
                     # or items directly under the path (if a directory)
-                    cmp_path = os.path.join(path, os.path.basename(st.path))
-                    if not recurse and cmp_path != st.path and st.path != path:
+                    st_path = S(st.path)
+                    cmp_path = os.path.join(path, os.path.basename(st_path))
+                    if not recurse and cmp_path != st_path and st_path != path:
                         continue
 
                     rabbitvcs_status = rabbitvcs.vcs.status.SVNStatus(st)
-                    self.cache[st.path] = rabbitvcs_status
+                    self.cache[st_path] = rabbitvcs_status
                     statuslist.append(rabbitvcs_status)
 
                 return statuslist
@@ -306,10 +311,10 @@ class SVN:
     def client_info(self, path):
         if islink(path):
             path = realpath(path)
-        return self.client.info(pure_str(path))
+        return self.client.info(pure_unicode(path))
 
     def client_status(self, *args, **kwargs):
-        return self.client.status(*pure_str(args), **pure_str(kwargs))
+        return self.client.status(*pure_unicode(args), **pure_unicode(kwargs))
 
     def find_repository_path(self, path):
         path_to_check = path
@@ -322,11 +327,12 @@ class SVN:
         return None
 
     def status(self, path, summarize=True, invalidate=False):
-        if path in self.cache:
+        spath = S(path)
+        if spath in self.cache:
             if invalidate:
-                del self.cache[path]
+                del self.cache[spath]
             else:
-                st = self.cache[path]
+                st = self.cache[spath]
                 if summarize:
                     st.summary = st.single
                 return st
@@ -336,7 +342,7 @@ class SVN:
         if summarize:
             path_status = None
             for st in all_statuses:
-                if st.path == path:
+                if S(st.path) == spath:
                     path_status = st
                     break
 
@@ -409,7 +415,7 @@ class SVN:
 
     def is_locked(self, path):
         is_locked = False
-        path = pure_str(path)
+        path = pure_unicode(path)
         try:
             is_locked = self.client.info2(path, recurse=False)[0][1].lock is not None
         except pysvn.ClientError as e:
@@ -517,7 +523,7 @@ class SVN:
         returner = ""
 
         try:
-            info = self.client.info2(pure_str(path), recurse=False)
+            info = self.client.info2(pure_unicode(path), recurse=False)
             returner = info[0][1]["repos_root_URL"]
         except Exception as e:
             log.exception(e)
@@ -679,9 +685,9 @@ class SVN:
 
         try:
             self.client.propset(
-                pure_str(prop_name),
-                pure_str(props),
-                pure_str(path),
+                pure_unicode(prop_name),
+                pure_unicode(props),
+                pure_unicode(path),
                 recurse=recurse
             )
             return True
@@ -703,7 +709,7 @@ class SVN:
         @return:        A dictionary of properties.
 
         """
-        path = pure_str(path)
+        path = pure_unicode(path)
         if rev:
             returner = self.client.proplist(path, revision=rev)
         else:
@@ -732,8 +738,8 @@ class SVN:
 
         """
 
-        path = self.get_versioned_path(pure_str(path))
-        prop_name = pure_str(prop_name)
+        path = self.get_versioned_path(pure_unicode(path))
+        prop_name = pure_unicode(prop_name)
         try:
             if rev:
                 returner = self.client.propget(
@@ -780,8 +786,8 @@ class SVN:
         returner = False
         try:
             self.client.propdel(
-                pure_str(prop_name),
-                pure_str(path),
+                pure_unicode(prop_name),
+                pure_unicode(path),
                 recurse=recurse
             )
             returner = True
@@ -865,8 +871,10 @@ class SVN:
         if rev is None:
             rev = self.revision("head")
 
-        self.client.revpropset(pure_str(prop_name), pure_str(prop_value),
-            pure_str(url), revision=rev.primitive())
+        self.client.revpropset(pure_unicode(prop_name),
+                               pure_unicode(prop_value),
+                               pure_unicode(url),
+                               revision=rev.primitive())
 
     def revproplist(self, url, rev=None):
         """
@@ -886,7 +894,7 @@ class SVN:
         if rev is None:
             rev = self.revision("head")
 
-        return self.client.revproplist(pure_str(url), rev.primitive())[1]
+        return self.client.revproplist(pure_unicode(url), rev.primitive())[1]
 
     def revpropget(self, url, prop_name, rev=None):
         """
@@ -910,8 +918,8 @@ class SVN:
             rev = self.revision("head")
 
         return self.client.revpropget(
-            pure_str(prop_name),
-            pure_str(url),
+            pure_unicode(prop_name),
+            pure_unicode(url),
             revision=rev.primitive()
         )
 
@@ -937,8 +945,8 @@ class SVN:
             rev = self.revision("head")
 
         return self.client.revpropdel(
-            pure_str(prop_name),
-            pure_str(url),
+            pure_unicode(prop_name),
+            pure_unicode(url),
             revision=rev.primitive(),
             force=force
         )
@@ -1021,7 +1029,7 @@ class SVN:
 
         """
 
-        return self.client.add(pure_str(paths), recurse)
+        return self.client.add(pure_unicode(paths), recurse)
 
     def add_backwards(self, path):
         """
@@ -1032,7 +1040,7 @@ class SVN:
         @param path: the path to add to version control
         @type path: string
         """
-        head, tail = pure_str(path),""
+        head, tail = pure_unicode(path),""
         tails = list()
 
         # We need to add backwards-recursively, since patch could create
@@ -1064,8 +1072,8 @@ class SVN:
         @param  revision: A pysvn.Revision object.
 
         """
-        src = helper.urlize(pure_str(src))
-        dest = helper.urlize(pure_str(dest))
+        src = helper.urlize(pure_unicode(src))
+        dest = helper.urlize(pure_unicode(dest))
         return self.client.copy(src, dest, revision.primitive())
 
     def copy_all(self, sources, dest_url_or_path, copy_as_child=False,
@@ -1091,8 +1099,8 @@ class SVN:
 
         """
 
-        return self.client.copy2(pure_str(sources),
-            pure_str(dest_url_or_path), copy_as_child,
+        return self.client.copy2(pure_unicode(sources),
+            pure_unicode(dest_url_or_path), copy_as_child,
             make_parents, None, ignore_externals)
 
     def checkout(self, url, path, recurse=True, revision=Revision("head"),
@@ -1118,9 +1126,9 @@ class SVN:
 
         """
 
-        url = helper.urlize(pure_str(url))
+        url = helper.urlize(pure_unicode(url))
 
-        return self.client.checkout(url, pure_str(path),
+        return self.client.checkout(url, pure_unicode(path),
             recurse=recurse, revision=revision.primitive(),
             ignore_externals=ignore_externals)
 
@@ -1133,7 +1141,7 @@ class SVN:
 
         """
 
-        return self.client.cleanup(pure_str(path))
+        return self.client.cleanup(pure_unicode(path))
 
     def revert(self, paths):
         """
@@ -1144,7 +1152,7 @@ class SVN:
 
         """
 
-        return self.client.revert(pure_str(paths))
+        return self.client.revert(pure_unicode(paths))
 
     def commit(self, paths, log_message="", recurse=False, keep_locks=False):
         """
@@ -1174,8 +1182,8 @@ class SVN:
         except AttributeError:
             kwargs["recurse"] = recurse
 
-        retval = self.client.checkin(pure_str(paths),
-                                     pure_str(log_message), **kwargs)
+        retval = self.client.checkin(pure_unicode(paths),
+                                     pure_unicode(log_message), **kwargs)
         dummy_commit_dict = {
             "revision": retval,
             "action": rabbitvcs.vcs.svn.commit_completed
@@ -1204,7 +1212,7 @@ class SVN:
 
         """
 
-        log = self.client.log(pure_str(url_or_path),
+        log = self.client.log(pure_unicode(url_or_path),
             revision_start.primitive(), revision_end.primitive(),
             discover_changed_paths, strict_node_history, limit)
 
@@ -1273,8 +1281,8 @@ class SVN:
 
         """
 
-        self.client.export(pure_str(src_url_or_path),
-            pure_str(dest_path), force,
+        self.client.export(pure_unicode(src_url_or_path),
+            pure_unicode(dest_path), force,
             revision.primitive(), native_eol, ignore_externals, recurse)
 
     def import_(self, path, url, log_message, ignore=False):
@@ -1297,9 +1305,9 @@ class SVN:
         """
 
         url = helper.urlize(url)
-        return self.client.import_(pure_str(path),
-                                   pure_str(url),
-                                   pure_str(log_message), ignore)
+        return self.client.import_(pure_unicode(path),
+                                   pure_unicode(url),
+                                   pure_unicode(log_message), ignore)
 
     def lock(self, url_or_path, lock_comment, force=False):
 
@@ -1317,8 +1325,8 @@ class SVN:
 
         """
 
-        return self.client.lock(pure_str(url_or_path),
-                                pure_str(lock_comment), force)
+        return self.client.lock(pure_unicode(url_or_path),
+                                pure_unicode(lock_comment), force)
 
     def relocate(self, from_url, to_url, path, recurse=True):
 
@@ -1336,8 +1344,8 @@ class SVN:
 
         """
 
-        from_url = helper.urlize(pure_str(from_url))
-        to_url = helper.urlize(pure_str(to_url))
+        from_url = helper.urlize(pure_unicode(from_url))
+        to_url = helper.urlize(pure_unicode(to_url))
         return self.client.relocate(from_url, to_url, path, recurse)
 
     def move(self, src_url_or_path, dest_url_or_path):
@@ -1353,8 +1361,8 @@ class SVN:
 
         """
 
-        src_url_or_path = pure_str(src_url_or_path)
-        dest_url_or_path = pure_str(dest_url_or_path)
+        src_url_or_path = pure_unicode(src_url_or_path)
+        dest_url_or_path = pure_unicode(dest_url_or_path)
         if hasattr(self.client, "move2"):
             return self.client.move2([src_url_or_path], dest_url_or_path)
         else:
@@ -1381,8 +1389,8 @@ class SVN:
 
         """
 
-        return self.client.move2(pure_str(sources),
-            pure_str(dest_url_or_path),
+        return self.client.move2(pure_unicode(sources),
+            pure_unicode(dest_url_or_path),
             move_as_child=move_as_child, make_parents=make_parents)
 
     def remove(self, url_or_path, force=False, keep_local=False):
@@ -1401,7 +1409,7 @@ class SVN:
 
         """
 
-        return self.client.remove(pure_str(url_or_path),
+        return self.client.remove(pure_unicode(url_or_path),
                                   force, keep_local)
 
     def revert(self, paths, recurse=False):
@@ -1416,7 +1424,7 @@ class SVN:
 
         """
 
-        return self.client.revert(pure_str(paths), recurse)
+        return self.client.revert(pure_unicode(paths), recurse)
 
     def resolve(self, path, recurse=True):
         """
@@ -1430,7 +1438,7 @@ class SVN:
 
         """
 
-        return self.client.resolved(pure_str(path), recurse)
+        return self.client.resolved(pure_unicode(path), recurse)
 
     def switch(self, path, url, revision=Revision("head")):
         """
@@ -1447,8 +1455,8 @@ class SVN:
 
         """
 
-        url = helper.urlize(pure_str(url))
-        return self.client.switch(pure_str(path), url, revision.primitive())
+        url = helper.urlize(pure_unicode(url))
+        return self.client.switch(pure_unicode(path), url, revision.primitive())
 
     def unlock(self, path, force=False):
         """
@@ -1462,7 +1470,7 @@ class SVN:
 
         """
 
-        return self.client.unlock(pure_str(path), force)
+        return self.client.unlock(pure_unicode(path), force)
 
     def update(self, path, recurse=True, revision=Revision("head"),
             ignore_externals=False):
@@ -1483,7 +1491,7 @@ class SVN:
 
         """
 
-        return self.client.update(pure_str(path),
+        return self.client.update(pure_unicode(path),
                                   recurse, revision.primitive(),
                                   ignore_externals)
 
@@ -1503,7 +1511,7 @@ class SVN:
 
         """
 
-        return self.client.annotate(pure_str(url_or_path),
+        return self.client.annotate(pure_unicode(url_or_path),
                                     from_revision.primitive(),
                                     to_revision.primitive())
 
@@ -1540,10 +1548,10 @@ class SVN:
         TODO: Will firm up the parameter documentation later
 
         """
-        return self.client.merge_peg2(pure_str(source),
+        return self.client.merge_peg2(pure_unicode(source),
                                       ranges_to_merge,
                                       peg_revision.primitive(),
-                                      pure_str(target_wcpath),
+                                      pure_unicode(target_wcpath),
                                       notice_ancestry=notice_ancestry,
                                       force=force,
                                       dry_run=dry_run,
@@ -1592,13 +1600,13 @@ class SVN:
 
         """
 
-        url_or_path1 = helper.urlize(pure_str(url_or_path1))
-        url_or_path2 = helper.urlize(pure_str(url_or_path2))
+        url_or_path1 = helper.urlize(pure_unicode(url_or_path1))
+        url_or_path2 = helper.urlize(pure_unicode(url_or_path2))
         return self.client.merge(url_or_path1,
                                  revision1.primitive(),
                                  url_or_path2,
                                  revision2.primitive(),
-                                 pure_str(local_path),
+                                 pure_unicode(local_path),
                                  force = force,
                                  recurse = recurse,
                                  dry_run = dry_run,
@@ -1629,9 +1637,9 @@ class SVN:
 
         """
 
-        return self.client.merge_reintegrate(pure_str(url_or_path),
+        return self.client.merge_reintegrate(pure_unicode(url_or_path),
                                              revision.primitive(),
-                                             pure_str(local_path),
+                                             pure_unicode(local_path),
                                              dry_run = dry_run)
 
 
@@ -1670,10 +1678,10 @@ class SVN:
 
         """
 
-        return self.client.diff(pure_str(tmp_path),
-                                pure_str(url_or_path),
+        return self.client.diff(pure_unicode(tmp_path),
+                                pure_unicode(url_or_path),
                                 revision1.primitive(),
-                                pure_str(url_or_path2),
+                                pure_unicode(url_or_path2),
                                 revision2.primitive(), recurse, ignore_ancestry,
                                 diff_deleted, ignore_content_type)
 
@@ -1705,15 +1713,15 @@ class SVN:
 
         """
 
-        return self.client.diff_summarize(pure_str(url_or_path1),
+        return self.client.diff_summarize(pure_unicode(url_or_path1),
                                           revision1.primitive(),
-                                          pure_str(url_or_path2),
+                                          pure_unicode(url_or_path2),
                                           revision2.primitive(),
                                           recurse, ignore_ancestry)
 
     def list(self, url_or_path, revision=Revision("HEAD"), recurse=True):
         url_or_path = helper.urlize(url_or_path)
-        return self.client.list(pure_str(url_or_path),
+        return self.client.list(pure_unicode(url_or_path),
                                 revision=revision.primitive(), recurse=recurse)
 
     def mkdir(self, url_or_path, log_message):
@@ -1728,8 +1736,8 @@ class SVN:
 
         """
 
-        return self.client.mkdir(pure_str(url_or_path),
-                                 pure_str(log_message))
+        return self.client.mkdir(pure_unicode(url_or_path),
+                                 pure_unicode(log_message))
 
     def apply_patch(self, patch_file, base_dir):
         """
