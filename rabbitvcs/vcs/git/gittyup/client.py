@@ -1479,11 +1479,11 @@ class GittyupClient:
             ignore_file=False
             untracked_file=False
             for ignored_path in ignored_directories:
-                if ignored_path in file:
+                if S(ignored_path) in file:
                     ignore_file=True
                     break
             for untracked_path in untracked_directories:
-                if untracked_path in file:
+                if S(untracked_path) in file:
                     untracked_file=True
                     break
             if untracked_file==True:
