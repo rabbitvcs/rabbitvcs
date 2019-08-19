@@ -22,6 +22,7 @@ from __future__ import absolute_import
 #
 
 import os.path
+import six
 import six.moves._thread
 from datetime import datetime
 
@@ -222,11 +223,12 @@ class SVNBrowser(InterfaceView, GtkContextMenuCaller):
         Determine the node kind (dir or file) from our retrieved items list
         """
 
-        if filename == "..":
+        filename = S(filename).unicode()
+        if filename == six.u(".."):
             return "dir"
 
         for item,locked in self.items:
-            if item.path == filename:
+            if S(item.path).unicode() == filename:
                 return self.svn.NODE_KINDS_REVERSE[item.kind]
         return None
 

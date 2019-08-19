@@ -22,6 +22,7 @@
 
 from __future__ import division
 from __future__ import absolute_import
+import six
 import threading
 from datetime import datetime
 
@@ -1511,14 +1512,14 @@ class LogBottomContextMenuCallbacks:
 
         parent = self.find_parent(self.revisions[0])
 
-        path_item = self.paths[0]
+        path_item = S(self.paths[0]).unicode()
         url = self.caller.root_url + path_item
         self.caller.view_diff_for_path(url, rev, parent)
 
     def view_diff_revisions(self, widget, data=None):
         rev_first = S(self.revisions[0]["revision"])
         rev_last = S(self.revisions[-1]["revision"])
-        path_item = self.paths[0]
+        path_item = S(self.paths[0]).unicode()
         url = self.caller.root_url + path_item
         self.caller.view_diff_for_path(url, latest_revision_number=rev_last,
                                        earliest_revision_number=rev_first)
@@ -1528,14 +1529,14 @@ class LogBottomContextMenuCallbacks:
 
         parent = self.find_parent(self.revisions[0])
 
-        path_item = self.paths[0]
+        path_item = S(self.paths[0]).unicode()
         url = self.caller.root_url + path_item
         self.caller.view_diff_for_path(url, rev, parent, sidebyside=True)
 
     def compare_revisions(self, widget, data=None):
         earliest_rev = S(self.revisions[0]["revision"])
         latest_rev = S(self.revisions[-1]["revision"])
-        path_item = self.paths[0]
+        path_item = S(self.paths[0]).unicode()
         url = self.caller.root_url + path_item
         self.caller.view_diff_for_path(url,
                                         latest_rev,
@@ -1548,11 +1549,11 @@ class LogBottomContextMenuCallbacks:
 
         parent = self.find_parent(self.revisions[0])
 
-        url = self.caller.root_url + self.paths[0]
+        url = self.caller.root_url + S(self.paths[0]).unicode()
 
         helper.launch_ui_window("changes", [
-            "%s@%s" % (url, parent),
-            "%s@%s" % (url, rev_last),
+            six.u("%s@%s") % (url, parent),
+            six.u("%s@%s") % (url, rev_last),
             "--vcs=%s" % self.caller.get_vcs_name()
         ])
 
@@ -1560,18 +1561,18 @@ class LogBottomContextMenuCallbacks:
         rev_first = S(self.revisions[0]["revision"])
         rev_last = S(self.revisions[-1]["revision"])
 
-        url = self.caller.root_url + self.paths[0]
+        url = self.caller.root_url + S(self.paths[0]).unicode()
 
         helper.launch_ui_window("changes", [
-            "%s@%s" % (url, rev_first),
-            "%s@%s" % (url, rev_last),
+            six.u("%s@%s") % (url, rev_first),
+            six.u("%s@%s") % (url, rev_last),
             "--vcs=%s" % self.caller.get_vcs_name()
         ])
 
 
     def _open(self, widget, data=None):
         for path in self.paths:
-            path = self.caller.root_url + path
+            path = self.caller.root_url + S(path).unicode()
             helper.launch_ui_window("open", [
                 path,
                 "--vcs=%s" % self.vcs_name,
@@ -1579,7 +1580,7 @@ class LogBottomContextMenuCallbacks:
             ])
 
     def annotate(self, widget, data=None):
-        url = self.caller.root_url + self.paths[0]
+        url = self.caller.root_url + S(self.paths[0]).unicode()
         helper.launch_ui_window("annotate", [
             url,
             "--vcs=%s" % self.vcs_name,
