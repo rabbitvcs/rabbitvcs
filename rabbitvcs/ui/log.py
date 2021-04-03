@@ -191,7 +191,7 @@ class Log(InterfaceView):
 
     def on_search(self, widget):
         tb = self.get_widget("search_buffer")
-        self.filter_text = tb.get_text(tb.get_start_iter(), tb.get_end_iter()).lower()
+        self.filter_text = tb.get_text(tb.get_start_iter(), tb.get_end_iter(),0).lower()
 
         self.refresh()
 
