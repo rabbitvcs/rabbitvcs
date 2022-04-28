@@ -25,6 +25,12 @@ Unit tests for the top-level rabbitvcs package.
 
 """
 from __future__ import absolute_import
+from rabbitvcs.util.extensions.nautilus import RabbitVCS
+import rabbitvcs
+import pysvn
+from . import nautilus
+import traceback
+from unittest import TestCase, main
 
 # make sure the current working copy is in sys.path before anything else
 from os.path import abspath, dirname, join, normpath
@@ -32,20 +38,13 @@ import sys
 toplevel = normpath(join(dirname(abspath(__file__)), '..', '..'))
 sys.path.insert(0, toplevel)
 
-from unittest import TestCase, main
-import traceback
-
-from . import nautilus
-import pysvn
-import rabbitvcs
-from rabbitvcs.util.extensions.nautilus import RabbitVCS
-
 
 class RabbitVCSTest(TestCase):
     """
     Main RabbitVCS tests.
 
     """
+
     def test_package_name(self):
         """Make sure the package name is reported properly."""
         result = rabbitvcs.package_name()
@@ -71,6 +70,7 @@ class FakeVersion(object):
     Fake revision info for FakeInfo, below.
 
     """
+
     def __init__(self, number):
         self.number = number
 
@@ -80,6 +80,7 @@ class FakeInfo(object):
     Fake pysvn.Client.info() response.
 
     """
+
     def __init__(self):
         self.data = {'text_status': pysvn.wc_status_kind.none,
                      'commit_revision': FakeVersion(1234),
@@ -117,6 +118,7 @@ class FakeLog(object):
     within unit tests.
 
     """
+
     def __init__(self, prefix):
         self.prefix = prefix
         self.messages = []
@@ -137,6 +139,7 @@ class RabbitVCSPySvnTest(TestCase):
     fiddle with pysvn stuff for the tests to work.
 
     """
+
     def setUp(self):
         self.oldClient = pysvn.Client
         pysvn.Client = FakeClient
@@ -179,7 +182,7 @@ class RabbitVCSPySvnTest(TestCase):
         self.nsvn.update_columns(item, path)
         self.assertEqual(FakeClient.instance_count, 2)
         if len(self.logger.messages) > 0:
-            for e,m,t in self.logger.messages:
+            for e, m, t in self.logger.messages:
                 traceback.print_exception(e, m, t)
             self.fail()
 

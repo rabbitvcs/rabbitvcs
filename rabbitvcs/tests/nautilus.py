@@ -4,11 +4,14 @@ to get the RabbitVCS extension to load properly.
 
 """
 
+
 class InfoProvider(object):
     pass
 
+
 class MenuProvider(object):
     pass
+
 
 class ColumnProvider(object):
     pass
