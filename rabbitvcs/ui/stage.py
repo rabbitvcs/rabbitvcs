@@ -1,4 +1,15 @@
 from __future__ import absolute_import
+from rabbitvcs import gettext
+import rabbitvcs.vcs
+from rabbitvcs.util.log import Log
+from rabbitvcs.util.strings import S
+import rabbitvcs.ui.action
+import rabbitvcs.ui.dialog
+import rabbitvcs.ui.widget
+from rabbitvcs.ui.action import SVNAction
+from rabbitvcs.ui.add import Add
+from rabbitvcs.ui import InterfaceView
+from gi.repository import Gtk, GObject, Gdk
 #
 # This is an extension to the Nautilus file manager to allow better
 # integration with the Subversion source control system.
@@ -28,24 +39,13 @@ from rabbitvcs.util import helper
 import gi
 gi.require_version("Gtk", "3.0")
 sa = helper.SanitizeArgv()
-from gi.repository import Gtk, GObject, Gdk
 sa.restore()
 
-from rabbitvcs.ui import InterfaceView
-from rabbitvcs.ui.add import Add
-from rabbitvcs.ui.action import SVNAction
-import rabbitvcs.ui.widget
-import rabbitvcs.ui.dialog
-import rabbitvcs.ui.action
-from rabbitvcs.util.strings import S
-from rabbitvcs.util.log import Log
-
-import rabbitvcs.vcs
 
 log = Log("rabbitvcs.ui.stage")
 
-from rabbitvcs import gettext
 _ = gettext.gettext
+
 
 class GitStage(Add):
     def setup(self, window, columns):
@@ -76,12 +76,14 @@ class GitStage(Add):
         )
 
         self.action.append(self.action.set_header, _("Stage"))
-        self.action.append(self.action.set_status, _("Running Stage Command..."))
+        self.action.append(self.action.set_status,
+                           _("Running Stage Command..."))
         for item in items:
             self.action.append(self.git.stage, item)
         self.action.append(self.action.set_status, _("Completed Stage"))
         self.action.append(self.action.finish)
         self.action.schedule()
+
 
 class GitStageQuiet(object):
     def __init__(self, paths, base_dir=None):
@@ -96,6 +98,7 @@ class GitStageQuiet(object):
             self.action.append(self.git.stage, path)
         self.action.schedule()
 
+
 classes_map = {
     rabbitvcs.vcs.VCS_GIT: GitStage
 }
@@ -103,6 +106,7 @@ classes_map = {
 quiet_classes_map = {
     rabbitvcs.vcs.VCS_GIT: GitStageQuiet
 }
+
 
 def stage_factory(classes_map, paths, base_dir=None):
     guess = rabbitvcs.vcs.guess(paths[0])

@@ -1,4 +1,10 @@
 from __future__ import absolute_import
+from rabbitvcs.util.strings import S
+import rabbitvcs.util.helper
+import rabbitvcs.ui.wraplabel
+import rabbitvcs.ui.widget
+from rabbitvcs.ui import InterfaceView
+from gi.repository import Gtk, GObject, Gdk, Pango
 #
 # This is an extension to the Nautilus file manager to allow better
 # integration with the Subversion source control system.
@@ -25,22 +31,18 @@ from gettext import gettext as _
 import os.path
 import gi
 gi.require_version("Gtk", "3.0")
-from gi.repository import Gtk, GObject, Gdk, Pango
 
-from rabbitvcs.ui import InterfaceView
-import rabbitvcs.ui.widget
-import rabbitvcs.ui.wraplabel
-import rabbitvcs.util.helper
-from rabbitvcs.util.strings import S
 
 ERROR_NOTICE = _("""\
 An error has occurred in the RabbitVCS Nautilus extension. Please contact the \
 <a href="%s">RabbitVCS team</a> with the error details listed below:"""
-    % (rabbitvcs.WEBSITE))
+                 % (rabbitvcs.WEBSITE))
+
 
 class PreviousMessages(InterfaceView):
     def __init__(self):
-        InterfaceView.__init__(self, "dialogs/previous_messages", "PreviousMessages")
+        InterfaceView.__init__(
+            self, "dialogs/previous_messages", "PreviousMessages")
 
         self.message = rabbitvcs.ui.widget.TextView(
             self.get_widget("prevmes_message")
@@ -67,7 +69,7 @@ class PreviousMessages(InterfaceView):
             return None
 
         for entry in self.entries:
-            self.message_table.append([entry[0],entry[1]])
+            self.message_table.append([entry[0], entry[1]])
 
         if len(self.entries) > 0:
             self.message.set_text(S(self.entries[0][1]).display())
@@ -101,12 +103,13 @@ class PreviousMessages(InterfaceView):
             selected_message = selection[-1]
             self.message.set_text(S(selected_message).display())
 
+
 class FolderChooser(object):
     def __init__(self):
         self.dialog = Gtk.FileChooserDialog(
-            title = _("Select a Folder"),
-            parent = None,
-            action = Gtk.FileChooserAction.SELECT_FOLDER)
+            title=_("Select a Folder"),
+            parent=None,
+            action=Gtk.FileChooserAction.SELECT_FOLDER)
         self.dialog.add_button(_("_Cancel"), Gtk.ResponseType.CANCEL)
         self.dialog.add_button(_("_Select"), Gtk.ResponseType.OK)
         self.dialog.set_default_response(Gtk.ResponseType.OK)
@@ -120,6 +123,7 @@ class FolderChooser(object):
         self.dialog.destroy()
         return returner
 
+
 class Certificate(InterfaceView):
     """
     Provides a dialog to accept/accept_once/deny an ssl certificate
@@ -127,7 +131,7 @@ class Certificate(InterfaceView):
     """
 
     def __init__(self, realm="", host="",
-            issuer="", valid_from="", valid_until="", fingerprint=""):
+                 issuer="", valid_from="", valid_until="", fingerprint=""):
 
         InterfaceView.__init__(self, "dialogs/certificate", "Certificate")
 
@@ -155,9 +159,11 @@ class Certificate(InterfaceView):
         self.dialog.destroy()
         return result
 
+
 class Authentication(InterfaceView):
     def __init__(self, realm="", may_save=True):
-        InterfaceView.__init__(self, "dialogs/authentication", "Authentication")
+        InterfaceView.__init__(
+            self, "dialogs/authentication", "Authentication")
 
         self.get_widget("auth_realm").set_label(realm)
         self.get_widget("auth_save").set_sensitive(may_save)
@@ -177,9 +183,11 @@ class Authentication(InterfaceView):
         else:
             return (False, "", "", False)
 
+
 class CertAuthentication(InterfaceView):
     def __init__(self, realm="", may_save=True):
-        InterfaceView.__init__(self, "dialogs/cert_authentication", "CertAuthentication")
+        InterfaceView.__init__(
+            self, "dialogs/cert_authentication", "CertAuthentication")
 
         self.get_widget("certauth_realm").set_label(realm)
         self.get_widget("certauth_save").set_sensitive(may_save)
@@ -197,9 +205,11 @@ class CertAuthentication(InterfaceView):
         else:
             return (False, "", False)
 
+
 class SSLClientCertPrompt(InterfaceView):
     def __init__(self, realm="", may_save=True):
-        InterfaceView.__init__(self, "dialogs/ssl_client_cert_prompt", "SSLClientCertPrompt")
+        InterfaceView.__init__(
+            self, "dialogs/ssl_client_cert_prompt", "SSLClientCertPrompt")
 
         self.get_widget("sslclientcert_realm").set_label(realm)
         self.get_widget("sslclientcert_save").set_sensitive(may_save)
@@ -223,6 +233,7 @@ class SSLClientCertPrompt(InterfaceView):
         else:
             return (False, "", False)
 
+
 class Property(InterfaceView):
     def __init__(self, name="", value="", recurse=True):
         InterfaceView.__init__(self, "dialogs/property", "Property")
@@ -231,23 +242,23 @@ class Property(InterfaceView):
         self.save_value = value
 
         self.name = rabbitvcs.ui.widget.ComboBox(
-                self.get_widget("property_name"),
-                [   # default svn properties
-                    'svn:author',
-                    'svn:autoversioned',
-                    'svn:date',
-                    'svn:eol-style',
-                    'svn:executable',
-                    'svn:externals',
-                    'svn:ignore',
-                    'svn:keywords',
-                    'svn:log',
-                    'svn:mergeinfo',
-                    'svn:mime-type',
-                    'svn:needs-lock',
-                    'svn:special',
-                    ]
-                )
+            self.get_widget("property_name"),
+            [   # default svn properties
+                'svn:author',
+                'svn:autoversioned',
+                'svn:date',
+                'svn:eol-style',
+                'svn:executable',
+                'svn:externals',
+                'svn:ignore',
+                'svn:keywords',
+                'svn:log',
+                'svn:mergeinfo',
+                'svn:mime-type',
+                'svn:needs-lock',
+                'svn:special',
+            ]
+        )
         self.name.set_child_text(name)
 
         self.value = rabbitvcs.ui.widget.TextView(
@@ -273,12 +284,13 @@ class Property(InterfaceView):
         self.save_value = self.value.get_text()
         self.save_recurse = self.recurse.get_active()
 
+
 class FileChooser(object):
     def __init__(self, title=_("Select a File"), folder=None):
         self.dialog = Gtk.FileChooserDialog(
-            title = title,
-            parent = None,
-            action = Gtk.FileChooserAction.OPEN)
+            title=title,
+            parent=None,
+            action=Gtk.FileChooserAction.OPEN)
         self.dialog.add_button(_("_Cancel"), Gtk.ResponseType.CANCEL)
         self.dialog.add_button(_("_Open"),   Gtk.ResponseType.OK)
         if folder is not None:
@@ -293,12 +305,13 @@ class FileChooser(object):
         self.dialog.destroy()
         return returner
 
+
 class FileSaveAs(object):
     def __init__(self, title=_("Save As..."), folder=None):
         self.dialog = Gtk.FileChooserDialog(
-            title = title,
-            parent = None,
-            action = Gtk.FileChooserAction.SAVE)
+            title=title,
+            parent=None,
+            action=Gtk.FileChooserAction.SAVE)
         self.dialog.add_button(_("_Cancel"), Gtk.ResponseType.CANCEL)
         self.dialog.add_button(_("_Save"),   Gtk.ResponseType.OK)
         if folder is not None:
@@ -313,6 +326,7 @@ class FileSaveAs(object):
         self.dialog.destroy()
         return returner
 
+
 class Confirmation(InterfaceView):
     def __init__(self, message=_("Are you sure you want to continue?")):
         InterfaceView.__init__(self, "dialogs/confirmation", "Confirmation")
@@ -326,6 +340,7 @@ class Confirmation(InterfaceView):
 
         return result
 
+
 class MessageBox(InterfaceView):
     def __init__(self, message):
         InterfaceView.__init__(self, "dialogs/message_box", "MessageBox")
@@ -335,9 +350,11 @@ class MessageBox(InterfaceView):
         dialog.run()
         dialog.destroy()
 
+
 class DeleteConfirmation(InterfaceView):
     def __init__(self, path=None):
-        InterfaceView.__init__(self, "dialogs/delete_confirmation", "DeleteConfirmation")
+        InterfaceView.__init__(
+            self, "dialogs/delete_confirmation", "DeleteConfirmation")
 
         if path:
             path = "\"%s\"" % os.path.basename(path)
@@ -354,6 +371,7 @@ class DeleteConfirmation(InterfaceView):
         dialog.destroy()
 
         return result
+
 
 class TextChange(InterfaceView):
     def __init__(self, title=None, message=""):
@@ -374,9 +392,11 @@ class TextChange(InterfaceView):
 
         return (result, self.textview.get_text())
 
+
 class OneLineTextChange(InterfaceView):
     def __init__(self, title=None, label=None, current_text=None):
-        InterfaceView.__init__(self, "dialogs/one_line_text_change", "OneLineTextChange")
+        InterfaceView.__init__(
+            self, "dialogs/one_line_text_change", "OneLineTextChange")
         if title:
             self.get_widget("OneLineTextChange").set_title(title)
 
@@ -405,6 +425,7 @@ class OneLineTextChange(InterfaceView):
         self.dialog.destroy()
 
         return (result, new_text)
+
 
 class NewFolder(InterfaceView):
     def __init__(self):
@@ -435,10 +456,12 @@ class NewFolder(InterfaceView):
         else:
             return None
 
+
 class ErrorNotification(InterfaceView):
 
     def __init__(self, text):
-        InterfaceView.__init__(self, "dialogs/error_notification", "ErrorNotification")
+        InterfaceView.__init__(
+            self, "dialogs/error_notification", "ErrorNotification")
 
         notice = rabbitvcs.ui.wraplabel.WrapLabel(ERROR_NOTICE)
         notice.set_use_markup(True)
@@ -459,9 +482,11 @@ class ErrorNotification(InterfaceView):
         dialog.run()
         dialog.destroy()
 
+
 class NameEmailPrompt(InterfaceView):
     def __init__(self):
-        InterfaceView.__init__(self, "dialogs/name_email_prompt", "NameEmailPrompt")
+        InterfaceView.__init__(
+            self, "dialogs/name_email_prompt", "NameEmailPrompt")
 
         self.dialog = self.get_widget("NameEmailPrompt")
 
@@ -483,15 +508,18 @@ class NameEmailPrompt(InterfaceView):
         else:
             return (None, None)
 
+
 class MarkResolvedPrompt(InterfaceView):
     def __init__(self):
-        InterfaceView.__init__(self, "dialogs/mark_resolved_prompt", "MarkResolvedPrompt")
+        InterfaceView.__init__(
+            self, "dialogs/mark_resolved_prompt", "MarkResolvedPrompt")
 
     def run(self):
         self.dialog = self.get_widget("MarkResolvedPrompt")
         result = self.dialog.run()
         self.dialog.destroy()
         return result
+
 
 class ConflictDecision(InterfaceView):
     """
@@ -502,7 +530,8 @@ class ConflictDecision(InterfaceView):
 
     def __init__(self, filename=""):
 
-        InterfaceView.__init__(self, "dialogs/conflict_decision", "ConflictDecision")
+        InterfaceView.__init__(
+            self, "dialogs/conflict_decision", "ConflictDecision")
         self.get_widget("filename").set_text(S(filename).display())
 
     def run(self):
@@ -522,6 +551,7 @@ class ConflictDecision(InterfaceView):
         result = self.dialog.run()
         self.dialog.destroy()
         return result
+
 
 class Loading(InterfaceView):
     def __init__(self):

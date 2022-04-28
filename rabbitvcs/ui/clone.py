@@ -1,4 +1,13 @@
 from __future__ import absolute_import
+from rabbitvcs import gettext
+import rabbitvcs.vcs
+from rabbitvcs.util.strings import S
+import rabbitvcs.ui.action
+import rabbitvcs.ui.dialog
+import rabbitvcs.ui.widget
+from rabbitvcs.ui.checkout import Checkout
+from rabbitvcs.ui import InterfaceView
+from gi.repository import Gtk, GObject, Gdk
 #
 # This is an extension to the Nautilus file manager to allow better
 # integration with the Subversion source control system.
@@ -28,19 +37,11 @@ from rabbitvcs.util import helper
 import gi
 gi.require_version("Gtk", "3.0")
 sa = helper.SanitizeArgv()
-from gi.repository import Gtk, GObject, Gdk
 sa.restore()
 
-from rabbitvcs.ui import InterfaceView
-from rabbitvcs.ui.checkout import Checkout
-import rabbitvcs.ui.widget
-import rabbitvcs.ui.dialog
-import rabbitvcs.ui.action
-from rabbitvcs.util.strings import S
-import rabbitvcs.vcs
 
-from rabbitvcs import gettext
 _ = gettext.gettext
+
 
 class GitClone(Checkout):
     def __init__(self, path=None, url=None):
@@ -61,7 +62,8 @@ class GitClone(Checkout):
         path = self._get_path().strip()
 
         if not url or not path:
-            rabbitvcs.ui.dialog.MessageBox(_("The repository URL and destination path are both required fields."))
+            rabbitvcs.ui.dialog.MessageBox(
+                _("The repository URL and destination path are both required fields."))
             return
 
         self.hide()
@@ -70,7 +72,8 @@ class GitClone(Checkout):
             register_gtk_quit=self.gtk_quit_is_set()
         )
         self.action.append(self.action.set_header, _("Clone"))
-        self.action.append(self.action.set_status, _("Running Clone Command..."))
+        self.action.append(self.action.set_status,
+                           _("Running Clone Command..."))
         self.action.append(helper.save_repository_path, url)
         self.action.append(
             self.git.clone,
@@ -110,9 +113,11 @@ class GitClone(Checkout):
 
         self.get_widget("ok").set_sensitive(self.complete)
 
+
 classes_map = {
     rabbitvcs.vcs.VCS_GIT: GitClone
 }
+
 
 def clone_factory(classes_map, vcs, path=None, url=None):
     return classes_map[vcs](path, url)

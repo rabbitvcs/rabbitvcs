@@ -1,4 +1,14 @@
 from __future__ import absolute_import
+from rabbitvcs import gettext
+from rabbitvcs.ui.commit import SVNCommit, GitCommit
+from rabbitvcs.util.log import Log
+from rabbitvcs.util.strings import S
+import rabbitvcs.util
+import rabbitvcs.ui.dialog
+import rabbitvcs.ui.widget
+from rabbitvcs.ui.action import SVNAction, GitAction
+from rabbitvcs.ui import InterfaceView
+from gi.repository import Gtk, GObject, Gdk
 #
 # This is an extension to the Nautilus file manager to allow better
 # integration with the Subversion source control system.
@@ -31,24 +41,15 @@ from rabbitvcs.util import helper
 import gi
 gi.require_version("Gtk", "3.0")
 sa = helper.SanitizeArgv()
-from gi.repository import Gtk, GObject, Gdk
 sa.restore()
 
-from rabbitvcs.ui import InterfaceView
-from rabbitvcs.ui.action import SVNAction, GitAction
-import rabbitvcs.ui.widget
-import rabbitvcs.ui.dialog
-import rabbitvcs.util
-from rabbitvcs.util.strings import S
-from rabbitvcs.util.log import Log
-from rabbitvcs.ui.commit import SVNCommit, GitCommit
 
 log = Log("rabbitvcs.ui.createpatch")
 
-from rabbitvcs import gettext
 _ = gettext.gettext
 
 helper.gobject_threads_init()
+
 
 class CreatePatch(InterfaceView):
     """
@@ -81,7 +82,8 @@ class CreatePatch(InterfaceView):
         self.common = helper.get_common_directory(paths)
 
         if not self.vcs.is_versioned(self.common):
-            rabbitvcs.ui.dialog.MessageBox(_("The given path is not a working copy"))
+            rabbitvcs.ui.dialog.MessageBox(
+                _("The given path is not a working copy"))
             raise SystemExit()
 
         self.files_table = rabbitvcs.ui.widget.Table(
@@ -121,9 +123,9 @@ class CreatePatch(InterfaceView):
         path = ""
 
         dialog = Gtk.FileChooserDialog(
-            title = _("Create Patch"),
-            parent = None,
-            action = Gtk.FileChooserAction.SAVE)
+            title=_("Create Patch"),
+            parent=None,
+            action=Gtk.FileChooserAction.SAVE)
         dialog.add_button(_("_Cancel"), Gtk.ResponseType.CANCEL)
         dialog.add_button(_("_Create"), Gtk.ResponseType.OK)
         dialog.set_do_overwrite_confirmation(True)
@@ -139,6 +141,7 @@ class CreatePatch(InterfaceView):
         dialog.destroy()
 
         return path
+
 
 class SVNCreatePatch(CreatePatch, SVNCommit):
     def __init__(self, paths, base_dir=None):
@@ -173,7 +176,7 @@ class SVNCreatePatch(CreatePatch, SVNCommit):
         self.action.append(self.action.set_status, _("Creating Patch File..."))
 
         def create_patch_action(patch_path, patch_items, base_dir):
-            fileObj = open(patch_path,"w")
+            fileObj = open(patch_path, "w")
 
             # PySVN takes a path to create its own temp files...
             temp_dir = tempfile.mkdtemp(prefix=rabbitvcs.TEMP_DIR_PREFIX)
@@ -196,7 +199,7 @@ class SVNCreatePatch(CreatePatch, SVNCommit):
 
             # Note: if we don't want to ignore errors here, we could define a
             # function that logs failures.
-            shutil.rmtree(temp_dir, ignore_errors = True)
+            shutil.rmtree(temp_dir, ignore_errors=True)
 
         self.action.append(create_patch_action, path, items, self.common)
 
@@ -206,6 +209,7 @@ class SVNCreatePatch(CreatePatch, SVNCommit):
 
         # TODO: Open the diff file (meld is going to add support in a future version :()
         # helper.launch_diff_tool(path)
+
 
 class GitCreatePatch(CreatePatch, GitCommit):
     def __init__(self, paths, base_dir=None):
@@ -240,7 +244,7 @@ class GitCreatePatch(CreatePatch, GitCommit):
         self.action.append(self.action.set_status, _("Creating Patch File..."))
 
         def create_patch_action(patch_path, patch_items, base_dir):
-            fileObj = open(patch_path,"w")
+            fileObj = open(patch_path, "w")
 
             # PySVN takes a path to create its own temp files...
             temp_dir = tempfile.mkdtemp(prefix=rabbitvcs.TEMP_DIR_PREFIX)
@@ -262,7 +266,7 @@ class GitCreatePatch(CreatePatch, GitCommit):
 
             # Note: if we don't want to ignore errors here, we could define a
             # function that logs failures.
-            shutil.rmtree(temp_dir, ignore_errors = True)
+            shutil.rmtree(temp_dir, ignore_errors=True)
 
         self.action.append(create_patch_action, path, items, self.common)
 
@@ -270,10 +274,12 @@ class GitCreatePatch(CreatePatch, GitCommit):
         self.action.append(self.action.finish)
         self.action.schedule()
 
+
 classes_map = {
     rabbitvcs.vcs.VCS_SVN: SVNCreatePatch,
     rabbitvcs.vcs.VCS_GIT: GitCreatePatch
 }
+
 
 def createpatch_factory(paths, base_dir):
     guess = rabbitvcs.vcs.guess(paths[0])

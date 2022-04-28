@@ -1,4 +1,14 @@
 from __future__ import absolute_import
+from pprint import pformat
+from rabbitvcs.ui import STATUS_EMBLEMS
+from rabbitvcs.util.log import Log
+from rabbitvcs import gettext
+import rabbitvcs.vcs
+from rabbitvcs.util.strings import S
+from rabbitvcs.util._locale import get_locale
+from rabbitvcs.util import helper
+from rabbitvcs.util.decorators import gtk_unsafe
+from gi.repository import Gtk, Gdk, GObject, Pango
 from six.moves import range
 #
 # This is an extension to the Nautilus file manager to allow better
@@ -28,7 +38,6 @@ from locale import strxfrm
 
 import gi
 gi.require_version("Gtk", "3.0")
-from gi.repository import Gtk, Gdk, GObject, Pango
 
 HAS_GTKSPELL = False
 try:
@@ -38,19 +47,11 @@ try:
 except (ImportError, ValueError):
     pass
 
-from rabbitvcs.util.decorators import gtk_unsafe
-from rabbitvcs.util import helper
-from rabbitvcs.util._locale import get_locale
-from rabbitvcs.util.strings import S
-import rabbitvcs.vcs
 
-from rabbitvcs import gettext
 _ = gettext.gettext
 
-from rabbitvcs.util.log import Log
 log = Log("rabbitvcs.ui.widget")
 
-from rabbitvcs.ui import STATUS_EMBLEMS
 
 TOGGLE_BUTTON = 'TOGGLE_BUTTON'
 TYPE_PATH = 'TYPE_PATH'
@@ -66,7 +67,7 @@ ELLIPSIZE_COLUMN_CHARS = 20
 PATH_ENTRY = 'PATH_ENTRY'
 SEPARATOR = u'\u2015' * 10
 
-from pprint import pformat
+
 def filter_router(model, iter, column, filters):
     """
     Route filter requests for a table's columns.  This function is called for
@@ -116,6 +117,7 @@ def filter_router(model, iter, column, filters):
 
     return row[column]
 
+
 def path_filter(row, column, user_data=None):
     """
     A common filter function that is used in many tables.  Changes the displayed
@@ -144,6 +146,7 @@ def path_filter(row, column, user_data=None):
     else:
         return row[column]
 
+
 def long_text_filter(row, column, user_data=None):
     """
     Uses the format_long_text helper function to trim and prettify some text.
@@ -152,11 +155,11 @@ def long_text_filter(row, column, user_data=None):
 
     cols = user_data["cols"]
 
-
     if text:
         text = helper.format_long_text(text, cols)
 
     return text
+
 
 def git_revision_filter(row, column, user_data=None):
     """
@@ -172,12 +175,15 @@ def git_revision_filter(row, column, user_data=None):
 
     return text
 
+
 def translate_filter(row, column, user_data=None):
     """
     Translates text as needed.
     """
     text = row[column]
-    if text: return _(text)
+    if text:
+        return _(text)
+
 
 def compare_items(model, iter1, iter2, user_data=None):
 
@@ -204,6 +210,7 @@ def compare_items(model, iter1, iter2, user_data=None):
         return -1
     else:
         return 1
+
 
 class TableBase(object):
     def __init__(self, treeview, coltypes, colnames, values=[], filters=None,
@@ -396,10 +403,9 @@ class TableBase(object):
         self.filter = self.data.filter_new()
         types = (filter_types and filter_types or coltypes)
         self.filter.set_modify_func(
-                        types,
-                        filter_router,
-                        filters)
-
+            types,
+            filter_router,
+            filters)
 
         # This runs through the columns, and sets the "compare_items" comparator
         # as needed. Note that the user data tells which column to sort on.
@@ -413,7 +419,8 @@ class TableBase(object):
                                           compare_items,
                                           (idx, coltypes[idx]))
 
-            self.sorted.set_sort_column_id(flags["sort_on"], Gtk.SortType.ASCENDING)
+            self.sorted.set_sort_column_id(
+                flags["sort_on"], Gtk.SortType.ASCENDING)
 
             self.treeview.set_model(self.sorted)
 
@@ -421,7 +428,6 @@ class TableBase(object):
             self.treeview.set_model(self.filter)
         else:
             self.treeview.set_model(self.data)
-
 
         if len(values) > 0:
             self.populate(values)
@@ -433,7 +439,8 @@ class TableBase(object):
         self.treeview.connect("cursor-changed", self.__cursor_changed_event)
         self.treeview.connect("row-activated", self.__row_activated_event)
         self.treeview.connect("button-press-event", self.__button_press_event)
-        self.treeview.connect("button-release-event", self.__button_release_event)
+        self.treeview.connect("button-release-event",
+                              self.__button_release_event)
         self.treeview.connect("key-press-event", self.__key_press_event)
         self.treeview.connect("select-cursor-row", self.__row_selected)
         # Necessary for self.selected_rows to remain sane
@@ -455,7 +462,6 @@ class TableBase(object):
             path = self.filter.convert_child_path_to_path(real_path)
         return path
 
-
     def _realpath(self, visible_path):
         """
         Converts a path (ie. row number) that we get from what the user selects
@@ -473,7 +479,8 @@ class TableBase(object):
         model = self.data
         realpath = self._realpath(Gtk.TreePath.new_from_string(path))
         # User has clicked a checkbox on a selected item.
-        toggleMulti = realpath in self.selected_rows and len(self.selected_rows) > 1
+        toggleMulti = realpath in self.selected_rows and len(
+            self.selected_rows) > 1
         model[realpath][column] = not model[realpath][column]
         if "row-toggled" in self.callbacks:
             self.callbacks["row-toggled"](model[realpath], column)
@@ -639,7 +646,8 @@ class TableBase(object):
             # keep the selection, otherwise, use the new selection
             result = any(index == info[0] for index in indexes)
         if "mouse-event" in self.callbacks:
-            result = self.callbacks["mouse-event"](treeview, event, *args) or result
+            result = self.callbacks["mouse-event"](
+                treeview, event, *args) or result
         return result
 
     def __row_activated_event(self, treeview, data, col):
@@ -705,7 +713,6 @@ class TableBase(object):
 
         cell.set_property("icon-name", icon)
 
-
     def file_pixbuf(self, column, cell, model, iter, data=None):
         icon_name = None
 
@@ -733,9 +740,9 @@ class Table(TableBase):
     """
 
     def __init__(self, treeview, coltypes, colnames, values=[], filters=None,
-            filter_types=None, callbacks={}, flags={}):
+                 filter_types=None, callbacks={}, flags={}):
         TableBase.__init__(self, treeview, coltypes, colnames, values, filters,
-            filter_types, callbacks, flags)
+                           filter_types, callbacks, flags)
 
     def get_store(self, coltypes):
         return Gtk.ListStore(*coltypes)
@@ -770,10 +777,11 @@ class Tree(TableBase):
     See the TableBase documentation for parameter information
 
     """
+
     def __init__(self, treeview, coltypes, colnames, values=[], filters=None,
-            filter_types=None, callbacks={}, flags={}):
+                 filter_types=None, callbacks={}, flags={}):
         TableBase.__init__(self, treeview, coltypes, colnames, values, filters,
-            filter_types, callbacks, flags)
+                           filter_types, callbacks, flags)
 
     def get_store(self, coltypes):
         return Gtk.TreeStore(*coltypes)
@@ -798,10 +806,10 @@ class Box(object):
         ch = [(box.child_get_property(c, "left-attach"),
                box.child_get_property(c, "width")) for c in box.get_children()]
         cv = [(box.child_get_property(c, "top-attach"),
-              box.child_get_property(c, "height")) for c in box.get_children()]
+               box.child_get_property(c, "height")) for c in box.get_children()]
         if ch:
-            ch.sort(key = lambda x: x[0])
-            cv.sort(key = lambda x: x[0])
+            ch.sort(key=lambda x: x[0])
+            cv.sort(key=lambda x: x[0])
             if ch[-1][0] - ch[0][0] > 0:
                 vertical = False
             elif cv[-1][0] - cv[0][0] > 0:
@@ -821,13 +829,16 @@ class Box(object):
         self.attach = lambda child, pos: self.box.attach(child, pos, 0, 1, 1)
         self.set_expand = lambda child, expand: child.set_hexpand(expand)
         self.set_align = lambda child, align: child.set_halign(align)
-        self.set_padding = lambda child, padding: (child.set_margin_start(padding), child.set_margin_end(padding))
+        self.set_padding = lambda child, padding: (
+            child.set_margin_start(padding), child.set_margin_end(padding))
         if vertical:
             self.insert = self.box.insert_row
-            self.attach = lambda child, pos: self.box.attach(child, 0, pos, 1, 1)
+            self.attach = lambda child, pos: self.box.attach(
+                child, 0, pos, 1, 1)
             self.set_expand = lambda child, expand: child.set_vexpand(expand)
             self.set_align = lambda child, align: child.set_valign(align)
-            self.set_padding = lambda child, padding: (child.set_margin_top(padding), child.set_margin_bottom(padding))
+            self.set_padding = lambda child, padding: (
+                child.set_margin_top(padding), child.set_margin_bottom(padding))
 
     def add(self, child):
         if isinstance(child, Box):
@@ -855,6 +866,7 @@ class Box(object):
 
     def __getattr__(self, name):
         return getattr(self.box, name)
+
 
 class ComboBox(object):
     def __init__(self, cb, items=None, columns=1, textcolumn=0):
@@ -912,6 +924,7 @@ class ComboBox(object):
     def set_child_signal(self, signal, callback, userdata=None):
         self.cb.get_child().connect(signal, callback, userdata)
 
+
 class TextView(object):
     def __init__(self, widget=None, value="", spellcheck=True):
         if widget is None:
@@ -948,6 +961,7 @@ class TextView(object):
     @gtk_unsafe
     def append_text(self, text):
         self.buffer.set_text(S(self.get_text() + text).display())
+
 
 class ProgressBar(object):
     def __init__(self, pbar):
@@ -1091,8 +1105,8 @@ class RevisionSelector(object):
     """
 
     def __init__(self, container, client, revision=None,
-            url_combobox=None, url_entry=None, url=None, expand=False,
-            revision_changed_callback=None):
+                 url_combobox=None, url_entry=None, url=None, expand=False,
+                 revision_changed_callback=None):
         """
         @type   container: A Gtk container object (i.e. HBox, VBox, Box)
         @param  container: The container that to add this widget
@@ -1124,11 +1138,12 @@ class RevisionSelector(object):
         self.url = url
         self.revision_changed_callback = revision_changed_callback
         self.revision_change_inprogress = False
-        hbox = Box(spacing = 4)
+        hbox = Box(spacing=4)
         hbox.set_hexpand(expand)
 
         if self.url_combobox:
-            self.url_combobox.cb.connect("changed", self.__on_url_combobox_changed)
+            self.url_combobox.cb.connect(
+                "changed", self.__on_url_combobox_changed)
 
         if client.vcs == rabbitvcs.vcs.VCS_GIT:
             self.OPTIONS = [
@@ -1146,7 +1161,8 @@ class RevisionSelector(object):
 
         self.revision_kind_opt = ComboBox(Gtk.ComboBox(), self.OPTIONS)
         self.revision_kind_opt.set_active(0)
-        self.revision_kind_opt.cb.connect("changed", self.__revision_kind_changed)
+        self.revision_kind_opt.cb.connect(
+            "changed", self.__revision_kind_changed)
         hbox.pack_start(self.revision_kind_opt.cb, False, False, 0)
 
         self.revision_entry = Gtk.Entry()
@@ -1155,13 +1171,14 @@ class RevisionSelector(object):
 
         self.branch_selector = None
         if client.vcs == rabbitvcs.vcs.VCS_GIT:
-            self.branch_selector = GitBranchSelector(hbox, client, self.__branch_selector_changed)
+            self.branch_selector = GitBranchSelector(
+                hbox, client, self.__branch_selector_changed)
             self.branch_selector.hide()
-
 
         self.revision_browse = Gtk.Button()
         revision_browse_image = Gtk.Image()
-        revision_browse_image.set_from_icon_name("edit-find", Gtk.IconSize.MENU)
+        revision_browse_image.set_from_icon_name(
+            "edit-find", Gtk.IconSize.MENU)
         revision_browse_image.show()
         self.revision_browse.add(revision_browse_image)
         self.revision_browse.connect("clicked", self.__revision_browse_clicked)
@@ -1311,6 +1328,7 @@ class RevisionSelector(object):
     def __branch_selector_changed(self, branch):
         self.__revision_entry_changed(self.revision_entry)
 
+
 class KeyValueTable(Gtk.Grid):
     """
     Simple extension of a GTK grid to display a two-column table of information
@@ -1331,12 +1349,12 @@ class KeyValueTable(Gtk.Grid):
             row = 0
 
             for key, value in stuff:
-                label_key = Gtk.Label(label = "<b>%s:</b>" % key)
+                label_key = Gtk.Label(label="<b>%s:</b>" % key)
                 label_key.set_properties(xalign=0, use_markup=True)
 
-                label_value = Gtk.Label(label = "%s" % value)
-                label_value.set_properties(xalign=0,                    \
-                                           ellipsize=Pango.EllipsizeMode.MIDDLE, \
+                label_value = Gtk.Label(label="%s" % value)
+                label_value.set_properties(xalign=0,
+                                           ellipsize=Pango.EllipsizeMode.MIDDLE,
                                            selectable=True)
                 label_value.set_hexpand(True)
                 label_value.set_halign(Gtk.Align.START)
@@ -1352,6 +1370,7 @@ class KeyValueTable(Gtk.Grid):
         self.set_column_spacing(self.default_col_spacing)
         self.set_row_spacing(self.default_row_spacing)
 
+
 class GitRepositorySelector(object):
     def __init__(self, container, git, changed_callback=None):
         self.git = git
@@ -1363,14 +1382,15 @@ class GitRepositorySelector(object):
         grid.set_hexpand(True)
 
         # Set up the Repository Line
-        label = Gtk.Label(label = _("Repository:"))
+        label = Gtk.Label(label=_("Repository:"))
         label.set_justify(Gtk.Justification.LEFT)
         label.set_halign(Gtk.Align.START)
 
         tmp_repos = []
         for item in self.git.remote_list():
             tmp_repos.append(item["name"])
-        self.repository_opt = ComboBox(Gtk.ComboBoxText.new_with_entry(), tmp_repos)
+        self.repository_opt = ComboBox(
+            Gtk.ComboBoxText.new_with_entry(), tmp_repos)
         self.repository_opt.set_active(0)
         self.repository_opt.cb.connect("changed", self.__repository_changed)
         self.repository_opt.cb.set_size_request(175, -1)
@@ -1380,7 +1400,7 @@ class GitRepositorySelector(object):
         grid.attach(self.repository_opt.cb, 1, 0, 1, 1)
 
         # Set up the Branch line
-        label = Gtk.Label(label = _("Branch:"))
+        label = Gtk.Label(label=_("Branch:"))
         label.set_justify(Gtk.Justification.LEFT)
         label.set_halign(Gtk.Align.START)
 
@@ -1395,7 +1415,8 @@ class GitRepositorySelector(object):
 
             index += 1
 
-        self.branch_opt = ComboBox(Gtk.ComboBoxText.new_with_entry(), tmp_branches)
+        self.branch_opt = ComboBox(
+            Gtk.ComboBoxText.new_with_entry(), tmp_branches)
         self.branch_opt.set_active(active_branch_index)
         self.branch_opt.cb.connect("changed", self.__branch_changed)
         self.branch_opt.cb.set_size_request(175, -1)
@@ -1405,7 +1426,7 @@ class GitRepositorySelector(object):
         grid.attach(self.branch_opt.cb, 1, 1, 1, 1)
 
         # Set up the Host line
-        label = Gtk.Label(label = _("Host:"))
+        label = Gtk.Label(label=_("Host:"))
         label.set_justify(Gtk.Justification.LEFT)
         label.set_halign(Gtk.Align.START)
         self.host = Gtk.Label()
@@ -1424,25 +1445,29 @@ class GitRepositorySelector(object):
     def __update_host(self):
         repo = self.repository_opt.get_active_text()
         try:
-            self.host.set_text(S(self.git.config_get(("remote", repo), "url")).display())
+            self.host.set_text(S(self.git.config_get(
+                ("remote", repo), "url")).display())
         except KeyError as e:
             log.error("Missing remote %s config key" % repo)
 
     def __repository_changed(self, repository_opt):
         if self.changed_callback:
-            self.changed_callback(repository_opt.get_active_text(), self.branch_opt.get_active_text())
+            self.changed_callback(
+                repository_opt.get_active_text(), self.branch_opt.get_active_text())
         self.__update_host()
 
     def __branch_changed(self, branch_opt):
         if self.changed_callback:
-            self.changed_callback(self.repository_opt.get_active_text(), self.branch_opt.get_active_text())
+            self.changed_callback(
+                self.repository_opt.get_active_text(), self.branch_opt.get_active_text())
+
 
 class GitBranchSelector(object):
     def __init__(self, container, git, changed_callback=None):
         self.git = git
         self.changed_callback = changed_callback
 
-        self.vbox = Box(vertical = True, spacing = 4)
+        self.vbox = Box(vertical=True, spacing=4)
 
         tmp_branches = []
         active = 0
@@ -1453,7 +1478,8 @@ class GitBranchSelector(object):
                 active = index
             index += 1
 
-        self.branch_opt = ComboBox(Gtk.ComboBoxText.new_with_entry(), tmp_branches)
+        self.branch_opt = ComboBox(
+            Gtk.ComboBoxText.new_with_entry(), tmp_branches)
         self.branch_opt.set_active(active)
         self.branch_opt.cb.connect("changed", self.__branch_changed)
         self.branch_opt.cb.set_size_request(175, -1)
@@ -1479,6 +1505,7 @@ class GitBranchSelector(object):
 
     def hide(self):
         self.vbox.hide()
+
 
 class MultiFileTextEditor(object):
     """
@@ -1507,12 +1534,13 @@ class MultiFileTextEditor(object):
         grid.set_hexpand(True)
         grid.set_vexpand(True)
 
-        combo_label = Gtk.Label(label = label)
+        combo_label = Gtk.Label(label=label)
         combo_label.set_alignment(0, 0.5)
         scrolled_window = Gtk.ScrolledWindow()
         scrolled_window.set_shadow_type(Gtk.ShadowType.ETCHED_IN)
         scrolled_window.add(self.textview.view)
-        scrolled_window.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
+        scrolled_window.set_policy(
+            Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
         scrolled_window.set_size_request(320, 150)
         scrolled_window.set_hexpand(True)
         scrolled_window.set_vexpand(True)
@@ -1521,7 +1549,7 @@ class MultiFileTextEditor(object):
         grid.attach(self.combobox.cb, 1, 0, 2, 1)
 
         if show_add_line:
-            add_label = Gtk.Label(label = _("Add line:"))
+            add_label = Gtk.Label(label=_("Add line:"))
             add_label.set_alignment(0, 0.5)
             self.add_entry = Gtk.Entry()
             self.add_entry.set_text(S(line_content).display())

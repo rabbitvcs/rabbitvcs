@@ -1,4 +1,16 @@
 from __future__ import absolute_import
+from rabbitvcs import gettext
+import rabbitvcs.vcs.status
+from rabbitvcs.util.decorators import gtk_unsafe
+from rabbitvcs.util.log import Log
+from rabbitvcs.util.strings import S
+import rabbitvcs.util
+import rabbitvcs.ui.dialog
+import rabbitvcs.ui.widget
+import rabbitvcs.ui.action
+from rabbitvcs.util.contextmenu import GtkFilesContextMenu, GtkContextMenuCaller
+from rabbitvcs.ui import InterfaceView
+from gi.repository import Gtk, GObject, Gdk, GLib
 #
 # This is an extension to the Nautilus file manager to allow better
 # integration with the Subversion source control system.
@@ -30,26 +42,15 @@ from rabbitvcs.util import helper
 from gi import require_version
 require_version("Gtk", "3.0")
 sa = helper.SanitizeArgv()
-from gi.repository import Gtk, GObject, Gdk, GLib
 sa.restore()
 
-from rabbitvcs.ui import InterfaceView
-from rabbitvcs.util.contextmenu import GtkFilesContextMenu, GtkContextMenuCaller
-import rabbitvcs.ui.action
-import rabbitvcs.ui.widget
-import rabbitvcs.ui.dialog
-import rabbitvcs.util
-from rabbitvcs.util.strings import S
-from rabbitvcs.util.log import Log
-from rabbitvcs.util.decorators import gtk_unsafe
-import rabbitvcs.vcs.status
 
 log = Log("rabbitvcs.ui.commit")
 
-from rabbitvcs import gettext
 _ = gettext.gettext
 
 helper.gobject_threads_init()
+
 
 class Commit(InterfaceView, GtkContextMenuCaller):
     """
@@ -106,9 +107,11 @@ class Commit(InterfaceView, GtkContextMenuCaller):
             }
         )
         self.files_table.allow_multiple()
-        self.get_widget("toggle_show_unversioned").set_active(self.SHOW_UNVERSIONED)
+        self.get_widget("toggle_show_unversioned").set_active(
+            self.SHOW_UNVERSIONED)
         if not message:
-            message = self.SETTINGS.get_multiline("general", "default_commit_message")
+            message = self.SETTINGS.get_multiline(
+                "general", "default_commit_message")
         self.message = rabbitvcs.ui.widget.TextView(
             self.get_widget("message"),
             message
@@ -133,7 +136,8 @@ class Commit(InterfaceView, GtkContextMenuCaller):
 
         self.get_widget("status").set_text(_("Loading..."))
 
-        self.items = self.vcs.get_items(self.paths, self.vcs.statuses_for_commit(self.paths))
+        self.items = self.vcs.get_items(
+            self.paths, self.vcs.statuses_for_commit(self.paths))
 
         self.populate_files_table()
 
@@ -158,7 +162,7 @@ class Commit(InterfaceView, GtkContextMenuCaller):
 
         if not show_unversioned:
             if not item.is_versioned():
-               return False
+                return False
 
         return True
 
@@ -267,10 +271,11 @@ class Commit(InterfaceView, GtkContextMenuCaller):
                 item.simple_metadata_status()
             ])
         self.get_widget("status").set_text(_("Found %(changed)d changed and %(unversioned)d unversioned item(s)") % {
-                "changed": n,
-                "unversioned": m
-            }
+            "changed": n,
+            "unversioned": m
+        }
         )
+
 
 class SVNCommit(Commit):
     def __init__(self, paths, base_dir=None, message=None):
@@ -297,7 +302,8 @@ class SVNCommit(Commit):
         added = 0
         recurse = False
         for item in items:
-            status = self.vcs.status(item, summarize=False).simple_content_status()
+            status = self.vcs.status(
+                item, summarize=False).simple_content_status()
             try:
                 if status == rabbitvcs.vcs.status.status_unversioned:
                     self.vcs.svn().add(item)
@@ -318,7 +324,8 @@ class SVNCommit(Commit):
         )
         self.action.set_pbar_ticks(ticks)
         self.action.append(self.action.set_header, _("Commit"))
-        self.action.append(self.action.set_status, _("Running Commit Command..."))
+        self.action.append(self.action.set_status,
+                           _("Running Commit Command..."))
         self.action.append(
             helper.save_log_message,
             self.message.get_text()
@@ -331,11 +338,13 @@ class SVNCommit(Commit):
         # pysvn.Revision
         revision = self.vcs.svn().commit(items, self.message.get_text(), recurse=recurse)
 
-        self.action.set_status(_("Completed Commit") + " at Revision: " + str(revision.number))
+        self.action.set_status(_("Completed Commit") +
+                               " at Revision: " + str(revision.number))
 
     def on_files_table_toggle_event(self, row, col):
         # Adds path: True/False to the dict
         self.changes[row[1]] = row[col]
+
 
 class GitCommit(Commit):
     def __init__(self, paths, base_dir=None, message=None):
@@ -368,7 +377,8 @@ class GitCommit(Commit):
         staged = 0
         for item in items:
             try:
-                status = self.vcs.status(item, summarize=False).simple_content_status()
+                status = self.vcs.status(
+                    item, summarize=False).simple_content_status()
                 if status == rabbitvcs.vcs.status.status_missing:
                     self.git.checkout([item])
                     self.git.remove(item)
@@ -386,7 +396,8 @@ class GitCommit(Commit):
         )
         self.action.set_pbar_ticks(ticks)
         self.action.append(self.action.set_header, _("Commit"))
-        self.action.append(self.action.set_status, _("Running Commit Command..."))
+        self.action.append(self.action.set_status,
+                           _("Running Commit Command..."))
         self.action.append(
             helper.save_log_message,
             self.message.get_text()
@@ -403,10 +414,12 @@ class GitCommit(Commit):
         # Adds path: True/False to the dict
         self.changes[row[1]] = row[col]
 
+
 classes_map = {
     rabbitvcs.vcs.VCS_SVN: SVNCommit,
     rabbitvcs.vcs.VCS_GIT: GitCommit
 }
+
 
 def commit_factory(paths, base_dir=None, message=None):
     guess = rabbitvcs.vcs.guess(paths[0])
@@ -416,7 +429,8 @@ def commit_factory(paths, base_dir=None, message=None):
 if __name__ == "__main__":
     from rabbitvcs.ui import main, BASEDIR_OPT
     (options, paths) = main(
-        [BASEDIR_OPT, (["-m", "--message"], {"help":"add a commit log message"})],
+        [BASEDIR_OPT, (["-m", "--message"],
+                       {"help": "add a commit log message"})],
         usage="Usage: rabbitvcs commit [path1] [path2] ..."
     )
 

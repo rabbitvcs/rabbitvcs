@@ -26,6 +26,9 @@ UI layer.
 
 """
 from __future__ import absolute_import
+import rabbitvcs.vcs.status
+from rabbitvcs import APP_NAME, LOCALE_DIR, gettext
+from gi.repository import Gtk, Gdk, GLib
 
 import os
 from six.moves import range
@@ -35,47 +38,46 @@ from rabbitvcs.util import helper
 import gi
 gi.require_version("Gtk", "3.0")
 sa = helper.SanitizeArgv()
-from gi.repository import Gtk, Gdk, GLib
 sa.restore()
 
-from rabbitvcs import APP_NAME, LOCALE_DIR, gettext
 _ = gettext.gettext
 
-import rabbitvcs.vcs.status
 
-REVISION_OPT = (["-r", "--revision"], {"help":"specify the revision number"})
+REVISION_OPT = (["-r", "--revision"], {"help": "specify the revision number"})
 BASEDIR_OPT = (["-b", "--base-dir"], {})
 QUIET_OPT = (["-q", "--quiet"], {
     "help":     "Run the add command quietly, with no UI.",
     "action":   "store_true",
     "default":  False
 })
-VCS_OPT = (["--vcs"], {"help":"specify the version control system"})
+VCS_OPT = (["--vcs"], {"help": "specify the version control system"})
 
-VCS_OPT_ERROR = _("You must specify a version control system using the --vcs [svn|git] option")
+VCS_OPT_ERROR = _(
+    "You must specify a version control system using the --vcs [svn|git] option")
 
 #: Maps statuses to emblems.
 STATUS_EMBLEMS = {
-    rabbitvcs.vcs.status.status_normal : "rabbitvcs-normal",
-    rabbitvcs.vcs.status.status_modified : "rabbitvcs-modified",
-    rabbitvcs.vcs.status.status_added : "rabbitvcs-added",
-    rabbitvcs.vcs.status.status_deleted : "rabbitvcs-deleted",
-    rabbitvcs.vcs.status.status_ignored :"rabbitvcs-ignored",
-    rabbitvcs.vcs.status.status_read_only : "rabbitvcs-locked",
-    rabbitvcs.vcs.status.status_locked : "rabbitvcs-locked",
-    rabbitvcs.vcs.status.status_unknown : "rabbitvcs-unknown",
-    rabbitvcs.vcs.status.status_missing : "rabbitvcs-complicated",
-    rabbitvcs.vcs.status.status_replaced : "rabbitvcs-modified",
-    rabbitvcs.vcs.status.status_complicated : "rabbitvcs-complicated",
-    rabbitvcs.vcs.status.status_calculating : "rabbitvcs-calculating",
-    rabbitvcs.vcs.status.status_error : "rabbitvcs-error",
-    rabbitvcs.vcs.status.status_unversioned : "rabbitvcs-unversioned"
+    rabbitvcs.vcs.status.status_normal: "rabbitvcs-normal",
+    rabbitvcs.vcs.status.status_modified: "rabbitvcs-modified",
+    rabbitvcs.vcs.status.status_added: "rabbitvcs-added",
+    rabbitvcs.vcs.status.status_deleted: "rabbitvcs-deleted",
+    rabbitvcs.vcs.status.status_ignored: "rabbitvcs-ignored",
+    rabbitvcs.vcs.status.status_read_only: "rabbitvcs-locked",
+    rabbitvcs.vcs.status.status_locked: "rabbitvcs-locked",
+    rabbitvcs.vcs.status.status_unknown: "rabbitvcs-unknown",
+    rabbitvcs.vcs.status.status_missing: "rabbitvcs-complicated",
+    rabbitvcs.vcs.status.status_replaced: "rabbitvcs-modified",
+    rabbitvcs.vcs.status.status_complicated: "rabbitvcs-complicated",
+    rabbitvcs.vcs.status.status_calculating: "rabbitvcs-calculating",
+    rabbitvcs.vcs.status.status_error: "rabbitvcs-error",
+    rabbitvcs.vcs.status.status_unversioned: "rabbitvcs-unversioned"
 }
+
 
 class GtkBuilderWidgetWrapper(object):
 
-    def __init__(self, gtkbuilder_filename = None,
-                 gtkbuilder_id = None, claim_domain=True):
+    def __init__(self, gtkbuilder_filename=None,
+                 gtkbuilder_id=None, claim_domain=True):
         if gtkbuilder_filename:
             self.gtkbuilder_filename = gtkbuilder_filename
 
@@ -101,11 +103,12 @@ class GtkBuilderWidgetWrapper(object):
 
         return tree
 
-    def get_widget(self, id = None):
+    def get_widget(self, id=None):
         if not id:
             id = self.gtkbuilder_id
 
         return self.tree.get_object(id)
+
 
 class InterfaceView(GtkBuilderWidgetWrapper):
     """
@@ -130,10 +133,10 @@ class InterfaceView(GtkBuilderWidgetWrapper):
         if platform.system() == 'Darwin':
             try:
                 import subprocess
-                subprocess.Popen('osascript -e "tell application \\"Python\\" to activate"', shell=True)
+                subprocess.Popen(
+                    'osascript -e "tell application \\"Python\\" to activate"', shell=True)
             except:
                 pass
-
 
     def hide(self):
         window = self.get_widget(self.gtkbuilder_id)
@@ -202,7 +205,7 @@ class InterfaceView(GtkBuilderWidgetWrapper):
             self.on_refresh_clicked(widget)
             return True
 
-    def change_button(self, id, label = None, icon = None):
+    def change_button(self, id, label=None, icon=None):
         """
          Replace label and/or icon of the named button.
         """
@@ -213,6 +216,7 @@ class InterfaceView(GtkBuilderWidgetWrapper):
         if icon:
             image = Gtk.Image.new_from_icon_name(icon, Gtk.IconSize.BUTTON)
             button.set_image(image)
+
 
 class InterfaceNonView(object):
     """
@@ -240,6 +244,7 @@ class InterfaceNonView(object):
 
     def gtk_quit_is_set(self):
         return self.do_gtk_quit
+
 
 class VCSNotSupportedError(Exception):
     """Indicates the desired VCS is not valid for a given action"""

@@ -1,4 +1,10 @@
 from __future__ import absolute_import
+from rabbitvcs import gettext
+from rabbitvcs.util.log import Log
+import rabbitvcs.vcs
+from rabbitvcs.ui.action import SVNAction
+from rabbitvcs.ui import InterfaceNonView
+from gi.repository import Gtk, GObject
 #
 # This is an extension to the Nautilus file manager to allow better
 # integration with the Subversion source control system.
@@ -28,18 +34,13 @@ from rabbitvcs.util import helper
 from gi import require_version
 require_version("Gtk", "3.0")
 sa = helper.SanitizeArgv()
-from gi.repository import Gtk, GObject
 sa.restore()
 
-from rabbitvcs.ui import InterfaceNonView
-from rabbitvcs.ui.action import SVNAction
-import rabbitvcs.vcs
-from rabbitvcs.util.log import Log
 
 log = Log("rabbitvcs.ui.delete")
 
-from rabbitvcs import gettext
 _ = gettext.gettext
+
 
 class Delete(InterfaceNonView):
     """
@@ -87,6 +88,7 @@ class Delete(InterfaceNonView):
                 for path in unversioned:
                     helper.delete_item(path)
 
+
 class SVNDelete(Delete):
     def __init__(self, paths):
         Delete.__init__(self, paths)
@@ -94,6 +96,7 @@ class SVNDelete(Delete):
     def vcs_remove(self, paths, **kwargs):
         if rabbitvcs.vcs.guess(paths[0])["vcs"] == rabbitvcs.vcs.VCS_SVN:
             self.vcs.svn().remove(paths, **kwargs)
+
 
 class GitDelete(Delete):
     def __init__(self, paths):
@@ -103,10 +106,12 @@ class GitDelete(Delete):
         if rabbitvcs.vcs.guess(paths[0])["vcs"] == rabbitvcs.vcs.VCS_GIT:
             self.vcs.git(paths[0]).remove(paths)
 
+
 classes_map = {
     rabbitvcs.vcs.VCS_SVN: SVNDelete,
     rabbitvcs.vcs.VCS_GIT: GitDelete
 }
+
 
 def delete_factory(paths):
     guess = rabbitvcs.vcs.guess(paths[0])
@@ -115,7 +120,8 @@ def delete_factory(paths):
 
 if __name__ == "__main__":
     from rabbitvcs.ui import main
-    (options, paths) = main(usage="Usage: rabbitvcs delete [path1] [path2] ...")
+    (options, paths) = main(
+        usage="Usage: rabbitvcs delete [path1] [path2] ...")
 
     window = delete_factory(paths)
     window.register_gtk_quit()

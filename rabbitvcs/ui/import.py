@@ -1,4 +1,11 @@
 from __future__ import absolute_import
+from rabbitvcs import gettext
+from rabbitvcs.util.strings import S
+import rabbitvcs.ui.dialog
+import rabbitvcs.ui.widget
+from rabbitvcs.ui.action import SVNAction
+from rabbitvcs.ui import InterfaceView
+from gi.repository import Gtk, GObject, Gdk
 #
 # This is an extension to the Nautilus file manager to allow better
 # integration with the Subversion source control system.
@@ -26,17 +33,11 @@ from rabbitvcs.util import helper
 import gi
 gi.require_version("Gtk", "3.0")
 sa = helper.SanitizeArgv()
-from gi.repository import Gtk, GObject, Gdk
 sa.restore()
 
-from rabbitvcs.ui import InterfaceView
-from rabbitvcs.ui.action import SVNAction
-import rabbitvcs.ui.widget
-import rabbitvcs.ui.dialog
-from rabbitvcs.util.strings import S
 
-from rabbitvcs import gettext
 _ = gettext.gettext
+
 
 class SVNImport(InterfaceView):
     def __init__(self, path):
@@ -49,7 +50,8 @@ class SVNImport(InterfaceView):
         self.svn = self.vcs.svn()
 
         if self.svn.is_in_a_or_a_working_copy(path):
-            self.get_widget("repository").set_text(S(self.svn.get_repo_url(path)).display())
+            self.get_widget("repository").set_text(
+                S(self.svn.get_repo_url(path)).display())
 
         self.repositories = rabbitvcs.ui.widget.ComboBox(
             self.get_widget("repositories"),
@@ -64,7 +66,8 @@ class SVNImport(InterfaceView):
 
         url = self.get_widget("repository").get_text()
         if not url:
-            rabbitvcs.ui.dialog.MessageBox(_("The repository URL field is required."))
+            rabbitvcs.ui.dialog.MessageBox(
+                _("The repository URL field is required."))
             return
 
         ignore = not self.get_widget("include_ignored").get_active()
@@ -77,7 +80,8 @@ class SVNImport(InterfaceView):
         )
 
         self.action.append(self.action.set_header, _("Import"))
-        self.action.append(self.action.set_status, _("Running Import Command..."))
+        self.action.append(self.action.set_status,
+                           _("Running Import Command..."))
         self.action.append(
             self.svn.import_,
             self.path,
@@ -96,10 +100,10 @@ class SVNImport(InterfaceView):
             self.message.set_text(S(message).display())
 
 
-
 classes_map = {
     rabbitvcs.vcs.VCS_SVN: SVNImport
 }
+
 
 def import_factory(path):
     vcs = rabbitvcs.vcs.VCS_SVN

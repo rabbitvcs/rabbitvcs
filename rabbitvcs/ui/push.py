@@ -1,4 +1,13 @@
 from __future__ import absolute_import
+import six
+from rabbitvcs import gettext
+import rabbitvcs.vcs
+import rabbitvcs.util.settings
+import rabbitvcs.ui.action
+import rabbitvcs.ui.dialog
+import rabbitvcs.ui.widget
+from rabbitvcs.ui import InterfaceView
+from gi.repository import Gtk, GObject, Gdk
 #
 # This is an extension to the Nautilus file manager to allow better
 # integration with the Subversion source control system.
@@ -30,21 +39,13 @@ from rabbitvcs.util import helper
 import gi
 gi.require_version("Gtk", "3.0")
 sa = helper.SanitizeArgv()
-from gi.repository import Gtk, GObject, Gdk
 sa.restore()
 
-from rabbitvcs.ui import InterfaceView
-import rabbitvcs.ui.widget
-import rabbitvcs.ui.dialog
-import rabbitvcs.ui.action
-import rabbitvcs.util.settings
-import rabbitvcs.vcs
 
-from rabbitvcs import gettext
-import six
 _ = gettext.gettext
 
 helper.gobject_threads_init()
+
 
 class Push(InterfaceView):
     def __init__(self, path):
@@ -105,8 +106,10 @@ class GitPush(Push):
             register_gtk_quit=self.gtk_quit_is_set()
         )
         self.action.append(self.action.set_header, _("Push"))
-        self.action.append(self.action.set_status, _("Running Push Command..."))
-        self.action.append(self.git.push, repository, branch, tags, force_with_lease)
+        self.action.append(self.action.set_status,
+                           _("Running Push Command..."))
+        self.action.append(self.git.push, repository,
+                           branch, tags, force_with_lease)
         self.action.append(self.action.set_status, _("Completed Push"))
         self.action.append(self.action.finish)
         self.action.schedule()
@@ -126,7 +129,8 @@ class GitPush(Push):
         self.update_widgets()
 
     def load_logs(self):
-        helper.run_in_main_thread(self.get_widget("status").set_text, _("Loading..."))
+        helper.run_in_main_thread(self.get_widget(
+            "status").set_text, _("Loading..."))
 
         self.load_push_log()
         helper.run_in_main_thread(self.load_logs_exit)
@@ -136,7 +140,8 @@ class GitPush(Push):
         branch = self.repository_selector.branch_opt.get_active_text()
 
         refspec = "refs/remotes/%s/%s" % (repository, branch)
-        self.push_log = self.git.log(revision=self.git.revision(refspec), showtype="push")
+        self.push_log = self.git.log(
+            revision=self.git.revision(refspec), showtype="push")
 
     def on_branch_changed(self, repository, branch):
         self.load_push_log()
@@ -164,9 +169,11 @@ class GitPush(Push):
         if not has_commits:
             self.get_widget("status").set_text(_("No commits found"))
 
+
 classes_map = {
     rabbitvcs.vcs.VCS_GIT: GitPush
 }
+
 
 def push_factory(path):
     guess = rabbitvcs.vcs.guess(path)

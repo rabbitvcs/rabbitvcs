@@ -1,4 +1,16 @@
 from __future__ import absolute_import
+from rabbitvcs import gettext
+from rabbitvcs.util.decorators import gtk_unsafe
+from rabbitvcs.util.log import Log
+import rabbitvcs.ui.action
+import rabbitvcs.ui.dialog
+import rabbitvcs.ui.widget
+from rabbitvcs.util.contextmenuitems import MenuItem, MenuUpdate, \
+    MenuSeparator
+from rabbitvcs.util.contextmenu import GtkFilesContextMenu, \
+    GtkContextMenuCaller, GtkFilesContextMenuConditions, GtkContextMenu
+from rabbitvcs.ui import InterfaceView
+from gi.repository import Gtk, GObject, Gdk
 #
 # This is an extension to the Nautilus file manager to allow better
 # integration with the Subversion source control system.
@@ -29,26 +41,15 @@ from rabbitvcs.util import helper
 import gi
 gi.require_version("Gtk", "3.0")
 sa = helper.SanitizeArgv()
-from gi.repository import Gtk, GObject, Gdk
 sa.restore()
 
-from rabbitvcs.ui import InterfaceView
-from rabbitvcs.util.contextmenu import GtkFilesContextMenu, \
-    GtkContextMenuCaller, GtkFilesContextMenuConditions, GtkContextMenu
-from rabbitvcs.util.contextmenuitems import MenuItem, MenuUpdate, \
-    MenuSeparator
-import rabbitvcs.ui.widget
-import rabbitvcs.ui.dialog
-import rabbitvcs.ui.action
-from rabbitvcs.util.log import Log
-from rabbitvcs.util.decorators import gtk_unsafe
 
 log = Log("rabbitvcs.ui.checkmods")
 
-from rabbitvcs import gettext
 _ = gettext.gettext
 
 helper.gobject_threads_init()
+
 
 class SVNCheckForModifications(InterfaceView):
     """
@@ -66,14 +67,14 @@ class SVNCheckForModifications(InterfaceView):
         self.svn = self.vcs.svn()
         self.notebook = self.get_widget("notebook")
 
-        self.local_mods = SVNCheckLocalModifications(self, \
-                                                         self.vcs, \
-                                                         self.paths, \
-                                                         self.base_dir)
-        self.remote_mods = SVNCheckRemoteModifications(self, \
-                                                           self.vcs, \
-                                                           self.paths, \
-                                                           self.base_dir)
+        self.local_mods = SVNCheckLocalModifications(self,
+                                                     self.vcs,
+                                                     self.paths,
+                                                     self.base_dir)
+        self.remote_mods = SVNCheckRemoteModifications(self,
+                                                       self.vcs,
+                                                       self.paths,
+                                                       self.base_dir)
 
         self.remote_refreshed = False
 
@@ -96,6 +97,7 @@ class SVNCheckForModifications(InterfaceView):
 
     def load(self):
         self.local_mods.refresh()
+
 
 class SVNCheckLocalModifications(GtkContextMenuCaller):
     def __init__(self, caller, vcs, paths, base_dir):
@@ -137,7 +139,8 @@ class SVNCheckLocalModifications(GtkContextMenuCaller):
             self.svn,
             notification=False
         )
-        self.action.append(self.svn.get_items, self.paths, self.svn.STATUSES_FOR_CHECK)
+        self.action.append(self.svn.get_items, self.paths,
+                           self.svn.STATUSES_FOR_CHECK)
         self.action.append(self.populate_files_table)
         self.action.schedule()
 
@@ -157,6 +160,7 @@ class SVNCheckLocalModifications(GtkContextMenuCaller):
 
     def on_context_menu_command_finished(self):
         self.refresh()
+
 
 class SVNCheckRemoteModifications(GtkContextMenuCaller):
     def __init__(self, caller, vcs, paths, base_dir):
@@ -195,7 +199,8 @@ class SVNCheckRemoteModifications(GtkContextMenuCaller):
     def on_files_table_mouse_event(self, treeview, event, *args):
         if event.button == 3 and event.type == Gdk.EventType.BUTTON_RELEASE:
             paths = self.files_table.get_selected_row_items(0)
-            CheckRemoteModsContextMenu(self, event, self.base_dir, self.vcs, paths).show()
+            CheckRemoteModsContextMenu(
+                self, event, self.base_dir, self.vcs, paths).show()
 
     def refresh(self):
         self.action = rabbitvcs.ui.action.SVNAction(
@@ -250,15 +255,18 @@ class SVNCheckRemoteModifications(GtkContextMenuCaller):
     def on_context_menu_command_finished(self):
         self.refresh()
 
+
 class MenuViewDiff(MenuItem):
     identifier = "RabbitVCS::View_Diff"
     label = _("View unified diff")
     icon = "rabbitvcs-diff"
 
+
 class MenuCompare(MenuItem):
     identifier = "RabbitVCS::Compare"
     label = _("Compare side by side")
     icon = "rabbitvcs-compare"
+
 
 class CheckRemoteModsContextMenuConditions(GtkFilesContextMenuConditions):
     def __init__(self, vcs, paths=[]):
@@ -269,11 +277,12 @@ class CheckRemoteModsContextMenuConditions(GtkFilesContextMenuConditions):
 
     def view_diff(self, data=None):
         return (self.path_dict["exists"]
-            and self.path_dict["length"] == 1)
+                and self.path_dict["length"] == 1)
 
     def compare(self, data=None):
         return (self.path_dict["exists"]
-            and self.path_dict["length"] == 1)
+                and self.path_dict["length"] == 1)
+
 
 class CheckRemoteModsContextMenuCallbacks(object):
     def __init__(self, caller, base_dir, vcs, paths=[]):
@@ -313,6 +322,7 @@ class CheckRemoteModsContextMenuCallbacks(object):
         )
         self.action.schedule()
 
+
 class CheckRemoteModsContextMenu(object):
     def __init__(self, caller, event, base_dir, vcs, paths=[]):
 
@@ -341,12 +351,15 @@ class CheckRemoteModsContextMenu(object):
         if len(self.paths) == 0:
             return
 
-        context_menu = GtkContextMenu(self.structure, self.conditions, self.callbacks)
+        context_menu = GtkContextMenu(
+            self.structure, self.conditions, self.callbacks)
         context_menu.show(self.event)
+
 
 classes_map = {
     rabbitvcs.vcs.VCS_SVN: SVNCheckForModifications
 }
+
 
 def checkmods_factory(paths, base_dir):
     guess = rabbitvcs.vcs.guess(paths[0])

@@ -1,4 +1,19 @@
 from __future__ import absolute_import
+from rabbitvcs.util.log import Log
+from rabbitvcs import gettext
+import rabbitvcs.vcs
+from rabbitvcs.util.settings import SettingsManager
+from rabbitvcs.util.highlighter import highlight
+from rabbitvcs.util.decorators import gtk_unsafe
+from rabbitvcs.util.strings import S
+from rabbitvcs.util.contextmenuitems import *
+from rabbitvcs.util.contextmenu import GtkContextMenu
+from rabbitvcs.ui.dialog import MessageBox, Loading
+from rabbitvcs.ui.widget import Clickable, Table, TYPE_MARKUP, TYPE_HIDDEN
+from rabbitvcs.ui.action import SVNAction, GitAction
+from rabbitvcs.ui.log import log_dialog_factory
+from rabbitvcs.ui import InterfaceView
+from gi.repository import Gtk, GObject, Gdk, GLib
 #
 # This is an extension to the Nautilus file manager to allow better
 # integration with the Subversion source control system.
@@ -31,26 +46,11 @@ from rabbitvcs.util import helper
 from gi import require_version
 require_version("Gtk", "3.0")
 sa = helper.SanitizeArgv()
-from gi.repository import Gtk, GObject, Gdk, GLib
 sa.restore()
 
-from rabbitvcs.ui import InterfaceView
-from rabbitvcs.ui.log import log_dialog_factory
-from rabbitvcs.ui.action import SVNAction, GitAction
-from rabbitvcs.ui.widget import Clickable, Table, TYPE_MARKUP, TYPE_HIDDEN
-from rabbitvcs.ui.dialog import MessageBox, Loading
-from rabbitvcs.util.contextmenu import GtkContextMenu
-from rabbitvcs.util.contextmenuitems import *
-from rabbitvcs.util.strings import S
-from rabbitvcs.util.decorators import gtk_unsafe
-from rabbitvcs.util.highlighter import highlight
-from rabbitvcs.util.settings import SettingsManager
-import rabbitvcs.vcs
 
-from rabbitvcs import gettext
 _ = gettext.gettext
 
-from rabbitvcs.util.log import Log
 logger = Log("rabbitvcs.ui.annotate")
 
 
@@ -110,13 +110,14 @@ class Annotate(InterfaceView):
                 GObject.TYPE_STRING, TYPE_MARKUP, TYPE_HIDDEN, TYPE_HIDDEN],
             [_("Revision"), _("Author"), _("Date"), _("Line"), _("Text"),
                 "revision color", "author color"],
-            callbacks = {
+            callbacks={
                 "mouse-event":   self.on_annotate_table_mouse_event
             }
         )
         table.allow_multiple()
         table.get_column(3).get_cells()[0].set_property("xalign", 1.0)
-        treeview.connect("query-tooltip", self.on_query_tooltip, (0, (0, 1, 2)))
+        treeview.connect(
+            "query-tooltip", self.on_query_tooltip, (0, (0, 1, 2)))
         treeview.set_has_tooltip(True)
 
         if self.colorize:
@@ -176,7 +177,7 @@ class Annotate(InterfaceView):
         path, column, cellx, celly = t
         columns = treeview.get_columns()
         try:
-                pos = columns.index(column)
+            pos = columns.index(column)
         except ValueError:
             return False
         if not pos in enabled_columns:
@@ -416,11 +417,11 @@ class SVNAnnotate(Annotate):
         #   so this workaround is required for now
         datestr = item["date"][0:-8]
         try:
-            date = datetime(*time.strptime(datestr,"%Y-%m-%dT%H:%M:%S")[:-2])
+            date = datetime(*time.strptime(datestr, "%Y-%m-%dT%H:%M:%S")[:-2])
             date = helper.format_datetime(date, self.datetime_format)
         except:
             date = ""
- 
+
         return revision, date, S(item["author"].strip())
 
     def populate_table(self):
@@ -608,6 +609,7 @@ class MenuDiffRevisions(MenuItem):
     tooltip = _("View diff between selected revisions")
     icon = "rabbitvcs-diff"
 
+
 class MenuCompareRevisions(MenuItem):
     identifier = "RabbitVCS::Compare_Revisions"
     label = _("Compare revisions")
@@ -631,7 +633,7 @@ class AnnotateContextMenuConditions(object):
 
     def show_next_revision(self, data=None):
         return (len(self.revisions) == 1 and
-            not self.caller.next_revision(self.revisions[0]) is None)
+                not self.caller.next_revision(self.revisions[0]) is None)
 
     def diff_working_copy(self, data=None):
         return (self.vcs.is_in_a_or_a_working_copy(self.path) and
@@ -751,6 +753,7 @@ class AnnotateContextMenu(object):
     Defines context menu items for a table's rows
 
     """
+
     def __init__(self, caller, event, path, revisions=[]):
         """
         @param  caller: The calling object
@@ -814,6 +817,7 @@ classes_map = {
     rabbitvcs.vcs.VCS_SVN: SVNAnnotate,
     rabbitvcs.vcs.VCS_GIT: GitAnnotate
 }
+
 
 def annotate_factory(vcs, path, revision=None):
     if not vcs:

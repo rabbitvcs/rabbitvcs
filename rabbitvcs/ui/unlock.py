@@ -1,4 +1,14 @@
 from __future__ import absolute_import
+from rabbitvcs import gettext
+from rabbitvcs.util.log import Log
+from rabbitvcs.util.strings import S
+import rabbitvcs.ui.action
+import rabbitvcs.ui.dialog
+import rabbitvcs.ui.widget
+from rabbitvcs.ui.action import SVNAction
+from rabbitvcs.ui.add import Add
+from rabbitvcs.ui import InterfaceView, InterfaceNonView
+from gi.repository import Gtk, GObject, Gdk
 #
 # This is an extension to the Nautilus file manager to allow better
 # integration with the Subversion source control system.
@@ -28,22 +38,13 @@ from rabbitvcs.util import helper
 import gi
 gi.require_version("Gtk", "3.0")
 sa = helper.SanitizeArgv()
-from gi.repository import Gtk, GObject, Gdk
 sa.restore()
 
-from rabbitvcs.ui import InterfaceView, InterfaceNonView
-from rabbitvcs.ui.add import Add
-from rabbitvcs.ui.action import SVNAction
-import rabbitvcs.ui.widget
-import rabbitvcs.ui.dialog
-import rabbitvcs.ui.action
-from rabbitvcs.util.strings import S
-from rabbitvcs.util.log import Log
 
 log = Log("rabbitvcs.ui.unlock")
 
-from rabbitvcs import gettext
 _ = gettext.gettext
+
 
 class SVNUnlock(Add):
     def setup(self, window, columns):
@@ -111,12 +112,14 @@ class SVNUnlock(Add):
         )
 
         self.action.append(self.action.set_header, _("Unlock"))
-        self.action.append(self.action.set_status, _("Running Unlock Command..."))
+        self.action.append(self.action.set_status,
+                           _("Running Unlock Command..."))
         for item in items:
             self.action.append(self.svn.unlock, item, force=True)
         self.action.append(self.action.set_status, _("Completed Unlock"))
         self.action.append(self.action.finish)
         self.action.schedule()
+
 
 class SVNUnlockQuiet(object):
     """
@@ -132,6 +135,7 @@ class SVNUnlockQuiet(object):
         for path in self.paths:
             self.svn.unlock(path, force=True)
 
+
 classes_map = {
     rabbitvcs.vcs.VCS_SVN: SVNUnlock
 }
@@ -139,6 +143,7 @@ classes_map = {
 quiet_classes_map = {
     rabbitvcs.vcs.VCS_SVN: SVNUnlockQuiet
 }
+
 
 def unlock_factory(cmap, paths, base_dir=None):
     guess = rabbitvcs.vcs.guess(paths[0])

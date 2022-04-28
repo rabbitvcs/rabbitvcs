@@ -1,4 +1,11 @@
 from __future__ import absolute_import
+from rabbitvcs import gettext
+from rabbitvcs.util.strings import *
+import rabbitvcs.ui.dialog
+import rabbitvcs.ui.widget
+from rabbitvcs.ui.action import SVNAction
+from rabbitvcs.ui import InterfaceView
+from gi.repository import Gtk, GObject, Gdk
 #
 # This is an extension to the Nautilus file manager to allow better
 # integration with the Subversion source control system.
@@ -26,17 +33,11 @@ from rabbitvcs.util import helper
 import gi
 gi.require_version("Gtk", "3.0")
 sa = helper.SanitizeArgv()
-from gi.repository import Gtk, GObject, Gdk
 sa.restore()
 
-from rabbitvcs.ui import InterfaceView
-from rabbitvcs.ui.action import SVNAction
-import rabbitvcs.ui.widget
-import rabbitvcs.ui.dialog
-from rabbitvcs.util.strings import *
 
-from rabbitvcs import gettext
 _ = gettext.gettext
+
 
 class SVNSwitch(InterfaceView):
     def __init__(self, path, revision=None):
@@ -60,13 +61,15 @@ class SVNSwitch(InterfaceView):
             expand=True
         )
 
-        self.repositories.set_child_text(helper.unquote_url(self.svn.get_repo_url(self.path)))
+        self.repositories.set_child_text(
+            helper.unquote_url(self.svn.get_repo_url(self.path)))
 
     def on_ok_clicked(self, widget):
         url = self.repositories.get_active_text()
 
         if not url or not self.path:
-            rabbitvcs.ui.dialog.MessageBox(_("The repository location is a required field."))
+            rabbitvcs.ui.dialog.MessageBox(
+                _("The repository location is a required field."))
             return
 
         revision = self.revision_selector.get_revision_object()
@@ -77,7 +80,8 @@ class SVNSwitch(InterfaceView):
         )
 
         self.action.append(self.action.set_header, _("Switch"))
-        self.action.append(self.action.set_status, _("Running Switch Command..."))
+        self.action.append(self.action.set_status,
+                           _("Running Switch Command..."))
         self.action.append(helper.save_repository_path, url)
         self.action.append(
             self.svn.switch,
@@ -89,9 +93,11 @@ class SVNSwitch(InterfaceView):
         self.action.append(self.action.finish)
         self.action.schedule()
 
+
 classes_map = {
     rabbitvcs.vcs.VCS_SVN: SVNSwitch
 }
+
 
 def switch_factory(path, revision=None):
     guess = rabbitvcs.vcs.guess(path)

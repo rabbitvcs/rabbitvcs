@@ -21,6 +21,19 @@
 #
 
 from __future__ import division
+from six.moves import range
+from rabbitvcs import gettext
+import rabbitvcs.vcs
+import rabbitvcs.util.settings
+from rabbitvcs.util.strings import S
+from rabbitvcs.util.decorators import gtk_unsafe
+from rabbitvcs.util.contextmenuitems import *
+from rabbitvcs.util.contextmenu import GtkContextMenu
+import rabbitvcs.ui.widget
+from rabbitvcs.ui.dialog import MessageBox
+from rabbitvcs.ui.action import SVNAction, GitAction, vcs_action_factory
+from rabbitvcs.ui import InterfaceView
+from gi.repository import Gtk, GObject, Gdk
 from __future__ import absolute_import
 import six
 import threading
@@ -33,24 +46,10 @@ from rabbitvcs.util import helper
 import gi
 gi.require_version("Gtk", "3.0")
 sa = helper.SanitizeArgv()
-from gi.repository import Gtk, GObject, Gdk
 sa.restore()
 
-from rabbitvcs.ui import InterfaceView
-from rabbitvcs.ui.action import SVNAction, GitAction, vcs_action_factory
-from rabbitvcs.ui.dialog import MessageBox
-import rabbitvcs.ui.widget
-from rabbitvcs.util.contextmenu import GtkContextMenu
-from rabbitvcs.util.contextmenuitems import *
-from rabbitvcs.util.decorators import gtk_unsafe
-from rabbitvcs.util.strings import S
-import rabbitvcs.util.settings
-import rabbitvcs.vcs
 
-from rabbitvcs import gettext
 _ = gettext.gettext
-
-from six.moves import range
 
 
 REVISION_LABEL = _("Revision")
@@ -106,6 +105,7 @@ def revision_grapher(history):
         last_lines = lines
 
     return items
+
 
 class Log(InterfaceView):
     """
@@ -178,7 +178,7 @@ class Log(InterfaceView):
     def on_key_pressed(self, widget, event, *args):
         InterfaceView.on_key_pressed(self, widget, event)
         if (event.state & Gdk.ModifierType.CONTROL_MASK and
-            Gdk.keyval_name(event.keyval).lower() == "c"):
+                Gdk.keyval_name(event.keyval).lower() == "c"):
             if len(self.revisions_table.get_selected_rows()) > 0:
                 self.copy_revision_text()
 
@@ -192,10 +192,10 @@ class Log(InterfaceView):
         self.cache.empty()
         self.load()
 
-
     def on_search(self, widget):
         tb = self.get_widget("search_buffer")
-        self.filter_text = tb.get_text(tb.get_start_iter(), tb.get_end_iter(), 0).lower()
+        self.filter_text = tb.get_text(
+            tb.get_start_iter(), tb.get_end_iter(), 0).lower()
 
         self.refresh()
 
@@ -234,18 +234,21 @@ class Log(InterfaceView):
 
         # Let the rest be handled by the on_revisions_table_cursor changed event
 
-
     #
     # Paths table callbacks
     #
 
     def on_paths_table_row_activated(self, treeview, data=None, col=None):
         try:
-            revision1 = S(self.display_items[self.revisions_table.get_selected_rows()[0]].revision)
-            revision2 = S(self.display_items[self.revisions_table.get_selected_rows()[0]+1].revision)
-            path_item = self.paths_table.get_row(self.paths_table.get_selected_rows()[0])[1]
+            revision1 = S(
+                self.display_items[self.revisions_table.get_selected_rows()[0]].revision)
+            revision2 = S(
+                self.display_items[self.revisions_table.get_selected_rows()[0]+1].revision)
+            path_item = self.paths_table.get_row(
+                self.paths_table.get_selected_rows()[0])[1]
             url = self.root_url + path_item
-            self.view_diff_for_path(url, S(revision1), S(revision2), sidebyside=True)
+            self.view_diff_for_path(
+                url, S(revision1), S(revision2), sidebyside=True)
         except IndexError:
             pass
 
@@ -301,7 +304,8 @@ class Log(InterfaceView):
 
         revisions = []
         for row in self.revisions_table.get_selected_rows():
-            revisions.append(int(self.revisions_table.get_row(row)[self.revision_number_column]))
+            revisions.append(int(self.revisions_table.get_row(row)[
+                             self.revision_number_column]))
 
         revisions.sort()
         return helper.encode_revisions(revisions)
@@ -376,6 +380,7 @@ class Log(InterfaceView):
             vcs = rabbitvcs.vcs.VCS_GIT
 
         return vcs
+
 
 class SVNLog(Log):
     def __init__(self, path, merge_candidate_revisions=None):
@@ -480,8 +485,10 @@ class SVNLog(Log):
             should_add = not self.filter_text
             should_add = should_add or msg.find(self.filter_text) > -1
             should_add = should_add or item.author.lower().find(self.filter_text) > -1
-            should_add = should_add or str(item.revision).lower().find(self.filter_text) > -1
-            should_add = should_add or str(item.date).lower().find(self.filter_text) > -1
+            should_add = should_add or str(
+                item.revision).lower().find(self.filter_text) > -1
+            should_add = should_add or str(
+                item.date).lower().find(self.filter_text) > -1
 
             if should_add:
                 self.display_items.append(item)
@@ -493,11 +500,12 @@ class SVNLog(Log):
         self.check_next_sensitive()
 
         for item in self.display_items:
-            msg = helper.format_long_text(item.message, cols = 80, line1only = True)
+            msg = helper.format_long_text(
+                item.message, cols=80, line1only=True)
             rev = item.revision
-            color = self.orgTextColor #"#000000"
+            color = self.orgTextColor  # "#000000"
             if (self.merge_candidate_revisions != None and
-                int(rev.short()) not in self.merge_candidate_revisions):
+                    int(rev.short()) not in self.merge_candidate_revisions):
                 color = "#c9c9c9"
 
             self.populate_table(rev, item.author, item.date, msg, color)
@@ -520,7 +528,6 @@ class SVNLog(Log):
             msg,
             color
         ])
-
 
     def load(self):
         self.set_loading(True)
@@ -587,13 +594,15 @@ class SVNLog(Log):
             text += "%s: %s\n" % (REVISION_LABEL, S(item.revision).display())
             text += "%s: %s\n" % (AUTHOR_LABEL, S(item.author).display())
             text += "%s: %s\n" % (DATE_LABEL, S(item.date).display())
-            text += "%s\n\n"   % S(item.message).display()
+            text += "%s\n\n" % S(item.message).display()
             if item.changed_paths is not None:
                 for subitem in item.changed_paths:
-                    text += "%s\t%s" % (S(subitem.action).display(), S(subitem.path).display())
+                    text += "%s\t%s" % (S(subitem.action).display(),
+                                        S(subitem.path).display())
 
                     if subitem.copy_from_path or subitem.copy_from_revision:
-                        text += " (Copied from %s %s)" % (S(subitem.copy_from_path).display(), S(subitem.copy_from_revision).display())
+                        text += " (Copied from %s %s)" % (S(subitem.copy_from_path).display(),
+                                                          S(subitem.copy_from_revision).display())
 
                     text += "\n"
 
@@ -612,11 +621,11 @@ class SVNLog(Log):
             if len(self.revisions_table.get_selected_rows()) == 1:
                 self.message.set_text(msg)
             else:
-                indented_message = msg.replace("\n","\n\t")
+                indented_message = msg.replace("\n", "\n\t")
                 self.message.append_text(
-                                         "%s %s:\n\t%s\n" % (REVISION_LABEL,
-                                         S(item.revision).display(),
-                                         indented_message))
+                    "%s %s:\n\t%s\n" % (REVISION_LABEL,
+                                        S(item.revision).display(),
+                                        indented_message))
             if item.changed_paths is not None:
                 for subitem in item.changed_paths:
                     if subitem.path not in combined_paths:
@@ -629,7 +638,7 @@ class SVNLog(Log):
                             S(subitem.copy_from_revision)
                         ])
 
-        subitems.sort(key = lambda x: strxfrm(x[1]))
+        subitems.sort(key=lambda x: strxfrm(x[1]))
         for subitem in subitems:
             self.paths_table.append([
                 subitem[0],
@@ -664,6 +673,7 @@ class SVNLog(Log):
             sensitive = False
 
         self.get_widget("next").set_sensitive(sensitive)
+
 
 class GitLog(Log):
     def __init__(self, path):
@@ -752,7 +762,8 @@ class GitLog(Log):
         for branch in self.branchAction.get_result(0):
             if branch.name.startswith("remotes/"):
                 branch.name = branch.name[len("remotes/"):]
-            self.branchItems.append({'id': branch.revision, 'name': branch.name})
+            self.branchItems.append(
+                {'id': branch.revision, 'name': branch.name})
 
         self.set_start_revision(self.revision_items[0].revision.short())
         self.set_end_revision(self.revision_items[-1].revision.short())
@@ -765,8 +776,10 @@ class GitLog(Log):
             should_add = not self.filter_text
             should_add = should_add or msg.find(self.filter_text) > -1
             should_add = should_add or item.author.lower().find(self.filter_text) > -1
-            should_add = should_add or S(item.revision).lower().find(self.filter_text) > -1
-            should_add = should_add or str(item.date).lower().find(self.filter_text) > -1
+            should_add = should_add or S(
+                item.revision).lower().find(self.filter_text) > -1
+            should_add = should_add or str(
+                item.date).lower().find(self.filter_text) > -1
 
             if should_add:
                 self.display_items.append(item)
@@ -789,7 +802,8 @@ class GitLog(Log):
         index = 0
         for (item, node, in_lines, out_lines) in grapher:
             revision = S(item.revision)
-            msg = helper.html_escape(helper.format_long_text(item.message, cols = 80, line1only = True))
+            msg = helper.html_escape(helper.format_long_text(
+                item.message, cols=80, line1only=True))
             author = item.author
             date = helper.format_datetime(item.date, self.datetime_format)
 
@@ -842,7 +856,7 @@ class GitLog(Log):
         )
 
         self.branchAction.append(self.git.branch_list)
-        self.branchAction.schedule();
+        self.branchAction.schedule()
 
         # Load tags.
         self.tagAction = GitAction(
@@ -875,7 +889,8 @@ class GitLog(Log):
         for selected_row in self.revisions_table.get_selected_rows():
             item = self.display_items[selected_row]
 
-            text += "%s: %s\n" % (REVISION_LABEL, S(item.revision.short()).display())
+            text += "%s: %s\n" % (REVISION_LABEL,
+                                  S(item.revision.short()).display())
             text += "%s: %s\n" % (AUTHOR_LABEL, S(item.author).display())
             text += "%s: %s\n" % (DATE_LABEL, S(item.date).display())
             text += "%s\n\n" % S(item.message).display()
@@ -893,11 +908,11 @@ class GitLog(Log):
             if len(self.revisions_table.get_selected_rows()) == 1:
                 self.message.set_text(msg)
             else:
-                indented_message = msg.replace("\n","\n\t")
+                indented_message = msg.replace("\n", "\n\t")
                 self.message.append_text(
-                                         "%s %s:\n\t%s\n" % (REVISION_LABEL,
-                                         item.revision.short(),
-                                         msg))
+                    "%s %s:\n\t%s\n" % (REVISION_LABEL,
+                                        item.revision.short(),
+                                        msg))
 
             for subitem in item.changed_paths:
 
@@ -941,6 +956,7 @@ class GitLog(Log):
     def initialize_root_url(self):
         self.root_url = self.git.get_repository() + "/"
 
+
 class SVNLogDialog(SVNLog):
     def __init__(self, path, ok_callback=None, multiple=False, merge_candidate_revisions=None):
         """
@@ -964,6 +980,7 @@ class SVNLogDialog(SVNLog):
             else:
                 self.ok_callback(self.get_selected_revision_number())
 
+
 class GitLogDialog(GitLog):
     def __init__(self, path, ok_callback=None, multiple=False):
         """
@@ -985,6 +1002,7 @@ class GitLogDialog(GitLog):
                 self.ok_callback(self.get_selected_revision_numbers())
             else:
                 self.ok_callback(self.get_selected_revision_number())
+
 
 class LogCache(object):
     def __init__(self, cache={}):
@@ -1008,30 +1026,36 @@ class MenuViewDiffWorkingCopy(MenuItem):
     label = _("View diff against working copy")
     icon = "rabbitvcs-diff"
 
+
 class MenuViewDiffPreviousRevision(MenuItem):
     identifier = "RabbitVCS::View_Diff_Previous_Revision"
     label = _("View diff against previous revision")
     icon = "rabbitvcs-diff"
+
 
 class MenuViewDiffRevisions(MenuItem):
     identifier = "RabbitVCS::View_Diff_Revisions"
     label = _("View diff between revisions")
     icon = "rabbitvcs-diff"
 
+
 class MenuCompareWorkingCopy(MenuItem):
     identifier = "RabbitVCS::Compare_Working_Copy"
     label = _("Compare with working copy")
     icon = "rabbitvcs-compare"
+
 
 class MenuComparePreviousRevision(MenuItem):
     identifier = "RabbitVCS::Compare_Previous_Revision"
     label = _("Compare with previous revision")
     icon = "rabbitvcs-compare"
 
+
 class MenuCompareRevisions(MenuItem):
     identifier = "RabbitVCS::Compare_Revisions"
     label = _("Compare revisions")
     icon = "rabbitvcs-compare"
+
 
 class MenuShowChangesPreviousRevision(MenuItem):
     # This is for the revs list
@@ -1039,11 +1063,13 @@ class MenuShowChangesPreviousRevision(MenuItem):
     label = _("Show changes against previous revision")
     icon = "rabbitvcs-changes"
 
+
 class MenuShowChangesRevisions(MenuItem):
     # This is for the revs list
     identifier = "RabbitVCS::Show_Changes_Revisions"
     label = _("Show changes between revisions")
     icon = "rabbitvcs-changes"
+
 
 class MenuUpdateToThisRevision(MenuItem):
     identifier = "RabbitVCS::Update_To_This_Revision"
@@ -1051,11 +1077,13 @@ class MenuUpdateToThisRevision(MenuItem):
     tooltip = _("Update the selected path to this revision")
     icon = "rabbitvcs-update"
 
+
 class MenuRevertChangesFromThisRevision(MenuItem):
     identifier = "RabbitVCS::Revert_Changes_From_This_Revision"
     label = _("Revert changes from this revision")
     tooltip = _("Update the selected path by reverse merging the changes")
     icon = "rabbitvcs-revert"
+
 
 class MenuCopyClipboard(MenuItem):
     identifier = "RabbitVCS::Copy_Clipboard"
@@ -1063,23 +1091,28 @@ class MenuCopyClipboard(MenuItem):
     tooltip = _("Copy to clipboard the full data of these revisions")
     icon = "rabbitvcs-asynchronous"
 
+
 class MenuEditAuthor(MenuItem):
     identifier = "RabbitVCS::Edit_Author"
     label = _("Edit author...")
     icon = "rabbitvcs-monkey"
+
 
 class MenuEditLogMessage(MenuItem):
     identifier = "RabbitVCS::Edit_Log_Message"
     label = _("Edit log message...")
     icon = "rabbitvcs-editconflicts"
 
+
 class MenuEditRevisionProperties(MenuItem):
     identifier = "RabbitVCS::Edit_Revision_Properties"
     label = _("Edit revision properties...")
     icon = "rabbitvcs-editprops"
 
+
 class MenuSeparatorLast(MenuSeparator):
     identifier = "RabbitVCS::Separator_Last"
+
 
 class LogTopContextMenuConditions(object):
     def __init__(self, caller, vcs, path, revisions):
@@ -1163,6 +1196,7 @@ class LogTopContextMenuConditions(object):
 
     def reset(self, data=None):
         return (self.vcs_name == rabbitvcs.vcs.VCS_GIT)
+
 
 class LogTopContextMenuCallbacks(object):
     def __init__(self, caller, vcs, path, revisions):
@@ -1284,7 +1318,8 @@ class LogTopContextMenuCallbacks(object):
     def revert_changes_from_this_revision(self, widget, data=None):
         helper.launch_ui_window("merge", [
             self.path,
-            S(self.revisions[0]["revision"]) + "-" + str(int(S(self.revisions[0]["revision"])) - 1),
+            S(self.revisions[0]["revision"]) + "-" +
+            str(int(S(self.revisions[0]["revision"])) - 1),
             "--vcs=%s" % self.caller.get_vcs_name()
         ])
 
@@ -1361,7 +1396,8 @@ class LogTopContextMenuCallbacks(object):
         (result, new_author) = dialog.run()
 
         if result == Gtk.ResponseType.OK:
-            self.caller.edit_revprop("svn:author", new_author, self.caller.on_author_edited)
+            self.caller.edit_revprop(
+                "svn:author", new_author, self.caller.on_author_edited)
 
     def edit_log_message(self, widget, data=None):
         message = ""
@@ -1373,7 +1409,8 @@ class LogTopContextMenuCallbacks(object):
         (result, new_message) = dialog.run()
 
         if result == Gtk.ResponseType.OK:
-            self.caller.edit_revprop("svn:log", new_message, self.caller.on_log_message_edited)
+            self.caller.edit_revprop(
+                "svn:log", new_message, self.caller.on_log_message_edited)
 
     def edit_revision_properties(self, widget, data=None):
         url = self.vcs.svn().get_repo_url(self.path)
@@ -1383,11 +1420,13 @@ class LogTopContextMenuCallbacks(object):
             "--vcs=%s" % self.caller.get_vcs_name()
         ])
 
+
 class LogTopContextMenu(object):
     """
     Defines context menu items for a table with files
 
     """
+
     def __init__(self, caller, event, path, revisions=[]):
         """
         @param  caller: The calling object
@@ -1457,7 +1496,8 @@ class LogTopContextMenu(object):
         if len(self.revisions) == 0:
             return
 
-        context_menu = GtkContextMenu(self.structure, self.conditions, self.callbacks)
+        context_menu = GtkContextMenu(
+            self.structure, self.conditions, self.callbacks)
         context_menu.show(self.event)
 
 
@@ -1503,6 +1543,7 @@ class LogBottomContextMenuConditions(object):
 
     def separator(self, data=None):
         return True
+
 
 class LogBottomContextMenuCallbacks(object):
     def __init__(self, caller, vcs, paths, revisions):
@@ -1556,9 +1597,9 @@ class LogBottomContextMenuCallbacks(object):
         path_item = S(self.paths[0]).unicode()
         url = self.caller.root_url + path_item
         self.caller.view_diff_for_path(url,
-                                        latest_rev,
-                                        sidebyside=True,
-                                        earliest_revision_number=earliest_rev)
+                                       latest_rev,
+                                       sidebyside=True,
+                                       earliest_revision_number=earliest_rev)
 
     def show_changes_previous_revision(self, widget, data=None):
         rev_first = S(self.revisions[0]["revision"])
@@ -1586,7 +1627,6 @@ class LogBottomContextMenuCallbacks(object):
             "--vcs=%s" % self.caller.get_vcs_name()
         ])
 
-
     def _open(self, widget, data=None):
         for path in self.paths:
             path = self.caller.root_url + S(path).unicode()
@@ -1604,11 +1644,13 @@ class LogBottomContextMenuCallbacks(object):
             "-r", S(self.revisions[0]["revision"])
         ])
 
+
 class LogBottomContextMenu(object):
     """
     Defines context menu items for a table with files
 
     """
+
     def __init__(self, caller, event, paths, revisions):
         """
         @param  caller: The calling object
@@ -1664,8 +1706,10 @@ class LogBottomContextMenu(object):
         if len(self.paths) == 0:
             return
 
-        context_menu = GtkContextMenu(self.structure, self.conditions, self.callbacks)
+        context_menu = GtkContextMenu(
+            self.structure, self.conditions, self.callbacks)
         context_menu.show(self.event)
+
 
 classes_map = {
     rabbitvcs.vcs.VCS_SVN: SVNLog,
@@ -1676,6 +1720,7 @@ dialogs_map = {
     rabbitvcs.vcs.VCS_SVN: SVNLogDialog,
     rabbitvcs.vcs.VCS_GIT: GitLogDialog
 }
+
 
 def log_factory(path, vcs):
     # vcs option is allowed for URL only
@@ -1690,6 +1735,7 @@ def log_factory(path, vcs):
             raise SystemExit(VCS_OPT_ERROR)
 
     return classes_map[vcs](path)
+
 
 def log_dialog_factory(path, ok_callback=None, multiple=False, vcs=None):
     if not vcs:

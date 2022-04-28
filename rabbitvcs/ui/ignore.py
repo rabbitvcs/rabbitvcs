@@ -1,4 +1,9 @@
 from __future__ import absolute_import
+from rabbitvcs import gettext
+import rabbitvcs.vcs
+from rabbitvcs.ui.action import SVNAction, GitAction
+from rabbitvcs.ui import InterfaceNonView, InterfaceView
+from gi.repository import Gtk, GObject, Gdk
 #
 # This is an extension to the Nautilus file manager to allow better
 # integration with the Subversion source control system.
@@ -29,16 +34,11 @@ from rabbitvcs.util import helper
 import gi
 gi.require_version("Gtk", "3.0")
 sa = helper.SanitizeArgv()
-from gi.repository import Gtk, GObject, Gdk
 sa.restore()
 
-from rabbitvcs.ui import InterfaceNonView, InterfaceView
-from rabbitvcs.ui.action import SVNAction, GitAction
 
-import rabbitvcs.vcs
-
-from rabbitvcs import gettext
 _ = gettext.gettext
+
 
 class SVNIgnore(InterfaceNonView):
     """
@@ -72,6 +72,7 @@ class SVNIgnore(InterfaceNonView):
 
         raise SystemExit()
 
+
 class GitIgnore(InterfaceView):
     def __init__(self, path, pattern=""):
         InterfaceView.__init__(self, "ignore", "Ignore")
@@ -92,7 +93,7 @@ class GitIgnore(InterfaceView):
         for ignore_file in ignore_files:
             label = path
             if ignore_file.startswith(path_dir):
-               label = ignore_file[len(path_dir)+1:]
+                label = ignore_file[len(path_dir)+1:]
 
             ignore_file_labels.append(label)
 
@@ -114,11 +115,11 @@ class GitIgnore(InterfaceView):
         self.close()
 
 
-
 classes_map = {
     rabbitvcs.vcs.VCS_SVN: SVNIgnore,
     rabbitvcs.vcs.VCS_GIT: GitIgnore
 }
+
 
 def ignore_factory(path, pattern):
     guess = rabbitvcs.vcs.guess(path)

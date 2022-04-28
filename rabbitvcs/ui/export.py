@@ -1,4 +1,13 @@
 from __future__ import absolute_import
+from rabbitvcs import gettext
+import rabbitvcs.vcs
+from rabbitvcs.util.strings import S
+from rabbitvcs.ui.action import SVNAction, GitAction
+from rabbitvcs.ui.dialog import MessageBox
+from rabbitvcs.ui.clone import GitClone
+from rabbitvcs.ui.checkout import SVNCheckout
+from rabbitvcs.ui import InterfaceView
+from gi.repository import Gtk, GObject, Gdk
 #
 # This is an extension to the Nautilus file manager to allow better
 # integration with the Subversion source control system.
@@ -28,19 +37,11 @@ from rabbitvcs.util import helper
 import gi
 gi.require_version("Gtk", "3.0")
 sa = helper.SanitizeArgv()
-from gi.repository import Gtk, GObject, Gdk
 sa.restore()
 
-from rabbitvcs.ui import InterfaceView
-from rabbitvcs.ui.checkout import SVNCheckout
-from rabbitvcs.ui.clone import GitClone
-from rabbitvcs.ui.dialog import MessageBox
-from rabbitvcs.ui.action import SVNAction, GitAction
-from rabbitvcs.util.strings import S
-import rabbitvcs.vcs
 
-from rabbitvcs import gettext
 _ = gettext.gettext
+
 
 class SVNExport(SVNCheckout):
     def __init__(self, path=None, revision=None):
@@ -75,7 +76,8 @@ class SVNExport(SVNCheckout):
         recursive = self.get_widget("recursive").get_active()
 
         if not url or not path:
-            MessageBox(_("The repository URL and destination path are both required fields."))
+            MessageBox(
+                _("The repository URL and destination path are both required fields."))
             return
 
         if url.startswith("file://"):
@@ -96,7 +98,8 @@ class SVNExport(SVNCheckout):
         )
 
         self.action.append(self.action.set_header, _("Export"))
-        self.action.append(self.action.set_status, _("Running Export Command..."))
+        self.action.append(self.action.set_status,
+                           _("Running Export Command..."))
         self.action.append(helper.save_repository_path, url)
         self.action.append(
             self.svn.export,
@@ -110,6 +113,7 @@ class SVNExport(SVNCheckout):
         self.action.append(self.action.set_status, _("Completed Export"))
         self.action.append(self.action.finish)
         self.action.schedule()
+
 
 class GitExport(GitClone):
     def __init__(self, path=None, revision=None):
@@ -144,7 +148,8 @@ class GitExport(GitClone):
         path = self._get_path()
 
         if not url or not path:
-            MessageBox(_("The repository URL and destination path are both required fields."))
+            MessageBox(
+                _("The repository URL and destination path are both required fields."))
             return
 
         if url.startswith("file://"):
@@ -165,7 +170,8 @@ class GitExport(GitClone):
         )
 
         self.action.append(self.action.set_header, _("Export"))
-        self.action.append(self.action.set_status, _("Running Export Command..."))
+        self.action.append(self.action.set_status,
+                           _("Running Export Command..."))
         self.action.append(helper.save_repository_path, url)
         self.action.append(
             self.git.export,
@@ -199,10 +205,12 @@ class GitExport(GitClone):
 
         self.check_form()
 
+
 classes_map = {
     rabbitvcs.vcs.VCS_SVN: SVNExport,
     rabbitvcs.vcs.VCS_GIT: GitExport
 }
+
 
 def export_factory(vcs, path, revision=None):
     if not vcs:

@@ -1,4 +1,9 @@
 from __future__ import absolute_import
+from rabbitvcs import gettext
+import rabbitvcs.vcs
+from rabbitvcs.ui.action import SVNAction
+from rabbitvcs.ui import InterfaceNonView
+from gi.repository import Gtk, GObject, Gdk
 #
 # This is an extension to the Nautilus file manager to allow better
 # integration with the Subversion source control system.
@@ -26,15 +31,11 @@ from rabbitvcs.util import helper
 import gi
 gi.require_version("Gtk", "3.0")
 sa = helper.SanitizeArgv()
-from gi.repository import Gtk, GObject, Gdk
 sa.restore()
 
-from rabbitvcs.ui import InterfaceNonView
-from rabbitvcs.ui.action import SVNAction
-import rabbitvcs.vcs
 
-from rabbitvcs import gettext
 _ = gettext.gettext
+
 
 class SVNCleanup(InterfaceNonView):
     """

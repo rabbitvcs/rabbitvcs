@@ -1,4 +1,14 @@
 from __future__ import absolute_import
+from rabbitvcs import gettext
+from rabbitvcs.util.log import Log
+from rabbitvcs.util.strings import S
+import rabbitvcs.ui.action
+import rabbitvcs.ui.dialog
+import rabbitvcs.ui.widget
+from rabbitvcs.ui.action import SVNAction
+from rabbitvcs.ui.add import Add
+from rabbitvcs.ui import InterfaceView
+from gi.repository import Gtk, GObject, Gdk
 #
 # This is an extension to the Nautilus file manager to allow better
 # integration with the Subversion source control system.
@@ -28,21 +38,12 @@ from rabbitvcs.util import helper
 import gi
 gi.require_version("Gtk", "3.0")
 sa = helper.SanitizeArgv()
-from gi.repository import Gtk, GObject, Gdk
 sa.restore()
-from rabbitvcs.ui import InterfaceView
-from rabbitvcs.ui.add import Add
-from rabbitvcs.ui.action import SVNAction
-import rabbitvcs.ui.widget
-import rabbitvcs.ui.dialog
-import rabbitvcs.ui.action
-from rabbitvcs.util.strings import S
-from rabbitvcs.util.log import Log
 
 log = Log("rabbitvcs.ui.markresolved")
 
-from rabbitvcs import gettext
 _ = gettext.gettext
+
 
 class SVNMarkResolved(Add):
     def setup(self, window, columns):
@@ -50,11 +51,11 @@ class SVNMarkResolved(Add):
         self.svn = self.vcs.svn()
         self.statuses = self.svn.STATUSES_FOR_RESOLVE
         columns[0] = [GObject.TYPE_BOOLEAN,
-                rabbitvcs.ui.widget.TYPE_HIDDEN_OBJECT,
-                rabbitvcs.ui.widget.TYPE_PATH,
-                GObject.TYPE_STRING, GObject.TYPE_STRING, GObject.TYPE_STRING],
+                      rabbitvcs.ui.widget.TYPE_HIDDEN_OBJECT,
+                      rabbitvcs.ui.widget.TYPE_PATH,
+                      GObject.TYPE_STRING, GObject.TYPE_STRING, GObject.TYPE_STRING],
         columns[1] = [rabbitvcs.ui.widget.TOGGLE_BUTTON, "", _("Path"),
-                _("Extension"), _("Text Status"), _("Property Status")]
+                      _("Extension"), _("Text Status"), _("Property Status")]
 
     def populate_files_table(self):
         self.files_table.clear()
@@ -81,16 +82,20 @@ class SVNMarkResolved(Add):
         )
 
         self.action.append(self.action.set_header, _("Mark as Resolved"))
-        self.action.append(self.action.set_status, _("Running Resolved Command..."))
+        self.action.append(self.action.set_status,
+                           _("Running Resolved Command..."))
         for item in items:
             self.action.append(self.svn.resolve, item, recurse=True)
-        self.action.append(self.action.set_status, _("Completed Mark as Resolved"))
+        self.action.append(self.action.set_status,
+                           _("Completed Mark as Resolved"))
         self.action.append(self.action.finish)
         self.action.schedule()
+
 
 classes_map = {
     rabbitvcs.vcs.VCS_SVN: SVNMarkResolved
 }
+
 
 def markresolved_factory(paths, base_dir=None):
     guess = rabbitvcs.vcs.guess(paths[0])

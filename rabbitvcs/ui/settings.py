@@ -1,4 +1,14 @@
 from __future__ import absolute_import
+from rabbitvcs import gettext, _gettext, APP_NAME, LOCALE_DIR
+from rabbitvcs.services.checkerservice import StatusCheckerStub
+import rabbitvcs.services.checkerservice
+from rabbitvcs.util.strings import S
+from rabbitvcs.util._locale import get_locale
+import rabbitvcs.util.settings
+import rabbitvcs.ui.dialog
+import rabbitvcs.ui.widget
+from rabbitvcs.ui import InterfaceView
+from gi.repository import Gtk, GObject, Gdk, Pango
 #
 # This is an extension to the Nautilus file manager to allow better
 # integration with the Subversion source control system.
@@ -30,42 +40,32 @@ from rabbitvcs.util import helper
 import gi
 gi.require_version("Gtk", "3.0")
 sa = helper.SanitizeArgv()
-from gi.repository import Gtk, GObject, Gdk, Pango
 sa.restore()
 
-from rabbitvcs.ui import InterfaceView
-import rabbitvcs.ui.widget
-import rabbitvcs.ui.dialog
-import rabbitvcs.util.settings
-from rabbitvcs.util._locale import get_locale
-from rabbitvcs.util.strings import S
 
-import rabbitvcs.services.checkerservice
-from rabbitvcs.services.checkerservice import StatusCheckerStub
-
-from rabbitvcs import gettext, _gettext, APP_NAME, LOCALE_DIR
 _ = gettext.gettext
 
 CHECKER_UNKNOWN_INFO = _("Unknown")
 CHECKER_SERVICE_ERROR = _(
-"There was an error communicating with the status checker service.")
+    "There was an error communicating with the status checker service.")
 
 
 class Settings(InterfaceView):
     dtformats = [
-                    ["", _("default")],
-                    ["%c", _("locale")],
-                    ["%Y-%m-%d %H:%M:%S", _("ISO")],
-                    ["%b %d, %Y %I:%M:%S %p", None],
-                    ["%B %d, %Y %I:%M:%S %p", None],
-                    ["%m/%d/%Y %I:%M:%S %p", None],
-                    ["%b %d, %Y %H:%M:%S", None],
-                    ["%B %d, %Y %H:%M:%S", None],
-                    ["%m/%d/%Y %H:%M:%S", None],
-                    ["%d %b %Y %H:%M:%S", None],
-                    ["%d %B %Y %H:%M:%S", None],
-                    ["%d/%m/%Y %H:%M:%S", None]
+        ["", _("default")],
+        ["%c", _("locale")],
+        ["%Y-%m-%d %H:%M:%S", _("ISO")],
+        ["%b %d, %Y %I:%M:%S %p", None],
+        ["%B %d, %Y %I:%M:%S %p", None],
+        ["%m/%d/%Y %I:%M:%S %p", None],
+        ["%b %d, %Y %H:%M:%S", None],
+        ["%B %d, %Y %H:%M:%S", None],
+        ["%m/%d/%Y %H:%M:%S", None],
+        ["%d %b %Y %H:%M:%S", None],
+        ["%d %B %Y %H:%M:%S", None],
+        ["%d/%m/%Y %H:%M:%S", None]
     ]
+
     def __init__(self, base_dir=None):
         """
         Provides an interface to the settings library.
@@ -86,13 +86,13 @@ class Settings(InterfaceView):
             int(self.settings.get("general", "enable_recursive"))
         )
         self.get_widget("enable_highlighting").set_active(
-            int(self.settings.get("general","enable_highlighting"))
+            int(self.settings.get("general", "enable_highlighting"))
         )
         self.get_widget("enable_colorize").set_active(
-            int(self.settings.get("general","enable_colorize"))
+            int(self.settings.get("general", "enable_colorize"))
         )
         self.get_widget("show_debug").set_active(
-            int(self.settings.get("general","show_debug"))
+            int(self.settings.get("general", "show_debug"))
         )
         self.get_widget("enable_subversion").set_active(
             int(self.settings.get("HideItem", "svn")) == 0
@@ -104,19 +104,22 @@ class Settings(InterfaceView):
         dt = datetime.datetime.today()
         # Disambiguate day.
         if dt.day <= 12:
-            dt =  datetime.datetime(dt.year, dt.month, dt.day + 12,
-                                    dt.hour, dt.minute, dt.second)
+            dt = datetime.datetime(dt.year, dt.month, dt.day + 12,
+                                   dt.hour, dt.minute, dt.second)
         for format, label in self.dtformats:
             if label is None:
                 label = helper.format_datetime(dt, format)
             dtfs.append([format, label])
-        self.datetime_format = rabbitvcs.ui.widget.ComboBox(self.get_widget("datetime_format"), dtfs, 2, 1)
+        self.datetime_format = rabbitvcs.ui.widget.ComboBox(
+            self.get_widget("datetime_format"), dtfs, 2, 1)
         self.datetime_format.set_active_from_value(
             self.settings.get("general", "datetime_format")
         )
-        self.default_commit_message = rabbitvcs.ui.widget.TextView(self.get_widget("default_commit_message"))
+        self.default_commit_message = rabbitvcs.ui.widget.TextView(
+            self.get_widget("default_commit_message"))
         self.default_commit_message.set_text(
-            S(self.settings.get_multiline("general", "default_commit_message")).display()
+            S(self.settings.get_multiline(
+                "general", "default_commit_message")).display()
         )
         self.get_widget("diff_tool").set_text(
             S(self.settings.get("external", "diff_tool")).display()
@@ -183,8 +186,8 @@ class Settings(InterfaceView):
             try:
                 session_bus = dbus.SessionBus()
                 self.checker_service = session_bus.get_object(
-                                    rabbitvcs.services.checkerservice.SERVICE,
-                                    rabbitvcs.services.checkerservice.OBJECT_PATH)
+                    rabbitvcs.services.checkerservice.SERVICE,
+                    rabbitvcs.services.checkerservice.OBJECT_PATH)
                 # Initialize service locale in case it just started.
                 self.checker_service.SetLocale(*get_locale())
             except dbus.DBusException as ex:
@@ -193,7 +196,7 @@ class Settings(InterfaceView):
 
         return self.checker_service
 
-    def _populate_checker_tab(self, report_failure = True, connect = True):
+    def _populate_checker_tab(self, report_failure=True, connect=True):
         # This is a limitation of GLADE, and can be removed when we migrate to
         # GTK2 Builder
 
@@ -204,7 +207,8 @@ class Settings(InterfaceView):
         self.get_widget("stop_checker").set_sensitive(bool(checker_service))
 
         if(checker_service):
-            self.get_widget("checker_type").set_text(S(checker_service.CheckerType()).display())
+            self.get_widget("checker_type").set_text(
+                S(checker_service.CheckerType()).display())
             self.get_widget("pid").set_text(S(checker_service.PID()).display())
 
             memory = checker_service.MemoryUsage()
@@ -214,7 +218,8 @@ class Settings(InterfaceView):
             else:
                 self.get_widget("memory_usage").set_text(CHECKER_UNKNOWN_INFO)
 
-            self.get_widget("locale").set_text(S(".".join(checker_service.SetLocale())).display())
+            self.get_widget("locale").set_text(
+                S(".".join(checker_service.SetLocale())).display())
 
             self._populate_info_table(checker_service.ExtraInformation())
 
@@ -237,7 +242,6 @@ class Settings(InterfaceView):
         table = rabbitvcs.ui.widget.KeyValueTable(info)
         table_place.add(table)
         table.show()
-
 
     def on_refresh_info_clicked(self, widget):
         self._populate_checker_tab()
@@ -265,7 +269,7 @@ class Settings(InterfaceView):
 
     def on_stop_checker_clicked(self, widget):
         self._stop_checker()
-        self._populate_checker_tab(report_failure = False, connect = False)
+        self._populate_checker_tab(report_failure=False, connect=False)
 
     def on_destroy(self, widget):
         Gtk.main_quit()
@@ -404,7 +408,8 @@ class Settings(InterfaceView):
                         filepath = "%s/%s" % (path, filename)
                         os.remove(filepath)
 
-            rabbitvcs.ui.dialog.MessageBox(_("Authentication information cleared"))
+            rabbitvcs.ui.dialog.MessageBox(
+                _("Authentication information cleared"))
 
 
 if __name__ == "__main__":

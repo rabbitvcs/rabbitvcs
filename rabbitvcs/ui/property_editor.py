@@ -29,6 +29,18 @@ apply later, no trying to keep track of what was done recursively and what
 wasn't; just do the work and make sure the UI is sensible.
 """
 from __future__ import absolute_import
+from rabbitvcs import gettext
+from rabbitvcs.util.log import Log
+from rabbitvcs.vcs.svn import Revision
+from rabbitvcs.util.strings import S
+import rabbitvcs.vcs
+import rabbitvcs.ui.dialog
+import rabbitvcs.ui.widget
+import rabbitvcs.util.contextmenuitems
+import rabbitvcs.ui.wraplabel
+from rabbitvcs.util.contextmenu import GtkContextMenu, GtkContextMenuCaller
+from rabbitvcs.ui import InterfaceView
+from gi.repository import Gtk, GObject, Gdk
 from __future__ import print_function
 
 import os.path
@@ -38,23 +50,11 @@ from rabbitvcs.util import helper
 import gi
 gi.require_version("Gtk", "3.0")
 sa = helper.SanitizeArgv()
-from gi.repository import Gtk, GObject, Gdk
 sa.restore()
 
-from rabbitvcs.ui import InterfaceView
-from rabbitvcs.util.contextmenu import GtkContextMenu, GtkContextMenuCaller
-import rabbitvcs.ui.wraplabel
-import rabbitvcs.util.contextmenuitems
-import rabbitvcs.ui.widget
-import rabbitvcs.ui.dialog
-import rabbitvcs.vcs
-from rabbitvcs.util.strings import S
-from rabbitvcs.vcs.svn import Revision
-from rabbitvcs.util.log import Log
 
 log = Log("rabbitvcs.ui.property_editor")
 
-from rabbitvcs import gettext
 _ = gettext.gettext
 
 
@@ -74,6 +74,7 @@ PROP_MENU_STRUCTURE = [
     (rabbitvcs.util.contextmenuitems.PropMenuDelete, None),
     (rabbitvcs.util.contextmenuitems.PropMenuDeleteRecursive, None)]
 
+
 class PropEditor(InterfaceView, GtkContextMenuCaller):
     '''
     User interface for the property editor.
@@ -82,7 +83,6 @@ class PropEditor(InterfaceView, GtkContextMenuCaller):
     property in the dialog, it is actually added in the WC. Each row has a
     context menu available to perform other actions.
     '''
-
 
     def __init__(self, path):
         '''
@@ -99,17 +99,20 @@ class PropEditor(InterfaceView, GtkContextMenuCaller):
 
         self.path = path
 
-        self.get_widget("wc_text").set_text(S(self.get_local_path(os.path.realpath(path))).display())
+        self.get_widget("wc_text").set_text(
+            S(self.get_local_path(os.path.realpath(path))).display())
 
         self.vcs = rabbitvcs.vcs.VCS()
         self.svn = self.vcs.svn()
 
         if not self.svn.is_versioned(self.path):
-            rabbitvcs.ui.dialog.MessageBox(_("File is not under version control."))
+            rabbitvcs.ui.dialog.MessageBox(
+                _("File is not under version control."))
             self.close()
             return
 
-        self.get_widget("remote_uri_text").set_text(S(self.svn.get_repo_url(path)).display())
+        self.get_widget("remote_uri_text").set_text(
+            S(self.svn.get_repo_url(path)).display())
 
         self.table = rabbitvcs.ui.widget.Table(
             self.get_widget("table"),
@@ -159,13 +162,14 @@ class PropEditor(InterfaceView, GtkContextMenuCaller):
 
         except Exception as e:
             log.exception(e)
-            rabbitvcs.ui.dialog.MessageBox(_("Unable to retrieve properties list"))
+            rabbitvcs.ui.dialog.MessageBox(
+                _("Unable to retrieve properties list"))
 
         for propname, details in list(propdets.items()):
 
             self.table.append(
                 [propname, details["value"], "N/A", details["status"]]
-                              )
+            )
 
     def on_refresh_clicked(self, widget):
         self.refresh()
@@ -179,11 +183,13 @@ class PropEditor(InterfaceView, GtkContextMenuCaller):
 
         dialog = rabbitvcs.ui.dialog.Property(name, value)
 
-        name,value,recurse = dialog.run()
+        name, value, recurse = dialog.run()
         if name:
-            success = self.svn.propset(self.path, name, value, overwrite=True, recurse=False)
+            success = self.svn.propset(
+                self.path, name, value, overwrite=True, recurse=False)
             if not success:
-                rabbitvcs.ui.dialog.MessageBox(_("Unable to set new value for property."))
+                rabbitvcs.ui.dialog.MessageBox(
+                    _("Unable to set new value for property."))
 
         self.refresh()
 
@@ -229,6 +235,7 @@ class PropEditor(InterfaceView, GtkContextMenuCaller):
 
         GtkContextMenu(PROP_MENU_STRUCTURE, conditions, callbacks).show(event)
 
+
 class PropMenuCallbacks(object):
 
     def __init__(self, caller, path, propdetails, vcs):
@@ -240,7 +247,7 @@ class PropMenuCallbacks(object):
 
     def property_edit(self, widget, *args):
         if list(self.propdetails.keys()):
-            propname  = list(self.propdetails.keys())[0]
+            propname = list(self.propdetails.keys())[0]
             self.caller.edit_property(propname)
 
     def property_delete(self, widget, *args):
@@ -268,11 +275,11 @@ class PropMenuConditions(object):
 
     def all_modified(self):
         return all([detail["status"] != "unchanged"
-                       for (propname, detail) in list(self.propdetails.items())])
+                    for (propname, detail) in list(self.propdetails.items())])
 
     def all_not_deleted(self):
         return all([detail["status"] != "deleted"
-                       for (propname, detail) in list(self.propdetails.items())])
+                    for (propname, detail) in list(self.propdetails.items())])
 
     def property_revert(self):
         return False

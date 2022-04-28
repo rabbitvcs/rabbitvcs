@@ -1,4 +1,12 @@
 from __future__ import absolute_import
+from rabbitvcs import gettext
+import rabbitvcs.vcs
+import rabbitvcs.ui.widget
+from rabbitvcs.ui.action import GitAction
+from rabbitvcs.ui import InterfaceView
+import time
+from datetime import datetime
+from gi.repository import Gtk, GObject, Gdk, Pango
 #
 # This is an extension to the Nautilus file manager to allow better
 # integration with the Subversion source control system.
@@ -28,19 +36,11 @@ from rabbitvcs.util import helper
 import gi
 gi.require_version("Gtk", "3.0")
 sa = helper.SanitizeArgv()
-from gi.repository import Gtk, GObject, Gdk, Pango
 sa.restore()
 
-from datetime import datetime
-import time
 
-from rabbitvcs.ui import InterfaceView
-from rabbitvcs.ui.action import GitAction
-import rabbitvcs.ui.widget
-import rabbitvcs.vcs
-
-from rabbitvcs import gettext
 _ = gettext.gettext
+
 
 class GitClean(InterfaceView):
     """
@@ -57,7 +57,8 @@ class GitClean(InterfaceView):
     def on_ok_clicked(self, widget):
         remove_dir = self.get_widget("remove_directories").get_active()
         remove_ignored_too = self.get_widget("remove_ignored_too").get_active()
-        remove_only_ignored = self.get_widget("remove_only_ignored").get_active()
+        remove_only_ignored = self.get_widget(
+            "remove_only_ignored").get_active()
         dry_run = self.get_widget("dryrun").get_active()
         force = self.get_widget("force").get_active()
 
@@ -67,7 +68,8 @@ class GitClean(InterfaceView):
             register_gtk_quit=self.gtk_quit_is_set()
         )
         self.action.append(self.action.set_header, _("Clean"))
-        self.action.append(self.action.set_status, _("Running Clean Command..."))
+        self.action.append(self.action.set_status,
+                           _("Running Clean Command..."))
         self.action.append(
             self.git.clean,
             self.path,

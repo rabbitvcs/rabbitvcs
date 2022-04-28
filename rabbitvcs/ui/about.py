@@ -1,4 +1,17 @@
 from __future__ import absolute_import
+from six.moves import map
+from rabbitvcs import gettext
+import configobj
+import pysvn
+import rabbitvcs.ui.widget
+from rabbitvcs.ui import InterfaceView
+import rabbitvcs
+from gi.repository import Gtk, GObject, GdkPixbuf
+import gi
+from rabbitvcs.util import helper
+import re
+import string
+import os.path
 #
 # This is an extension to the Nautilus file manager to allow better
 # integration with the Subversion source control system.
@@ -22,27 +35,13 @@ You should have received a copy of the GNU General Public License
 along with RabbitVCS;  If not, see <http://www.gnu.org/licenses/>.  """
 
 
-import os.path
-import string
-import re
-
-from rabbitvcs.util import helper
-
-import gi
 gi.require_version("Gtk", "3.0")
 sa = helper.SanitizeArgv()
-from gi.repository import Gtk, GObject, GdkPixbuf
 sa.restore()
 
-import rabbitvcs
-from rabbitvcs.ui import InterfaceView
-import rabbitvcs.ui.widget
-import pysvn
-import configobj
 
-from rabbitvcs import gettext
-from six.moves import map
 _ = gettext.gettext
+
 
 class About(object):
     """
@@ -86,8 +85,9 @@ class About(object):
         self.about.set_logo(pixbuf)
 
         versions = []
-        versions.append("Subversion - %s" % ".".join(list(map(str,pysvn.svn_version))))
-        versions.append("Pysvn - %s" % ".".join(list(map(str,pysvn.version))))
+        versions.append("Subversion - %s" %
+                        ".".join(list(map(str, pysvn.svn_version))))
+        versions.append("Pysvn - %s" % ".".join(list(map(str, pysvn.version))))
         versions.append("ConfigObj - %s" % str(configobj.__version__))
 
         self.about.set_comments("\n".join(versions))

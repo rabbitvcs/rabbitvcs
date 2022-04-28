@@ -1,4 +1,15 @@
 from __future__ import absolute_import
+from rabbitvcs import gettext
+from rabbitvcs.vcs.status import Status
+from rabbitvcs.util.log import Log
+import rabbitvcs.vcs
+from rabbitvcs.util.strings import S
+import rabbitvcs.ui.action
+import rabbitvcs.ui.dialog
+import rabbitvcs.ui.widget
+from rabbitvcs.util.contextmenu import GtkFilesContextMenu, GtkContextMenuCaller
+from rabbitvcs.ui import InterfaceView
+from gi.repository import Gtk, GObject, Gdk
 #
 # This is an extension to the Nautilus file manager to allow better
 # integration with the Subversion source control system.
@@ -29,26 +40,15 @@ from rabbitvcs.util import helper
 import gi
 gi.require_version("Gtk", "3.0")
 sa = helper.SanitizeArgv()
-from gi.repository import Gtk, GObject, Gdk
 sa.restore()
 
-from rabbitvcs.ui import InterfaceView
-from rabbitvcs.util.contextmenu import GtkFilesContextMenu, GtkContextMenuCaller
-import rabbitvcs.ui.widget
-import rabbitvcs.ui.dialog
-import rabbitvcs.ui.action
-from rabbitvcs.util import helper
-from rabbitvcs.util.strings import S
-import rabbitvcs.vcs
-from rabbitvcs.util.log import Log
-from rabbitvcs.vcs.status import Status
 
 log = Log("rabbitvcs.ui.add")
 
-from rabbitvcs import gettext
 _ = gettext.gettext
 
 helper.gobject_threads_init()
+
 
 class Add(InterfaceView, GtkContextMenuCaller):
     """
@@ -131,12 +131,12 @@ class Add(InterfaceView, GtkContextMenuCaller):
                                 should_add = False
 
                         if should_add:
-                            self.items.append(Status(os.path.realpath(ignored_path), 'unversioned'))
-
-
+                            self.items.append(
+                                Status(os.path.realpath(ignored_path), 'unversioned'))
 
         self.populate_files_table()
-        helper.run_in_main_thread(status.set_text, _("Found %d item(s)") % len(self.items))
+        helper.run_in_main_thread(status.set_text, _(
+            "Found %d item(s)") % len(self.items))
 
     def populate_files_table(self):
         self.files_table.clear()
@@ -226,6 +226,7 @@ class SVNAdd(Add):
         self.action.append(self.action.finish)
         self.action.schedule()
 
+
 class GitAdd(Add):
     def __init__(self, paths, base_dir=None):
         Add.__init__(self, paths, base_dir)
@@ -251,14 +252,17 @@ class GitAdd(Add):
         self.action.append(self.action.finish)
         self.action.schedule()
 
+
 classes_map = {
     rabbitvcs.vcs.VCS_SVN: SVNAdd,
     rabbitvcs.vcs.VCS_GIT: GitAdd
 }
 
+
 def add_factory(paths, base_dir):
-    guess = rabbitvcs.vcs.guess (paths[0])
-    return classes_map[guess["vcs"]](paths,base_dir)
+    guess = rabbitvcs.vcs.guess(paths[0])
+    return classes_map[guess["vcs"]](paths, base_dir)
+
 
 class AddQuiet(object):
     def __init__(self, paths):
@@ -282,6 +286,7 @@ if __name__ == "__main__":
     if options.quiet:
         AddQuiet(paths)
     else:
-        window = add_factory(paths,options.base_dir)#Add(paths, options.base_dir)
+        # Add(paths, options.base_dir)
+        window = add_factory(paths, options.base_dir)
         window.register_gtk_quit()
         Gtk.main()

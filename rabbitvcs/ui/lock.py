@@ -1,4 +1,14 @@
 from __future__ import absolute_import
+from rabbitvcs import gettext
+from rabbitvcs.util.log import Log
+from rabbitvcs.util.strings import S
+import rabbitvcs.vcs
+import rabbitvcs.ui.dialog
+import rabbitvcs.ui.widget
+from rabbitvcs.util.contextmenu import GtkFilesContextMenu, GtkContextMenuCaller
+from rabbitvcs.ui.action import SVNAction
+from rabbitvcs.ui import InterfaceView
+from gi.repository import Gtk, GObject, Gdk
 #
 # This is an extension to the Nautilus file manager to allow better
 # integration with the Subversion source control system.
@@ -29,24 +39,15 @@ from rabbitvcs.util import helper
 import gi
 gi.require_version("Gtk", "3.0")
 sa = helper.SanitizeArgv()
-from gi.repository import Gtk, GObject, Gdk
 sa.restore()
 
-from rabbitvcs.ui import InterfaceView
-from rabbitvcs.ui.action import SVNAction
-from rabbitvcs.util.contextmenu import GtkFilesContextMenu, GtkContextMenuCaller
-import rabbitvcs.ui.widget
-import rabbitvcs.ui.dialog
-import rabbitvcs.vcs
-from rabbitvcs.util.strings import S
-from rabbitvcs.util.log import Log
 
 log = Log("rabbitvcs.ui.lock")
 
-from rabbitvcs import gettext
 _ = gettext.gettext
 
 helper.gobject_threads_init()
+
 
 class SVNLock(InterfaceView, GtkContextMenuCaller):
     """
@@ -116,7 +117,8 @@ class SVNLock(InterfaceView, GtkContextMenuCaller):
         self.get_widget("status").set_text(_("Loading..."))
         self.items = self.vcs.get_items(self.paths)
         self.populate_files_table()
-        self.get_widget("status").set_text(_("Found %d item(s)") % len(self.items))
+        self.get_widget("status").set_text(
+            _("Found %d item(s)") % len(self.items))
 
     def populate_files_table(self):
         for item in self.items:
@@ -160,7 +162,8 @@ class SVNLock(InterfaceView, GtkContextMenuCaller):
         )
 
         self.action.append(self.action.set_header, _("Get Lock"))
-        self.action.append(self.action.set_status, _("Running Lock Command..."))
+        self.action.append(self.action.set_status,
+                           _("Running Lock Command..."))
         self.action.append(helper.save_log_message, message)
         for path in items:
             self.action.append(
@@ -188,10 +191,10 @@ class SVNLock(InterfaceView, GtkContextMenuCaller):
             self.message.set_text(S(message).display())
 
 
-
 classes_map = {
     rabbitvcs.vcs.VCS_SVN: SVNLock
 }
+
 
 def lock_factory(paths, base_dir):
     guess = rabbitvcs.vcs.guess(paths[0])

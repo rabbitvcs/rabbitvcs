@@ -1,4 +1,11 @@
 from __future__ import absolute_import
+import six
+from rabbitvcs import gettext
+from rabbitvcs.util.strings import S
+import rabbitvcs.vcs
+from rabbitvcs.ui.action import SVNAction, GitAction
+from rabbitvcs.ui import InterfaceNonView
+from gi.repository import Gtk, GObject, Gdk
 #
 # This is an extension to the Nautilus file manager to allow better
 # integration with the Subversion source control system.
@@ -29,19 +36,11 @@ from rabbitvcs.util import helper
 import gi
 gi.require_version("Gtk", "3.0")
 sa = helper.SanitizeArgv()
-from gi.repository import Gtk, GObject, Gdk
 sa.restore()
 
-from rabbitvcs.ui import InterfaceNonView
-from rabbitvcs.ui.action import SVNAction, GitAction
 
-import rabbitvcs.vcs
-from rabbitvcs.util.strings import S
-
-from rabbitvcs import gettext
 _ = gettext.gettext
 
-import six
 
 class SVNOpen(InterfaceNonView):
     """
@@ -72,7 +71,8 @@ class SVNOpen(InterfaceNonView):
         url = path
         if not self.svn.is_path_repository_url(path):
             url = self.svn.get_repo_root_url(path) + '/' + path
-        dest = helper.get_tmp_path("rabbitvcs-" + revision + "-" + os.path.basename(path))
+        dest = helper.get_tmp_path(
+            "rabbitvcs-" + revision + "-" + os.path.basename(path))
 
         self.svn.export(
             url,
@@ -84,6 +84,7 @@ class SVNOpen(InterfaceNonView):
         helper.open_item(dest)
 
         raise SystemExit()
+
 
 class GitOpen(InterfaceNonView):
     """
@@ -130,10 +131,12 @@ class GitOpen(InterfaceNonView):
 
         raise SystemExit()
 
+
 classes_map = {
     rabbitvcs.vcs.VCS_SVN: SVNOpen,
     rabbitvcs.vcs.VCS_GIT: GitOpen
 }
+
 
 def open_factory(vcs, path, revision):
     if not vcs:

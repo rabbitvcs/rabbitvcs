@@ -1,4 +1,13 @@
 from __future__ import absolute_import
+from rabbitvcs import gettext
+import rabbitvcs.vcs
+from rabbitvcs.util.strings import S
+import rabbitvcs.ui.widget
+from rabbitvcs.ui.action import GitAction
+from rabbitvcs.ui import InterfaceView
+import time
+from datetime import datetime
+from gi.repository import Gtk, GObject, Gdk, Pango
 #
 # This is an extension to the Nautilus file manager to allow better
 # integration with the Subversion source control system.
@@ -28,20 +37,11 @@ from rabbitvcs.util import helper
 import gi
 gi.require_version("Gtk", "3.0")
 sa = helper.SanitizeArgv()
-from gi.repository import Gtk, GObject, Gdk, Pango
 sa.restore()
 
-from datetime import datetime
-import time
 
-from rabbitvcs.ui import InterfaceView
-from rabbitvcs.ui.action import GitAction
-import rabbitvcs.ui.widget
-from rabbitvcs.util.strings import S
-import rabbitvcs.vcs
-
-from rabbitvcs import gettext
 _ = gettext.gettext
+
 
 class GitReset(InterfaceView):
     """
@@ -98,7 +98,8 @@ class GitReset(InterfaceView):
             register_gtk_quit=self.gtk_quit_is_set()
         )
         self.action.append(self.action.set_header, _("Reset"))
-        self.action.append(self.action.set_status, _("Running Reset Command..."))
+        self.action.append(self.action.set_status,
+                           _("Running Reset Command..."))
         self.action.append(
             self.git.reset,
             path,

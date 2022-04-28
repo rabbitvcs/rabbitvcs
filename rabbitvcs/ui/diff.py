@@ -1,4 +1,12 @@
 from __future__ import absolute_import
+from rabbitvcs import gettext
+from rabbitvcs.util.log import Log
+from rabbitvcs.util.strings import S
+from rabbitvcs.ui.action import SVNAction, GitAction
+import rabbitvcs.vcs
+from rabbitvcs.ui import InterfaceNonView
+from rabbitvcs import TEMP_DIR_PREFIX
+from gi.repository import Gtk, Gdk, GLib
 #
 # This is an extension to the Nautilus file manager to allow better
 # integration with the Subversion source control system.
@@ -30,24 +38,17 @@ from rabbitvcs.util import helper
 import gi
 gi.require_version("Gtk", "3.0")
 sa = helper.SanitizeArgv()
-from gi.repository import Gtk, Gdk, GLib
 sa.restore()
 
-from rabbitvcs import TEMP_DIR_PREFIX
-from rabbitvcs.ui import InterfaceNonView
-import rabbitvcs.vcs
-from rabbitvcs.ui.action import SVNAction, GitAction
-from rabbitvcs.util.strings import S
-from rabbitvcs.util.log import Log
 
 log = Log("rabbitvcs.ui.diff")
 
-from rabbitvcs import gettext
 _ = gettext.gettext
+
 
 class Diff(InterfaceNonView):
     def __init__(self, path1, revision1=None, path2=None, revision2=None,
-            sidebyside=False):
+                 sidebyside=False):
         InterfaceNonView.__init__(self)
 
         self.vcs = rabbitvcs.vcs.VCS()
@@ -73,7 +74,8 @@ class Diff(InterfaceNonView):
             self.stop_loading()
 
     def _build_export_path(self, index, revision, path):
-        dest = helper.get_tmp_path("rabbitvcs-%s-%s-%s" % (str(index), str(revision)[:5], os.path.basename(path)))
+        dest = helper.get_tmp_path(
+            "rabbitvcs-%s-%s-%s" % (str(index), str(revision)[:5], os.path.basename(path)))
         if os.path.exists(dest):
             if os.path.isdir(dest):
                 rmtree(dest, ignore_errors=True)
@@ -97,9 +99,10 @@ class Diff(InterfaceNonView):
         self.dialog.close()
         self.dialog = None
 
+
 class SVNDiff(Diff):
     def __init__(self, path1, revision1=None, path2=None, revision2=None,
-            sidebyside=False):
+                 sidebyside=False):
         Diff.__init__(self, path1, revision1, path2, revision2, sidebyside)
 
         self.svn = self.vcs.svn()
@@ -151,7 +154,8 @@ class SVNDiff(Diff):
         if diff_text is None:
             diff_text = ""
 
-        fh = tempfile.mkstemp("-rabbitvcs-" + str(self.revision1) + "-" + str(self.revision2) + ".diff")
+        fh = tempfile.mkstemp(
+            "-rabbitvcs-" + str(self.revision1) + "-" + str(self.revision2) + ".diff")
         os.write(fh[0], S(diff_text).bytes())
         os.close(fh[0])
         helper.open_item(fh[1])
@@ -194,9 +198,10 @@ class SVNDiff(Diff):
 
         helper.launch_diff_tool(dest1, dest2)
 
+
 class GitDiff(Diff):
     def __init__(self, path1, revision1=None, path2=None, revision2=None,
-            sidebyside=False):
+                 sidebyside=False):
         Diff.__init__(self, path1, revision1, path2, revision2, sidebyside)
 
         self.git = self.vcs.git(path1)
@@ -258,7 +263,8 @@ class GitDiff(Diff):
         if diff_text is None:
             diff_text = ""
 
-        fh = tempfile.mkstemp("-rabbitvcs-" + str(self.revision1)[:5] + "-" + str(self.revision2)[:5] + ".diff")
+        fh = tempfile.mkstemp("-rabbitvcs-" + str(self.revision1)
+                              [:5] + "-" + str(self.revision2)[:5] + ".diff")
         os.write(fh[0], S(diff_text).bytes())
         os.close(fh[0])
         helper.open_item(fh[1])
@@ -297,10 +303,12 @@ class GitDiff(Diff):
 
         helper.launch_diff_tool(dest1, dest2)
 
+
 classes_map = {
     rabbitvcs.vcs.VCS_SVN: SVNDiff,
     rabbitvcs.vcs.VCS_GIT: GitDiff
 }
+
 
 def diff_factory(vcs, path1, revision_obj1, path2=None, revision_obj2=None, sidebyside=False):
     if not vcs:
@@ -326,4 +334,5 @@ if __name__ == "__main__":
     if len(args) > 0:
         pathrev2 = helper.parse_path_revision_string(args.pop(0))
 
-    diff_factory(options.vcs, pathrev1[0], pathrev1[1], pathrev2[0], pathrev2[1], sidebyside=options.sidebyside)
+    diff_factory(options.vcs, pathrev1[0], pathrev1[1],
+                 pathrev2[0], pathrev2[1], sidebyside=options.sidebyside)

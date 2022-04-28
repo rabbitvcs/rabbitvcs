@@ -1,4 +1,13 @@
 from __future__ import absolute_import
+from rabbitvcs import gettext
+from rabbitvcs.ui.updateto import GitUpdateToRevision
+import rabbitvcs.vcs
+from rabbitvcs.util.strings import S
+import rabbitvcs.ui.action
+import rabbitvcs.ui.dialog
+import rabbitvcs.ui.widget
+from rabbitvcs.ui import InterfaceView
+from gi.repository import Gtk, GObject, Gdk
 #
 # This is an extension to the Nautilus file manager to allow better
 # integration with the Subversion source control system.
@@ -28,18 +37,10 @@ from rabbitvcs.util import helper
 import gi
 gi.require_version("Gtk", "3.0")
 sa = helper.SanitizeArgv()
-from gi.repository import Gtk, GObject, Gdk
 sa.restore()
 
-from rabbitvcs.ui import InterfaceView
-import rabbitvcs.ui.widget
-import rabbitvcs.ui.dialog
-import rabbitvcs.ui.action
-from rabbitvcs.util.strings import S
-import rabbitvcs.vcs
-from rabbitvcs.ui.updateto import GitUpdateToRevision
-from rabbitvcs import gettext
 _ = gettext.gettext
+
 
 class Checkout(InterfaceView):
     """
@@ -113,7 +114,7 @@ class Checkout(InterfaceView):
     def on_repo_chooser_clicked(self, widget, data=None):
         from rabbitvcs.ui.browser import SVNBrowserDialog
         SVNBrowserDialog(self.repositories.get_active_text(),
-            callback=self.on_repo_chooser_closed)
+                         callback=self.on_repo_chooser_closed)
 
     def on_repo_chooser_closed(self, new_url):
         self.repositories.set_child_text(new_url)
@@ -156,7 +157,8 @@ class SVNCheckout(Checkout):
         recursive = self.get_widget("recursive").get_active()
 
         if not url or not path:
-            rabbitvcs.ui.dialog.MessageBox(_("The repository URL and destination path are both required fields."))
+            rabbitvcs.ui.dialog.MessageBox(
+                _("The repository URL and destination path are both required fields."))
             return
 
         revision = self.revision_selector.get_revision_object()
@@ -167,7 +169,8 @@ class SVNCheckout(Checkout):
             register_gtk_quit=self.gtk_quit_is_set()
         )
         self.action.append(self.action.set_header, _("Checkout"))
-        self.action.append(self.action.set_status, _("Running Checkout Command..."))
+        self.action.append(self.action.set_status,
+                           _("Running Checkout Command..."))
         self.action.append(helper.save_repository_path, url)
         self.action.append(
             self.svn.checkout,
@@ -203,11 +206,13 @@ class SVNCheckout(Checkout):
 
         self.check_form()
 
+
 class GitCheckout(GitUpdateToRevision):
     def __init__(self, path, url, revision):
         GitUpdateToRevision.__init__(self, path, revision)
         self.get_widget("Update").set_title(_("Checkout - %s") % path)
         self.get_widget("options_box").hide()
+
 
 class GitCheckoutQuiet(object):
     def __init__(self, path):
@@ -221,10 +226,12 @@ class GitCheckoutQuiet(object):
         self.action.append(self.git.checkout, [path])
         self.action.schedule()
 
+
 classes_map = {
     rabbitvcs.vcs.VCS_SVN: SVNCheckout,
     rabbitvcs.vcs.VCS_GIT: GitCheckout
 }
+
 
 def checkout_factory(vcs, path=None, url=None, revision=None, quiet=False):
     if not vcs:
@@ -266,8 +273,10 @@ if __name__ == "__main__":
             url = args[0]
 
     if options.quiet:
-        window = checkout_factory(options.vcs, path=path, url=url, revision=options.revision, quiet=options.quiet)
+        window = checkout_factory(
+            options.vcs, path=path, url=url, revision=options.revision, quiet=options.quiet)
     else:
-        window = checkout_factory(options.vcs, path=path, url=url, revision=options.revision, quiet=options.quiet)
+        window = checkout_factory(
+            options.vcs, path=path, url=url, revision=options.revision, quiet=options.quiet)
         window.register_gtk_quit()
         Gtk.main()

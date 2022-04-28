@@ -1,4 +1,13 @@
 from __future__ import absolute_import
+from rabbitvcs import gettext
+from rabbitvcs.ui.action import SVNAction
+from rabbitvcs.util.log import Log
+import rabbitvcs.vcs
+from rabbitvcs.util.strings import S
+import rabbitvcs.ui.dialog
+import rabbitvcs.ui.widget
+from rabbitvcs.ui.properties import PropertiesBase
+from gi.repository import Gtk, GObject, Gdk
 #
 # This is an extension to the Nautilus file manager to allow better
 # integration with the Subversion source control system.
@@ -26,21 +35,13 @@ from rabbitvcs.util import helper
 import gi
 gi.require_version("Gtk", "3.0")
 sa = helper.SanitizeArgv()
-from gi.repository import Gtk, GObject, Gdk
 sa.restore()
 
-from rabbitvcs.ui.properties import PropertiesBase
-import rabbitvcs.ui.widget
-import rabbitvcs.ui.dialog
-from rabbitvcs.util.strings import S
-import rabbitvcs.vcs
-from rabbitvcs.util.log import Log
-from rabbitvcs.ui.action import SVNAction
 
 log = Log("rabbitvcs.ui.revprops")
 
-from rabbitvcs import gettext
 _ = gettext.gettext
+
 
 class SVNRevisionProperties(PropertiesBase):
     def __init__(self, path, revision=None):
@@ -68,12 +69,13 @@ class SVNRevisionProperties(PropertiesBase):
             )
         except Exception as e:
             log.exception(e)
-            rabbitvcs.ui.dialog.MessageBox(_("Unable to retrieve properties list"))
+            rabbitvcs.ui.dialog.MessageBox(
+                _("Unable to retrieve properties list"))
             self.proplist = {}
 
         if self.proplist:
-            for key,val in list(self.proplist.items()):
-                self.table.append([False, key,val.rstrip()])
+            for key, val in list(self.proplist.items()):
+                self.table.append([False, key, val.rstrip()])
 
     def save(self):
         delete_recurse = self.get_widget("delete_recurse").get_active()

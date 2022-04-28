@@ -1,4 +1,10 @@
 from __future__ import absolute_import
+from rabbitvcs import gettext
+from rabbitvcs.util.log import Log
+import rabbitvcs.vcs
+from rabbitvcs.ui.action import SVNAction
+from rabbitvcs.ui import InterfaceNonView
+from gi.repository import Gtk, GObject, Gdk
 #
 # This is an extension to the Nautilus file manager to allow better
 # integration with the Subversion source control system.
@@ -28,18 +34,13 @@ from rabbitvcs.util import helper
 import gi
 gi.require_version("Gtk", "3.0")
 sa = helper.SanitizeArgv()
-from gi.repository import Gtk, GObject, Gdk
 sa.restore()
 
-from rabbitvcs.ui import InterfaceNonView
-from rabbitvcs.ui.action import SVNAction
-import rabbitvcs.vcs
-from rabbitvcs.util.log import Log
 
 log = Log("rabbitvcs.ui.applypatch")
 
-from rabbitvcs import gettext
 _ = gettext.gettext
+
 
 class ApplyPatch(InterfaceNonView):
     """
@@ -57,9 +58,9 @@ class ApplyPatch(InterfaceNonView):
         path = None
 
         dialog = Gtk.FileChooserDialog(
-            title = _("Apply Patch"),
-            parent = None,
-            action = Gtk.FileChooserAction.OPEN)
+            title=_("Apply Patch"),
+            parent=None,
+            action=Gtk.FileChooserAction.OPEN)
         dialog.add_button(_("_Cancel"), Gtk.ResponseType.CANCEL)
         dialog.add_button(_("_Open"), Gtk.ResponseType.OK)
         dialog.set_default_response(Gtk.ResponseType.OK)
@@ -78,9 +79,9 @@ class ApplyPatch(InterfaceNonView):
         dir = None
 
         dialog = Gtk.FileChooserDialog(
-                title = _("Apply Patch To Directory..."),
-                parent = None,
-                action = Gtk.FileChooserAction.SELECT_FOLDER)
+            title=_("Apply Patch To Directory..."),
+            parent=None,
+            action=Gtk.FileChooserAction.SELECT_FOLDER)
         dialog.add_button(_("_Cancel"), Gtk.ResponseType.CANCEL)
         dialog.add_button(_("_Select"), Gtk.ResponseType.OK)
         dialog.set_default_response(Gtk.ResponseType.OK)
@@ -93,6 +94,7 @@ class ApplyPatch(InterfaceNonView):
         dialog.destroy()
 
         return dir
+
 
 class SVNApplyPatch(ApplyPatch):
     def __init__(self, paths):
@@ -124,6 +126,7 @@ class SVNApplyPatch(ApplyPatch):
         self.action.append(self.action.finish)
         self.action.schedule()
 
+
 class GitApplyPatch(ApplyPatch):
     def __init__(self, paths):
         ApplyPatch.__init__(self, paths)
@@ -154,10 +157,12 @@ class GitApplyPatch(ApplyPatch):
         self.action.append(self.action.finish)
         self.action.schedule()
 
+
 classes_map = {
     rabbitvcs.vcs.VCS_SVN: SVNApplyPatch,
     rabbitvcs.vcs.VCS_GIT: GitApplyPatch
 }
+
 
 def applypatch_factory(paths):
     guess = rabbitvcs.vcs.guess(paths[0])
@@ -166,10 +171,10 @@ def applypatch_factory(paths):
 
 if __name__ == "__main__":
     from rabbitvcs.ui import main
-    (options, paths) = main(usage="Usage: rabbitvcs applypatch [path1] [path2] ...")
+    (options, paths) = main(
+        usage="Usage: rabbitvcs applypatch [path1] [path2] ...")
 
     window = applypatch_factory(paths)
     window.register_gtk_quit()
     window.start()
     Gtk.main()
-

@@ -1,4 +1,13 @@
 from __future__ import absolute_import
+from rabbitvcs import gettext
+from rabbitvcs.ui.dialog import MessageBox
+import rabbitvcs.ui.action
+from rabbitvcs.util.strings import S
+from rabbitvcs.util.contextmenuitems import *
+from rabbitvcs.util.contextmenu import GtkContextMenu
+import rabbitvcs.ui.widget
+from rabbitvcs.ui import InterfaceView
+from gi.repository import Gtk, GObject, Gdk
 #
 # This is an extension to the Nautilus file manager to allow better
 # integration with the Subversion source control system.
@@ -28,19 +37,11 @@ from rabbitvcs.util import helper
 import gi
 gi.require_version("Gtk", "3.0")
 sa = helper.SanitizeArgv()
-from gi.repository import Gtk, GObject, Gdk
 sa.restore()
 
-from rabbitvcs.ui import InterfaceView
-import rabbitvcs.ui.widget
-from rabbitvcs.util.contextmenu import GtkContextMenu
-from rabbitvcs.util.contextmenuitems import *
-from rabbitvcs.util.strings import S
-import rabbitvcs.ui.action
-from rabbitvcs.ui.dialog import MessageBox
 
-from rabbitvcs import gettext
 _ = gettext.gettext
+
 
 class Changes(InterfaceView):
     """
@@ -199,7 +200,6 @@ class Changes(InterfaceView):
         can_browse_urls = self.can_second_browse_urls()
         self.second_urls_browse.set_sensitive(can_browse_urls)
 
-
     def enable_more_actions(self):
         self.more_actions.set_sensitive(True)
 
@@ -226,7 +226,6 @@ class Changes(InterfaceView):
                 "--vcs=%s" % self.get_vcs_name()
             ])
 
-
     #
     # More Actions callbacks
     #
@@ -251,6 +250,7 @@ class Changes(InterfaceView):
             vcs = rabbitvcs.vcs.VCS_GIT
 
         return vcs
+
 
 class SVNChanges(Changes):
     def __init__(self, path1=None, revision1=None, path2=None, revision2=None):
@@ -346,12 +346,13 @@ class SVNChanges(Changes):
     def on_first_urls_browse_clicked(self, widget, data=None):
         from rabbitvcs.ui.browser import SVNBrowserDialog
         SVNBrowserDialog(self.first_urls.get_active_text(),
-            callback=self.on_first_repo_chooser_closed)
+                         callback=self.on_first_repo_chooser_closed)
 
     def on_second_urls_browse_clicked(self, widget, data=None):
         from rabbitvcs.ui.browser import SVNBrowserDialog
         SVNBrowserDialog(self.second_urls.get_active_text(),
-            callback=self.on_second_repo_chooser_closed)
+                         callback=self.on_second_repo_chooser_closed)
+
 
 class GitChanges(Changes):
     def __init__(self, path1=None, revision1=None, path2=None, revision2=None):
@@ -438,20 +439,24 @@ class MenuOpenFirst(MenuItem):
     label = _("Open from first revision")
     icon = "document-open"
 
+
 class MenuOpenSecond(MenuItem):
     identifier = "RabbitVCS::Open_Second"
     label = _("Open from second revision")
     icon = "document-open"
+
 
 class MenuViewDiff(MenuItem):
     identifier = "RabbitVCS::View_Diff"
     label = _("View unified diff(s)")
     icon = "rabbitvcs-diff"
 
+
 class MenuCompare(MenuItem):
     identifier = "RabbitVCS::Compare"
     label = _("Compare side by side")
     icon = "rabbitvcs-compare"
+
 
 class ChangesContextMenuConditions(object):
     def __init__(self, caller, vcs):
@@ -467,7 +472,8 @@ class ChangesContextMenuConditions(object):
         return (
             len(self.caller.selected_rows) == 1
             and (
-                str(self.caller.get_first_revision()) != str(self.caller.get_second_revision())
+                str(self.caller.get_first_revision()) != str(
+                    self.caller.get_second_revision())
                 or self.caller.first_urls.get_active_text() != self.caller.second_urls.get_active_text()
             )
         )
@@ -482,13 +488,15 @@ class ChangesContextMenuConditions(object):
             len(self.caller.selected_rows) > 0
         )
 
+
 class ChangesContextMenuCallbacks(object):
     def __init__(self, caller, vcs):
         self.caller = caller
         self.vcs = vcs
 
     def open_first(self, widget, data=None):
-        path = self.caller.changes_table.get_row(self.caller.selected_rows[0])[0]
+        path = self.caller.changes_table.get_row(
+            self.caller.selected_rows[0])[0]
         if path == ".":
             path = ""
 
@@ -502,7 +510,8 @@ class ChangesContextMenuCallbacks(object):
         ])
 
     def open_second(self, widget, data=None):
-        path = self.caller.changes_table.get_row(self.caller.selected_rows[0])[0]
+        path = self.caller.changes_table.get_row(
+            self.caller.selected_rows[0])[0]
         if path == ".":
             path = ""
 
@@ -525,8 +534,10 @@ class ChangesContextMenuCallbacks(object):
                 url1 = ""
                 url2 = ""
 
-            url1 = helper.url_join(self.caller.first_urls.get_active_text(), url1)
-            url2 = helper.url_join(self.caller.second_urls.get_active_text(), url2)
+            url1 = helper.url_join(
+                self.caller.first_urls.get_active_text(), url1)
+            url2 = helper.url_join(
+                self.caller.second_urls.get_active_text(), url2)
             rev1 = self.caller.get_first_revision()
             rev2 = self.caller.get_second_revision()
 
@@ -537,11 +548,13 @@ class ChangesContextMenuCallbacks(object):
                 "--vcs=%s" % self.caller.get_vcs_name()
             ])
 
+
 class ChangesContextMenu(object):
     """
     Defines context menu items for a table with files
 
     """
+
     def __init__(self, caller, event):
         """
         @param  caller: The calling object
@@ -577,13 +590,16 @@ class ChangesContextMenu(object):
         if len(self.caller.selected_rows) == 0:
             return
 
-        context_menu = GtkContextMenu(self.structure, self.conditions, self.callbacks)
+        context_menu = GtkContextMenu(
+            self.structure, self.conditions, self.callbacks)
         context_menu.show(self.event)
+
 
 classes_map = {
     rabbitvcs.vcs.VCS_SVN: SVNChanges,
     rabbitvcs.vcs.VCS_GIT: GitChanges
 }
+
 
 def changes_factory(vcs, path1=None, revision1=None, path2=None, revision2=None):
     if not vcs:
@@ -605,6 +621,7 @@ if __name__ == "__main__":
     if len(args) > 0:
         pathrev2 = helper.parse_path_revision_string(args.pop(0))
 
-    window = changes_factory(options.vcs, pathrev1[0], pathrev1[1], pathrev2[0], pathrev2[1])
+    window = changes_factory(
+        options.vcs, pathrev1[0], pathrev1[1], pathrev2[0], pathrev2[1])
     window.register_gtk_quit()
     Gtk.main()

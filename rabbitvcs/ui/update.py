@@ -1,4 +1,10 @@
 from __future__ import absolute_import
+from rabbitvcs import gettext
+import rabbitvcs.ui.dialog
+import rabbitvcs.ui.widget
+from rabbitvcs.ui.action import SVNAction, GitAction
+from rabbitvcs.ui import InterfaceNonView, InterfaceView
+from gi.repository import Gtk, GObject, Gdk
 #
 # This is an extension to the Nautilus file manager to allow better
 # integration with the Subversion source control system.
@@ -26,16 +32,11 @@ from rabbitvcs.util import helper
 import gi
 gi.require_version("Gtk", "3.0")
 sa = helper.SanitizeArgv()
-from gi.repository import Gtk, GObject, Gdk
 sa.restore()
 
-from rabbitvcs.ui import InterfaceNonView, InterfaceView
-from rabbitvcs.ui.action import SVNAction, GitAction
-import rabbitvcs.ui.widget
-import rabbitvcs.ui.dialog
 
-from rabbitvcs import gettext
 _ = gettext.gettext
+
 
 class SVNUpdate(InterfaceNonView):
     """
@@ -63,6 +64,7 @@ class SVNUpdate(InterfaceNonView):
         self.action.append(self.action.finish)
         self.action.schedule()
 
+
 class GitUpdate(InterfaceView):
     """
     This class provides an interface to generate an "update".
@@ -84,8 +86,10 @@ class GitUpdate(InterfaceView):
         )
 
     def on_apply_changes_toggled(self, widget, data=None):
-        self.get_widget("merge").set_sensitive(self.get_widget("apply_changes").get_active())
-        self.get_widget("rebase").set_sensitive(self.get_widget("apply_changes").get_active())
+        self.get_widget("merge").set_sensitive(
+            self.get_widget("apply_changes").get_active())
+        self.get_widget("rebase").set_sensitive(
+            self.get_widget("apply_changes").get_active())
 
     def on_ok_clicked(self, widget, data=None):
         self.hide()
@@ -117,7 +121,8 @@ class GitUpdate(InterfaceView):
                 repository = ""
                 branch = ""
 
-            self.action.append(self.git.pull, repository, branch, git_function_params)
+            self.action.append(self.git.pull, repository,
+                               branch, git_function_params)
         else:
             if fetch_all:
                 self.action.append(self.git.fetch_all)
@@ -134,6 +139,7 @@ classes_map = {
     rabbitvcs.vcs.VCS_GIT: GitUpdate
 }
 
+
 def update_factory(paths):
     guess = rabbitvcs.vcs.guess(paths[0])
     return classes_map[guess["vcs"]](paths)
@@ -141,7 +147,8 @@ def update_factory(paths):
 
 if __name__ == "__main__":
     from rabbitvcs.ui import main
-    (options, paths) = main(usage="Usage: rabbitvcs update [path1] [path2] ...")
+    (options, paths) = main(
+        usage="Usage: rabbitvcs update [path1] [path2] ...")
 
     window = update_factory(paths)
     window.register_gtk_quit()

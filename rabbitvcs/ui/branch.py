@@ -1,4 +1,13 @@
 from __future__ import absolute_import
+from rabbitvcs import gettext
+import rabbitvcs.vcs.status
+import rabbitvcs.vcs
+from rabbitvcs.util.strings import S
+import rabbitvcs.ui.action
+import rabbitvcs.ui.dialog
+import rabbitvcs.ui.widget
+from rabbitvcs.ui import InterfaceView
+from gi.repository import Gtk, GObject, Gdk
 #
 # This is an extension to the Nautilus file manager to allow better
 # integration with the Subversion source control system.
@@ -26,19 +35,11 @@ from rabbitvcs.util import helper
 import gi
 gi.require_version("Gtk", "3.0")
 sa = helper.SanitizeArgv()
-from gi.repository import Gtk, GObject, Gdk
 sa.restore()
 
-from rabbitvcs.ui import InterfaceView
-import rabbitvcs.ui.widget
-import rabbitvcs.ui.dialog
-import rabbitvcs.ui.action
-from rabbitvcs.util.strings import S
-import rabbitvcs.vcs
-import rabbitvcs.vcs.status
 
-from rabbitvcs import gettext
 _ = gettext.gettext
+
 
 class SVNBranch(InterfaceView):
     """
@@ -80,7 +81,8 @@ class SVNBranch(InterfaceView):
         self.message = rabbitvcs.ui.widget.TextView(
             self.get_widget("message")
         )
-        self.get_widget("toggle_switch_after_branch").set_active(self.SWITCH_AFTER)
+        self.get_widget("toggle_switch_after_branch").set_active(
+            self.SWITCH_AFTER)
 
         self.revision_selector = rabbitvcs.ui.widget.RevisionSelector(
             self.get_widget("revision_container"),
@@ -98,7 +100,8 @@ class SVNBranch(InterfaceView):
         dest = self.to_urls.get_active_text()
 
         if dest == "":
-            rabbitvcs.ui.dialog.MessageBox(_("You must supply a destination path."))
+            rabbitvcs.ui.dialog.MessageBox(
+                _("You must supply a destination path."))
             return
 
         revision = self.revision_selector.get_revision_object()
@@ -115,11 +118,13 @@ class SVNBranch(InterfaceView):
         )
 
         self.action.append(self.action.set_header, _("Branch/tag"))
-        self.action.append(self.action.set_status, _("Running Branch/tag Command..."))
+        self.action.append(self.action.set_status, _(
+            "Running Branch/tag Command..."))
         self.action.append(self.svn.copy, src, dest, revision)
         self.action.append(self.action.set_status, _("Completed Branch/tag"))
         if self.SWITCH_AFTER:
-            self.action.append(self.action.set_status, _("Running Switch Command..."))
+            self.action.append(self.action.set_status,
+                               _("Running Switch Command..."))
             self.action.append(helper.save_repository_path, dest)
             self.action.append(
                 self.svn.switch,
@@ -141,7 +146,7 @@ class SVNBranch(InterfaceView):
     def on_repo_browser_clicked(self, widget, data=None):
         from rabbitvcs.ui.browser import SVNBrowserDialog
         SVNBrowserDialog(self.from_urls.get_active_text(),
-            callback=self.on_repo_browser_closed)
+                         callback=self.on_repo_browser_closed)
 
     def on_repo_browser_closed(self, new_url):
         self.from_urls.set_child_text(new_url)
@@ -157,9 +162,11 @@ class SVNBranch(InterfaceView):
             )
             self.SETTINGS.write()
 
+
 classes_map = {
     rabbitvcs.vcs.VCS_SVN: SVNBranch
 }
+
 
 def branch_factory(vcs, path, revision=None):
     if not vcs:

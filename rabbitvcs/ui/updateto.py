@@ -1,4 +1,10 @@
 from __future__ import absolute_import
+from rabbitvcs import gettext
+import rabbitvcs.ui.dialog
+import rabbitvcs.ui.widget
+import rabbitvcs.ui.action
+from rabbitvcs.ui import InterfaceView
+from gi.repository import Gtk, GObject, Gdk
 #
 # This is an extension to the Nautilus file manager to allow better
 # integration with the Subversion source control system.
@@ -26,16 +32,11 @@ from rabbitvcs.util import helper
 import gi
 gi.require_version("Gtk", "3.0")
 sa = helper.SanitizeArgv()
-from gi.repository import Gtk, GObject, Gdk
 sa.restore()
 
-from rabbitvcs.ui import InterfaceView
-import rabbitvcs.ui.action
-import rabbitvcs.ui.widget
-import rabbitvcs.ui.dialog
 
-from rabbitvcs import gettext
 _ = gettext.gettext
+
 
 class UpdateToRevision(InterfaceView):
     """
@@ -49,7 +50,6 @@ class UpdateToRevision(InterfaceView):
         self.path = path
         self.revision = revision
         self.vcs = rabbitvcs.vcs.VCS()
-
 
 
 class SVNUpdateToRevision(UpdateToRevision):
@@ -81,7 +81,8 @@ class SVNUpdateToRevision(UpdateToRevision):
         )
 
         if rollback:
-            self.action.append(self.action.set_header, _("Rollback To Revision"))
+            self.action.append(self.action.set_header,
+                               _("Rollback To Revision"))
             self.action.append(self.action.set_status, _("Rolling Back..."))
             self.action.append(
                 self.svn.merge_ranges,
@@ -114,11 +115,13 @@ class SVNUpdateToRevision(UpdateToRevision):
         else:
             self.get_widget("rollback").set_sensitive(False)
 
+
 class GitUpdateToRevision(UpdateToRevision):
     def __init__(self, path, revision):
         UpdateToRevision.__init__(self, path, revision)
 
-        self.get_widget("revision_label").set_text(_("What revision/branch do you want to checkout?"))
+        self.get_widget("revision_label").set_text(
+            _("What revision/branch do you want to checkout?"))
 
         self.git = self.vcs.git(path)
 
@@ -140,7 +143,8 @@ class GitUpdateToRevision(UpdateToRevision):
         )
 
         self.action.append(self.action.set_header, _("Checkout"))
-        self.action.append(self.action.set_status, _("Checking out %s..." % revision))
+        self.action.append(self.action.set_status, _(
+            "Checking out %s..." % revision))
         self.action.append(
             self.git.checkout,
             [self.path],
@@ -153,10 +157,12 @@ class GitUpdateToRevision(UpdateToRevision):
     def on_revision_changed(self, revision_selector):
         pass
 
+
 classes_map = {
     rabbitvcs.vcs.VCS_SVN: SVNUpdateToRevision,
     rabbitvcs.vcs.VCS_GIT: GitUpdateToRevision,
 }
+
 
 def updateto_factory(vcs, path, revision=None):
     if not vcs:
