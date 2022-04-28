@@ -1,4 +1,11 @@
 from __future__ import absolute_import
+from rabbitvcs.util.contextmenuitems import *
+from rabbitvcs.util.contextmenu import GtkFilesContextMenuConditions, \
+    GtkFilesContextMenuCallbacks, MainContextMenu, MainContextMenuCallbacks, \
+    MenuBuilder, GtkContextMenuCaller
+from rabbitvcs.vcs import create_vcs_instance
+from gi.repository import Pluma, GObject, Peas
+from gi.repository import Gtk
 #
 # This is a Pluma plugin to allow for RabbitVCS integration in the Pluma
 # text editor.
@@ -28,16 +35,8 @@ from rabbitvcs.util import helper
 
 gi.require_version("Gtk", "3.0")
 sa = helper.SanitizeArgv()
-from gi.repository import Gtk
 sa.restore()
-from gi.repository import Pluma, GObject, Peas
 
-
-from rabbitvcs.vcs import create_vcs_instance
-from rabbitvcs.util.contextmenu import GtkFilesContextMenuConditions, \
-    GtkFilesContextMenuCallbacks, MainContextMenu, MainContextMenuCallbacks, \
-    MenuBuilder, GtkContextMenuCaller
-from rabbitvcs.util.contextmenuitems import *
 
 # Menu item, insert a new item on the menu bar.
 ui_str = """<ui>
@@ -146,10 +145,12 @@ ui_str = """<ui>
   </menubar>
 </ui>
 """
+
+
 class RabbitVCSWindowHelper(GtkContextMenuCaller):
 
     _menu_paths = [
-#        "/MenuBar/RabbitVCSMenu",
+        #        "/MenuBar/RabbitVCSMenu",
         "/MenuBar/ExtraMenu_1/RabbitVCSMenu/RabbitVCS::RabbitVCS_Svn",
         "/MenuBar/ExtraMenu_1/RabbitVCSMenu/RabbitVCS::RabbitVCS_Svn/RabbitVCS::Commit",
         "/MenuBar/ExtraMenu_1/RabbitVCSMenu/RabbitVCS::RabbitVCS_Svn/RabbitVCS::Update",
@@ -255,15 +256,17 @@ class RabbitVCSWindowHelper(GtkContextMenuCaller):
         # Get the GtkUIManager
         manager = self._window.get_ui_manager()
 
-        self._menubar_menu = PlumaMenu(self, self.vcs_client, self.base_dir, [self._get_document_path()])
+        self._menubar_menu = PlumaMenu(self, self.vcs_client, self.base_dir, [
+                                       self._get_document_path()])
         self._menu_action = Gtk.Action(name="RabbitVCSMenu",
                                        label="RabbitVCS",
                                        tooltip=_("Excellent Version Control"),
                                        stock_id=None)
 
         self._action_group = Gtk.ActionGroup("RabbitVCSActions")
-        self._action_group = self._menubar_menu.get_action_group(self._action_group)
-        self._action_group.add_action( self._menu_action )
+        self._action_group = self._menubar_menu.get_action_group(
+            self._action_group)
+        self._action_group.add_action(self._menu_action)
 
         # Insert the action group
         manager.insert_action_group(self._action_group, 0)
@@ -291,12 +294,14 @@ class RabbitVCSWindowHelper(GtkContextMenuCaller):
         self._action_group.set_sensitive(document != None)
         if document != None:
             manager = self._window.get_ui_manager()
-            manager.get_widget("/MenuBar/ExtraMenu_1/RabbitVCSMenu").set_sensitive(True)
+            manager.get_widget(
+                "/MenuBar/ExtraMenu_1/RabbitVCSMenu").set_sensitive(True)
             self._menubar_menu.set_paths([self._get_document_path()])
             self._determine_menu_sensitivity([self._get_document_path()])
 
     def connect_view(self, view, id_name):
-        handler_id = view.connect("populate-popup", self.on_view_populate_popup)
+        handler_id = view.connect(
+            "populate-popup", self.on_view_populate_popup)
         setattr(view, id_name, [handler_id])
 
     def disconnect_view(self, view, id_name):
@@ -307,7 +312,8 @@ class RabbitVCSWindowHelper(GtkContextMenuCaller):
         menu.append(separator)
         separator.show()
 
-        context_menu = PlumaMainContextMenu(self, self.vcs_client, self.base_dir, [self._get_document_path()]).get_menu()
+        context_menu = PlumaMainContextMenu(self, self.vcs_client, self.base_dir, [
+                                            self._get_document_path()]).get_menu()
         for context_menu_item in context_menu:
             menu.append(context_menu_item)
 
@@ -354,6 +360,7 @@ class RabbitVCSWindowHelper(GtkContextMenuCaller):
 
     def on_context_menu_command_finished(self):
         self.update_ui()
+
 
 class RabbitVCSPlumaPlugin(GObject.Object, Peas.Activatable):
     __gtype_name__ = "RabbitVCSPlumaPlugin"
@@ -403,17 +410,21 @@ class RabbitVCSPlumaPlugin(GObject.Object, Peas.Activatable):
 
     def on_window_tab_removed(self, window, tab):
         if window in self._instances:
-            self._instances[window].disconnect_view(tab.get_view(), self.id_name)
+            self._instances[window].disconnect_view(
+                tab.get_view(), self.id_name)
+
 
 class MenuIgnoreByFilename(MenuItem):
     identifier = "RabbitVCS::Ignore_By_Filename"
     label = _("Ignore by File Name")
     tooltip = _("Ignore item by filename")
 
+
 class MenuIgnoreByFileExtension(MenuItem):
     identifier = "RabbitVCS::Ignore_By_File_Extension"
     label = _("Ignore by File Extension")
     tooltip = _("Ignore item by extension")
+
 
 class PlumaMenuBuilder(object):
     """
@@ -466,14 +477,16 @@ class PlumaMenuBuilder(object):
             item = item_class(conditions, callbacks)
 
             default_name = MenuItem.make_default_name(item.identifier)
-            action = Gtk.Action(item.identifier, item.label, item.tooltip, item.icon)
+            action = Gtk.Action(item.identifier, item.label,
+                                item.tooltip, item.icon)
 
             if item.icon and hasattr(action, "set_icon_name"):
                 action.set_icon_name(item.icon)
 
             if item.callback:
                 if item.callback_args:
-                    action.connect("activate", item.callback, item.callback_args)
+                    action.connect("activate", item.callback,
+                                   item.callback_args)
                 else:
                     action.connect("activate", item.callback)
 
@@ -492,6 +505,7 @@ class PlumaMenuBuilder(object):
                 function = attr
 
         return function
+
 
 class PlumaMenu(object):
     def __init__(self, caller, vcs_client, base_dir, paths):
@@ -520,7 +534,8 @@ class PlumaMenu(object):
         self.base_dir = base_dir
         self.vcs_client = vcs_client
 
-        self.conditions = GtkFilesContextMenuConditions(self.vcs_client, self.paths)
+        self.conditions = GtkFilesContextMenuConditions(
+            self.vcs_client, self.paths)
 
         self.callbacks = GtkFilesContextMenuCallbacks(
             self.caller,
@@ -606,6 +621,7 @@ class PlumaMenu(object):
     def update_action(self, action):
         action.set_property("visible", action.item.show())
 
+
 class PlumaContextMenu(MenuBuilder):
     """
     Provides a standard Gtk context menu (ie. a list of Gtk.MenuItem"s).
@@ -624,9 +640,10 @@ class PlumaContextMenu(MenuBuilder):
     def top_level_menu(self, items):
         return items
 
+
 class PlumaMainContextMenu(MainContextMenu):
     def __init__(self, caller, vcs_client, base_dir, paths=[],
-            conditions=None, callbacks=None):
+                 conditions=None, callbacks=None):
         """
         @param  caller: The calling object
         @type   caller: RabbitVCS extension
@@ -654,7 +671,8 @@ class PlumaMainContextMenu(MainContextMenu):
 
         self.conditions = conditions
         if self.conditions is None:
-            self.conditions = GtkFilesContextMenuConditions(self.vcs_client, paths)
+            self.conditions = GtkFilesContextMenuConditions(
+                self.vcs_client, paths)
 
         self.callbacks = callbacks
         if self.callbacks is None:
