@@ -28,9 +28,7 @@ from __future__ import with_statement
 from __future__ import absolute_import
 import copy
 import os.path
-from os.path import isdir, isfile, realpath, basename
-import datetime
-import time
+from os.path import realpath
 import threading
 
 from rabbitvcs.util import helper
@@ -38,12 +36,10 @@ from rabbitvcs.util import helper
 import gi
 gi.require_version("Gtk", "3.0")
 sa = helper.SanitizeArgv()
-from gi.repository import GObject, Gtk, Thunarx
+from gi.repository import GObject, Thunarx
 sa.restore()
 
 from rabbitvcs.vcs.svn import SVN
-
-import os
 
 import rabbitvcs.ui
 import rabbitvcs.ui.property_page
@@ -51,8 +47,8 @@ from rabbitvcs.util.helper import launch_ui_window, launch_diff_tool
 from rabbitvcs.util.helper import get_file_extension, get_common_directory
 from rabbitvcs.util.helper import pretty_timedelta
 from rabbitvcs.util.strings import S
-from rabbitvcs.util.decorators import timeit, disable
-from rabbitvcs.util.contextmenu import MenuBuilder, MainContextMenu, SEPARATOR
+from rabbitvcs.util.decorators import timeit
+from rabbitvcs.util.contextmenu import MenuBuilder, MainContextMenu
 
 from rabbitvcs.util.log import Log, reload_log_settings
 log = Log("rabbitvcs.util.extensions.thunarx.RabbitVCS")
