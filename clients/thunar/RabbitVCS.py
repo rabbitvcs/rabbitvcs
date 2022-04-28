@@ -25,6 +25,22 @@ Our module for everything related to the Thunar extension.
 """
 
 from __future__ import with_statement
+from rabbitvcs.util.contextmenuitems import *
+from rabbitvcs.services.checkerservice import StatusCheckerStub as StatusChecker
+import rabbitvcs.services.service
+from rabbitvcs.util.settings import SettingsManager
+from rabbitvcs import gettext
+from rabbitvcs.util.log import Log, reload_log_settings
+from rabbitvcs.util.contextmenu import MenuBuilder, MainContextMenu
+from rabbitvcs.util.decorators import timeit
+from rabbitvcs.util.strings import S
+from rabbitvcs.util.helper import pretty_timedelta
+from rabbitvcs.util.helper import get_file_extension, get_common_directory
+from rabbitvcs.util.helper import launch_ui_window, launch_diff_tool
+import rabbitvcs.ui.property_page
+import rabbitvcs.ui
+from rabbitvcs.vcs.svn import SVN
+from gi.repository import GObject, Thunarx
 from __future__ import absolute_import
 import copy
 import os.path
@@ -36,31 +52,15 @@ from rabbitvcs.util import helper
 import gi
 gi.require_version("Gtk", "3.0")
 sa = helper.SanitizeArgv()
-from gi.repository import GObject, Thunarx
 sa.restore()
 
-from rabbitvcs.vcs.svn import SVN
 
-import rabbitvcs.ui
-import rabbitvcs.ui.property_page
-from rabbitvcs.util.helper import launch_ui_window, launch_diff_tool
-from rabbitvcs.util.helper import get_file_extension, get_common_directory
-from rabbitvcs.util.helper import pretty_timedelta
-from rabbitvcs.util.strings import S
-from rabbitvcs.util.decorators import timeit
-from rabbitvcs.util.contextmenu import MenuBuilder, MainContextMenu
-
-from rabbitvcs.util.log import Log, reload_log_settings
 log = Log("rabbitvcs.util.extensions.thunarx.RabbitVCS")
 
-from rabbitvcs import gettext
 _ = gettext.gettext
 
-from rabbitvcs.util.settings import SettingsManager
 settings = SettingsManager()
 
-import rabbitvcs.services.service
-from rabbitvcs.services.checkerservice import StatusCheckerStub as StatusChecker
 
 class RabbitVCS(GObject.GObject, Thunarx.MenuProvider, Thunarx.PropertyPageProvider):
     """
@@ -156,7 +156,7 @@ class RabbitVCS(GObject.GObject, Thunarx.MenuProvider, Thunarx.PropertyPageProvi
             return None
         return item.get_location().get_path()
 
-    #~ @disable
+    # ~ @disable
     # @timeit
     def get_file_menu_items(self, window, items):
         """
@@ -185,11 +185,12 @@ class RabbitVCS(GObject.GObject, Thunarx.MenuProvider, Thunarx.PropertyPageProvi
                 paths.append(path)
                 self.VFSFile_table[path] = item
 
-        if len(paths) == 0: return []
+        if len(paths) == 0:
+            return []
 
         return ThunarxMainContextMenu(self, window.base_dir, paths).get_menu()
 
-    #~ @disable
+    # ~ @disable
     @timeit
     def get_folder_menu_items(self, window, item):
         """
@@ -207,7 +208,8 @@ class RabbitVCS(GObject.GObject, Thunarx.MenuProvider, Thunarx.PropertyPageProvi
 
         """
 
-        if not self.valid_uri(item.get_uri()): return
+        if not self.valid_uri(item.get_uri()):
+            return
         path = realpath(S(self.get_local_path(item)))
         self.VFSFile_table[path] = item
 
@@ -230,7 +232,8 @@ class RabbitVCS(GObject.GObject, Thunarx.MenuProvider, Thunarx.PropertyPageProvi
 
         """
 
-        if not uri.startswith("file://"): return False
+        if not uri.startswith("file://"):
+            return False
 
         return True
 
@@ -302,7 +305,8 @@ class RabbitVCS(GObject.GObject, Thunarx.MenuProvider, Thunarx.PropertyPageProvi
 
         def do_reload_settings():
             globals()["settings"] = SettingsManager()
-            globals()["log"] = reload_log_settings()("rabbitvcs.util.extensions.thunar")
+            globals()["log"] = reload_log_settings()(
+                "rabbitvcs.util.extensions.thunar")
             log.debug("Re-scanning settings")
 
         self.execute_after_process_exit(proc, do_reload_settings)
@@ -316,7 +320,8 @@ class RabbitVCS(GObject.GObject, Thunarx.MenuProvider, Thunarx.PropertyPageProvi
                 paths.append(path)
                 self.VFSFile_table[path] = item
 
-        if len(paths) == 0: return []
+        if len(paths) == 0:
+            return []
 
         label = rabbitvcs.ui.property_page.PropertyPageLabel().get_widget()
         page = rabbitvcs.ui.property_page.PropertyPage(paths).get_widget()
@@ -327,7 +332,6 @@ class RabbitVCS(GObject.GObject, Thunarx.MenuProvider, Thunarx.PropertyPageProvi
 
         return [ppage]
 
-from rabbitvcs.util.contextmenuitems import *
 
 class ThunarxContextMenu(MenuBuilder):
     """
@@ -347,6 +351,7 @@ class ThunarxContextMenu(MenuBuilder):
 
     def top_level_menu(self, items):
         return items
+
 
 class ThunarxMainContextMenu(MainContextMenu):
     def get_menu(self):
