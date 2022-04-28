@@ -28,6 +28,8 @@
 #   Copyright (C), 2005 Adam Hooper <adamh@densi.com>
 #   Copyright (C) 2006 - Steve Frécinaux
 
+from rabbitvcs.util.strings import S
+from gi.repository import GLib, Gtk, Gdk, Pango
 import string
 import sys
 import re
@@ -35,15 +37,12 @@ import traceback
 
 import gi
 gi.require_version("Gtk", "3.0")
-from gi.repository import GLib, Gtk, Gdk, Pango
-
-from rabbitvcs.util.strings import S
 
 
 class PythonConsole(Gtk.ScrolledWindow):
 
     __gsignals__ = {
-        "grab-focus" : "override",
+        "grab-focus": "override",
     }
 
     DEFAULT_FONT = "Monospace"
@@ -149,7 +148,7 @@ class PythonConsole(Gtk.ScrolledWindow):
 
             cur_strip = self.current_command.rstrip()
             if cur_strip.endswith(":") \
-            or (self.current_command[-2:] != "\n\n" and self.block_command):
+                    or (self.current_command[-2:] != "\n\n" and self.block_command):
                 # Unfinished block command
                 self.block_command = True
                 com_mark = "... "
@@ -187,7 +186,7 @@ class PythonConsole(Gtk.ScrolledWindow):
             return True
 
         elif keyname == "KP_Left" or keyname == "Left" or \
-             keyname == "BackSpace":
+                keyname == "BackSpace":
             buffer = view.get_buffer()
             inp = buffer.get_iter_at_mark(buffer.get_mark("input"))
             cur = buffer.get_iter_at_mark(buffer.get_insert())
@@ -201,7 +200,7 @@ class PythonConsole(Gtk.ScrolledWindow):
         # since it is useful when editing python
 
         elif ((keyname == "KP_Home" or keyname == "Home") and
-             event_state == event_state & (Gdk.ModifierType.SHIFT_MASK|Gdk.ModifierType.CONTROL_MASK)):
+              event_state == event_state & (Gdk.ModifierType.SHIFT_MASK | Gdk.ModifierType.CONTROL_MASK)):
             # Go to the begin of the command instead of the begin of the line
             buffer = view.get_buffer()
             iter = buffer.get_iter_at_mark(buffer.get_mark("input"))
@@ -220,7 +219,7 @@ class PythonConsole(Gtk.ScrolledWindow):
             return True
 
         elif ((keyname == "KP_End" or keyname == "End") and
-             event_state == event_state & (Gdk.ModifierType.SHIFT_MASK|Gdk.ModifierType.CONTROL_MASK)):
+              event_state == event_state & (Gdk.ModifierType.SHIFT_MASK | Gdk.ModifierType.CONTROL_MASK)):
             buffer = view.get_buffer()
             iter = buffer.get_end_iter()
             ins = buffer.get_iter_at_mark(buffer.get_insert())
@@ -339,22 +338,25 @@ class PythonConsole(Gtk.ScrolledWindow):
         sys.stdout, self.stdout = self.stdout, sys.stdout
         sys.stderr, self.stderr = self.stderr, sys.stderr
 
+
 class OutFile:
     """
     A fake output file object.
     """
+
     def __init__(self, console, fn):
         self.fn = fn
         self.console = console
-    def close(self):         pass
-    def flush(self):         pass
-    def fileno(self):        return self.fn
-    def isatty(self):        return 0
-    def read(self, a):       return ""
-    def readline(self):      return ""
-    def readlines(self):     return []
+
+    def close(self): pass
+    def flush(self): pass
+    def fileno(self): return self.fn
+    def isatty(self): return 0
+    def read(self, a): return ""
+    def readline(self): return ""
+    def readlines(self): return []
     def write(self, s):      self.console.write(s)
     def writelines(self, l): self.console.write(l)
-    def seek(self, a):       raise IOError(29, "Illegal seek")
-    def tell(self):          raise IOError(29, "Illegal seek")
+    def seek(self, a): raise IOError(29, "Illegal seek")
+    def tell(self): raise IOError(29, "Illegal seek")
     truncate = tell
