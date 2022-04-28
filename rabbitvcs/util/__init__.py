@@ -1,4 +1,5 @@
 from __future__ import absolute_import
+
 #
 # This is an extension to the Nautilus file manager to allow better
 # integration with the Subversion source control system.
@@ -24,6 +25,7 @@ from __future__ import absolute_import
 from rabbitvcs.util.log import Log
 
 logger = Log("rabbitvcs.util.__init__")
+
 
 class Function(object):
     """
@@ -53,6 +55,7 @@ class Function(object):
 
     def get_result(self):
         return self.result
+
 
 class FunctionQueue(object):
     """

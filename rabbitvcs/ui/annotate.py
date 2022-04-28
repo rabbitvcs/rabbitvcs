@@ -14,6 +14,7 @@ from rabbitvcs.ui.action import SVNAction, GitAction
 from rabbitvcs.ui.log import log_dialog_factory
 from rabbitvcs.ui import InterfaceView
 from gi.repository import Gtk, GObject, Gdk, GLib
+
 #
 # This is an extension to the Nautilus file manager to allow better
 # integration with the Subversion source control system.
@@ -44,6 +45,7 @@ from random import random, uniform
 from rabbitvcs.util import helper
 
 from gi import require_version
+
 require_version("Gtk", "3.0")
 sa = helper.SanitizeArgv()
 sa.restore()
@@ -106,18 +108,29 @@ class Annotate(InterfaceView):
         treeview = self.get_widget("table")
         table = Table(
             treeview,
-            [GObject.TYPE_STRING, GObject.TYPE_STRING, GObject.TYPE_STRING,
-                GObject.TYPE_STRING, TYPE_MARKUP, TYPE_HIDDEN, TYPE_HIDDEN],
-            [_("Revision"), _("Author"), _("Date"), _("Line"), _("Text"),
-                "revision color", "author color"],
-            callbacks={
-                "mouse-event":   self.on_annotate_table_mouse_event
-            }
+            [
+                GObject.TYPE_STRING,
+                GObject.TYPE_STRING,
+                GObject.TYPE_STRING,
+                GObject.TYPE_STRING,
+                TYPE_MARKUP,
+                TYPE_HIDDEN,
+                TYPE_HIDDEN,
+            ],
+            [
+                _("Revision"),
+                _("Author"),
+                _("Date"),
+                _("Line"),
+                _("Text"),
+                "revision color",
+                "author color",
+            ],
+            callbacks={"mouse-event": self.on_annotate_table_mouse_event},
         )
         table.allow_multiple()
         table.get_column(3).get_cells()[0].set_property("xalign", 1.0)
-        treeview.connect(
-            "query-tooltip", self.on_query_tooltip, (0, (0, 1, 2)))
+        treeview.connect("query-tooltip", self.on_query_tooltip, (0, (0, 1, 2)))
         treeview.set_has_tooltip(True)
 
         if self.colorize:
@@ -206,14 +219,16 @@ class Annotate(InterfaceView):
         self.show_revision(forceload=forceload)
 
     def on_history_prev(self, clickable, widget, event, *args):
-        forceload = (self.history[self.history_index] !=
-                     self.history[self.history_index - 1])
+        forceload = (
+            self.history[self.history_index] != self.history[self.history_index - 1]
+        )
         self.history_index -= 1
         self.show_revision(forceload=forceload)
 
     def on_history_next(self, clickable, widget, event, *args):
-        forceload = (self.history[self.history_index] !=
-                     self.history[self.history_index + 1])
+        forceload = (
+            self.history[self.history_index] != self.history[self.history_index + 1]
+        )
         self.history_index += 1
         self.show_revision(forceload=forceload)
 
@@ -225,13 +240,14 @@ class Annotate(InterfaceView):
     def history_popup_menu(self, clickable, widget, event, *args):
         menu = Gtk.Menu()
         width = 0
-        for i, revision in list(enumerate(self.history))[:self.history_index + 6][-11:]:
+        for i, revision in list(enumerate(self.history))[: self.history_index + 6][
+            -11:
+        ]:
             message = ""
             revision = self.short_revision(revision)
             if revision in self.log_by_revision:
                 log = self.log_by_revision[revision]
-                message = helper.format_long_text(log.message,
-                                                  cols=32, line1only=True)
+                message = helper.format_long_text(log.message, cols=32, line1only=True)
             revision = helper.html_escape(revision)
             message = helper.html_escape(message)
             if i == self.history_index:
@@ -239,11 +255,11 @@ class Annotate(InterfaceView):
                 message = "<b>" + message + "</b>"
             row = Gtk.Grid()
             cell1 = Gtk.Label()
-            cell1.set_properties(xalign=0, yalign=.5)
+            cell1.set_properties(xalign=0, yalign=0.5)
             cell1.set_markup(revision)
             row.attach(cell1, 0, 0, 1, 1)
             cell2 = Gtk.Label()
-            cell2.set_properties(xalign=0, yalign=.5)
+            cell2.set_properties(xalign=0, yalign=0.5)
             cell2.set_markup(message)
             row.attach(cell2, 1, 0, 1, 1)
             menuitem = Gtk.MenuItem()
@@ -280,7 +296,7 @@ class Annotate(InterfaceView):
         if revision.lower() != self.history[self.history_index].lower():
             forceload = True
             self.history_index += 1
-            self.history = self.history[:self.history_index] + [revision]
+            self.history = self.history[: self.history_index] + [revision]
         self.set_history_sensitive()
         if forceload:
             self.load(revision)
@@ -294,6 +310,7 @@ class Annotate(InterfaceView):
     def save(self, path=None):
         if path is None:
             from rabbitvcs.ui.dialog import FileSaveAs
+
             dialog = FileSaveAs()
             path = dialog.run()
 
@@ -379,16 +396,9 @@ class SVNAnnotate(Annotate):
 
         self.launch_loading()
 
-        self.action = SVNAction(
-            self.svn,
-            notification=False
-        )
+        self.action = SVNAction(self.svn, notification=False)
 
-        self.action.append(
-            self.svn.annotate,
-            self.path,
-            to_revision=rev
-        )
+        self.action.append(self.svn.annotate, self.path, to_revision=rev)
 
         if not self.log_by_order:
             self.action.append(self.svn.log, self.path)
@@ -437,15 +447,17 @@ class SVNAnnotate(Annotate):
             except KeyError:
                 revision_color = "#FFFFFF"
 
-            self.table.append([
-                revision,
-                author,
-                date,
-                str(int(item["number"]) + 1),
-                lines[i],
-                revision_color,
-                author_color
-            ])
+            self.table.append(
+                [
+                    revision,
+                    author,
+                    date,
+                    str(int(item["number"]) + 1),
+                    lines[i],
+                    revision_color,
+                    author_color,
+                ]
+            )
 
     def generate_string_from_result(self):
         blamedict = self.action.get_result(0)
@@ -459,7 +471,7 @@ class SVNAnnotate(Annotate):
                 revision,
                 author,
                 date,
-                item["line"]
+                item["line"],
             )
 
         return text
@@ -490,16 +502,9 @@ class GitAnnotate(Annotate):
     def load(self, revision):
         self.launch_loading()
 
-        self.action = GitAction(
-            self.git,
-            notification=False
-        )
+        self.action = GitAction(self.git, notification=False)
 
-        self.action.append(
-            self.git.annotate,
-            self.path,
-            self.git.revision(revision)
-        )
+        self.action.append(self.git.annotate, self.path, self.git.revision(revision))
 
         if not self.log_by_order:
             self.action.append(self.git.log, self.path)
@@ -524,15 +529,17 @@ class GitAnnotate(Annotate):
             except KeyError:
                 revision_color = "#FFFFFF"
 
-            self.table.append([
-                revision,
-                author,
-                helper.format_datetime(item["date"], self.datetime_format),
-                str(item["number"]),
-                lines[i],
-                revision_color,
-                author_color
-            ])
+            self.table.append(
+                [
+                    revision,
+                    author,
+                    helper.format_datetime(item["date"], self.datetime_format),
+                    str(item["number"]),
+                    lines[i],
+                    revision_color,
+                    author_color,
+                ]
+            )
 
     def generate_string_from_result(self):
         blamedict = self.action.get_result(0)
@@ -544,7 +551,7 @@ class GitAnnotate(Annotate):
                 item["revision"][:7],
                 item["author"],
                 helper.format_datetime(item["date"], self.datetime_format),
-                item["line"]
+                item["line"],
             )
 
         return text
@@ -632,34 +639,44 @@ class AnnotateContextMenuConditions(object):
         return len(self.revisions) == 1
 
     def show_next_revision(self, data=None):
-        return (len(self.revisions) == 1 and
-                not self.caller.next_revision(self.revisions[0]) is None)
+        return (
+            len(self.revisions) == 1
+            and not self.caller.next_revision(self.revisions[0]) is None
+        )
 
     def diff_working_copy(self, data=None):
-        return (self.vcs.is_in_a_or_a_working_copy(self.path) and
-                len(self.revisions) == 1)
+        return (
+            self.vcs.is_in_a_or_a_working_copy(self.path) and len(self.revisions) == 1
+        )
 
     def compare_working_copy(self, data=None):
-        return (self.vcs.is_in_a_or_a_working_copy(self.path) and
-                len(self.revisions) == 1)
+        return (
+            self.vcs.is_in_a_or_a_working_copy(self.path) and len(self.revisions) == 1
+        )
 
     def diff_previous_revision(self, data=None):
-        return (self.vcs.is_in_a_or_a_working_copy(self.path) and
-                len(self.revisions) == 1 and
-                not self.caller.previous_revision(self.revisions[0]) is None)
+        return (
+            self.vcs.is_in_a_or_a_working_copy(self.path)
+            and len(self.revisions) == 1
+            and not self.caller.previous_revision(self.revisions[0]) is None
+        )
 
     def compare_previous_revision(self, data=None):
-        return (self.vcs.is_in_a_or_a_working_copy(self.path) and
-                len(self.revisions) == 1 and
-                not self.caller.previous_revision(self.revisions[0]) is None)
+        return (
+            self.vcs.is_in_a_or_a_working_copy(self.path)
+            and len(self.revisions) == 1
+            and not self.caller.previous_revision(self.revisions[0]) is None
+        )
 
     def diff_revisions(self, data=None):
-        return (self.vcs.is_in_a_or_a_working_copy(self.path) and
-                len(self.revisions) == 2)
+        return (
+            self.vcs.is_in_a_or_a_working_copy(self.path) and len(self.revisions) == 2
+        )
 
     def compare_revisions(self, data=None):
-        return (self.vcs.is_in_a_or_a_working_copy(self.path) and
-                len(self.revisions) == 2)
+        return (
+            self.vcs.is_in_a_or_a_working_copy(self.path) and len(self.revisions) == 2
+        )
 
 
 class AnnotateContextMenuCallbacks(object):
@@ -674,39 +691,53 @@ class AnnotateContextMenuCallbacks(object):
         self.caller.show_revision(self.revisions[0])
 
     def view_revision(self, widget, data=None):
-        helper.launch_ui_window("annotate", [
-            self.path,
-            "--vcs=%s" % self.caller.get_vcs_name(),
-            "-r", self.revisions[0]])
+        helper.launch_ui_window(
+            "annotate",
+            [
+                self.path,
+                "--vcs=%s" % self.caller.get_vcs_name(),
+                "-r",
+                self.revisions[0],
+            ],
+        )
 
     def show_next_revision(self, widget, data=None):
         self.caller.show_revision(self.caller.next_revision(self.revisions[0]))
 
     def diff_working_copy(self, widget, data=None):
-        helper.launch_ui_window("diff", [
-            "%s@%s" % (self.path, S(self.revisions[0])),
-            "--vcs=%s" % self.caller.get_vcs_name()
-        ])
+        helper.launch_ui_window(
+            "diff",
+            [
+                "%s@%s" % (self.path, S(self.revisions[0])),
+                "--vcs=%s" % self.caller.get_vcs_name(),
+            ],
+        )
 
     def compare_working_copy(self, widget, data=None):
         path_older = self.path
         if self.vcs_name == rabbitvcs.vcs.VCS_SVN:
             path_older = self.vcs.svn().get_repo_url(self.path)
 
-        helper.launch_ui_window("diff", [
-            "-s",
-            "%s@%s" % (path_older, S(self.revisions[0])),
-            self.path,
-            "--vcs=%s" % self.caller.get_vcs_name()
-        ])
+        helper.launch_ui_window(
+            "diff",
+            [
+                "-s",
+                "%s@%s" % (path_older, S(self.revisions[0])),
+                self.path,
+                "--vcs=%s" % self.caller.get_vcs_name(),
+            ],
+        )
 
     def diff_previous_revision(self, widget, data=None):
         prev = self.caller.previous_revision(self.revisions[0])
-        helper.launch_ui_window("diff", [
-            "%s@%s" % (self.path, S(prev)),
-            "%s@%s" % (self.path, S(self.revisions[0])),
-            "--vcs=%s" % self.caller.get_vcs_name()
-        ])
+        helper.launch_ui_window(
+            "diff",
+            [
+                "%s@%s" % (self.path, S(prev)),
+                "%s@%s" % (self.path, S(self.revisions[0])),
+                "--vcs=%s" % self.caller.get_vcs_name(),
+            ],
+        )
 
     def compare_previous_revision(self, widget, data=None):
         prev = self.caller.previous_revision(self.revisions[0])
@@ -714,23 +745,29 @@ class AnnotateContextMenuCallbacks(object):
         if self.vcs_name == rabbitvcs.vcs.VCS_SVN:
             path_older = self.vcs.svn().get_repo_url(self.path)
 
-        helper.launch_ui_window("diff", [
-            "-s",
-            "%s@%s" % (path_older, S(prev)),
-            "%s@%s" % (self.path, S(self.revisions[0])),
-            "--vcs=%s" % self.caller.get_vcs_name()
-        ])
+        helper.launch_ui_window(
+            "diff",
+            [
+                "-s",
+                "%s@%s" % (path_older, S(prev)),
+                "%s@%s" % (self.path, S(self.revisions[0])),
+                "--vcs=%s" % self.caller.get_vcs_name(),
+            ],
+        )
 
     def diff_revisions(self, widget, data=None):
         rev1 = self.revisions[0]
         rev2 = self.revisions[-1]
         if self.caller.compare_revision_order(rev1, rev2) > 0:
             rev1, rev2 = rev2, rev1
-        helper.launch_ui_window("diff", [
-            "%s@%s" % (self.path, S(rev1)),
-            "%s@%s" % (self.path, S(rev2)),
-            "--vcs=%s" % self.caller.get_vcs_name()
-        ])
+        helper.launch_ui_window(
+            "diff",
+            [
+                "%s@%s" % (self.path, S(rev1)),
+                "%s@%s" % (self.path, S(rev2)),
+                "--vcs=%s" % self.caller.get_vcs_name(),
+            ],
+        )
 
     def compare_revisions(self, widget, data=None):
         rev1 = self.revisions[0]
@@ -740,12 +777,15 @@ class AnnotateContextMenuCallbacks(object):
         path_older = self.path
         if self.vcs_name == rabbitvcs.vcs.VCS_SVN:
             path_older = self.vcs.svn().get_repo_url(self.path)
-        helper.launch_ui_window("diff", [
-            "-s",
-            "%s@%s" % (path_older, S(rev1)),
-            "%s@%s" % (self.path, S(rev2)),
-            "--vcs=%s" % self.caller.get_vcs_name()
-        ])
+        helper.launch_ui_window(
+            "diff",
+            [
+                "-s",
+                "%s@%s" % (path_older, S(rev1)),
+                "%s@%s" % (self.path, S(rev2)),
+                "--vcs=%s" % self.caller.get_vcs_name(),
+            ],
+        )
 
 
 class AnnotateContextMenu(object):
@@ -776,17 +816,11 @@ class AnnotateContextMenu(object):
         self.vcs = rabbitvcs.vcs.VCS()
 
         self.conditions = AnnotateContextMenuConditions(
-            self.caller,
-            self.vcs,
-            self.path,
-            self.revisions
+            self.caller, self.vcs, self.path, self.revisions
         )
 
         self.callbacks = AnnotateContextMenuCallbacks(
-            self.caller,
-            self.vcs,
-            self.path,
-            self.revisions
+            self.caller, self.vcs, self.path, self.revisions
         )
 
         # The first element of each tuple is a key that matches a
@@ -808,15 +842,11 @@ class AnnotateContextMenu(object):
         if len(self.revisions) == 0:
             return
 
-        context_menu = GtkContextMenu(self.structure,
-                                      self.conditions, self.callbacks)
+        context_menu = GtkContextMenu(self.structure, self.conditions, self.callbacks)
         context_menu.show(self.event)
 
 
-classes_map = {
-    rabbitvcs.vcs.VCS_SVN: SVNAnnotate,
-    rabbitvcs.vcs.VCS_GIT: GitAnnotate
-}
+classes_map = {rabbitvcs.vcs.VCS_SVN: SVNAnnotate, rabbitvcs.vcs.VCS_GIT: GitAnnotate}
 
 
 def annotate_factory(vcs, path, revision=None):
@@ -829,9 +859,9 @@ def annotate_factory(vcs, path, revision=None):
 
 if __name__ == "__main__":
     from rabbitvcs.ui import main, REVISION_OPT, VCS_OPT
+
     (options, paths) = main(
-        [REVISION_OPT, VCS_OPT],
-        usage="Usage: rabbitvcs annotate url [-r REVISION]"
+        [REVISION_OPT, VCS_OPT], usage="Usage: rabbitvcs annotate url [-r REVISION]"
     )
 
     window = annotate_factory(options.vcs, paths[0], options.revision)

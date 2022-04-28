@@ -10,6 +10,7 @@ import rabbitvcs.ui.widget
 from rabbitvcs.util.contextmenu import GtkFilesContextMenu, GtkContextMenuCaller
 from rabbitvcs.ui import InterfaceView
 from gi.repository import Gtk, GObject, Gdk
+
 #
 # This is an extension to the Nautilus file manager to allow better
 # integration with the Subversion source control system.
@@ -38,6 +39,7 @@ from time import sleep
 from rabbitvcs.util import helper
 
 import gi
+
 gi.require_version("Gtk", "3.0")
 sa = helper.SanitizeArgv()
 sa.restore()
@@ -73,15 +75,18 @@ class Add(InterfaceView, GtkContextMenuCaller):
 
         # TODO Remove this when there is svn support
         for path in paths:
-            if rabbitvcs.vcs.guess(path)['vcs'] == rabbitvcs.vcs.VCS_SVN:
+            if rabbitvcs.vcs.guess(path)["vcs"] == rabbitvcs.vcs.VCS_SVN:
                 self.get_widget("show_ignored").set_sensitive(False)
 
-        columns = [[GObject.TYPE_BOOLEAN,
-                    rabbitvcs.ui.widget.TYPE_HIDDEN_OBJECT,
-                    rabbitvcs.ui.widget.TYPE_PATH,
-                    GObject.TYPE_STRING],
-                   [rabbitvcs.ui.widget.TOGGLE_BUTTON, "", _("Path"),
-                    _("Extension")]]
+        columns = [
+            [
+                GObject.TYPE_BOOLEAN,
+                rabbitvcs.ui.widget.TYPE_HIDDEN_OBJECT,
+                rabbitvcs.ui.widget.TYPE_PATH,
+                GObject.TYPE_STRING,
+            ],
+            [rabbitvcs.ui.widget.TOGGLE_BUTTON, "", _("Path"), _("Extension")],
+        ]
 
         self.setup(self.get_widget("Add"), columns)
 
@@ -89,18 +94,17 @@ class Add(InterfaceView, GtkContextMenuCaller):
             self.get_widget("files_table"),
             columns[0],
             columns[1],
-            filters=[{
-                "callback": rabbitvcs.ui.widget.path_filter,
-                "user_data": {
-                    "base_dir": base_dir,
-                    "column": 2
+            filters=[
+                {
+                    "callback": rabbitvcs.ui.widget.path_filter,
+                    "user_data": {"base_dir": base_dir, "column": 2},
                 }
-            }],
+            ],
             callbacks={
-                "row-activated":  self.on_files_table_row_activated,
-                "mouse-event":   self.on_files_table_mouse_event,
-                "key-event":     self.on_files_table_key_event
-            }
+                "row-activated": self.on_files_table_row_activated,
+                "mouse-event": self.on_files_table_mouse_event,
+                "key-event": self.on_files_table_key_event,
+            },
         )
 
         self.initialize_items()
@@ -122,7 +126,7 @@ class Add(InterfaceView, GtkContextMenuCaller):
                 # TODO Refactor
                 # TODO SVN support
                 # TODO Further fix ignore patterns
-                if rabbitvcs.vcs.guess(path)['vcs'] == rabbitvcs.vcs.VCS_GIT:
+                if rabbitvcs.vcs.guess(path)["vcs"] == rabbitvcs.vcs.VCS_GIT:
                     git = self.vcs.git(path)
                     for ignored_path in git.client.get_all_ignore_file_paths(path):
                         should_add = True
@@ -132,21 +136,20 @@ class Add(InterfaceView, GtkContextMenuCaller):
 
                         if should_add:
                             self.items.append(
-                                Status(os.path.realpath(ignored_path), 'unversioned'))
+                                Status(os.path.realpath(ignored_path), "unversioned")
+                            )
 
         self.populate_files_table()
-        helper.run_in_main_thread(status.set_text, _(
-            "Found %d item(s)") % len(self.items))
+        helper.run_in_main_thread(
+            status.set_text, _("Found %d item(s)") % len(self.items)
+        )
 
     def populate_files_table(self):
         self.files_table.clear()
         for item in self.items:
-            self.files_table.append([
-                True,
-                S(item.path),
-                item.path,
-                helper.get_file_extension(item.path)
-            ])
+            self.files_table.append(
+                [True, S(item.path), item.path, helper.get_file_extension(item.path)]
+            )
 
     def toggle_ignored(self):
         self.show_ignored = not self.show_ignored
@@ -216,8 +219,7 @@ class SVNAdd(Add):
         self.hide()
 
         self.action = rabbitvcs.ui.action.SVNAction(
-            self.svn,
-            register_gtk_quit=self.gtk_quit_is_set()
+            self.svn, register_gtk_quit=self.gtk_quit_is_set()
         )
         self.action.append(self.action.set_header, _("Add"))
         self.action.append(self.action.set_status, _("Running Add Command..."))
@@ -242,8 +244,7 @@ class GitAdd(Add):
         self.hide()
 
         self.action = rabbitvcs.ui.action.GitAction(
-            self.git,
-            register_gtk_quit=self.gtk_quit_is_set()
+            self.git, register_gtk_quit=self.gtk_quit_is_set()
         )
         self.action.append(self.action.set_header, _("Add"))
         self.action.append(self.action.set_status, _("Running Add Command..."))
@@ -253,10 +254,7 @@ class GitAdd(Add):
         self.action.schedule()
 
 
-classes_map = {
-    rabbitvcs.vcs.VCS_SVN: SVNAdd,
-    rabbitvcs.vcs.VCS_GIT: GitAdd
-}
+classes_map = {rabbitvcs.vcs.VCS_SVN: SVNAdd, rabbitvcs.vcs.VCS_GIT: GitAdd}
 
 
 def add_factory(paths, base_dir):
@@ -268,9 +266,7 @@ class AddQuiet(object):
     def __init__(self, paths):
         self.vcs = rabbitvcs.vcs.VCS()
         self.svn = self.vcs.svn()
-        self.action = rabbitvcs.ui.action.SVNAction(
-            self.svn
-        )
+        self.action = rabbitvcs.ui.action.SVNAction(self.svn)
 
         self.action.append(self.svn.add, paths)
         self.action.schedule()
@@ -278,9 +274,9 @@ class AddQuiet(object):
 
 if __name__ == "__main__":
     from rabbitvcs.ui import main, BASEDIR_OPT, QUIET_OPT
+
     (options, paths) = main(
-        [BASEDIR_OPT, QUIET_OPT],
-        usage="Usage: rabbitvcs add [path1] [path2] ..."
+        [BASEDIR_OPT, QUIET_OPT], usage="Usage: rabbitvcs add [path1] [path2] ..."
     )
 
     if options.quiet:

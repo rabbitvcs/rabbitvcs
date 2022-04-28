@@ -1,5 +1,6 @@
 from __future__ import absolute_import
 from __future__ import print_function
+
 #
 # test/stage.py
 #
@@ -25,7 +26,9 @@ if options.cleanup:
     print("tag.py clean")
 else:
     if os.path.isdir(DIR):
-        raise SystemExit("This test script has already been run.  Please call this script with --cleanup to start again")
+        raise SystemExit(
+            "This test script has already been run.  Please call this script with --cleanup to start again"
+        )
 
     os.mkdir(DIR)
     g = GittyupClient()
@@ -34,12 +37,12 @@ else:
     touch(DIR + "/test1.txt")
     touch(DIR + "/test2.txt")
 
-    g.stage([DIR+"/test1.txt", DIR+"/test2.txt"])
+    g.stage([DIR + "/test1.txt", DIR + "/test2.txt"])
     commit_id = g.commit("First commit", commit_all=True)
 
     tag_id = g.tag("tag1", "Tagging as tag1", track=True)
-    assert (g.is_tracking("refs/tags/tag1"))
+    assert g.is_tracking("refs/tags/tag1")
 
-    assert (len(g.tag_list()) == 1)
+    assert len(g.tag_list()) == 1
 
     print("tag.py pass")

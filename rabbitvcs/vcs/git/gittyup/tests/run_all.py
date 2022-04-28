@@ -1,13 +1,16 @@
 from __future__ import absolute_import
+
 #!/usr/bin/python
 
 from sys import argv
 import os
 import subprocess
 
+
 def cleanup(modules):
     for module in modules:
         subprocess.call(["python", module, "--cleanup"])
+
 
 modules = [
     "branch.py",
@@ -18,10 +21,10 @@ modules = [
     "clone.py",
     "move.py",
     "pull.py",
-    "remote.py"
+    "remote.py",
 ]
 
-if len(argv) == 2 and  argv[1] == "--cleanup":
+if len(argv) == 2 and argv[1] == "--cleanup":
     cleanup(modules)
 
 for module in modules:

@@ -9,13 +9,15 @@ from rabbitvcs import gettext
 
 log = Log("rabbitvcs.util.locale")
 
+
 def get_locale():
     loc = locale.getlocale(locale.LC_MESSAGES)
     if loc[0] is None and loc[1] is None:
-        locale.setlocale(locale.LC_MESSAGES, '')
+        locale.setlocale(locale.LC_MESSAGES, "")
         loc = locale.getlocale(locale.LC_MESSAGES)
         locale.setlocale(locale.LC_MESSAGES, (None, None))
-    return (loc[0] or '', loc[1] or '')
+    return (loc[0] or "", loc[1] or "")
+
 
 def set_locale(language, encoding):
     sane_default = get_locale()
@@ -51,7 +53,8 @@ def set_locale(language, encoding):
     gettext.set_language(langs)
     return loc
 
+
 def initialize_locale():
-    sane_default = locale.getdefaultlocale(['LANG', 'LANGUAGE'])
+    sane_default = locale.getdefaultlocale(["LANG", "LANGUAGE"])
     # Just try to set the default locale for the user
     set_locale(*sane_default)

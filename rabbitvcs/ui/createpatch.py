@@ -9,6 +9,7 @@ import rabbitvcs.ui.widget
 from rabbitvcs.ui.action import SVNAction, GitAction
 from rabbitvcs.ui import InterfaceView
 from gi.repository import Gtk, GObject, Gdk
+
 #
 # This is an extension to the Nautilus file manager to allow better
 # integration with the Subversion source control system.
@@ -39,6 +40,7 @@ import six.moves._thread
 from rabbitvcs.util import helper
 
 import gi
+
 gi.require_version("Gtk", "3.0")
 sa = helper.SanitizeArgv()
 sa.restore()
@@ -82,33 +84,39 @@ class CreatePatch(InterfaceView):
         self.common = helper.get_common_directory(paths)
 
         if not self.vcs.is_versioned(self.common):
-            rabbitvcs.ui.dialog.MessageBox(
-                _("The given path is not a working copy"))
+            rabbitvcs.ui.dialog.MessageBox(_("The given path is not a working copy"))
             raise SystemExit()
 
         self.files_table = rabbitvcs.ui.widget.Table(
             self.get_widget("files_table"),
-            [GObject.TYPE_BOOLEAN, rabbitvcs.ui.widget.TYPE_HIDDEN_OBJECT,
+            [
+                GObject.TYPE_BOOLEAN,
+                rabbitvcs.ui.widget.TYPE_HIDDEN_OBJECT,
                 rabbitvcs.ui.widget.TYPE_PATH,
-                GObject.TYPE_STRING, GObject.TYPE_STRING, GObject.TYPE_STRING],
-            [rabbitvcs.ui.widget.TOGGLE_BUTTON, "", _("Path"), _("Extension"),
-                _("Text Status"), _("Property Status")],
-            filters=[{
-                "callback": rabbitvcs.ui.widget.path_filter,
-                "user_data": {
-                    "base_dir": base_dir,
-                    "column": 2
+                GObject.TYPE_STRING,
+                GObject.TYPE_STRING,
+                GObject.TYPE_STRING,
+            ],
+            [
+                rabbitvcs.ui.widget.TOGGLE_BUTTON,
+                "",
+                _("Path"),
+                _("Extension"),
+                _("Text Status"),
+                _("Property Status"),
+            ],
+            filters=[
+                {
+                    "callback": rabbitvcs.ui.widget.path_filter,
+                    "user_data": {"base_dir": base_dir, "column": 2},
                 }
-            }],
+            ],
             callbacks={
-                "row-activated":  self.on_files_table_row_activated,
-                "mouse-event":   self.on_files_table_mouse_event,
-                "key-event":     self.on_files_table_key_event
+                "row-activated": self.on_files_table_row_activated,
+                "mouse-event": self.on_files_table_mouse_event,
+                "key-event": self.on_files_table_key_event,
             },
-            flags={
-                "sortable": True,
-                "sort_on": 2
-            }
+            flags={"sortable": True, "sort_on": 2},
         )
         self.files_table.allow_multiple()
 
@@ -123,9 +131,8 @@ class CreatePatch(InterfaceView):
         path = ""
 
         dialog = Gtk.FileChooserDialog(
-            title=_("Create Patch"),
-            parent=None,
-            action=Gtk.FileChooserAction.SAVE)
+            title=_("Create Patch"), parent=None, action=Gtk.FileChooserAction.SAVE
+        )
         dialog.add_button(_("_Cancel"), Gtk.ResponseType.CANCEL)
         dialog.add_button(_("_Create"), Gtk.ResponseType.OK)
         dialog.set_do_overwrite_confirmation(True)
@@ -166,10 +173,9 @@ class SVNCreatePatch(CreatePatch, SVNCommit):
             self.close()
             return
 
-        ticks = len(items)*2
+        ticks = len(items) * 2
         self.action = rabbitvcs.ui.action.SVNAction(
-            self.svn,
-            register_gtk_quit=self.gtk_quit_is_set()
+            self.svn, register_gtk_quit=self.gtk_quit_is_set()
         )
         self.action.set_pbar_ticks(ticks)
         self.action.append(self.action.set_header, _("Create Patch"))
@@ -191,7 +197,7 @@ class SVNCreatePatch(CreatePatch, SVNCommit):
                     rel_path,
                     self.svn.revision("base"),
                     rel_path,
-                    self.svn.revision("working")
+                    self.svn.revision("working"),
                 )
                 fileObj.write(diff_text)
 
@@ -234,10 +240,9 @@ class GitCreatePatch(CreatePatch, GitCommit):
             self.close()
             return
 
-        ticks = len(items)*2
+        ticks = len(items) * 2
         self.action = rabbitvcs.ui.action.GitAction(
-            self.git,
-            register_gtk_quit=self.gtk_quit_is_set()
+            self.git, register_gtk_quit=self.gtk_quit_is_set()
         )
         self.action.set_pbar_ticks(ticks)
         self.action.append(self.action.set_header, _("Create Patch"))
@@ -258,7 +263,7 @@ class GitCreatePatch(CreatePatch, GitCommit):
                     rel_path,
                     self.git.revision("HEAD"),
                     rel_path,
-                    self.git.revision("WORKING")
+                    self.git.revision("WORKING"),
                 )
                 fileObj.write(diff_text)
 
@@ -277,7 +282,7 @@ class GitCreatePatch(CreatePatch, GitCommit):
 
 classes_map = {
     rabbitvcs.vcs.VCS_SVN: SVNCreatePatch,
-    rabbitvcs.vcs.VCS_GIT: GitCreatePatch
+    rabbitvcs.vcs.VCS_GIT: GitCreatePatch,
 }
 
 
@@ -288,9 +293,9 @@ def createpatch_factory(paths, base_dir):
 
 if __name__ == "__main__":
     from rabbitvcs.ui import main, BASEDIR_OPT
+
     (options, paths) = main(
-        [BASEDIR_OPT],
-        usage="Usage: rabbitvcs createpatch [path1] [path2] ..."
+        [BASEDIR_OPT], usage="Usage: rabbitvcs createpatch [path1] [path2] ..."
     )
 
     window = createpatch_factory(paths, options.base_dir)

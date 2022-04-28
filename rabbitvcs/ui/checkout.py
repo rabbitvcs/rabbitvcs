@@ -8,6 +8,7 @@ import rabbitvcs.ui.dialog
 import rabbitvcs.ui.widget
 from rabbitvcs.ui import InterfaceView
 from gi.repository import Gtk, GObject, Gdk
+
 #
 # This is an extension to the Nautilus file manager to allow better
 # integration with the Subversion source control system.
@@ -35,6 +36,7 @@ import os.path
 from rabbitvcs.util import helper
 
 import gi
+
 gi.require_version("Gtk", "3.0")
 sa = helper.SanitizeArgv()
 sa.restore()
@@ -57,15 +59,13 @@ class Checkout(InterfaceView):
         self.vcs = rabbitvcs.vcs.VCS()
 
         self.repositories = rabbitvcs.ui.widget.ComboBox(
-            self.get_widget("repositories"),
-            helper.get_repository_paths()
+            self.get_widget("repositories"), helper.get_repository_paths()
         )
 
         # We must set a signal handler for the Gtk.Entry inside the combobox
         # Because glade will not retain that information
         self.repositories.set_child_signal(
-            "key-release-event",
-            self.on_repositories_key_released
+            "key-release-event", self.on_repositories_key_released
         )
 
         self.destination = helper.get_user_path()
@@ -113,8 +113,10 @@ class Checkout(InterfaceView):
 
     def on_repo_chooser_clicked(self, widget, data=None):
         from rabbitvcs.ui.browser import SVNBrowserDialog
-        SVNBrowserDialog(self.repositories.get_active_text(),
-                         callback=self.on_repo_chooser_closed)
+
+        SVNBrowserDialog(
+            self.repositories.get_active_text(), callback=self.on_repo_chooser_closed
+        )
 
     def on_repo_chooser_closed(self, new_url):
         self.repositories.set_child_text(new_url)
@@ -142,7 +144,7 @@ class SVNCheckout(Checkout):
             self.svn,
             revision=revision,
             url_combobox=self.repositories,
-            expand=True
+            expand=True,
         )
 
         self.get_widget("options_box").show()
@@ -158,19 +160,18 @@ class SVNCheckout(Checkout):
 
         if not url or not path:
             rabbitvcs.ui.dialog.MessageBox(
-                _("The repository URL and destination path are both required fields."))
+                _("The repository URL and destination path are both required fields.")
+            )
             return
 
         revision = self.revision_selector.get_revision_object()
 
         self.hide()
         self.action = rabbitvcs.ui.action.SVNAction(
-            self.svn,
-            register_gtk_quit=self.gtk_quit_is_set()
+            self.svn, register_gtk_quit=self.gtk_quit_is_set()
         )
         self.action.append(self.action.set_header, _("Checkout"))
-        self.action.append(self.action.set_status,
-                           _("Running Checkout Command..."))
+        self.action.append(self.action.set_status, _("Running Checkout Command..."))
         self.action.append(helper.save_repository_path, url)
         self.action.append(
             self.svn.checkout,
@@ -178,7 +179,7 @@ class SVNCheckout(Checkout):
             path,
             recurse=recursive,
             revision=revision,
-            ignore_externals=omit_externals
+            ignore_externals=omit_externals,
         )
         self.action.append(self.action.set_status, _("Completed Checkout"))
         self.action.append(self.action.finish)
@@ -218,19 +219,13 @@ class GitCheckoutQuiet(object):
     def __init__(self, path):
         self.vcs = rabbitvcs.vcs.VCS()
         self.git = self.vcs.git(path)
-        self.action = rabbitvcs.ui.action.GitAction(
-            self.git,
-            run_in_thread=False
-        )
+        self.action = rabbitvcs.ui.action.GitAction(self.git, run_in_thread=False)
 
         self.action.append(self.git.checkout, [path])
         self.action.schedule()
 
 
-classes_map = {
-    rabbitvcs.vcs.VCS_SVN: SVNCheckout,
-    rabbitvcs.vcs.VCS_GIT: GitCheckout
-}
+classes_map = {rabbitvcs.vcs.VCS_SVN: SVNCheckout, rabbitvcs.vcs.VCS_GIT: GitCheckout}
 
 
 def checkout_factory(vcs, path=None, url=None, revision=None, quiet=False):
@@ -251,9 +246,10 @@ def checkout_factory(vcs, path=None, url=None, revision=None, quiet=False):
 
 if __name__ == "__main__":
     from rabbitvcs.ui import main, REVISION_OPT, VCS_OPT, QUIET_OPT
+
     (options, args) = main(
         [REVISION_OPT, VCS_OPT, QUIET_OPT],
-        usage="Usage: rabbitvcs checkout --vcs=[git|svn] [url] [path]"
+        usage="Usage: rabbitvcs checkout --vcs=[git|svn] [url] [path]",
     )
 
     # If two arguments are passed:
@@ -274,9 +270,19 @@ if __name__ == "__main__":
 
     if options.quiet:
         window = checkout_factory(
-            options.vcs, path=path, url=url, revision=options.revision, quiet=options.quiet)
+            options.vcs,
+            path=path,
+            url=url,
+            revision=options.revision,
+            quiet=options.quiet,
+        )
     else:
         window = checkout_factory(
-            options.vcs, path=path, url=url, revision=options.revision, quiet=options.quiet)
+            options.vcs,
+            path=path,
+            url=url,
+            revision=options.revision,
+            quiet=options.quiet,
+        )
         window.register_gtk_quit()
         Gtk.main()

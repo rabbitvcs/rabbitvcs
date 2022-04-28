@@ -50,11 +50,11 @@ from rabbitvcs.util.settings import SettingsManager, get_home_folder
 from rabbitvcs.util.strings import *
 
 LEVELS = {
-    "debug":    logging.DEBUG,
-    "info":     logging.INFO,
-    "warning":  logging.WARNING,
-    "error":    logging.ERROR,
-    "critical": logging.CRITICAL
+    "debug": logging.DEBUG,
+    "info": logging.INFO,
+    "warning": logging.WARNING,
+    "error": logging.ERROR,
+    "critical": logging.CRITICAL,
 }
 
 settings = SettingsManager()
@@ -77,10 +77,12 @@ if changed:
     settings.write()
 
 LOG_PATH = os.path.join(get_home_folder(), "RabbitVCS.log")
-if not os.path.exists(LOG_PATH): open(LOG_PATH, "a").close()
+if not os.path.exists(LOG_PATH):
+    open(LOG_PATH, "a").close()
 DEFAULT_FORMAT = "%(message)s"
 FILE_FORMAT = "%(asctime)s %(levelname)s\t%(name)s\t%(message)s"
 CONSOLE_FORMAT = "%(levelname)s\t%(name)s\t%(message)s"
+
 
 class BaseLog(object):
     """
@@ -200,6 +202,7 @@ class BaseLog(object):
         self.handler.setFormatter(logging.Formatter(format))
         self.logger.addHandler(self.handler)
 
+
 class ConsoleLog(BaseLog):
     """
     Inherits from BaseLog and provides a simple interface to log calls to the
@@ -250,9 +253,12 @@ class FileLog(BaseLog):
 
         BaseLog.__init__(self, logger, level)
         self.set_handler(
-            logging.handlers.TimedRotatingFileHandler(LOG_PATH, "D", 1, 7, UTF8_ENCODING),
-            FILE_FORMAT
+            logging.handlers.TimedRotatingFileHandler(
+                LOG_PATH, "D", 1, 7, UTF8_ENCODING
+            ),
+            FILE_FORMAT,
         )
+
 
 class DualLog(BaseLog):
     """
@@ -279,10 +285,13 @@ class DualLog(BaseLog):
 
         BaseLog.__init__(self, logger, level)
         self.set_handler(
-            logging.handlers.TimedRotatingFileHandler(LOG_PATH, "D", 1, 7, UTF8_ENCODING),
-            FILE_FORMAT
+            logging.handlers.TimedRotatingFileHandler(
+                LOG_PATH, "D", 1, 7, UTF8_ENCODING
+            ),
+            FILE_FORMAT,
         )
         self.set_handler(logging.StreamHandler(), CONSOLE_FORMAT)
+
 
 class NullHandler(logging.Handler):
     """
@@ -292,6 +301,7 @@ class NullHandler(logging.Handler):
 
     def emit(self, record):
         pass
+
 
 class NullLog(BaseLog):
     """
@@ -304,6 +314,7 @@ class NullLog(BaseLog):
         BaseLog.__init__(self, *args, **kwargs)
         self.set_handler(NullHandler())
 
+
 Log = NullLog
 if DEFAULT_LOG_TYPE == "File":
     Log = FileLog
@@ -311,6 +322,7 @@ elif DEFAULT_LOG_TYPE == "Console":
     Log = ConsoleLog
 elif DEFAULT_LOG_TYPE == "Both":
     Log = DualLog
+
 
 def reload_log_settings():
     """

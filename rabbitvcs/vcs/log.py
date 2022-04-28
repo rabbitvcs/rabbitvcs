@@ -1,4 +1,5 @@
 from __future__ import absolute_import
+
 #
 # This is an extension to the Nautilus file manager to allow better
 # integration with the Subversion source control system.
@@ -48,7 +49,9 @@ class Log(object):
     # A list of LogChangedFiles elements
     changed_paths = []
 
-    def __init__(self, date, revision, author, message, changed_paths, parents=[], head=False):
+    def __init__(
+        self, date, revision, author, message, changed_paths, parents=[], head=False
+    ):
         self.date = date
         self.revision = revision
         self.author = author

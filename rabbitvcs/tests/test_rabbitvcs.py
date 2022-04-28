@@ -35,7 +35,8 @@ from unittest import TestCase, main
 # make sure the current working copy is in sys.path before anything else
 from os.path import abspath, dirname, join, normpath
 import sys
-toplevel = normpath(join(dirname(abspath(__file__)), '..', '..'))
+
+toplevel = normpath(join(dirname(abspath(__file__)), "..", ".."))
 sys.path.insert(0, toplevel)
 
 
@@ -54,9 +55,11 @@ class RabbitVCSTest(TestCase):
         """Make sure the package version is reported properly."""
         result = rabbitvcs.package_version()
         for character in result:
-            if not (character.isdigit() or character == '.'):
-                self.fail("Not all characters in package version "
-                          "'%s' were digits or dots." % result)
+            if not (character.isdigit() or character == "."):
+                self.fail(
+                    "Not all characters in package version "
+                    "'%s' were digits or dots." % result
+                )
 
     def test_package_identifier(self):
         """Make sure the package identifier is reported properly."""
@@ -82,12 +85,13 @@ class FakeInfo(object):
     """
 
     def __init__(self):
-        self.data = {'text_status': pysvn.wc_status_kind.none,
-                     'commit_revision': FakeVersion(1234),
-                     'commit_author': None,
-                     'commit_time': 0.0,
-                     'url': None,
-                     }
+        self.data = {
+            "text_status": pysvn.wc_status_kind.none,
+            "commit_revision": FakeVersion(1234),
+            "commit_author": None,
+            "commit_time": 0.0,
+            "url": None,
+        }
 
 
 class FakeClient(object):
@@ -95,6 +99,7 @@ class FakeClient(object):
     Fake pysvn.Client that can have its behavior controlled.
 
     """
+
     instance_count = 0
     send_empty_info = True
 
@@ -166,9 +171,10 @@ class RabbitVCSPySvnTest(TestCase):
         self.assertEqual(FakeClient.instance_count, 2)
         self.assertEqual(len(self.logger.messages), 1)
         last_message = self.logger.messages[-1]
-        self.assertEqual(str(last_message[1]),
-                         "The path 'awesomepath' does not "
-                         "appear to be under source control.")
+        self.assertEqual(
+            str(last_message[1]),
+            "The path 'awesomepath' does not " "appear to be under source control.",
+        )
 
     def test_update_columns_correct_info(self):
         """

@@ -50,6 +50,7 @@ import threading
 from rabbitvcs.util import helper
 
 import gi
+
 gi.require_version("Gtk", "3.0")
 sa = helper.SanitizeArgv()
 sa.restore()
@@ -79,16 +80,10 @@ class RabbitVCS(GObject.GObject, Thunarx.MenuProvider, Thunarx.PropertyPageProvi
         SVN.STATUS["deleted"],
         SVN.STATUS["replaced"],
         SVN.STATUS["modified"],
-        SVN.STATUS["missing"]
+        SVN.STATUS["missing"],
     ]
 
-    MODIFIED_TEXT_STATUSES = [
-        "added",
-        "deleted",
-        "replaced",
-        "modified",
-        "missing"
-    ]
+    MODIFIED_TEXT_STATUSES = ["added", "deleted", "replaced", "modified", "missing"]
 
     #: This is our lookup table for C{NautilusVFSFile}s which we need for attaching
     #: emblems. This is mostly a workaround for not being able to turn a path/uri
@@ -138,13 +133,15 @@ class RabbitVCS(GObject.GObject, Thunarx.MenuProvider, Thunarx.PropertyPageProvi
     #: A list of statuses that we want to keep track of for when a process
     #: might have done something.
     STATUSES_TO_MONITOR = copy.copy(MODIFIED_TEXT_STATUSES)
-    STATUSES_TO_MONITOR.extend([
-        "unversioned",
-        # When doing a checkout Nautilus will notice a directory being
-        # added and call update_file_info, but at that stage the
-        # checkout likely hasn't completed yet and the status will be:
-        "incomplete"
-    ])
+    STATUSES_TO_MONITOR.extend(
+        [
+            "unversioned",
+            # When doing a checkout Nautilus will notice a directory being
+            # added and call update_file_info, but at that stage the
+            # checkout likely hasn't completed yet and the status will be:
+            "incomplete",
+        ]
+    )
 
     def __init__(self):
         threading.currentThread().setName("RabbitVCS extension thread")
@@ -263,15 +260,13 @@ class RabbitVCS(GObject.GObject, Thunarx.MenuProvider, Thunarx.PropertyPageProvi
             #
             for path in paths:
                 # We're not interested in the result now, just the callback
-                self.status_checker.check_status(path,
-                                                 recurse=True,
-                                                 invalidate=True,
-                                                 summary=True)
+                self.status_checker.check_status(
+                    path, recurse=True, invalidate=True, summary=True
+                )
 
         self.execute_after_process_exit(proc, do_check)
 
     def execute_after_process_exit(self, proc, func=None):
-
         def is_process_still_alive():
             log.debug("is_process_still_alive() for pid: %i" % proc.pid)
             # First we need to see if the commit process is still running
@@ -280,7 +275,7 @@ class RabbitVCS(GObject.GObject, Thunarx.MenuProvider, Thunarx.PropertyPageProvi
 
             log.debug("%s" % retval)
 
-            still_going = (retval is None)
+            still_going = retval is None
 
             if not still_going and callable(func):
                 func()
@@ -305,8 +300,7 @@ class RabbitVCS(GObject.GObject, Thunarx.MenuProvider, Thunarx.PropertyPageProvi
 
         def do_reload_settings():
             globals()["settings"] = SettingsManager()
-            globals()["log"] = reload_log_settings()(
-                "rabbitvcs.util.extensions.thunar")
+            globals()["log"] = reload_log_settings()("rabbitvcs.util.extensions.thunar")
             log.debug("Re-scanning settings")
 
         self.execute_after_process_exit(proc, do_reload_settings)

@@ -7,6 +7,7 @@ import rabbitvcs.ui.widget
 from rabbitvcs.ui.action import SVNAction, GitAction
 from rabbitvcs.ui import InterfaceNonView
 from gi.repository import Gtk, GObject, Gdk
+
 #
 # This is an extension to the Nautilus file manager to allow better
 # integration with the Subversion source control system.
@@ -37,6 +38,7 @@ import shutil
 from rabbitvcs.util import helper
 
 import gi
+
 gi.require_version("Gtk", "3.0")
 sa = helper.SanitizeArgv()
 sa.restore()
@@ -58,8 +60,7 @@ class SVNEditConflicts(InterfaceNonView):
 
         status = self.svn.status(self.path)
         if status.simple_content_status() != rabbitvcs.vcs.status.status_complicated:
-            log.debug(
-                "The specified file is not conflicted.  There is nothing to do.")
+            log.debug("The specified file is not conflicted.  There is nothing to do.")
             self.close()
             return
 
@@ -91,10 +92,13 @@ class SVNEditConflicts(InterfaceNonView):
             working = self.get_working_path(path)
             ancestor, theirs = self.get_revisioned_paths(path)
 
-            log.debug("launching merge tool with base: %s, mine: %s, theirs: %s, merged: %s" % (
-                ancestor, working, theirs, path))
+            log.debug(
+                "launching merge tool with base: %s, mine: %s, theirs: %s, merged: %s"
+                % (ancestor, working, theirs, path)
+            )
             helper.launch_merge_tool(
-                base=ancestor, mine=working, theirs=theirs, merged=path)
+                base=ancestor, mine=working, theirs=theirs, merged=path
+            )
 
             dialog = rabbitvcs.ui.dialog.MarkResolvedPrompt()
             mark_resolved = dialog.run()
@@ -106,10 +110,7 @@ class SVNEditConflicts(InterfaceNonView):
         self.close()
 
     def get_working_path(self, path):
-        paths = [
-            "%s.mine" % path,
-            "%s.working" % path
-        ]
+        paths = ["%s.mine" % path, "%s.working" % path]
 
         for working in paths:
             if os.path.exists(working):
@@ -118,8 +119,8 @@ class SVNEditConflicts(InterfaceNonView):
         return path
 
     def get_revisioned_paths(self, path):
-        """ Will return a tuple where the first element is the common ancestor's
-            path and the second is the path of the the file being merged in."""
+        """Will return a tuple where the first element is the common ancestor's
+        path and the second is the path of the the file being merged in."""
         ancestorPath = ""
         theirsPath = ""
         revisionPaths = []
@@ -142,8 +143,9 @@ class SVNEditConflicts(InterfaceNonView):
                 theirsPath = os.path.join(baseDir, revisionPaths[0][1])
             return (ancestorPath, theirsPath)
         else:
-            log.error("Unexpected number (%d) of revision paths found" %
-                      len(revisionPaths))
+            log.error(
+                "Unexpected number (%d) of revision paths found" % len(revisionPaths)
+            )
             return ("", "")
 
 
@@ -162,7 +164,7 @@ class GitEditConflicts(InterfaceNonView):
 
 classes_map = {
     rabbitvcs.vcs.VCS_SVN: SVNEditConflicts,
-    rabbitvcs.vcs.VCS_GIT: GitEditConflicts
+    rabbitvcs.vcs.VCS_GIT: GitEditConflicts,
 }
 
 
@@ -173,9 +175,9 @@ def editconflicts_factory(path):
 
 if __name__ == "__main__":
     from rabbitvcs.ui import main, BASEDIR_OPT
+
     (options, paths) = main(
-        [BASEDIR_OPT],
-        usage="Usage: rabbitvcs edit-conflicts [path1] [path2] ..."
+        [BASEDIR_OPT], usage="Usage: rabbitvcs edit-conflicts [path1] [path2] ..."
     )
 
     window = editconflicts_factory(paths[0])

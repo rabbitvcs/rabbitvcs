@@ -5,6 +5,7 @@ import rabbitvcs.vcs
 from rabbitvcs.ui.action import SVNAction
 from rabbitvcs.ui import InterfaceNonView
 from gi.repository import Gtk, GObject
+
 #
 # This is an extension to the Nautilus file manager to allow better
 # integration with the Subversion source control system.
@@ -32,6 +33,7 @@ import os.path
 from rabbitvcs.util import helper
 
 from gi import require_version
+
 require_version("Gtk", "3.0")
 sa = helper.SanitizeArgv()
 sa.restore()
@@ -107,10 +109,7 @@ class GitDelete(Delete):
             self.vcs.git(paths[0]).remove(paths)
 
 
-classes_map = {
-    rabbitvcs.vcs.VCS_SVN: SVNDelete,
-    rabbitvcs.vcs.VCS_GIT: GitDelete
-}
+classes_map = {rabbitvcs.vcs.VCS_SVN: SVNDelete, rabbitvcs.vcs.VCS_GIT: GitDelete}
 
 
 def delete_factory(paths):
@@ -120,8 +119,8 @@ def delete_factory(paths):
 
 if __name__ == "__main__":
     from rabbitvcs.ui import main
-    (options, paths) = main(
-        usage="Usage: rabbitvcs delete [path1] [path2] ...")
+
+    (options, paths) = main(usage="Usage: rabbitvcs delete [path1] [path2] ...")
 
     window = delete_factory(paths)
     window.register_gtk_quit()

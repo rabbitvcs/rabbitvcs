@@ -53,9 +53,11 @@ from rabbitvcs.util.decorators import structure_map
 from rabbitvcs.util.strings import *
 
 from rabbitvcs.util.log import Log
+
 log = Log("rabbitvcs.util.helper")
 
 from rabbitvcs import gettext
+
 ngettext = gettext.ngettext
 
 try:
@@ -67,9 +69,10 @@ import gi
 from gi.repository import GObject
 
 from rabbitvcs import gettext
+
 _ = gettext.gettext
 
-LOG_DATETIME_FORMAT = "%Y-%m-%d %H:%M" # for log files
+LOG_DATETIME_FORMAT = "%Y-%m-%d %H:%M"  # for log files
 
 DT_FORMAT_TIME = _("%I:%M%P")
 DT_FORMAT_THISWEEK = _("%a %I:%M%p")
@@ -79,7 +82,7 @@ DT_FORMAT_ALL = _("%b %d %Y")
 LINE_BREAK_CHAR = six.unichr(0x23CE)
 
 
-def compare_version(version1, version2, length = None):
+def compare_version(version1, version2, length=None):
     if not length:
         length = max(len(version1), len(version2))
     for i in range(length):
@@ -90,6 +93,7 @@ def compare_version(version1, version2, length = None):
             return r
     return 0
 
+
 def gobject_threads_init():
     """
     Call GObject.threads_init() only if not deprecated.
@@ -97,6 +101,7 @@ def gobject_threads_init():
 
     if compare_version(GObject.pygobject_version, [3, 10, 2]) < 0:
         GObject.threads_init()
+
 
 @structure_map
 def to_bytes(s, encoding=UTF8_ENCODING):
@@ -112,6 +117,7 @@ def to_bytes(s, encoding=UTF8_ENCODING):
     if isinstance(s, bytes) and encoding.lower() != UTF8_ENCODING:
         return S(s).bytes(encoding)
     return s
+
 
 def run_in_main_thread(func, *args, **kwargs):
     """
@@ -136,27 +142,35 @@ def run_in_main_thread(func, *args, **kwargs):
         raise event.exception
     return event.result
 
+
 def get_tmp_path(filename):
     day = datetime.datetime.now().day
     day_string = S(str(day) + str(os.geteuid())).bytes()
     m = hashlib.md5(day_string).hexdigest()[0:10]
 
-    tmpdir = "/tmp/rabbitvcs-%s" %m
+    tmpdir = "/tmp/rabbitvcs-%s" % m
     if not os.path.isdir(tmpdir):
         os.mkdir(tmpdir)
 
     return "%s/%s" % (tmpdir, filename)
 
+
 def process_memory(pid):
     # ps -p 5205 -w -w -o rss --no-headers
     psproc = subprocess.Popen(
-                            ["ps",
-                             "-p", str(pid),
-                             "-w", "-w",        # Extra-wide format
-                             "-o", "size",      # "Size" is probably the best all round
-                                                # memory measure.
-                             "--no-headers"],
-                             stdout=subprocess.PIPE)
+        [
+            "ps",
+            "-p",
+            str(pid),
+            "-w",
+            "-w",  # Extra-wide format
+            "-o",
+            "size",  # "Size" is probably the best all round
+            # memory measure.
+            "--no-headers",
+        ],
+        stdout=subprocess.PIPE,
+    )
 
     (output, stdin) = psproc.communicate()
 
@@ -171,8 +185,9 @@ def process_memory(pid):
 
     return mem_in_kb
 
-def format_long_text(text, cols = None, line1only = False):
-    """ Nicely formats text containing linebreaks to display in a single line
+
+def format_long_text(text, cols=None, line1only=False):
+    """Nicely formats text containing linebreaks to display in a single line
     by replacing newlines with U+23CE, or keeping only the first non-empty
     line. If the param "cols" is given, the text
     beyond cols is replaced by "...".
@@ -186,6 +201,7 @@ def format_long_text(text, cols = None, line1only = False):
         text = six.u("%s...") % text[0:cols]
 
     return text
+
 
 def format_datetime(dt, format=None):
     if format:
@@ -202,7 +218,7 @@ def format_datetime(dt, format=None):
             if delta.seconds < 60:
                 returner = _("just now")
             elif delta.seconds >= 60 and delta.seconds < 600:
-                returner = _("%d minute(s) ago") % (delta.seconds/60)
+                returner = _("%d minute(s) ago") % (delta.seconds / 60)
             elif delta.seconds >= 600 and delta.seconds < 43200:
                 returner = dt.strftime(DT_FORMAT_TIME)
             else:
@@ -216,8 +232,9 @@ def format_datetime(dt, format=None):
 
     return S(returner).unicode()
 
+
 def in_rich_compare(item, list):
-    """ Tests whether the item is in the given list. This is mainly to work
+    """Tests whether the item is in the given list. This is mainly to work
     around the rich-compare bug in pysvn. This is not identical to the "in"
     operator when used for substring testing.
     """
@@ -232,6 +249,7 @@ def in_rich_compare(item, list):
                 pass
 
     return in_list
+
 
 # FIXME: this function is duplicated in settings.py
 def get_home_folder():
@@ -248,8 +266,7 @@ def get_home_folder():
     # Make sure we adher to the freedesktop.org XDG Base Directory
     # Specifications. $XDG_CONFIG_HOME if set, by default ~/.config
     xdg_config_home = os.environ.get(
-        "XDG_CONFIG_HOME",
-        os.path.join(os.path.expanduser("~"), ".config")
+        "XDG_CONFIG_HOME", os.path.join(os.path.expanduser("~"), ".config")
     )
     config_home = os.path.join(xdg_config_home, "rabbitvcs")
 
@@ -259,6 +276,7 @@ def get_home_folder():
         os.makedirs(config_home, 0o700)
 
     return config_home
+
 
 def get_user_path():
     """
@@ -272,6 +290,7 @@ def get_user_path():
 
     return os.path.abspath(os.path.expanduser("~"))
 
+
 def get_repository_paths_path():
     """
     Returns a valid URI for the repository paths file
@@ -281,6 +300,7 @@ def get_repository_paths_path():
 
     """
     return os.path.join(get_home_folder(), "repos_paths")
+
 
 def get_repository_paths():
     """
@@ -298,6 +318,7 @@ def get_repository_paths():
 
     return returner
 
+
 def get_previous_messages_path():
     """
     Returns a valid URI for the previous messages file
@@ -308,6 +329,7 @@ def get_previous_messages_path():
     """
 
     return os.path.join(get_home_folder(), "previous_log_messages")
+
 
 def get_previous_messages():
     """
@@ -347,8 +369,10 @@ def get_previous_messages():
 
     return returner
 
+
 def get_exclude_paths_path():
     return os.path.join(get_home_folder(), "exclude_paths")
+
 
 def get_exclude_paths():
     path = get_exclude_paths_path()
@@ -362,6 +386,7 @@ def get_exclude_paths():
     f.close()
 
     return paths
+
 
 def encode_revisions(revision_array):
     """
@@ -411,7 +436,7 @@ def encode_revisions(revision_array):
     while True:
         if current_position + 1 >= len(revision_array):
             append(start, last, returner)
-            break;
+            break
 
         current = revision_array[current_position]
         next = revision_array[current_position + 1]
@@ -426,6 +451,7 @@ def encode_revisions(revision_array):
 
     return ",".join(returner)
 
+
 def decode_revisions(string, head):
     """
     Takes a TortoiseSVN-like revision string and returns a list of integers.
@@ -438,14 +464,15 @@ def decode_revisions(string, head):
     for el in arr:
         if el.find("-") != -1:
             subarr = el.split("-")
-            if subarr[1] == 'HEAD':
+            if subarr[1] == "HEAD":
                 subarr[1] = head
-            for subel in range(int(subarr[0]), int(subarr[1])+1):
+            for subel in range(int(subarr[0]), int(subarr[1]) + 1):
                 returner.append(subel)
         else:
             returner.append(int(el))
 
     return returner
+
 
 def get_diff_tool():
     """
@@ -459,10 +486,8 @@ def get_diff_tool():
     diff_tool = sm.get("external", "diff_tool")
     diff_tool_swap = sm.get("external", "diff_tool_swap")
 
-    return {
-        "path": diff_tool,
-        "swap": diff_tool_swap
-    }
+    return {"path": diff_tool, "swap": diff_tool_swap}
+
 
 def get_merge_tool():
     """
@@ -473,7 +498,8 @@ def get_merge_tool():
     """
 
     sm = rabbitvcs.util.settings.SettingsManager()
-    return  sm.get("external", "merge_tool")
+    return sm.get("external", "merge_tool")
+
 
 def launch_diff_tool(path1, path2=None):
     """
@@ -515,27 +541,26 @@ def launch_diff_tool(path1, path2=None):
         else:
             return
 
-        os.popen(
-            "patch --reverse '%s' < %s" % (tmp_path, tmp_file)
-        )
+        os.popen("patch --reverse '%s' < %s" % (tmp_path, tmp_file))
         (lhs, rhs) = (tmp_path, path1)
 
     if diff["swap"]:
         (lhs, rhs) = (rhs, lhs)
 
-    os.spawnl(
-        os.P_NOWAIT,
-        diff["path"],
-        diff["path"],
-        lhs,
-        rhs
-    )
+    os.spawnl(os.P_NOWAIT, diff["path"], diff["path"], lhs, rhs)
+
 
 def launch_merge_tool(base="", mine="", theirs="", merged=""):
     merge_tool = get_merge_tool()
 
-    if(mine == None or mine == "" or not os.path.exists(mine) or
-       theirs == None or theirs == "" or not os.path.exists(theirs)):
+    if (
+        mine == None
+        or mine == ""
+        or not os.path.exists(mine)
+        or theirs == None
+        or theirs == ""
+        or not os.path.exists(theirs)
+    ):
         return
 
     if "%base" in merge_tool:
@@ -550,8 +575,9 @@ def launch_merge_tool(base="", mine="", theirs="", merged=""):
     if "%merged" in merge_tool:
         merge_tool = merge_tool.replace("%merged", merged)
 
-    log.debug("merge_tool: %s"%merge_tool)
+    log.debug("merge_tool: %s" % merge_tool)
     os.popen(merge_tool)
+
 
 def get_file_extension(path):
     """
@@ -565,6 +591,7 @@ def get_file_extension(path):
 
     """
     return os.path.splitext(path)[1]
+
 
 def open_item(path):
     """
@@ -581,7 +608,8 @@ def open_item(path):
     openers = []
 
     import platform
-    if platform.system() == 'Darwin':
+
+    if platform.system() == "Darwin":
         openers.append("open")
         subprocess.Popen(["open", os.path.abspath(path)])
     else:
@@ -590,7 +618,7 @@ def open_item(path):
         openers.append("xdg-open")
 
     for o in openers:
-        for p in set(os.environ['PATH'].split(':')):
+        for p in set(os.environ["PATH"].split(":")):
             if os.path.exists("%s/%s" % (p, o)):
                 command = [o]
                 if o == "gio":
@@ -599,6 +627,7 @@ def open_item(path):
 
                 subprocess.Popen(command)
                 return
+
 
 def browse_to_item(path):
     """
@@ -610,15 +639,19 @@ def browse_to_item(path):
     """
 
     import platform
-    if platform.system() == 'Darwin':
-        subprocess.Popen([
-            "open", "--reveal", os.path.dirname(os.path.abspath(path))
-        ])
+
+    if platform.system() == "Darwin":
+        subprocess.Popen(["open", "--reveal", os.path.dirname(os.path.abspath(path))])
     else:
-        subprocess.Popen([
-            "nautilus", "--no-desktop", "--browser",
-            os.path.dirname(os.path.abspath(path))
-        ])
+        subprocess.Popen(
+            [
+                "nautilus",
+                "--no-desktop",
+                "--browser",
+                os.path.dirname(os.path.abspath(path)),
+            ]
+        )
+
 
 def delete_item(path):
     """
@@ -633,7 +666,8 @@ def delete_item(path):
     try:
 
         import platform
-        if platform.system() == 'Darwin':
+
+        if platform.system() == "Darwin":
             retcode = subprocess.call(["mv", abspath, os.getenv("HOME") + "/.Trash"])
             if retcode:
                 permanent_delete = True
@@ -651,6 +685,7 @@ def delete_item(path):
             shutil.rmtree(abspath, True)
         else:
             os.remove(abspath)
+
 
 def save_log_message(message):
     """
@@ -690,10 +725,15 @@ def save_log_message(message):
 -- %s --
 %s
 %s
-"""%(m[0], m[1], s)
+""" % (
+            m[0],
+            m[1],
+            s,
+        )
 
     f.write(s)
     f.close()
+
 
 def save_repository_path(path):
     """
@@ -719,6 +759,7 @@ def save_repository_path(path):
     f.write(S("\n".join(paths)))
     f.close()
 
+
 def launch_ui_window(filename, args=[], block=False):
     """
     Launches a UI window in a new process, so that we don't have to worry about
@@ -736,12 +777,10 @@ def launch_ui_window(filename, args=[], block=False):
 
     # Hackish.  Get's the helper module's path, then assumes it is in
     # the lib folder.  Removes the /lib part of the path.
-    basedir, head = os.path.split(
-                        os.path.dirname(
-                            os.path.realpath(__file__)))
+    basedir, head = os.path.split(os.path.dirname(os.path.realpath(__file__)))
 
     if not head == "util":
-        log.warning("Helper module (%s) not in \"util\" dir" % __file__)
+        log.warning('Helper module (%s) not in "util" dir' % __file__)
 
     # Puts the whole path together.
     # path = "%s/ui/%s.py" % (basedir, filename)
@@ -753,7 +792,7 @@ def launch_ui_window(filename, args=[], block=False):
             executable = os.environ["PYTHON"]
         # Give all subprocesses the name 'RabbitVCS' to give Ubuntu desktop files the possibility
         # to group those windows in the launcher on WM_CLASS.
-        proc = subprocess.Popen([executable, path] + ['--name', 'RabbitVCS'] + args)
+        proc = subprocess.Popen([executable, path] + ["--name", "RabbitVCS"] + args)
 
         if block:
             proc.wait()
@@ -762,13 +801,16 @@ def launch_ui_window(filename, args=[], block=False):
     else:
         return None
 
+
 def get_log_messages_limit():
     sm = rabbitvcs.util.settings.SettingsManager()
     return int(sm.get("cache", "number_messages"))
 
+
 def get_repository_paths_limit():
     sm = rabbitvcs.util.settings.SettingsManager()
     return int(sm.get("cache", "number_repositories"))
+
 
 def get_common_directory(paths):
     common = os.path.commonprefix(abspaths(paths))
@@ -781,6 +823,7 @@ def get_common_directory(paths):
 
     return common
 
+
 def abspaths(paths):
     index = 0
     for path in paths:
@@ -788,6 +831,7 @@ def abspaths(paths):
         index += 1
 
     return paths
+
 
 def pretty_timedelta(time1, time2, resolution=None):
     """
@@ -810,32 +854,33 @@ def pretty_timedelta(time1, time2, resolution=None):
     # or less than two plural forms) we have to state all the strings
     # explicitely within an ngettext call
     if age_s <= 60 * 1.9:
-        return ngettext("%i second", "%i seconds",age_s) % age_s
+        return ngettext("%i second", "%i seconds", age_s) % age_s
     elif age_s <= 3600 * 1.9:
         r = age_s / 60
-        return ngettext("%i minute", "%i minutes",r) % r
+        return ngettext("%i minute", "%i minutes", r) % r
     elif age_s <= 3600 * 24 * 1.9:
         r = age_s / 3600
-        return ngettext("%i hour", "%i hours",r) % r
+        return ngettext("%i hour", "%i hours", r) % r
     elif age_s <= 3600 * 24 * 7 * 1.9:
         r = age_s / (3600 * 24)
-        return ngettext("%i day", "%i days",r) % r
+        return ngettext("%i day", "%i days", r) % r
     elif age_s <= 3600 * 24 * 30 * 1.9:
         r = age_s / (3600 * 24 * 7)
-        return ngettext("%i week", "%i weeks",r) % r
+        return ngettext("%i week", "%i weeks", r) % r
     elif age_s <= 3600 * 24 * 365 * 1.9:
         r = age_s / (3600 * 24 * 30)
-        return ngettext("%i month", "%i months",r) % r
+        return ngettext("%i month", "%i months", r) % r
     else:
         r = age_s / (3600 * 24 * 365)
-        return ngettext("%i year", "%i years",r) % r
+        return ngettext("%i year", "%i years", r) % r
+
 
 def utc_offset(timestamp=None):
     """
-        Compute the UTC offset of current locale for a timestamp in a
-        portable way, taking care of daylight saving. Positive is east of
-        Greenwich. Result in seconds. If no timestamp is given, the current
-        time is used.
+    Compute the UTC offset of current locale for a timestamp in a
+    portable way, taking care of daylight saving. Positive is east of
+    Greenwich. Result in seconds. If no timestamp is given, the current
+    time is used.
     """
 
     if timestamp is None:
@@ -846,14 +891,19 @@ def utc_offset(timestamp=None):
     local = datetime.datetime.fromtimestamp(timestamp)
     return int((local - utc).total_seconds())
 
+
 def _commonpath(l1, l2, common=[]):
     """
     Helper method for the get_relative_path method
     """
-    if len(l1) < 1: return (common, l1, l2)
-    if len(l2) < 1: return (common, l1, l2)
-    if l1[0] != l2[0]: return (common, l1, l2)
-    return _commonpath(l1[1:], l2[1:], common+[l1[0]])
+    if len(l1) < 1:
+        return (common, l1, l2)
+    if len(l2) < 1:
+        return (common, l1, l2)
+    if l1[0] != l2[0]:
+        return (common, l1, l2)
+    return _commonpath(l1[1:], l2[1:], common + [l1[0]])
+
 
 def get_relative_path(from_path, to_path):
     """
@@ -863,35 +913,37 @@ def get_relative_path(from_path, to_path):
     nice_path1 = from_path.rstrip(os.path.sep).split(os.path.sep)
     nice_path2 = to_path.rstrip(os.path.sep).split(os.path.sep)
 
-    (common,l1,l2) = _commonpath(nice_path1, nice_path2)
+    (common, l1, l2) = _commonpath(nice_path1, nice_path2)
 
     p = []
     if len(l1) > 0:
-        p = ['..'] * len(l1)
+        p = [".."] * len(l1)
     p = p + l2
 
     return os.sep.join(p)
+
 
 def launch_repo_browser(uri):
     sm = rabbitvcs.util.settings.SettingsManager()
     repo_browser = sm.get("external", "repo_browser")
 
     if repo_browser is not None:
-        subprocess.Popen([
-            repo_browser,
-            uri
-        ])
+        subprocess.Popen([repo_browser, uri])
+
 
 def launch_url_in_webbrowser(url):
     import webbrowser
+
     webbrowser.open(url)
+
 
 def parse_path_revision_string(pathrev):
     index = pathrev.rfind("@")
     if index == -1:
-        return (pathrev,None)
+        return (pathrev, None)
     else:
-        return (pathrev[0:index], pathrev[index+1:])
+        return (pathrev[0:index], pathrev[index + 1 :])
+
 
 def create_path_revision_string(path, revision=None):
     if revision:
@@ -899,28 +951,34 @@ def create_path_revision_string(path, revision=None):
     else:
         return path
 
+
 def url_join(path, *args):
     return "/".join([path.rstrip("/")] + list(args))
 
+
 def _quote(text):
-    return six.moves.urllib.parse.quote(text,
-                                        encoding=UTF8_ENCODING,
-                                        errors=SURROGATE_ESCAPE)
+    return six.moves.urllib.parse.quote(
+        text, encoding=UTF8_ENCODING, errors=SURROGATE_ESCAPE
+    )
+
 
 def _quote_plus(text):
-    return six.moves.urllib.parse.quote_plus(text,
-                                             encoding=UTF8_ENCODING,
-                                             errors=SURROGATE_ESCAPE)
+    return six.moves.urllib.parse.quote_plus(
+        text, encoding=UTF8_ENCODING, errors=SURROGATE_ESCAPE
+    )
+
 
 def _unquote(text):
-    return six.moves.urllib.parse.unquote(text,
-                                          encoding=UTF8_ENCODING,
-                                          errors=SURROGATE_ESCAPE)
+    return six.moves.urllib.parse.unquote(
+        text, encoding=UTF8_ENCODING, errors=SURROGATE_ESCAPE
+    )
+
 
 def _unquote_plus(text):
-    return six.moves.urllib.parse.unquote_plus(text,
-                                               encoding=UTF8_ENCODING,
-                                               errors=SURROGATE_ESCAPE)
+    return six.moves.urllib.parse.unquote_plus(
+        text, encoding=UTF8_ENCODING, errors=SURROGATE_ESCAPE
+    )
+
 
 quote = _quote
 quote_plus = _quote_plus
@@ -935,50 +993,58 @@ except TypeError:
     unquote = six.moves.urllib.parse.unquote
     unquote_plus = six.moves.urllib.parse.unquote_plus
 
+
 def quote_url(url_text):
-    (scheme, netloc, path, params, query, fragment) = six.moves.urllib.parse.urlparse(url_text)
+    (scheme, netloc, path, params, query, fragment) = six.moves.urllib.parse.urlparse(
+        url_text
+    )
     # netloc_quoted = quote(netloc)
     path_quoted = quote(path)
     params_quoted = quote(query)
     query_quoted = quote_plus(query)
     fragment_quoted = quote(fragment)
 
-    url_quoted = six.moves.urllib.parse.urlunparse((scheme,
-                                                    netloc,
-                                                    path_quoted,
-                                                    params_quoted,
-                                                    query_quoted,
-                                                    fragment_quoted))
+    url_quoted = six.moves.urllib.parse.urlunparse(
+        (scheme, netloc, path_quoted, params_quoted, query_quoted, fragment_quoted)
+    )
 
     return url_quoted
 
+
 def unquote_url(url_text):
-    (scheme, netloc, path, params, query, fragment) = six.moves.urllib.parse.urlparse(url_text)
+    (scheme, netloc, path, params, query, fragment) = six.moves.urllib.parse.urlparse(
+        url_text
+    )
     # netloc_unquoted = unquote(netloc)
     path_unquoted = unquote(path)
     params_unquoted = unquote(query)
     query_unquoted = unquote_plus(query)
     fragment_unquoted = unquote(fragment)
 
-    url_unquoted = six.moves.urllib.parse.urlunparse((scheme,
-                                                      netloc,
-                                                      path_unquoted,
-                                                      params_unquoted,
-                                                      query_unquoted,
-                                                      fragment_unquoted))
+    url_unquoted = six.moves.urllib.parse.urlunparse(
+        (
+            scheme,
+            netloc,
+            path_unquoted,
+            params_unquoted,
+            query_unquoted,
+            fragment_unquoted,
+        )
+    )
 
     return url_unquoted
 
 
 def pretty_filesize(bytes):
     if bytes >= 1073741824:
-        return str(int(bytes / 1073741824)) + ' GB'
+        return str(int(bytes / 1073741824)) + " GB"
     elif bytes >= 1048576:
-        return str(int(bytes / 1048576)) + ' MB'
+        return str(int(bytes / 1048576)) + " MB"
     elif bytes >= 1024:
-        return str(int(bytes / 1024)) + ' KB'
+        return str(int(bytes / 1024)) + " KB"
     elif bytes < 1024:
-        return str(bytes) + ' bytes'
+        return str(bytes) + " bytes"
+
 
 def get_node_kind(path):
     if os.path.exists(path):
@@ -989,8 +1055,10 @@ def get_node_kind(path):
 
     return "none"
 
-def walk_tree_depth_first(tree, show_levels=False,
-                          preprocess=None, filter=None, start=None):
+
+def walk_tree_depth_first(
+    tree, show_levels=False, preprocess=None, filter=None, start=None
+):
     """
     A non-recursive generator function that walks through a tree (and all
     children) yielding results.
@@ -1054,17 +1122,19 @@ def walk_tree_depth_first(tree, show_levels=False,
                 yield value
 
         if children:
-            annotated_children = [(level+1, child) for child in children]
+            annotated_children = [(level + 1, child) for child in children]
             annotated_children.reverse()
             to_process.extendleft(annotated_children)
+
 
 def urlize(path):
     if path.startswith("/"):
         return "file://%s" % path
     return path
 
+
 def parse_patch_output(patch_file, base_dir, strip=0):
-    """ Runs the GNU 'patch' utility, parsing the output. This is actually a
+    """Runs the GNU 'patch' utility, parsing the output. This is actually a
     generator which yields values as each section of the patch is applied.
 
     @param patch_file: the location of the patch file
@@ -1091,12 +1161,14 @@ def parse_patch_output(patch_file, base_dir, strip=0):
     #    the file has the wrong version for the Prereq:
     #    line in the patch; and assume that patches are
     #    reversed if they look like they are.
-    env = os.environ.copy().update({"LC_ALL" : "C"})
+    env = os.environ.copy().update({"LC_ALL": "C"})
     p = "-p%s" % strip
-    patch_proc = subprocess.Popen(["patch", "-N", "-t", p, "-i", str(patch_file), "--directory", base_dir],
-                                      stdout = subprocess.PIPE,
-                                      stderr = subprocess.STDOUT,
-                                      env = env)
+    patch_proc = subprocess.Popen(
+        ["patch", "-N", "-t", p, "-i", str(patch_file), "--directory", base_dir],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        env=env,
+    )
 
     # Intialise things...
     out = codecs.getreader(UTF8_ENCODING)(patch_proc.stdout, SURROGATE_ESCAPE)
@@ -1106,7 +1178,7 @@ def parse_patch_output(patch_file, base_dir, strip=0):
     current_file = None
     if patch_match:
         current_file = patch_match.group(1)
-    elif line: # and not patch_match
+    elif line:  # and not patch_match
         # There was output, but unexpected. Almost certainly an error of some
         # sort.
         patch_proc.wait()
@@ -1154,7 +1226,7 @@ def parse_patch_output(patch_file, base_dir, strip=0):
                 reject_file = reject_match.group(1)
             # else: we have an unknown error
 
-    patch_proc.wait() # Don't leave process running...
+    patch_proc.wait()  # Don't leave process running...
     return
 
 
@@ -1212,6 +1284,7 @@ The following class implements a mechanism to avoid that:
 For this reason, the current module MAY NOT import Gdk, directly or
 indirectly.
 """
+
 
 class SanitizeArgv(object):
     def __init__(self):

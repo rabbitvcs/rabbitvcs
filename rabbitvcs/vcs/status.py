@@ -1,4 +1,5 @@
 from __future__ import absolute_import
+
 #
 # This is an extension to the Nautilus file manager to allow better
 # integration with the Subversion source control system.
@@ -36,33 +37,35 @@ from six.moves import range
 log = Log("rabbitvcs.vcs.status")
 
 from rabbitvcs import gettext
+
 _ = gettext.gettext
 
 # These are the statuses that we might represent with icons
-status_normal = 'normal'
-status_modified = 'modified'
-status_added = 'added'
-status_deleted = 'deleted'
-status_ignored = 'ignored'
-status_read_only = 'read-only'
-status_locked = 'locked'
-status_unknown = 'unknown'
+status_normal = "normal"
+status_modified = "modified"
+status_added = "added"
+status_deleted = "deleted"
+status_ignored = "ignored"
+status_read_only = "read-only"
+status_locked = "locked"
+status_unknown = "unknown"
 # Specifically: this means something IN A WORKING COPY but not added
-status_unversioned = 'unversioned'
-status_missing = 'missing'
-status_replaced = 'replaced'
+status_unversioned = "unversioned"
+status_missing = "missing"
+status_replaced = "replaced"
 # "complicated" = anything we display with that exclamation mark icon
-status_complicated = 'complicated'
-status_calculating = 'calculating'
-status_error = 'error'
+status_complicated = "complicated"
+status_calculating = "calculating"
+status_error = "error"
 
 MODIFIED_CHILD_STATUSES = [
     status_modified,
     status_added,
     status_deleted,
     status_missing,
-    status_replaced
+    status_replaced,
 ]
+
 
 class StatusCache(object):
     keys = [
@@ -80,7 +83,7 @@ class StatusCache(object):
         status_replaced,
         status_complicated,
         status_calculating,
-        status_error
+        status_error,
     ]
 
     authors = []
@@ -98,13 +101,13 @@ class StatusCache(object):
                 author_index = self.authors.index(status.author)
             except ValueError as e:
                 self.authors.append(status.author)
-                author_index = len(self.authors) -1
+                author_index = len(self.authors) - 1
 
             try:
                 revision_index = self.revisions.index(status.revision)
             except ValueError as e:
                 self.revisions.append(status.revision)
-                revision_index = len(self.revisions) -1
+                revision_index = len(self.revisions) - 1
 
             self.cache[path] = (
                 status.__class__,
@@ -112,22 +115,30 @@ class StatusCache(object):
                 metadata_index,
                 revision_index,
                 author_index,
-                status.date
+                status.date,
             )
         except Exception as e:
             log.debug(e)
 
     def __getitem__(self, path):
         try:
-            (statusclass, content_index, metadata_index, revision_index, author_index, date) = self.cache[path]
+            (
+                statusclass,
+                content_index,
+                metadata_index,
+                revision_index,
+                author_index,
+                date,
+            ) = self.cache[path]
 
             content = self.keys[content_index]
             metadata = self.keys[metadata_index]
             revision = self.revisions[revision_index]
             author = self.authors[author_index]
 
-            status = Status(path, content, metadata, revision=revision,
-                author=author, date=date)
+            status = Status(
+                path, content, metadata, revision=revision, author=author, date=date
+            )
             status.__class__ = statusclass
             return status
         except Exception as e:
@@ -138,7 +149,6 @@ class StatusCache(object):
             del self.cache[path]
         except KeyError as e:
             log.debug(e)
-
 
     def __contains__(self, path):
         return path in self.cache
@@ -154,29 +164,37 @@ class StatusCache(object):
 
         return statuses
 
-class Status(object):
 
+class Status(object):
     @staticmethod
     def status_unknown(path):
-        return Status(path, status_unknown, summary = status_unknown)
+        return Status(path, status_unknown, summary=status_unknown)
 
     @staticmethod
     def status_error(path):
-        return Status(path, status_error, summary = status_error)
+        return Status(path, status_error, summary=status_error)
 
     @staticmethod
     def status_calc(path):
-        return Status(path, status_calculating, summary = status_calculating)
+        return Status(path, status_calculating, summary=status_calculating)
 
     vcs_type = rabbitvcs.vcs.VCS_DUMMY
 
-    clean_statuses = ['unchanged']
+    clean_statuses = ["unchanged"]
 
     content_status_map = None
     metadata_status_map = None
 
-    def __init__(self, path, content, metadata=None, summary=None,
-            revision=None, author=None, date=None):
+    def __init__(
+        self,
+        path,
+        content,
+        metadata=None,
+        summary=None,
+        revision=None,
+        author=None,
+        date=None,
+    ):
 
         """
         The status objects accepts the following items
@@ -240,9 +258,8 @@ class Status(object):
         else:
             return self.metadata
 
-    def make_summary(self, child_statuses = []):
-        """ Summarises statuses for directories.
-        """
+    def make_summary(self, child_statuses=[]):
+        """Summarises statuses for directories."""
         summary = status_unknown
 
         status_set = set([st.single for st in child_statuses])
@@ -275,11 +292,13 @@ class Status(object):
         return self.summary is not status_normal
 
     def __repr__(self):
-        return "<%s %s (%s) %s/%s>" % (_("RabbitVCS status for"),
-                                        self.path,
-                                        self.vcs_type,
-                                        self.simple_content_status(),
-                                        self.simple_metadata_status())
+        return "<%s %s (%s) %s/%s>" % (
+            _("RabbitVCS status for"),
+            self.path,
+            self.vcs_type,
+            self.simple_content_status(),
+            self.simple_metadata_status(),
+        )
 
     def __getstate__(self):
         attrs = self.__dict__.copy()
@@ -287,48 +306,49 @@ class Status(object):
         for key in attrs:
             if isinstance(attrs[key], (six.string_types, six.text_type)):
                 attrs[key] = S(attrs[key]).unicode()
-        attrs['__type__'] = type(self).__name__
-        attrs['__module__'] = type(self).__module__
+        attrs["__type__"] = type(self).__name__
+        attrs["__module__"] = type(self).__module__
         return attrs
 
     def __setstate__(self, state_dict):
-        del state_dict['__type__']
-        del state_dict['__module__']
+        del state_dict["__type__"]
+        del state_dict["__module__"]
         # Store strings in native str type.
         for key in state_dict:
             if isinstance(state_dict[key], (six.string_types, six.text_type)):
                 state_dict[key] = str(S(state_dict[key]))
         self.__dict__ = state_dict
 
+
 class SVNStatus(Status):
 
     vcs_type = rabbitvcs.vcs.VCS_SVN
 
     content_status_map = {
-        'normal': status_normal,
-        'added': status_added,
-        'missing': status_missing,
-        'unversioned': status_unversioned,
-        'deleted': status_deleted,
-        'replaced': status_modified,
-        'modified': status_modified,
-        'merged': status_modified,
-        'conflicted': status_complicated,
-        'ignored': status_ignored,
-        'obstructed': status_complicated,
+        "normal": status_normal,
+        "added": status_added,
+        "missing": status_missing,
+        "unversioned": status_unversioned,
+        "deleted": status_deleted,
+        "replaced": status_modified,
+        "modified": status_modified,
+        "merged": status_modified,
+        "conflicted": status_complicated,
+        "ignored": status_ignored,
+        "obstructed": status_complicated,
         # FIXME: is this the best representation of 'externally populated'?
-        'external': status_normal,
-        'incomplete': status_complicated
+        "external": status_normal,
+        "incomplete": status_complicated,
     }
 
     metadata_status_map = {
-        'normal': status_normal,
-        'none': status_normal,
-        'modified': status_modified
-        }
+        "normal": status_normal,
+        "none": status_normal,
+        "modified": status_modified,
+    }
 
-#external - an unversioned path populated by an svn:external property
-#incomplete - a directory doesn't contain a complete entries list
+    # external - an unversioned path populated by an svn:external property
+    # incomplete - a directory doesn't contain a complete entries list
 
     def __init__(self, pysvn_status):
         revision = author = date = None
@@ -347,7 +367,7 @@ class SVNStatus(Status):
             metadata=str(pysvn_status.prop_status),
             revision=revision,
             author=author,
-            date=date
+            date=date,
         )
 
         # self.remote_content = getattr(pysvn_status, "repos_text_status", None)
@@ -356,71 +376,61 @@ class SVNStatus(Status):
         self.remote_content = str(pysvn_status.repos_text_status)
         self.remote_metadata = str(pysvn_status.repos_prop_status)
 
+
 class GitStatus(Status):
 
-    vcs_type = 'git'
+    vcs_type = "git"
 
     content_status_map = {
-        'normal': status_normal,
-        'added': status_added,
-        'missing': status_missing,
-        'untracked': status_unversioned,
-        'removed': status_deleted,
-        'modified': status_modified,
-        'renamed': status_modified,
-        'ignored': status_ignored
+        "normal": status_normal,
+        "added": status_added,
+        "missing": status_missing,
+        "untracked": status_unversioned,
+        "removed": status_deleted,
+        "modified": status_modified,
+        "renamed": status_modified,
+        "ignored": status_ignored,
     }
 
-    metadata_status_map = {
-        'normal': status_normal,
-        None: status_normal
-    }
+    metadata_status_map = {"normal": status_normal, None: status_normal}
 
     def __init__(self, gittyup_status):
         super(GitStatus, self).__init__(
-            gittyup_status.path,
-            content=str(gittyup_status.identifier),
-            metadata=None)
+            gittyup_status.path, content=str(gittyup_status.identifier), metadata=None
+        )
+
 
 class MercurialStatus(Status):
-    vcs_type = 'mercurial'
+    vcs_type = "mercurial"
 
     content_status_map = {
-        'clean': status_normal,
-        'added': status_added,
-        'missing': status_missing,
-        'unknown': status_unversioned,
-        'removed': status_deleted,
-        'modified': status_modified,
-        'ignored': status_ignored
+        "clean": status_normal,
+        "added": status_added,
+        "missing": status_missing,
+        "unknown": status_unversioned,
+        "removed": status_deleted,
+        "modified": status_modified,
+        "ignored": status_ignored,
     }
 
-    metadata_status_map = {
-        'normal': status_normal,
-        None: status_normal
-    }
+    metadata_status_map = {"normal": status_normal, None: status_normal}
 
     def __init__(self, mercurial_status):
         super(MercurialStatus, self).__init__(
             mercurial_status["path"],
             content=str(mercurial_status["content"]),
-            metadata=None)
+            metadata=None,
+        )
 
-STATUS_TYPES = [
-    Status,
-    SVNStatus,
-    GitStatus,
-    MercurialStatus
-]
+
+STATUS_TYPES = [Status, SVNStatus, GitStatus, MercurialStatus]
+
 
 class TestStatusObjects(unittest.TestCase):
-
     @classmethod
     def __initclass__(self):
         self.base = "/path/to/test"
-        self.children = [
-            os.path.join(self.base, chr(x)) for x in range(97,123)
-        ]
+        self.children = [os.path.join(self.base, chr(x)) for x in range(97, 123)]
 
     def testsingle_clean(self):
         status = Status(self.base, status_normal)
@@ -475,9 +485,7 @@ class TestStatusObjects(unittest.TestCase):
         top_status = Status(self.base, status_normal)
         child_sts = [Status(path, status_normal) for path in self.children]
 
-        child_sts[1] = Status(child_sts[1].path,
-                              status_normal,
-                              status_modified)
+        child_sts[1] = Status(child_sts[1].path, status_normal, status_modified)
 
         top_status.make_summary(child_sts)
         self.assertEqual(top_status.summary, status_modified)
@@ -486,9 +494,7 @@ class TestStatusObjects(unittest.TestCase):
         top_status = Status(self.base, status_normal)
         child_sts = [Status(path, status_normal) for path in self.children]
 
-        child_sts[1] = Status(child_sts[1].path,
-                              status_complicated,
-                              status_modified)
+        child_sts[1] = Status(child_sts[1].path, status_complicated, status_modified)
 
         top_status.make_summary(child_sts)
         self.assertEqual(top_status.summary, status_complicated)
@@ -501,6 +507,7 @@ class TestStatusObjects(unittest.TestCase):
 
         top_status.make_summary(child_sts)
         self.assertEqual(top_status.summary, status_added)
+
 
 TestStatusObjects.__initclass__()
 

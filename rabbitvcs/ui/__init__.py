@@ -36,6 +36,7 @@ from six.moves import range
 from rabbitvcs.util import helper
 
 import gi
+
 gi.require_version("Gtk", "3.0")
 sa = helper.SanitizeArgv()
 sa.restore()
@@ -45,15 +46,19 @@ _ = gettext.gettext
 
 REVISION_OPT = (["-r", "--revision"], {"help": "specify the revision number"})
 BASEDIR_OPT = (["-b", "--base-dir"], {})
-QUIET_OPT = (["-q", "--quiet"], {
-    "help":     "Run the add command quietly, with no UI.",
-    "action":   "store_true",
-    "default":  False
-})
+QUIET_OPT = (
+    ["-q", "--quiet"],
+    {
+        "help": "Run the add command quietly, with no UI.",
+        "action": "store_true",
+        "default": False,
+    },
+)
 VCS_OPT = (["--vcs"], {"help": "specify the version control system"})
 
 VCS_OPT_ERROR = _(
-    "You must specify a version control system using the --vcs [svn|git] option")
+    "You must specify a version control system using the --vcs [svn|git] option"
+)
 
 #: Maps statuses to emblems.
 STATUS_EMBLEMS = {
@@ -70,14 +75,12 @@ STATUS_EMBLEMS = {
     rabbitvcs.vcs.status.status_complicated: "rabbitvcs-complicated",
     rabbitvcs.vcs.status.status_calculating: "rabbitvcs-calculating",
     rabbitvcs.vcs.status.status_error: "rabbitvcs-error",
-    rabbitvcs.vcs.status.status_unversioned: "rabbitvcs-unversioned"
+    rabbitvcs.vcs.status.status_unversioned: "rabbitvcs-unversioned",
 }
 
 
 class GtkBuilderWidgetWrapper(object):
-
-    def __init__(self, gtkbuilder_filename=None,
-                 gtkbuilder_id=None, claim_domain=True):
+    def __init__(self, gtkbuilder_filename=None, gtkbuilder_id=None, claim_domain=True):
         if gtkbuilder_filename:
             self.gtkbuilder_filename = gtkbuilder_filename
 
@@ -92,7 +95,7 @@ class GtkBuilderWidgetWrapper(object):
     def get_tree(self):
         path = "%s/xml/%s.xml" % (
             os.path.dirname(os.path.realpath(__file__)),
-            self.gtkbuilder_filename
+            self.gtkbuilder_filename,
         )
 
         tree = Gtk.Builder()
@@ -130,23 +133,27 @@ class InterfaceView(GtkBuilderWidgetWrapper):
         # when a launched (and methods like 'present()' don't appear to work correctly).
         # So until GTK on OSX is fixed let's work around this issue...
         import platform
-        if platform.system() == 'Darwin':
+
+        if platform.system() == "Darwin":
             try:
                 import subprocess
+
                 subprocess.Popen(
-                    'osascript -e "tell application \\"Python\\" to activate"', shell=True)
+                    'osascript -e "tell application \\"Python\\" to activate"',
+                    shell=True,
+                )
             except:
                 pass
 
     def hide(self):
         window = self.get_widget(self.gtkbuilder_id)
         if window:
-            window.set_property('visible', False)
+            window.set_property("visible", False)
 
     def show(self):
         window = self.get_widget(self.gtkbuilder_id)
         if window:
-            window.set_property('visible', True)
+            window.set_property("visible", True)
 
     def destroy(self):
         self.close()
@@ -186,28 +193,34 @@ class InterfaceView(GtkBuilderWidgetWrapper):
         return True
 
     def on_key_pressed(self, widget, event, *args):
-        if event.keyval == Gdk.keyval_from_name('Escape'):
+        if event.keyval == Gdk.keyval_from_name("Escape"):
             self.on_cancel_clicked(widget)
             return True
 
-        if (event.state & Gdk.ModifierType.CONTROL_MASK and
-                Gdk.keyval_name(event.keyval).lower() == "w"):
+        if (
+            event.state & Gdk.ModifierType.CONTROL_MASK
+            and Gdk.keyval_name(event.keyval).lower() == "w"
+        ):
             self.on_cancel_clicked(widget)
             return True
 
-        if (event.state & Gdk.ModifierType.CONTROL_MASK and
-                Gdk.keyval_name(event.keyval).lower() == "q"):
+        if (
+            event.state & Gdk.ModifierType.CONTROL_MASK
+            and Gdk.keyval_name(event.keyval).lower() == "q"
+        ):
             self.on_cancel_clicked(widget)
             return True
 
-        if (event.state & Gdk.ModifierType.CONTROL_MASK and
-                Gdk.keyval_name(event.keyval).lower() == "r"):
+        if (
+            event.state & Gdk.ModifierType.CONTROL_MASK
+            and Gdk.keyval_name(event.keyval).lower() == "r"
+        ):
             self.on_refresh_clicked(widget)
             return True
 
     def change_button(self, id, label=None, icon=None):
         """
-         Replace label and/or icon of the named button.
+        Replace label and/or icon of the named button.
         """
 
         button = self.get_widget(id)

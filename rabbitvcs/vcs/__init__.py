@@ -1,4 +1,5 @@
 from __future__ import absolute_import
+
 #
 # This is an extension to the Nautilus file manager to allow better
 # integration with the Subversion source control system.
@@ -23,9 +24,11 @@ from __future__ import absolute_import
 
 import os.path
 from rabbitvcs import gettext
+
 _ = gettext.gettext
 
 from rabbitvcs.util.log import Log
+
 logger = Log("rabbitvcs.vcs")
 
 from rabbitvcs.util.helper import get_exclude_paths
@@ -35,16 +38,17 @@ settings = SettingsManager()
 
 EXT_UTIL_ERROR = _("The output from '%s' was not able to be processed.\n%s")
 
-VCS_SVN = 'svn'
-VCS_GIT = 'git'
-VCS_MERCURIAL = 'mercurial'
-VCS_DUMMY = 'unknown'
+VCS_SVN = "svn"
+VCS_GIT = "git"
+VCS_MERCURIAL = "mercurial"
+VCS_DUMMY = "unknown"
 
 VCS_FOLDERS = {}
 if not settings.get("HideItem", "svn"):
     VCS_FOLDERS[".svn"] = VCS_SVN
 if not settings.get("HideItem", "git"):
     VCS_FOLDERS[".git"] = VCS_GIT
+
 
 def _guess(path):
     # Determine the VCS instance based on the path
@@ -54,17 +58,12 @@ def _guess(path):
         while path_to_check != "/" and path_to_check != "":
             for folder, client in list(VCS_FOLDERS.items()):
                 if os.path.isdir(os.path.join(path_to_check, folder)):
-                    cache = {
-                        "vcs": client,
-                        "repo_path": path_to_check
-                    }
+                    cache = {"vcs": client, "repo_path": path_to_check}
                     return cache
             path_to_check = os.path.split(path_to_check)[0]
 
-    return {
-        "vcs": VCS_DUMMY,
-        "repo_path": path
-    }
+    return {"vcs": VCS_DUMMY, "repo_path": path}
+
 
 # Override the standard guessing method to ensure we
 # can return a dummy object if needed
@@ -88,6 +87,7 @@ class VCS(object):
             return self.clients[VCS_DUMMY]
         else:
             from rabbitvcs.vcs.dummy import Dummy
+
             self.clients[VCS_DUMMY] = Dummy()
             return self.clients[VCS_DUMMY]
 
@@ -100,6 +100,7 @@ class VCS(object):
         else:
             try:
                 from rabbitvcs.vcs.svn import SVN
+
                 self.clients[VCS_SVN] = SVN()
                 return self.clients[VCS_SVN]
             except Exception as e:
@@ -128,6 +129,7 @@ class VCS(object):
         else:
             try:
                 from rabbitvcs.vcs.git import Git
+
                 git = Git()
 
                 if path:
@@ -163,6 +165,7 @@ class VCS(object):
         else:
             try:
                 from rabbitvcs.vcs.mercurial import Mercurial
+
                 mercurial = Mercurial()
 
                 if path:
@@ -245,7 +248,7 @@ class VCS(object):
         client = self.client(paths[0])
         return client.get_items(paths, statuses)
 
-    def statuses_for_add(self,paths):
+    def statuses_for_add(self, paths):
         client = self.client(paths[0])
         return client.STATUSES_FOR_ADD
 
@@ -257,26 +260,28 @@ class VCS(object):
         client = self.client(paths[0])
         return client.STATUSES_FOR_REVERT
 
+
 def create_vcs_instance(path=None, vcs=None):
     """
     Create a VCS instance based on the working copy path
     """
     return VCS()
 
+
 def guess_vcs(path):
     vcs = VCS()
     return vcs.guess(path)
 
+
 class ExternalUtilError(Exception):
-    """ Represents an error caused by unexpected output from an external
+    """Represents an error caused by unexpected output from an external
     program.
     """
 
     def __init__(self, program, output):
-        """ Initialises the error with the external tool and the unexpected
+        """Initialises the error with the external tool and the unexpected
         output.
         """
-        Exception.__init__(self,
-                           EXT_UTIL_ERROR % (program, output))
+        Exception.__init__(self, EXT_UTIL_ERROR % (program, output))
         self.program = program
         self.output = output

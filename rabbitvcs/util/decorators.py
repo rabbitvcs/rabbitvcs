@@ -43,7 +43,9 @@ import warnings
 import threading
 
 from rabbitvcs.util.log import Log
+
 log = Log("rabbitvcs.util.decorators")
+
 
 def update_func_meta(fake_func, real_func):
     """
@@ -61,6 +63,7 @@ def update_func_meta(fake_func, real_func):
 
     return fake_func
 
+
 def deprecated(func):
     """
     A decorator which can be used to mark functions as deprecated.
@@ -74,11 +77,14 @@ def deprecated(func):
         """
         Print deprecated warning and execute original function.
         """
-        warnings.warn("Call to deprecated function %s." % func.__name__,
-                      category=DeprecationWarning)
+        warnings.warn(
+            "Call to deprecated function %s." % func.__name__,
+            category=DeprecationWarning,
+        )
         return func(*args, **kwargs)
 
     return update_func_meta(newfunc, func)
+
 
 def timeit(func):
     """
@@ -102,6 +108,7 @@ def timeit(func):
 
     return update_func_meta(newfunc, func)
 
+
 def disable(func):
     """
     Disable a function.
@@ -116,6 +123,7 @@ def disable(func):
 
     return update_func_meta(newfunc, func)
 
+
 def gtk_unsafe(func):
     """
     Used to wrap a function that makes calls to GTK from a thread in
@@ -128,6 +136,7 @@ def gtk_unsafe(func):
         return helper.run_in_main_thread(func, *args, **kwargs)
 
     return update_func_meta(newfunc, func)
+
 
 def debug_calls(caller_log, show_caller=False):
     """
@@ -144,21 +153,23 @@ def debug_calls(caller_log, show_caller=False):
 
     # We need a function within a function to be able to use the log argument.
     def real_debug(func):
-
         def newfunc(*args, **kwargs):
-            caller_log.debug("Calling: %s (%s)" %
-                                (func.__name__,
-                                 threading.currentThread().getName()))
+            caller_log.debug(
+                "Calling: %s (%s)"
+                % (func.__name__, threading.currentThread().getName())
+            )
 
             result = func(*args, **kwargs)
-            caller_log.debug("Returned: %s (%s)" %
-                                (func.__name__,
-                                 threading.currentThread().getName()))
+            caller_log.debug(
+                "Returned: %s (%s)"
+                % (func.__name__, threading.currentThread().getName())
+            )
             return result
 
         return update_func_meta(newfunc, func)
 
     return real_debug
+
 
 def structure_map(func):
     """
@@ -166,6 +177,7 @@ def structure_map(func):
     and build the equivalent structure with func results.
     Do not apply function to None.
     """
+
     def newfunc(obj, *args, **kwargs):
         if obj is None:
             return obj

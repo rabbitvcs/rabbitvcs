@@ -8,6 +8,7 @@ import rabbitvcs.ui.dialog
 import rabbitvcs.ui.widget
 from rabbitvcs.ui.properties import PropertiesBase
 from gi.repository import Gtk, GObject, Gdk
+
 #
 # This is an extension to the Nautilus file manager to allow better
 # integration with the Subversion source control system.
@@ -33,6 +34,7 @@ from gi.repository import Gtk, GObject, Gdk
 from rabbitvcs.util import helper
 
 import gi
+
 gi.require_version("Gtk", "3.0")
 sa = helper.SanitizeArgv()
 sa.restore()
@@ -64,13 +66,11 @@ class SVNRevisionProperties(PropertiesBase):
         self.table.clear()
         try:
             self.proplist = self.svn.revproplist(
-                self.get_widget("path").get_text(),
-                self.revision_obj
+                self.get_widget("path").get_text(), self.revision_obj
             )
         except Exception as e:
             log.exception(e)
-            rabbitvcs.ui.dialog.MessageBox(
-                _("Unable to retrieve properties list"))
+            rabbitvcs.ui.dialog.MessageBox(_("Unable to retrieve properties list"))
             self.proplist = {}
 
         if self.proplist:
@@ -80,19 +80,11 @@ class SVNRevisionProperties(PropertiesBase):
     def save(self):
         delete_recurse = self.get_widget("delete_recurse").get_active()
 
-        self.action = SVNAction(
-            self.svn,
-            notification=False,
-            run_in_thread=False
-        )
+        self.action = SVNAction(self.svn, notification=False, run_in_thread=False)
 
         for row in self.delete_stack:
             self.action.append(
-                self.svn.revpropdel,
-                self.path,
-                row[1],
-                self.revision_obj,
-                force=True
+                self.svn.revpropdel, self.path, row[1], self.revision_obj, force=True
             )
 
         for row in self.table.get_items():
@@ -102,7 +94,7 @@ class SVNRevisionProperties(PropertiesBase):
                 row[2],
                 self.path,
                 self.revision_obj,
-                force=True
+                force=True,
             )
 
         self.action.schedule()
@@ -112,10 +104,8 @@ class SVNRevisionProperties(PropertiesBase):
 
 if __name__ == "__main__":
     from rabbitvcs.ui import main, VCS_OPT
-    (options, args) = main(
-        [VCS_OPT],
-        usage="Usage: rabbitvcs revprops [url1@rev1]"
-    )
+
+    (options, args) = main([VCS_OPT], usage="Usage: rabbitvcs revprops [url1@rev1]")
 
     pathrev = helper.parse_path_revision_string(args.pop(0))
     window = SVNRevisionProperties(pathrev[0], pathrev[1])

@@ -7,6 +7,7 @@ import rabbitvcs.ui.dialog
 import rabbitvcs.ui.widget
 from rabbitvcs.ui import InterfaceView
 from gi.repository import Gtk, GObject, Gdk
+
 #
 # This is an extension to the Nautilus file manager to allow better
 # integration with the Subversion source control system.
@@ -32,6 +33,7 @@ from gi.repository import Gtk, GObject, Gdk
 from rabbitvcs.util import helper
 
 import gi
+
 gi.require_version("Gtk", "3.0")
 sa = helper.SanitizeArgv()
 sa.restore()
@@ -58,16 +60,14 @@ class PropertiesBase(InterfaceView):
         self.path = path
         self.delete_stack = []
 
-        self.get_widget("Properties").set_title(
-            _("Properties - %s") % path
-        )
+        self.get_widget("Properties").set_title(_("Properties - %s") % path)
 
         self.get_widget("path").set_text(S(path).display())
 
         self.table = rabbitvcs.ui.widget.Table(
             self.get_widget("table"),
             [GObject.TYPE_BOOLEAN, GObject.TYPE_STRING, GObject.TYPE_STRING],
-            [rabbitvcs.ui.widget.TOGGLE_BUTTON, _("Name"), _("Value")]
+            [rabbitvcs.ui.widget.TOGGLE_BUTTON, _("Name"), _("Value")],
         )
         self.table.allow_multiple()
 
@@ -153,12 +153,10 @@ class SVNProperties(PropertiesBase):
     def load(self):
         self.table.clear()
         try:
-            self.proplist = self.svn.proplist(
-                self.get_widget("path").get_text())
+            self.proplist = self.svn.proplist(self.get_widget("path").get_text())
         except Exception as e:
             log.exception(e)
-            rabbitvcs.ui.dialog.MessageBox(
-                _("Unable to retrieve properties list"))
+            rabbitvcs.ui.dialog.MessageBox(_("Unable to retrieve properties list"))
             self.proplist = []
 
         if self.proplist:
@@ -173,20 +171,23 @@ class SVNProperties(PropertiesBase):
 
         failure = False
         for row in self.table.get_items():
-            if (not self.svn.propset(self.path, row[1], row[2],
-                                     overwrite=True, recurse=row[0])):
+            if not self.svn.propset(
+                self.path, row[1], row[2], overwrite=True, recurse=row[0]
+            ):
                 failure = True
                 break
 
         if failure:
             rabbitvcs.ui.dialog.MessageBox(
-                _("There was a problem saving your properties."))
+                _("There was a problem saving your properties.")
+            )
 
         self.close()
 
 
 if __name__ == "__main__":
     from rabbitvcs.ui import main
+
     (options, paths) = main(usage="Usage: rabbitvcs properties [url_or_path]")
 
     window = SVNProperties(paths[0])

@@ -1,4 +1,5 @@
 from __future__ import absolute_import
+
 #
 # This is an extension to the Nautilus file manager to allow better
 # integration with the Subversion source control system.
@@ -23,6 +24,7 @@ from __future__ import absolute_import
 
 import os
 
+
 def splitall(path):
     """Split a path into all of its parts.
 
@@ -41,6 +43,7 @@ def splitall(path):
             path = parts[0]
             allparts.insert(0, parts[1])
     return allparts
+
 
 def relativepath(fromdir, tofile):
     """Find relative path from 'fromdir' to 'tofile'.
@@ -70,7 +73,7 @@ def relativepath(fromdir, tofile):
                 break
         del f1parts[0]
         del f2parts[0]
-    result = ['..' for part in f2parts]
+    result = [".." for part in f2parts]
     result.extend(f1parts)
     result.append(f1basename)
     return os.sep.join(result)

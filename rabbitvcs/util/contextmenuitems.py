@@ -1,4 +1,5 @@
 from __future__ import absolute_import
+
 #
 # This is an extension to the Nautilus file manager to allow better
 # integration with the Subversion source control system.
@@ -24,6 +25,7 @@ import os.path
 
 import os
 import gi
+
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
 
@@ -31,14 +33,17 @@ from rabbitvcs.util import helper
 from rabbitvcs.util.strings import S
 
 from rabbitvcs import gettext
+
 _ = gettext.gettext
 
 from rabbitvcs.util.log import Log
+
 log = Log("rabbitvcs.ui.contextmenuitems")
 _ = gettext.gettext
 
 
-SEPARATOR = u'\u2015' * 10
+SEPARATOR = "\u2015" * 10
+
 
 class MenuItem(object):
     """
@@ -109,7 +114,6 @@ class MenuItem(object):
     callback_name = None
     callback_args = ()
 
-
     # This is a string that holds the name of the function that is called to
     # determine whether to show the item.
     #
@@ -142,13 +146,13 @@ class MenuItem(object):
         # Try to get the callback function for this item
         self.callback = self._get_function(callbacks, self.callback_name)
 
-#        else:
-#            log.debug("Could not find callback for %s" % self.identifier)
+        #        else:
+        #            log.debug("Could not find callback for %s" % self.identifier)
 
         self.condition = {
             "callback": MenuItem.default_condition,
-            "args": self.condition_args
-            }
+            "args": self.condition_args,
+        }
 
         if self.condition_name is None:
             self.condition_name = default_name
@@ -158,8 +162,9 @@ class MenuItem(object):
         if condition:
             self.condition["callback"] = condition
             self.found_condition = True
-#        else:
-#            log.debug("Could not find condition for %s" % self.identifier)
+
+    #        else:
+    #            log.debug("Could not find condition for %s" % self.identifier)
 
     def show(self):
         return self.condition["callback"](*self.condition["args"])
@@ -176,7 +181,7 @@ class MenuItem(object):
 
         return function
 
-    def make_magic_id(self, id_magic = None):
+    def make_magic_id(self, id_magic=None):
         identifier = self.identifier
 
         if id_magic:
@@ -184,7 +189,7 @@ class MenuItem(object):
 
         return identifier
 
-    def make_action(self, id_magic = None):
+    def make_action(self, id_magic=None):
         """
         Creates the Action for the menu item. To avoid GTK "helpfully"
         preventing us from adding duplicates (eg. separators), you can pass in
@@ -194,19 +199,14 @@ class MenuItem(object):
 
         return Action(identifier, self.make_label(), self.tooltip, self.icon)
 
-    def make_thunar_action(self, id_magic = None):
+    def make_thunar_action(self, id_magic=None):
         identifier = self.make_magic_id(id_magic)
 
-        action = RabbitVCSAction(
-            identifier,
-            self.make_label(),
-            self.tooltip,
-            self.icon
-        )
+        action = RabbitVCSAction(identifier, self.make_label(), self.tooltip, self.icon)
 
         return action
 
-    def make_gtk_menu_item(self, id_magic = None):
+    def make_gtk_menu_item(self, id_magic=None):
         action = self.make_action(id_magic)
 
         if self.icon:
@@ -214,38 +214,43 @@ class MenuItem(object):
             # that method is not available until pyGtk 2.16
             action.set_menu_item_type(Gtk.ImageMenuItem)
             menuitem = action.create_menu_item()
-            menuitem.set_image(Gtk.image_new_from_icon_name(self.icon, Gtk.IconSize.MENU))
+            menuitem.set_image(
+                Gtk.image_new_from_icon_name(self.icon, Gtk.IconSize.MENU)
+            )
         else:
             menuitem = action.create_menu_item()
 
         return menuitem
 
-    def make_gtk3_menu_item(self, id_magic = None):
+    def make_gtk3_menu_item(self, id_magic=None):
         action = self.make_action(id_magic)
         menuitem = action.create_menu_item()
 
         if self.icon:
-            menuitem.set_image(Gtk.Image.new_from_icon_name(self.icon, Gtk.IconSize.MENU))
+            menuitem.set_image(
+                Gtk.Image.new_from_icon_name(self.icon, Gtk.IconSize.MENU)
+            )
 
         return menuitem
 
-    def make_thunarx_menu_item(self, id_magic = None):
+    def make_thunarx_menu_item(self, id_magic=None):
         # WARNING: this import is here because it will fail if it is not done
         # inside a thunar process and therefore can't be in the module proper.
         # This should only be used for Thunarx-3
         identifier = self.make_magic_id(id_magic)
 
         from gi.repository import Thunarx
+
         menuitem = Thunarx.MenuItem(
             name=identifier,
             label=self.make_label(),
             tooltip=self.tooltip,
-            icon=self.icon
+            icon=self.icon,
         )
 
         return menuitem
 
-    def make_nautilus_menu_item(self, id_magic = None):
+    def make_nautilus_menu_item(self, id_magic=None):
         # WARNING: this import is here because it will fail if it is not done
         # inside a nautilus process and therefore can't be in the module proper.
         # I'm happy to let the exception propagate the rest of the time, since
@@ -254,26 +259,26 @@ class MenuItem(object):
 
         try:
             from gi.repository import Nautilus
+
             menuitem = Nautilus.MenuItem(
                 name=identifier,
                 label=self.make_label(),
                 tip=self.tooltip,
-                icon=self.icon
+                icon=self.icon,
             )
         except ImportError:
             import nautilus
+
             menuitem = nautilus.MenuItem(
-                identifier,
-                self.make_label(),
-                self.tooltip,
-                self.icon
+                identifier, self.make_label(), self.tooltip, self.icon
             )
 
         return menuitem
 
     def make_label(self):
-        label = S(self.label).display().replace('_', '__')
+        label = S(self.label).display().replace("_", "__")
         return label
+
 
 class MenuSeparator(MenuItem):
     identifier = "RabbitVCS::Separator"
@@ -282,49 +287,52 @@ class MenuSeparator(MenuItem):
     def make_insensitive(self, menuitem):
         menuitem.set_property("sensitive", False)
 
-    def make_thunar_action(self, id_magic = None):
+    def make_thunar_action(self, id_magic=None):
         menuitem = super(MenuSeparator, self).make_thunar_action(id_magic)
         self.make_insensitive(menuitem)
         return menuitem
         # FIXME: I thought that this would work to create separators,
         # but all I get are black "-"s...
         # I thought
-        #~ identifier = self.make_magic_id(id_magic)
-        #~ # This information is not actually used, but is necessary for
-        #~ # the required subclassing of Action.
-        #~ action = ThunarSeparator(
-            #~ identifier,
-            #~ self.label,
-            #~ self.tooltip,
-            #~ self.icon,
-        #~ )
-        #~ return action
+        # ~ identifier = self.make_magic_id(id_magic)
+        # ~ # This information is not actually used, but is necessary for
+        # ~ # the required subclassing of Action.
+        # ~ action = ThunarSeparator(
+        # ~ identifier,
+        # ~ self.label,
+        # ~ self.tooltip,
+        # ~ self.icon,
+        # ~ )
+        # ~ return action
 
     # Make separators insensitive
-    def make_gtk_menu_item(self, id_magic = None):
+    def make_gtk_menu_item(self, id_magic=None):
         menuitem = Gtk.SeparatorMenuItem()
         menuitem.show()
         return menuitem
 
-    def make_gtk3_menu_item(self, id_magic = None):
+    def make_gtk3_menu_item(self, id_magic=None):
         menuitem = Gtk.SeparatorMenuItem()
         menuitem.show()
         return menuitem
 
-    def make_nautilus_menu_item(self, id_magic = None):
+    def make_nautilus_menu_item(self, id_magic=None):
         menuitem = super(MenuSeparator, self).make_nautilus_menu_item(id_magic)
         self.make_insensitive(menuitem)
         return menuitem
+
 
 class MenuDebug(MenuItem):
     identifier = "RabbitVCS::Debug"
     label = _("Debug")
     icon = "rabbitvcs-monkey"
 
+
 class MenuBugs(MenuItem):
     identifier = "RabbitVCS::Bugs"
     label = _("Bugs")
     icon = "rabbitvcs-bug"
+
 
 class MenuPythonConsole(MenuItem):
     identifier = "RabbitVCS::Python_Console"
@@ -332,10 +340,12 @@ class MenuPythonConsole(MenuItem):
     icon = "gnome-terminal"
     condition_name = "debug"
 
+
 class MenuRefreshStatus(MenuItem):
     identifier = "RabbitVCS::Refresh_Status"
     label = _("Refresh Status")
     icon = "rabbitvcs-refresh"
+
 
 class MenuDebugRevert(MenuItem):
     identifier = "RabbitVCS::Debug_Revert"
@@ -344,12 +354,14 @@ class MenuDebugRevert(MenuItem):
     icon = "rabbitvcs-revert"
     condition_name = "debug"
 
+
 class MenuDebugInvalidate(MenuItem):
     identifier = "RabbitVCS::Debug_Invalidate"
     label = _("Invalidate")
     tooltip = _("Force an invalidate_extension_info() call")
     icon = "rabbitvcs-clear"
     condition_name = "debug"
+
 
 class MenuDebugAddEmblem(MenuItem):
     identifier = "RabbitVCS::Debug_Add_Emblem"
@@ -358,11 +370,13 @@ class MenuDebugAddEmblem(MenuItem):
     icon = "rabbitvcs-emblems"
     condition_name = "debug"
 
+
 class MenuCheckout(MenuItem):
     identifier = "RabbitVCS::Checkout"
     label = _("Checkout...")
     tooltip = _("Check out a working copy")
     icon = "rabbitvcs-checkout"
+
 
 class MenuUpdate(MenuItem):
     identifier = "RabbitVCS::Update"
@@ -370,31 +384,37 @@ class MenuUpdate(MenuItem):
     tooltip = _("Update a working copy")
     icon = "rabbitvcs-update"
 
+
 class MenuCommit(MenuItem):
     identifier = "RabbitVCS::Commit"
     label = _("Commit")
     tooltip = _("Commit modifications to the repository")
     icon = "rabbitvcs-commit"
 
+
 class MenuRabbitVCS(MenuItem):
     identifier = "RabbitVCS::RabbitVCS"
     label = _("RabbitVCS")
     icon = "rabbitvcs"
+
 
 class MenuRabbitVCSSvn(MenuItem):
     identifier = "RabbitVCS::RabbitVCS_Svn"
     label = _("RabbitVCS SVN")
     icon = "rabbitvcs"
 
+
 class MenuRabbitVCSGit(MenuItem):
     identifier = "RabbitVCS::RabbitVCS_Git"
     label = _("RabbitVCS Git")
     icon = "rabbitvcs"
 
+
 class MenuRabbitVCSMercurial(MenuItem):
     identifier = "RabbitVCS::RabbitVCS_Mercurial"
     label = _("RabbitVCS Hg")
     icon = "rabbitvcs"
+
 
 class MenuRepoBrowser(MenuItem):
     identifier = "RabbitVCS::Repo_Browser"
@@ -402,11 +422,13 @@ class MenuRepoBrowser(MenuItem):
     tooltip = _("Browse a repository tree")
     icon = "edit-find"
 
+
 class MenuCheckForModifications(MenuItem):
     identifier = "RabbitVCS::Check_For_Modifications"
     label = _("Check for Modifications...")
     tooltip = _("Check for modifications made to the repository")
     icon = "rabbitvcs-checkmods"
+
 
 class MenuDiffMenu(MenuItem):
     identifier = "RabbitVCS::Diff_Menu"
@@ -414,11 +436,13 @@ class MenuDiffMenu(MenuItem):
     tooltip = _("List of comparison options")
     icon = "rabbitvcs-diff"
 
+
 class MenuDiff(MenuItem):
     identifier = "RabbitVCS::Diff"
     label = _("View diff against base")
     tooltip = _("View the modifications made to a file")
     icon = "rabbitvcs-diff"
+
 
 class MenuDiffMultiple(MenuItem):
     identifier = "RabbitVCS::Diff_Multiple"
@@ -426,11 +450,13 @@ class MenuDiffMultiple(MenuItem):
     tooltip = _("View the differences between two files")
     icon = "rabbitvcs-diff"
 
+
 class MenuDiffPrevRev(MenuItem):
     identifier = "RabbitVCS::Diff_Previous_Revision"
     label = _("View diff against previous revision")
     tooltip = _("View the modifications made to a file since its last change")
     icon = "rabbitvcs-diff"
+
 
 class MenuCompareTool(MenuItem):
     identifier = "RabbitVCS::Compare_Tool"
@@ -438,11 +464,13 @@ class MenuCompareTool(MenuItem):
     tooltip = _("Compare with base using side-by-side comparison tool")
     icon = "rabbitvcs-compare"
 
+
 class MenuCompareToolMultiple(MenuItem):
     identifier = "RabbitVCS::Compare_Tool_Multiple"
     label = _("Compare files/folders")
     tooltip = _("Compare the differences between two items")
     icon = "rabbitvcs-compare"
+
 
 class MenuCompareToolPrevRev(MenuItem):
     identifier = "RabbitVCS::Compare_Tool_Previous_Revision"
@@ -450,11 +478,13 @@ class MenuCompareToolPrevRev(MenuItem):
     tooltip = _("Compare with previous revision using side-by-side comparison tool")
     icon = "rabbitvcs-compare"
 
+
 class MenuShowChanges(MenuItem):
     identifier = "RabbitVCS::Show_Changes"
     label = _("Show Changes...")
     tooltip = _("Show changes between paths and revisions")
     icon = "rabbitvcs-changes"
+
 
 class MenuShowLog(MenuItem):
     identifier = "RabbitVCS::Show_Log"
@@ -462,16 +492,19 @@ class MenuShowLog(MenuItem):
     tooltip = _("Show a file's log information")
     icon = "rabbitvcs-show_log"
 
+
 class MenuAdd(MenuItem):
     identifier = "RabbitVCS::Add"
     label = _("Add")
     tooltip = _("Schedule items to be added to the repository")
     icon = "rabbitvcs-add"
 
+
 class MenuAddToIgnoreList(MenuItem):
     identifier = "RabbitVCS::Add_To_Ignore_List"
     label = _("Add to ignore list")
     icon = None
+
 
 class MenuUpdateToRevision(MenuItem):
     identifier = "RabbitVCS::Update_To_Revision"
@@ -479,11 +512,13 @@ class MenuUpdateToRevision(MenuItem):
     tooltip = _("Update a file to a specific revision")
     icon = "rabbitvcs-update"
 
+
 class MenuRename(MenuItem):
     identifier = "RabbitVCS::Rename"
     label = _("Rename...")
     tooltip = _("Schedule an item to be renamed on the repository")
     icon = "rabbitvcs-rename"
+
 
 class MenuDelete(MenuItem):
     identifier = "RabbitVCS::Delete"
@@ -491,11 +526,13 @@ class MenuDelete(MenuItem):
     tooltip = _("Schedule an item to be deleted from the repository")
     icon = "rabbitvcs-delete"
 
+
 class MenuRevert(MenuItem):
     identifier = "RabbitVCS::Revert"
     label = _("Revert")
     tooltip = _("Revert an item to its unmodified state")
     icon = "rabbitvcs-revert"
+
 
 class MenuMarkResolved(MenuItem):
     identifier = "RabbitVCS::Mark_Resolved"
@@ -503,10 +540,12 @@ class MenuMarkResolved(MenuItem):
     tooltip = _("Mark a conflicted item as resolved")
     icon = "rabbitvcs-resolve"
 
+
 class MenuRestore(MenuItem):
     identifier = "RabbitVCS::Restore"
     label = _("Restore")
     tooltip = _("Restore a missing item")
+
 
 class MenuRelocate(MenuItem):
     identifier = "RabbitVCS::Relocate"
@@ -514,11 +553,13 @@ class MenuRelocate(MenuItem):
     tooltip = _("Relocate your working copy")
     icon = "rabbitvcs-relocate"
 
+
 class MenuGetLock(MenuItem):
     identifier = "RabbitVCS::Get_Lock"
     label = _("Get Lock...")
     tooltip = _("Locally lock items")
     icon = "rabbitvcs-lock"
+
 
 class MenuUnlock(MenuItem):
     identifier = "RabbitVCS::Unlock"
@@ -526,11 +567,13 @@ class MenuUnlock(MenuItem):
     tooltip = _("Release lock on an item")
     icon = "rabbitvcs-unlock"
 
+
 class MenuCleanup(MenuItem):
     identifier = "RabbitVCS::Cleanup"
     label = _("Cleanup")
     tooltip = _("Clean up working copy")
     icon = "rabbitvcs-cleanup"
+
 
 class MenuExport(MenuItem):
     identifier = "RabbitVCS::Export"
@@ -538,19 +581,23 @@ class MenuExport(MenuItem):
     tooltip = _("Export a working copy or repository with no versioning information")
     icon = "rabbitvcs-export"
 
+
 class MenuSVNExport(MenuExport):
     identifier = "RabbitVCS::SVN_Export"
     pass
 
+
 class MenuGitExport(MenuExport):
     identifier = "RabbitVCS::Git_Export"
     pass
+
 
 class MenuCreateRepository(MenuItem):
     identifier = "RabbitVCS::Create_Repository"
     label = _("Create Repository here")
     tooltip = _("Create a repository in a folder")
     icon = "rabbitvcs-run"
+
 
 class MenuImport(MenuItem):
     identifier = "RabbitVCS::Import"
@@ -568,11 +615,13 @@ class MenuBranchTag(MenuItem):
     tooltip = _("Copy an item to another location in the repository")
     icon = "rabbitvcs-branch"
 
+
 class MenuSwitch(MenuItem):
     identifier = "RabbitVCS::Switch"
     label = _("Switch...")
     tooltip = _("Change the repository location of a working copy")
     icon = "rabbitvcs-switch"
+
 
 class MenuMerge(MenuItem):
     identifier = "RabbitVCS::Merge"
@@ -580,11 +629,13 @@ class MenuMerge(MenuItem):
     tooltip = _("A wizard with steps for merging")
     icon = "rabbitvcs-merge"
 
+
 class MenuAnnotate(MenuItem):
     identifier = "RabbitVCS::Annotate"
     label = _("Annotate...")
     tooltip = _("Annotate a file")
     icon = "rabbitvcs-annotate"
+
 
 class MenuCreatePatch(MenuItem):
     identifier = "RabbitVCS::Create_Patch"
@@ -592,11 +643,13 @@ class MenuCreatePatch(MenuItem):
     tooltip = _("Creates a unified diff file with all changes you made")
     icon = "rabbitvcs-createpatch"
 
+
 class MenuApplyPatch(MenuItem):
     identifier = "RabbitVCS::Apply_Patch"
     label = _("Apply Patch...")
     tooltip = _("Applies a unified diff file to the working copy")
     icon = "rabbitvcs-applypatch"
+
 
 class MenuProperties(MenuItem):
     identifier = "RabbitVCS::Properties"
@@ -604,11 +657,13 @@ class MenuProperties(MenuItem):
     tooltip = _("View the properties of an item")
     icon = "rabbitvcs-properties"
 
+
 class MenuHelp(MenuItem):
     identifier = "RabbitVCS::Help"
     label = _("Help")
     tooltip = _("View help")
     icon = "rabbitvcs-help"
+
 
 class MenuSettings(MenuItem):
     identifier = "RabbitVCS::Settings"
@@ -616,11 +671,13 @@ class MenuSettings(MenuItem):
     tooltip = _("View or change RabbitVCS settings")
     icon = "rabbitvcs-settings"
 
+
 class MenuAbout(MenuItem):
     identifier = "RabbitVCS::About"
     label = _("About")
     tooltip = _("About RabbitVCS")
     icon = "rabbitvcs-about"
+
 
 class MenuOpen(MenuItem):
     identifier = "RabbitVCS::Open"
@@ -631,37 +688,43 @@ class MenuOpen(MenuItem):
     condition_name = "_open"
     callback_name = "_open"
 
+
 class MenuBrowseTo(MenuItem):
     identifier = "RabbitVCS::Browse_To"
     label = _("Browse to")
     tooltip = _("Browse to a file or folder")
     icon = "drive-harddisk"
 
+
 class PropMenuRevert(MenuItem):
     identifier = "RabbitVCS::Property_Revert"
     label = _("Revert property")
-    icon =  "rabbitvcs-revert"
+    icon = "rabbitvcs-revert"
     tooltip = _("Revert this property to its original state")
+
 
 class PropMenuRevertRecursive(MenuItem):
     identifier = "RabbitVCS::Property_Revert_Recursive"
     label = _("Revert property (recursive)")
-    icon =  "rabbitvcs-revert"
+    icon = "rabbitvcs-revert"
     tooltip = _("Revert this property to its original state (recursive)")
     condition_name = "property_revert"
+
 
 class PropMenuDelete(MenuItem):
     identifier = "RabbitVCS::Property_Delete"
     label = _("Delete property")
-    icon =  "rabbitvcs-delete"
+    icon = "rabbitvcs-delete"
     tooltip = _("Delete this property")
+
 
 class PropMenuDeleteRecursive(MenuItem):
     identifier = "RabbitVCS::Property_Delete_Recursive"
     label = _("Delete property (recursive)")
-    icon =  "rabbitvcs-delete"
+    icon = "rabbitvcs-delete"
     tooltip = _("Delete this property (recursive)")
     condition_name = "property_delete"
+
 
 class PropMenuEdit(MenuItem):
     identifier = "RabbitVCS::Property_Edit"
@@ -669,64 +732,77 @@ class PropMenuEdit(MenuItem):
     icon = "rabbitvcs-editprops"
     tooltip = _("Show and edit property details")
 
+
 class MenuInitializeRepository(MenuItem):
     identifier = "RabbitVCS::Initialize_Repository"
     label = _("Initialize Repository")
     icon = "rabbitvcs-run"
+
 
 class MenuClone(MenuItem):
     identifier = "RabbitVCS::Clone"
     label = _("Clone")
     icon = "rabbitvcs-checkout"
 
+
 class MenuFetchPull(MenuItem):
     identifier = "RabbitVCS::Fetch_Pull"
     label = _("Fetch/Pull")
     icon = "rabbitvcs-update"
+
 
 class MenuPush(MenuItem):
     identifier = "RabbitVCS::Push"
     label = _("Push")
     icon = "rabbitvcs-push"
 
+
 class MenuBranches(MenuItem):
     identifier = "RabbitVCS::Branches"
     label = _("Branches")
     icon = "rabbitvcs-branch"
+
 
 class MenuTags(MenuItem):
     identifier = "RabbitVCS::Tags"
     label = _("Tags")
     icon = "rabbitvcs-branch"
 
+
 class MenuRemotes(MenuItem):
     identifier = "RabbitVCS::Remotes"
     label = _("Remotes")
     icon = "rabbitvcs-checkmods"
 
+
 class MenuClean(MenuCleanup):
     identifier = "RabbitVCS::Clean"
     label = _("Clean")
+
 
 class MenuReset(MenuItem):
     identifier = "RabbitVCS::Reset"
     label = _("Reset")
     icon = "rabbitvcs-reset"
 
+
 class MenuStage(MenuItem):
     identifier = "RabbitVCS::Stage"
     label = _("Stage")
     icon = "rabbitvcs-add"
+
 
 class MenuUnstage(MenuItem):
     identifier = "RabbitVCS::Unstage"
     label = _("Unstage")
     icon = "rabbitvcs-unstage"
 
+
 class MenuEditConflicts(MenuItem):
     identifier = "RabbitVCS::Edit_Conflicts"
     label = _("Edit conflicts")
     icon = "rabbitvcs-editconflicts"
+
 
 def get_ignore_list_items(paths):
     """
@@ -753,9 +829,9 @@ def get_ignore_list_items(paths):
                 label = basename
                 tooltip = _("Ignore item by filename")
                 callback_name = "ignore_by_filename"
-                callback_args = (path)
+                callback_args = path
                 condition_name = "ignore_by_filename"
-                condition_args = (path)
+                condition_args = path
 
             ignore_items.append((MenuIgnoreFilenameClass, None))
 
@@ -764,7 +840,7 @@ def get_ignore_list_items(paths):
     for path in paths:
         extension = helper.get_file_extension(path)
 
-        ext_str = "*%s"%extension
+        ext_str = "*%s" % extension
         if ext_str not in added_ignore_labels:
 
             class MenuIgnoreFileExtClass(MenuItem):
@@ -779,6 +855,7 @@ def get_ignore_list_items(paths):
             ignore_items.append((MenuIgnoreFileExtClass, None))
 
     return ignore_items
+
 
 class Action(object):
     def __init__(self, name, label, tooltip, icon_name):
@@ -797,8 +874,11 @@ class Action(object):
         if self.tooltip:
             item.set_tooltip_text(self.tooltip)
         if self.icon_name:
-            item.set_image(Gtk.Image.new_from_icon_name(self.icon_name, Gtk.IconSize.MENU))
+            item.set_image(
+                Gtk.Image.new_from_icon_name(self.icon_name, Gtk.IconSize.MENU)
+            )
         return item
+
 
 class RabbitVCSAction(Action):
     """
@@ -828,9 +908,9 @@ class RabbitVCSAction(Action):
 
         return menu_item
 
+
 # FIXME: apparently it's possible to get real GtkSeparators in a Thunar
 # menu, but this doesn't seem to work.
 class ThunarSeparator(RabbitVCSAction):
-
     def create_menu_item(self):
         return Gtk.SeparatorMenuItem()

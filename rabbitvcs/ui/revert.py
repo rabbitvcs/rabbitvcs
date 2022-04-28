@@ -10,6 +10,7 @@ import rabbitvcs.ui.widget
 from rabbitvcs.util.contextmenu import GtkFilesContextMenu, GtkContextMenuCaller
 from rabbitvcs.ui import InterfaceView
 from gi.repository import Gtk, GObject, Gdk
+
 #
 # This is an extension to the Nautilus file manager to allow better
 # integration with the Subversion source control system.
@@ -39,6 +40,7 @@ from time import sleep
 from rabbitvcs.util import helper
 
 import gi
+
 gi.require_version("Gtk", "3.0")
 sa = helper.SanitizeArgv()
 sa.restore()
@@ -72,21 +74,24 @@ class Revert(InterfaceView, GtkContextMenuCaller):
         self.statuses = self.vcs.statuses_for_revert(paths)
         self.files_table = rabbitvcs.ui.widget.Table(
             self.get_widget("files_table"),
-            [GObject.TYPE_BOOLEAN, rabbitvcs.ui.widget.TYPE_HIDDEN_OBJECT,
-                rabbitvcs.ui.widget.TYPE_PATH, GObject.TYPE_STRING],
+            [
+                GObject.TYPE_BOOLEAN,
+                rabbitvcs.ui.widget.TYPE_HIDDEN_OBJECT,
+                rabbitvcs.ui.widget.TYPE_PATH,
+                GObject.TYPE_STRING,
+            ],
             [rabbitvcs.ui.widget.TOGGLE_BUTTON, "", _("Path"), _("Extension")],
-            filters=[{
-                "callback": rabbitvcs.ui.widget.path_filter,
-                "user_data": {
-                    "base_dir": base_dir,
-                    "column": 2
+            filters=[
+                {
+                    "callback": rabbitvcs.ui.widget.path_filter,
+                    "user_data": {"base_dir": base_dir, "column": 2},
                 }
-            }],
+            ],
             callbacks={
-                "row-activated":  self.on_files_table_row_activated,
-                "mouse-event":   self.on_files_table_mouse_event,
-                "key-event":     self.on_files_table_key_event
-            }
+                "row-activated": self.on_files_table_row_activated,
+                "mouse-event": self.on_files_table_mouse_event,
+                "key-event": self.on_files_table_key_event,
+            },
         )
 
         self.initialize_items()
@@ -99,18 +104,14 @@ class Revert(InterfaceView, GtkContextMenuCaller):
         self.items = self.vcs.get_items(self.paths, self.statuses)
 
         self.populate_files_table()
-        self.get_widget("status").set_text(
-            _("Found %d item(s)") % len(self.items))
+        self.get_widget("status").set_text(_("Found %d item(s)") % len(self.items))
 
     def populate_files_table(self):
         self.files_table.clear()
         for item in self.items:
-            self.files_table.append([
-                True,
-                S(item.path),
-                item.path,
-                helper.get_file_extension(item.path)
-            ])
+            self.files_table.append(
+                [True, S(item.path), item.path, helper.get_file_extension(item.path)]
+            )
 
     # Overrides the GtkContextMenuCaller method
     def on_context_menu_command_finished(self):
@@ -162,13 +163,11 @@ class SVNRevert(Revert):
         self.hide()
 
         self.action = rabbitvcs.ui.action.SVNAction(
-            self.vcs.svn(),
-            register_gtk_quit=self.gtk_quit_is_set()
+            self.vcs.svn(), register_gtk_quit=self.gtk_quit_is_set()
         )
 
         self.action.append(self.action.set_header, _("Revert"))
-        self.action.append(self.action.set_status,
-                           _("Running Revert Command..."))
+        self.action.append(self.action.set_status, _("Running Revert Command..."))
         self.action.append(self.vcs.svn().revert, items, recurse=True)
         self.action.append(self.action.set_status, _("Completed Revert"))
         self.action.append(self.action.finish)
@@ -189,13 +188,11 @@ class GitRevert(Revert):
         self.hide()
 
         self.action = rabbitvcs.ui.action.GitAction(
-            self.git,
-            register_gtk_quit=self.gtk_quit_is_set()
+            self.git, register_gtk_quit=self.gtk_quit_is_set()
         )
 
         self.action.append(self.action.set_header, _("Revert"))
-        self.action.append(self.action.set_status,
-                           _("Running Revert Command..."))
+        self.action.append(self.action.set_status, _("Running Revert Command..."))
         self.action.append(self.git.checkout, items)
         self.action.append(self.action.set_status, _("Completed Revert"))
         self.action.append(self.action.finish)
@@ -205,10 +202,7 @@ class GitRevert(Revert):
 class SVNRevertQuiet(object):
     def __init__(self, paths, base_dir=None):
         self.vcs = rabbitvcs.vcs.VCS()
-        self.action = rabbitvcs.ui.action.SVNAction(
-            self.vcs.svn(),
-            run_in_thread=False
-        )
+        self.action = rabbitvcs.ui.action.SVNAction(self.vcs.svn(), run_in_thread=False)
 
         self.action.append(self.vcs.svn().revert, paths)
         self.action.schedule()
@@ -218,23 +212,17 @@ class GitRevertQuiet(object):
     def __init__(self, paths, base_dir=None):
         self.vcs = rabbitvcs.vcs.VCS()
         self.git = self.vcs.git(paths[0])
-        self.action = rabbitvcs.ui.action.GitAction(
-            self.git,
-            run_in_thread=False
-        )
+        self.action = rabbitvcs.ui.action.GitAction(self.git, run_in_thread=False)
 
         self.action.append(self.git.checkout, paths)
         self.action.schedule()
 
 
-classes_map = {
-    rabbitvcs.vcs.VCS_SVN: SVNRevert,
-    rabbitvcs.vcs.VCS_GIT: GitRevert
-}
+classes_map = {rabbitvcs.vcs.VCS_SVN: SVNRevert, rabbitvcs.vcs.VCS_GIT: GitRevert}
 
 quiet_classes_map = {
     rabbitvcs.vcs.VCS_SVN: SVNRevertQuiet,
-    rabbitvcs.vcs.VCS_GIT: GitRevertQuiet
+    rabbitvcs.vcs.VCS_GIT: GitRevertQuiet,
 }
 
 
@@ -245,9 +233,9 @@ def revert_factory(classes_map, paths, base_dir=None):
 
 if __name__ == "__main__":
     from rabbitvcs.ui import main, BASEDIR_OPT, QUIET_OPT
+
     (options, paths) = main(
-        [BASEDIR_OPT, QUIET_OPT],
-        usage="Usage: rabbitvcs revert [path1] [path2] ..."
+        [BASEDIR_OPT, QUIET_OPT], usage="Usage: rabbitvcs revert [path1] [path2] ..."
     )
 
     if options.quiet:

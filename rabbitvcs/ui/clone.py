@@ -8,6 +8,7 @@ import rabbitvcs.ui.widget
 from rabbitvcs.ui.checkout import Checkout
 from rabbitvcs.ui import InterfaceView
 from gi.repository import Gtk, GObject, Gdk
+
 #
 # This is an extension to the Nautilus file manager to allow better
 # integration with the Subversion source control system.
@@ -35,6 +36,7 @@ import os.path
 from rabbitvcs.util import helper
 
 import gi
+
 gi.require_version("Gtk", "3.0")
 sa = helper.SanitizeArgv()
 sa.restore()
@@ -63,23 +65,18 @@ class GitClone(Checkout):
 
         if not url or not path:
             rabbitvcs.ui.dialog.MessageBox(
-                _("The repository URL and destination path are both required fields."))
+                _("The repository URL and destination path are both required fields.")
+            )
             return
 
         self.hide()
         self.action = rabbitvcs.ui.action.GitAction(
-            self.git,
-            register_gtk_quit=self.gtk_quit_is_set()
+            self.git, register_gtk_quit=self.gtk_quit_is_set()
         )
         self.action.append(self.action.set_header, _("Clone"))
-        self.action.append(self.action.set_status,
-                           _("Running Clone Command..."))
+        self.action.append(self.action.set_status, _("Running Clone Command..."))
         self.action.append(helper.save_repository_path, url)
-        self.action.append(
-            self.git.clone,
-            url,
-            path
-        )
+        self.action.append(self.git.clone, url, path)
         self.action.append(self.action.set_status, _("Completed Clone"))
         self.action.append(self.action.finish)
         self.action.schedule()
@@ -93,15 +90,17 @@ class GitClone(Checkout):
         if append.endswith(".git"):
             append = append[:-4]
 
-        helper.run_in_main_thread(self.get_widget("destination").set_text,
-                                  S(os.path.join(self.destination, append)).display())
+        helper.run_in_main_thread(
+            self.get_widget("destination").set_text,
+            S(os.path.join(self.destination, append)).display(),
+        )
         self.check_form()
 
     def default_text(self):
         # Use a repo url from the clipboard by default.
         clipboard = Gtk.Clipboard.get(Gdk.Atom.intern("CLIPBOARD", False))
         text = clipboard.wait_for_text()
-        if text and text.endswith(('.git', '.git/')):
+        if text and text.endswith((".git", ".git/")):
             self.repositories.set_child_text(text)
 
     def check_form(self):
@@ -114,9 +113,7 @@ class GitClone(Checkout):
         self.get_widget("ok").set_sensitive(self.complete)
 
 
-classes_map = {
-    rabbitvcs.vcs.VCS_GIT: GitClone
-}
+classes_map = {rabbitvcs.vcs.VCS_GIT: GitClone}
 
 
 def clone_factory(classes_map, vcs, path=None, url=None):
@@ -125,9 +122,9 @@ def clone_factory(classes_map, vcs, path=None, url=None):
 
 if __name__ == "__main__":
     from rabbitvcs.ui import main, VCS_OPT
+
     (options, args) = main(
-        [VCS_OPT],
-        usage="Usage: rabbitvcs clone --vcs=git [url] [path]"
+        [VCS_OPT], usage="Usage: rabbitvcs clone --vcs=git [url] [path]"
     )
 
     # Default to using git

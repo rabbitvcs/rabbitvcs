@@ -48,6 +48,7 @@ import os.path
 from rabbitvcs.util import helper
 
 import gi
+
 gi.require_version("Gtk", "3.0")
 sa = helper.SanitizeArgv()
 sa.restore()
@@ -58,36 +59,41 @@ log = Log("rabbitvcs.ui.property_editor")
 _ = gettext.gettext
 
 
-PROP_EDITOR_NOTE = _("""\
+PROP_EDITOR_NOTE = _(
+    """\
 <b>Note:</b> changes to properties are applied instantly. You may review and \
 undo changes using the context menu for each item.
-""")
+"""
+)
 
-RECURSIVE_DELETE_MSG = _("""\
+RECURSIVE_DELETE_MSG = _(
+    """\
 Do you want to delete the selected properties from all files and subdirectories
-beneath this directory?""")
+beneath this directory?"""
+)
 
 PROP_MENU_STRUCTURE = [
     (rabbitvcs.util.contextmenuitems.PropMenuEdit, None),
     (rabbitvcs.util.contextmenuitems.PropMenuRevert, None),
     (rabbitvcs.util.contextmenuitems.PropMenuRevertRecursive, None),
     (rabbitvcs.util.contextmenuitems.PropMenuDelete, None),
-    (rabbitvcs.util.contextmenuitems.PropMenuDeleteRecursive, None)]
+    (rabbitvcs.util.contextmenuitems.PropMenuDeleteRecursive, None),
+]
 
 
 class PropEditor(InterfaceView, GtkContextMenuCaller):
-    '''
+    """
     User interface for the property editor.
 
     The UI is basically an "instant update" editor, that is as soon as you add a
     property in the dialog, it is actually added in the WC. Each row has a
     context menu available to perform other actions.
-    '''
+    """
 
     def __init__(self, path):
-        '''
+        """
         Initialises the UI.
-        '''
+        """
         InterfaceView.__init__(self, "property_editor", "PropertyEditor")
 
         note = rabbitvcs.ui.wraplabel.WrapLabel(PROP_EDITOR_NOTE)
@@ -100,47 +106,45 @@ class PropEditor(InterfaceView, GtkContextMenuCaller):
         self.path = path
 
         self.get_widget("wc_text").set_text(
-            S(self.get_local_path(os.path.realpath(path))).display())
+            S(self.get_local_path(os.path.realpath(path))).display()
+        )
 
         self.vcs = rabbitvcs.vcs.VCS()
         self.svn = self.vcs.svn()
 
         if not self.svn.is_versioned(self.path):
-            rabbitvcs.ui.dialog.MessageBox(
-                _("File is not under version control."))
+            rabbitvcs.ui.dialog.MessageBox(_("File is not under version control."))
             self.close()
             return
 
         self.get_widget("remote_uri_text").set_text(
-            S(self.svn.get_repo_url(path)).display())
+            S(self.svn.get_repo_url(path)).display()
+        )
 
         self.table = rabbitvcs.ui.widget.Table(
             self.get_widget("table"),
-            [GObject.TYPE_STRING, rabbitvcs.ui.widget.TYPE_ELLIPSIZED,
-             GObject.TYPE_STRING, rabbitvcs.ui.widget.TYPE_STATUS],
+            [
+                GObject.TYPE_STRING,
+                rabbitvcs.ui.widget.TYPE_ELLIPSIZED,
+                GObject.TYPE_STRING,
+                rabbitvcs.ui.widget.TYPE_STATUS,
+            ],
             [_("Name"), _("Value"), _("Reserved"), _("Status")],
-
             filters=[
                 {
                     "callback": rabbitvcs.ui.widget.long_text_filter,
-                    "user_data": {
-                        "cols": 0,
-                        "column": 1
-                    }
+                    "user_data": {"cols": 0, "column": 1},
                 },
-
                 {
                     "callback": rabbitvcs.ui.widget.translate_filter,
-                    "user_data": {
-                        "column": 3
-                    }
-                }],
-
+                    "user_data": {"column": 3},
+                },
+            ],
             callbacks={
-                "row-activated":  self.on_table_row_activated,
-                "mouse-event":   self.on_table_mouse_event,
-                "key-event":     self.on_table_key_event
-            }
+                "row-activated": self.on_table_row_activated,
+                "mouse-event": self.on_table_mouse_event,
+                "key-event": self.on_table_key_event,
+            },
         )
         self.table.allow_multiple()
 
@@ -162,14 +166,11 @@ class PropEditor(InterfaceView, GtkContextMenuCaller):
 
         except Exception as e:
             log.exception(e)
-            rabbitvcs.ui.dialog.MessageBox(
-                _("Unable to retrieve properties list"))
+            rabbitvcs.ui.dialog.MessageBox(_("Unable to retrieve properties list"))
 
         for propname, details in list(propdets.items()):
 
-            self.table.append(
-                [propname, details["value"], "N/A", details["status"]]
-            )
+            self.table.append([propname, details["value"], "N/A", details["status"]])
 
     def on_refresh_clicked(self, widget):
         self.refresh()
@@ -186,10 +187,12 @@ class PropEditor(InterfaceView, GtkContextMenuCaller):
         name, value, recurse = dialog.run()
         if name:
             success = self.svn.propset(
-                self.path, name, value, overwrite=True, recurse=False)
+                self.path, name, value, overwrite=True, recurse=False
+            )
             if not success:
                 rabbitvcs.ui.dialog.MessageBox(
-                    _("Unable to set new value for property."))
+                    _("Unable to set new value for property.")
+                )
 
         self.refresh()
 
@@ -197,7 +200,7 @@ class PropEditor(InterfaceView, GtkContextMenuCaller):
 
         recursive = False
 
-        if(os.path.isdir(self.path)):
+        if os.path.isdir(self.path):
             dialog = rabbitvcs.ui.dialog.Confirmation(RECURSIVE_DELETE_MSG)
             recursive = dialog.run()
 
@@ -230,14 +233,12 @@ class PropEditor(InterfaceView, GtkContextMenuCaller):
                 filtered_details[propname] = detail
 
         conditions = PropMenuConditions(self.path, filtered_details)
-        callbacks = PropMenuCallbacks(self, self.path, filtered_details,
-                                      self.vcs)
+        callbacks = PropMenuCallbacks(self, self.path, filtered_details, self.vcs)
 
         GtkContextMenu(PROP_MENU_STRUCTURE, conditions, callbacks).show(event)
 
 
 class PropMenuCallbacks(object):
-
     def __init__(self, caller, path, propdetails, vcs):
         self.path = path
         self.caller = caller
@@ -268,18 +269,25 @@ class PropMenuCallbacks(object):
 
 
 class PropMenuConditions(object):
-
     def __init__(self, path, propdetails):
         self.path = path
         self.propdetails = propdetails
 
     def all_modified(self):
-        return all([detail["status"] != "unchanged"
-                    for (propname, detail) in list(self.propdetails.items())])
+        return all(
+            [
+                detail["status"] != "unchanged"
+                for (propname, detail) in list(self.propdetails.items())
+            ]
+        )
 
     def all_not_deleted(self):
-        return all([detail["status"] != "deleted"
-                    for (propname, detail) in list(self.propdetails.items())])
+        return all(
+            [
+                detail["status"] != "deleted"
+                for (propname, detail) in list(self.propdetails.items())
+            ]
+        )
 
     def property_revert(self):
         return False
@@ -295,6 +303,7 @@ class PropMenuConditions(object):
 if __name__ == "__main__":
     # These are some dumb tests before I add any functionality.
     from rabbitvcs.ui import main
+
     (options, paths) = main(usage="Usage: rabbitvcs propedit [url_or_path]")
 
     window = PropEditor(paths[0])

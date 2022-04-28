@@ -30,6 +30,7 @@ import subprocess
 import dbus
 
 from rabbitvcs.util.log import Log
+
 log = Log("rabbitvcs.services.service")
 
 
@@ -72,9 +73,9 @@ def start_service(script_file, dbus_service_name, dbus_object_path):
         obj = session_bus.get_object(dbus_service_name, dbus_object_path)
         object_exists = True
     except dbus.DBusException:
-        proc = subprocess.Popen([sys.executable, script_file],
-                                stdin=subprocess.PIPE,
-                                stdout=subprocess.PIPE)
+        proc = subprocess.Popen(
+            [sys.executable, script_file], stdin=subprocess.PIPE, stdout=subprocess.PIPE
+        )
         pid = proc.pid
         log.debug("Started process: %i" % pid)
 

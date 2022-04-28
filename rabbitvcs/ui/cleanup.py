@@ -4,6 +4,7 @@ import rabbitvcs.vcs
 from rabbitvcs.ui.action import SVNAction
 from rabbitvcs.ui import InterfaceNonView
 from gi.repository import Gtk, GObject, Gdk
+
 #
 # This is an extension to the Nautilus file manager to allow better
 # integration with the Subversion source control system.
@@ -29,6 +30,7 @@ from gi.repository import Gtk, GObject, Gdk
 from rabbitvcs.util import helper
 
 import gi
+
 gi.require_version("Gtk", "3.0")
 sa = helper.SanitizeArgv()
 sa.restore()
@@ -53,10 +55,7 @@ class SVNCleanup(InterfaceNonView):
         self.svn = self.vcs.svn()
 
     def start(self):
-        self.action = SVNAction(
-            self.svn,
-            register_gtk_quit=self.gtk_quit_is_set()
-        )
+        self.action = SVNAction(self.svn, register_gtk_quit=self.gtk_quit_is_set())
 
         self.action.append(self.action.set_header, _("Cleanup"))
         self.action.append(self.action.set_status, _("Cleaning Up..."))
@@ -68,6 +67,7 @@ class SVNCleanup(InterfaceNonView):
 
 if __name__ == "__main__":
     from rabbitvcs.ui import main
+
     (options, paths) = main(usage="Usage: rabbitvcs cleanup [path]")
 
     window = SVNCleanup(paths[0])

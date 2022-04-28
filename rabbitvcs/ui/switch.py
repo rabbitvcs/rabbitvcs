@@ -6,6 +6,7 @@ import rabbitvcs.ui.widget
 from rabbitvcs.ui.action import SVNAction
 from rabbitvcs.ui import InterfaceView
 from gi.repository import Gtk, GObject, Gdk
+
 #
 # This is an extension to the Nautilus file manager to allow better
 # integration with the Subversion source control system.
@@ -31,6 +32,7 @@ from gi.repository import Gtk, GObject, Gdk
 from rabbitvcs.util import helper
 
 import gi
+
 gi.require_version("Gtk", "3.0")
 sa = helper.SanitizeArgv()
 sa.restore()
@@ -49,8 +51,7 @@ class SVNSwitch(InterfaceView):
 
         self.get_widget("path").set_text(S(self.path).display())
         self.repositories = rabbitvcs.ui.widget.ComboBox(
-            self.get_widget("repositories"),
-            helper.get_repository_paths()
+            self.get_widget("repositories"), helper.get_repository_paths()
         )
 
         self.revision_selector = rabbitvcs.ui.widget.RevisionSelector(
@@ -58,45 +59,40 @@ class SVNSwitch(InterfaceView):
             self.svn,
             revision=revision,
             url_combobox=self.repositories,
-            expand=True
+            expand=True,
         )
 
         self.repositories.set_child_text(
-            helper.unquote_url(self.svn.get_repo_url(self.path)))
+            helper.unquote_url(self.svn.get_repo_url(self.path))
+        )
 
     def on_ok_clicked(self, widget):
         url = self.repositories.get_active_text()
 
         if not url or not self.path:
             rabbitvcs.ui.dialog.MessageBox(
-                _("The repository location is a required field."))
+                _("The repository location is a required field.")
+            )
             return
 
         revision = self.revision_selector.get_revision_object()
         self.hide()
         self.action = rabbitvcs.ui.action.SVNAction(
-            self.svn,
-            register_gtk_quit=self.gtk_quit_is_set()
+            self.svn, register_gtk_quit=self.gtk_quit_is_set()
         )
 
         self.action.append(self.action.set_header, _("Switch"))
-        self.action.append(self.action.set_status,
-                           _("Running Switch Command..."))
+        self.action.append(self.action.set_status, _("Running Switch Command..."))
         self.action.append(helper.save_repository_path, url)
         self.action.append(
-            self.svn.switch,
-            self.path,
-            helper.quote_url(url),
-            revision=revision
+            self.svn.switch, self.path, helper.quote_url(url), revision=revision
         )
         self.action.append(self.action.set_status, _("Completed Switch"))
         self.action.append(self.action.finish)
         self.action.schedule()
 
 
-classes_map = {
-    rabbitvcs.vcs.VCS_SVN: SVNSwitch
-}
+classes_map = {rabbitvcs.vcs.VCS_SVN: SVNSwitch}
 
 
 def switch_factory(path, revision=None):
@@ -106,10 +102,8 @@ def switch_factory(path, revision=None):
 
 if __name__ == "__main__":
     from rabbitvcs.ui import main, REVISION_OPT
-    (options, args) = main(
-        [REVISION_OPT],
-        usage="Usage: rabbitvcs switch [url]"
-    )
+
+    (options, args) = main([REVISION_OPT], usage="Usage: rabbitvcs switch [url]")
 
     window = switch_factory(args[0], revision=options.revision)
     window.register_gtk_quit()

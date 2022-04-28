@@ -5,6 +5,7 @@ import rabbitvcs.vcs
 from rabbitvcs.ui.action import SVNAction
 from rabbitvcs.ui import InterfaceNonView
 from gi.repository import Gtk, GObject, Gdk
+
 #
 # This is an extension to the Nautilus file manager to allow better
 # integration with the Subversion source control system.
@@ -32,6 +33,7 @@ import os.path
 from rabbitvcs.util import helper
 
 import gi
+
 gi.require_version("Gtk", "3.0")
 sa = helper.SanitizeArgv()
 sa.restore()
@@ -58,9 +60,8 @@ class ApplyPatch(InterfaceNonView):
         path = None
 
         dialog = Gtk.FileChooserDialog(
-            title=_("Apply Patch"),
-            parent=None,
-            action=Gtk.FileChooserAction.OPEN)
+            title=_("Apply Patch"), parent=None, action=Gtk.FileChooserAction.OPEN
+        )
         dialog.add_button(_("_Cancel"), Gtk.ResponseType.CANCEL)
         dialog.add_button(_("_Open"), Gtk.ResponseType.OK)
         dialog.set_default_response(Gtk.ResponseType.OK)
@@ -81,7 +82,8 @@ class ApplyPatch(InterfaceNonView):
         dialog = Gtk.FileChooserDialog(
             title=_("Apply Patch To Directory..."),
             parent=None,
-            action=Gtk.FileChooserAction.SELECT_FOLDER)
+            action=Gtk.FileChooserAction.SELECT_FOLDER,
+        )
         dialog.add_button(_("_Cancel"), Gtk.ResponseType.CANCEL)
         dialog.add_button(_("_Select"), Gtk.ResponseType.OK)
         dialog.set_default_response(Gtk.ResponseType.OK)
@@ -115,8 +117,7 @@ class SVNApplyPatch(ApplyPatch):
 
         ticks = 2
         self.action = rabbitvcs.ui.action.SVNAction(
-            self.svn,
-            register_gtk_quit=self.gtk_quit_is_set()
+            self.svn, register_gtk_quit=self.gtk_quit_is_set()
         )
         self.action.set_pbar_ticks(ticks)
         self.action.append(self.action.set_header, _("Apply Patch"))
@@ -146,8 +147,7 @@ class GitApplyPatch(ApplyPatch):
 
         ticks = 2
         self.action = rabbitvcs.ui.action.GitAction(
-            self.git,
-            register_gtk_quit=self.gtk_quit_is_set()
+            self.git, register_gtk_quit=self.gtk_quit_is_set()
         )
         self.action.set_pbar_ticks(ticks)
         self.action.append(self.action.set_header, _("Apply Patch"))
@@ -160,7 +160,7 @@ class GitApplyPatch(ApplyPatch):
 
 classes_map = {
     rabbitvcs.vcs.VCS_SVN: SVNApplyPatch,
-    rabbitvcs.vcs.VCS_GIT: GitApplyPatch
+    rabbitvcs.vcs.VCS_GIT: GitApplyPatch,
 }
 
 
@@ -171,8 +171,8 @@ def applypatch_factory(paths):
 
 if __name__ == "__main__":
     from rabbitvcs.ui import main
-    (options, paths) = main(
-        usage="Usage: rabbitvcs applypatch [path1] [path2] ...")
+
+    (options, paths) = main(usage="Usage: rabbitvcs applypatch [path1] [path2] ...")
 
     window = applypatch_factory(paths)
     window.register_gtk_quit()

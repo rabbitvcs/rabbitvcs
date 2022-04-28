@@ -8,6 +8,7 @@ from rabbitvcs.ui import InterfaceView
 import time
 from datetime import datetime
 from gi.repository import Gtk, GObject, Gdk, Pango
+
 #
 # This is an extension to the Nautilus file manager to allow better
 # integration with the Subversion source control system.
@@ -35,6 +36,7 @@ import os
 from rabbitvcs.util import helper
 
 import gi
+
 gi.require_version("Gtk", "3.0")
 sa = helper.SanitizeArgv()
 sa.restore()
@@ -65,7 +67,7 @@ class GitReset(InterfaceView):
             self.git,
             revision=self.revision_obj,
             url=self.path,
-            expand=True
+            expand=True,
         )
 
         self.get_widget("none_opt").set_active(True)
@@ -94,18 +96,11 @@ class GitReset(InterfaceView):
 
         self.hide()
         self.action = rabbitvcs.ui.action.GitAction(
-            self.git,
-            register_gtk_quit=self.gtk_quit_is_set()
+            self.git, register_gtk_quit=self.gtk_quit_is_set()
         )
         self.action.append(self.action.set_header, _("Reset"))
-        self.action.append(self.action.set_status,
-                           _("Running Reset Command..."))
-        self.action.append(
-            self.git.reset,
-            path,
-            revision,
-            type
-        )
+        self.action.append(self.action.set_status, _("Running Reset Command..."))
+        self.action.append(self.git.reset, path, revision, type)
         self.action.append(self.action.set_status, _("Completed Reset"))
         self.action.append(self.action.finish)
         self.action.schedule()
@@ -128,9 +123,9 @@ class GitReset(InterfaceView):
 
 if __name__ == "__main__":
     from rabbitvcs.ui import main, REVISION_OPT, VCS_OPT
+
     (options, paths) = main(
-        [REVISION_OPT, VCS_OPT],
-        usage="Usage: rabbitvcs reset [-r REVISION] path"
+        [REVISION_OPT, VCS_OPT], usage="Usage: rabbitvcs reset [-r REVISION] path"
     )
 
     window = GitReset(paths[0], options.revision)

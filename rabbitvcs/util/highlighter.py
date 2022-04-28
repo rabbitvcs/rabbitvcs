@@ -42,18 +42,22 @@ try:
 except:
     HAS_PYGMENTS = False
 
+
 def mklist(arg):
     if not isinstance(arg, list):
         arg = [arg]
     return arg
+
 
 def no_highlight(lines):
     return [html_escape(S(l), True) for l in mklist(lines)]
 
 
 if not HAS_PYGMENTS:
+
     def highlight(filename, sourcelines):
         return no_highlight(sourcelines)
+
 else:
     # Pygments custom formatter generating Pango makup language.
 
@@ -113,7 +117,6 @@ else:
 
                 self.lastval += value
 
-
             for ttype, value in tokensource:
                 lines = [value]
                 if self.bylines:
@@ -132,7 +135,6 @@ else:
                         format_single(self, ttype, line)
 
             flush(self)
-
 
     def highlight(filename, sourcelines):
         if not SettingsManager().get("general", "enable_highlighting"):

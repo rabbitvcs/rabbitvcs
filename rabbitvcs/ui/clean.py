@@ -7,6 +7,7 @@ from rabbitvcs.ui import InterfaceView
 import time
 from datetime import datetime
 from gi.repository import Gtk, GObject, Gdk, Pango
+
 #
 # This is an extension to the Nautilus file manager to allow better
 # integration with the Subversion source control system.
@@ -34,6 +35,7 @@ import os
 from rabbitvcs.util import helper
 
 import gi
+
 gi.require_version("Gtk", "3.0")
 sa = helper.SanitizeArgv()
 sa.restore()
@@ -57,19 +59,16 @@ class GitClean(InterfaceView):
     def on_ok_clicked(self, widget):
         remove_dir = self.get_widget("remove_directories").get_active()
         remove_ignored_too = self.get_widget("remove_ignored_too").get_active()
-        remove_only_ignored = self.get_widget(
-            "remove_only_ignored").get_active()
+        remove_only_ignored = self.get_widget("remove_only_ignored").get_active()
         dry_run = self.get_widget("dryrun").get_active()
         force = self.get_widget("force").get_active()
 
         self.hide()
         self.action = rabbitvcs.ui.action.GitAction(
-            self.git,
-            register_gtk_quit=self.gtk_quit_is_set()
+            self.git, register_gtk_quit=self.gtk_quit_is_set()
         )
         self.action.append(self.action.set_header, _("Clean"))
-        self.action.append(self.action.set_status,
-                           _("Running Clean Command..."))
+        self.action.append(self.action.set_status, _("Running Clean Command..."))
         self.action.append(
             self.git.clean,
             self.path,
@@ -77,7 +76,7 @@ class GitClean(InterfaceView):
             remove_ignored_too,
             remove_only_ignored,
             dry_run,
-            force
+            force,
         )
         self.action.append(self.action.set_status, _("Completed Clean"))
         self.action.append(self.action.finish)
@@ -100,6 +99,7 @@ class GitClean(InterfaceView):
 
 if __name__ == "__main__":
     from rabbitvcs.ui import main
+
     (options, paths) = main(usage="Usage: rabbitvcs clean path")
 
     window = GitClean(paths[0])

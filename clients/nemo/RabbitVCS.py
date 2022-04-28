@@ -38,7 +38,12 @@ from rabbitvcs import gettext, get_icon_path
 from rabbitvcs.util.log import Log, reload_log_settings
 import rabbitvcs.ui.property_page
 import rabbitvcs.ui
-from rabbitvcs.util.contextmenu import MenuBuilder, MainContextMenu, SEPARATOR, ContextMenuConditions
+from rabbitvcs.util.contextmenu import (
+    MenuBuilder,
+    MainContextMenu,
+    SEPARATOR,
+    ContextMenuConditions,
+)
 from rabbitvcs.util.decorators import timeit, disable
 from rabbitvcs.util.strings import S
 from rabbitvcs.util.helper import pretty_timedelta
@@ -60,6 +65,7 @@ from __future__ import absolute_import
 from six.moves import range
 
 import signal
+
 signal.signal(signal.SIGINT, signal.SIG_DFL)
 
 
@@ -67,29 +73,31 @@ def log_all_exceptions(type, value, tb):
     import sys
     import traceback
     from rabbitvcs.util.log import Log
-    log = Log("rabbitvcs.util.extensions.Nemo.RabbitVCS")
-    log.exception_info("Error caught by master exception hook!",
-                       (type, value, tb))
 
-    text = ''.join(traceback.format_exception(type, value,
-                                              tb, limit=None))
+    log = Log("rabbitvcs.util.extensions.Nemo.RabbitVCS")
+    log.exception_info("Error caught by master exception hook!", (type, value, tb))
+
+    text = "".join(traceback.format_exception(type, value, tb, limit=None))
 
     try:
         import rabbitvcs.ui.dialog
+
         rabbitvcs.ui.dialog.ErrorNotification(text)
     except Exception as ex:
-        log.exception("Additional exception when attempting"
-                      " to display error dialog.")
+        log.exception(
+            "Additional exception when attempting" " to display error dialog."
+        )
         log.exception(ex)
         raise
 
     sys.__excepthook__(type, value, tb)
 
+
 # import sys
 # sys.excepthook = log_all_exceptions
 
 
-gi.require_version('Nemo', '3.0')
+gi.require_version("Nemo", "3.0")
 sa = helper.SanitizeArgv()
 sa.restore()
 
@@ -102,8 +110,14 @@ _ = gettext.gettext
 settings = SettingsManager()
 
 
-class RabbitVCS(Nemo.InfoProvider, Nemo.MenuProvider,
-                Nemo.ColumnProvider, Nemo.PropertyPageProvider, Nemo.NameAndDescProvider, GObject.GObject):
+class RabbitVCS(
+    Nemo.InfoProvider,
+    Nemo.MenuProvider,
+    Nemo.ColumnProvider,
+    Nemo.PropertyPageProvider,
+    Nemo.NameAndDescProvider,
+    GObject.GObject,
+):
     """
     This is the main class that implements all of our awesome features.
 
@@ -191,7 +205,7 @@ class RabbitVCS(Nemo.InfoProvider, Nemo.MenuProvider,
             "scalable/actions/rabbitvcs-checkmods.svg",
             "scalable/apps/rabbitvcs.svg",
             "scalable/apps/rabbitvcs-small.svg",
-            "16x16/actions/rabbitvcs-push.png"
+            "16x16/actions/rabbitvcs-push.png",
         ]
 
         rabbitvcs_icon_path = get_icon_path()
@@ -226,26 +240,26 @@ class RabbitVCS(Nemo.InfoProvider, Nemo.MenuProvider,
                 name="RabbitVCS::status_column",
                 attribute="status",
                 label=_("RVCS Status"),
-                description=""
+                description="",
             ),
             Nemo.Column(
                 name="RabbitVCS::revision_column",
                 attribute="revision",
                 label=_("RVCS Revision"),
-                description=""
+                description="",
             ),
             Nemo.Column(
                 name="RabbitVCS::author_column",
                 attribute="author",
                 label=_("RVCS Author"),
-                description=""
+                description="",
             ),
             Nemo.Column(
                 name="RabbitVCS::age_column",
                 attribute="age",
                 label=_("RVCS Age"),
-                description=""
-            )
+                description="",
+            ),
         )
 
     def update_file_info(self, item):
@@ -293,8 +307,7 @@ class RabbitVCS(Nemo.InfoProvider, Nemo.MenuProvider,
         # TODO: how come the statuses for a few directories are incorrect
         # when we remove this line (detected as working copies, even though
         # they are not)? That shouldn't happen.
-        is_in_a_or_a_working_copy = self.vcs_client.is_in_a_or_a_working_copy(
-            path)
+        is_in_a_or_a_working_copy = self.vcs_client.is_in_a_or_a_working_copy(path)
         if not is_in_a_or_a_working_copy:
             return Nemo.OperationResult.COMPLETE
 
@@ -319,12 +332,13 @@ class RabbitVCS(Nemo.InfoProvider, Nemo.MenuProvider,
 
         # Don't bother the checker if we already have the info from a callback
         if not found:
-            status = \
-                self.status_checker.check_status(path,
-                                                 recurse=True,
-                                                 summary=True,
-                                                 callback=self.cb_status,
-                                                 invalidate=invalidate)
+            status = self.status_checker.check_status(
+                path,
+                recurse=True,
+                summary=True,
+                callback=self.cb_status,
+                invalidate=invalidate,
+            )
 
         # FIXME: when did this get disabled?
         if enable_attrs:
@@ -349,8 +363,7 @@ class RabbitVCS(Nemo.InfoProvider, Nemo.MenuProvider,
         age = ""
         if status.date:
             age = pretty_timedelta(
-                datetime.datetime.fromtimestamp(status.date),
-                datetime.datetime.now()
+                datetime.datetime.fromtimestamp(status.date), datetime.datetime.now()
             )
 
         author = ""
@@ -361,7 +374,7 @@ class RabbitVCS(Nemo.InfoProvider, Nemo.MenuProvider,
             "status": status.simple_content_status(),
             "revision": revision,
             "author": author,
-            "age": age
+            "age": age,
         }
 
         for key, value in values.items():
@@ -412,15 +425,21 @@ class RabbitVCS(Nemo.InfoProvider, Nemo.MenuProvider,
         conditions_dict = None
         if paths_str in self.items_cache:
             conditions_dict = self.items_cache[paths_str]
-            if conditions_dict and conditions_dict != "in-progress" and hasattr(window, 'base_dir'):
+            if (
+                conditions_dict
+                and conditions_dict != "in-progress"
+                and hasattr(window, "base_dir")
+            ):
                 conditions = NemoMenuConditions(conditions_dict)
                 menu = NemoMainContextMenu(
-                    self, window.base_dir, paths, conditions).get_menu()
+                    self, window.base_dir, paths, conditions
+                ).get_menu()
                 return menu
 
-        if conditions_dict != "in-progress" and hasattr(window, 'base_dir'):
+        if conditions_dict != "in-progress" and hasattr(window, "base_dir"):
             self.status_checker.generate_menu_conditions_async(
-                provider, window.base_dir, paths, self.update_file_items)
+                provider, window.base_dir, paths, self.update_file_items
+            )
             self.items_cache[path] = "in-progress"
 
         return ()
@@ -451,12 +470,11 @@ class RabbitVCS(Nemo.InfoProvider, Nemo.MenuProvider,
     def get_background_items_profile(self, window, item):
         import cProfile
 
-        path = S(gnomevfs.get_local_path_from_uri(
-            item.get_uri())).replace("/", ":")
+        path = S(gnomevfs.get_local_path_from_uri(item.get_uri())).replace("/", ":")
 
         profile_data_file = os.path.join(
-            get_home_folder(),
-            "checkerservice_%s.stats" % path)
+            get_home_folder(), "checkerservice_%s.stats" % path
+        )
 
         prof = cProfile.Profile()
         retval = prof.runcall(self.get_background_items_real, window, item)
@@ -492,15 +510,15 @@ class RabbitVCS(Nemo.InfoProvider, Nemo.MenuProvider,
             conditions_dict = self.items_cache[path]
             if conditions_dict and conditions_dict != "in-progress":
                 conditions = NemoMenuConditions(conditions_dict)
-                menu = NemoMainContextMenu(
-                    self, path, [path], conditions).get_menu()
+                menu = NemoMainContextMenu(self, path, [path], conditions).get_menu()
                 return menu
 
         window.base_dir = path
 
         if conditions_dict != "in-progress":
             self.status_checker.generate_menu_conditions_async(
-                provider, path, [path], self.update_background_items)
+                provider, path, [path], self.update_background_items
+            )
             self.items_cache[path] = "in-progress"
 
         return ()
@@ -546,7 +564,6 @@ class RabbitVCS(Nemo.InfoProvider, Nemo.MenuProvider,
     #
 
     def rescan_after_process_exit(self, proc, paths):
-
         def do_check():
             # We'll check the paths first (these were the paths that
             # were originally passed along to the context menu).
@@ -557,16 +574,17 @@ class RabbitVCS(Nemo.InfoProvider, Nemo.MenuProvider,
             #
             for path in paths:
                 # We're not interested in the result now, just the callback
-                self.status_checker.check_status(path,
-                                                 recurse=True,
-                                                 invalidate=True,
-                                                 callback=self.cb_status,
-                                                 summary=True)
+                self.status_checker.check_status(
+                    path,
+                    recurse=True,
+                    invalidate=True,
+                    callback=self.cb_status,
+                    summary=True,
+                )
 
         self.execute_after_process_exit(proc, do_check)
 
     def execute_after_process_exit(self, proc, func=None):
-
         def is_process_still_alive():
             log.debug("is_process_still_alive() for pid: %i" % proc.pid)
             # First we need to see if the commit process is still running
@@ -575,7 +593,7 @@ class RabbitVCS(Nemo.InfoProvider, Nemo.MenuProvider,
 
             log.debug("%s" % retval)
 
-            still_going = (retval is None)
+            still_going = retval is None
 
             if not still_going and callable(func):
                 func()
@@ -600,8 +618,7 @@ class RabbitVCS(Nemo.InfoProvider, Nemo.MenuProvider,
 
         def do_reload_settings():
             globals()["settings"] = SettingsManager()
-            globals()["log"] = reload_log_settings()(
-                "rabbitvcs.util.extensions.nemo")
+            globals()["log"] = reload_log_settings()("rabbitvcs.util.extensions.nemo")
             log.debug("Re-scanning settings")
 
         self.execute_after_process_exit(proc, do_reload_settings)
@@ -655,13 +672,15 @@ class RabbitVCS(Nemo.InfoProvider, Nemo.MenuProvider,
             return []
 
         label = rabbitvcs.ui.property_page.PropertyPageLabel(
-            claim_domain=False).get_widget("rabbitvcs-title")
+            claim_domain=False
+        ).get_widget("rabbitvcs-title")
         page = rabbitvcs.ui.property_page.PropertyPage(
-            paths, claim_domain=False).get_widget()
+            paths, claim_domain=False
+        ).get_widget()
 
-        ppage = Nemo.PropertyPage(name='RabbitVCS::PropertyPage',
-                                  label=label,
-                                  page=page)
+        ppage = Nemo.PropertyPage(
+            name="RabbitVCS::PropertyPage", label=label, page=page
+        )
 
         return [ppage]
 
@@ -679,10 +698,9 @@ class NemoContextMenu(MenuBuilder):
 
     def make_menu_item(self, item, id_magic):
         identifier = item.make_magic_id(id_magic)
-        menuitem = Nemo.MenuItem(name=identifier,
-                                 label=item.make_label(),
-                                 tip=item.tooltip,
-                                 icon=item.icon)
+        menuitem = Nemo.MenuItem(
+            name=identifier, label=item.make_label(), tip=item.tooltip, icon=item.icon
+        )
 
         return menuitem
 

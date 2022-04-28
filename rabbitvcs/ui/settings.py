@@ -9,6 +9,7 @@ import rabbitvcs.ui.dialog
 import rabbitvcs.ui.widget
 from rabbitvcs.ui import InterfaceView
 from gi.repository import Gtk, GObject, Gdk, Pango
+
 #
 # This is an extension to the Nautilus file manager to allow better
 # integration with the Subversion source control system.
@@ -38,6 +39,7 @@ import datetime
 from rabbitvcs.util import helper
 
 import gi
+
 gi.require_version("Gtk", "3.0")
 sa = helper.SanitizeArgv()
 sa.restore()
@@ -47,7 +49,8 @@ _ = gettext.gettext
 
 CHECKER_UNKNOWN_INFO = _("Unknown")
 CHECKER_SERVICE_ERROR = _(
-    "There was an error communicating with the status checker service.")
+    "There was an error communicating with the status checker service."
+)
 
 
 class Settings(InterfaceView):
@@ -63,7 +66,7 @@ class Settings(InterfaceView):
         ["%m/%d/%Y %H:%M:%S", None],
         ["%d %b %Y %H:%M:%S", None],
         ["%d %B %Y %H:%M:%S", None],
-        ["%d/%m/%Y %H:%M:%S", None]
+        ["%d/%m/%Y %H:%M:%S", None],
     ]
 
     def __init__(self, base_dir=None):
@@ -104,22 +107,26 @@ class Settings(InterfaceView):
         dt = datetime.datetime.today()
         # Disambiguate day.
         if dt.day <= 12:
-            dt = datetime.datetime(dt.year, dt.month, dt.day + 12,
-                                   dt.hour, dt.minute, dt.second)
+            dt = datetime.datetime(
+                dt.year, dt.month, dt.day + 12, dt.hour, dt.minute, dt.second
+            )
         for format, label in self.dtformats:
             if label is None:
                 label = helper.format_datetime(dt, format)
             dtfs.append([format, label])
         self.datetime_format = rabbitvcs.ui.widget.ComboBox(
-            self.get_widget("datetime_format"), dtfs, 2, 1)
+            self.get_widget("datetime_format"), dtfs, 2, 1
+        )
         self.datetime_format.set_active_from_value(
             self.settings.get("general", "datetime_format")
         )
         self.default_commit_message = rabbitvcs.ui.widget.TextView(
-            self.get_widget("default_commit_message"))
+            self.get_widget("default_commit_message")
+        )
         self.default_commit_message.set_text(
-            S(self.settings.get_multiline(
-                "general", "default_commit_message")).display()
+            S(
+                self.settings.get_multiline("general", "default_commit_message")
+            ).display()
         )
         self.get_widget("diff_tool").set_text(
             S(self.settings.get("external", "diff_tool")).display()
@@ -138,8 +145,7 @@ class Settings(InterfaceView):
         )
 
         self.logging_type = rabbitvcs.ui.widget.ComboBox(
-            self.get_widget("logging_type"),
-            ["None", "Console", "File", "Both"]
+            self.get_widget("logging_type"), ["None", "Console", "File", "Both"]
         )
         val = self.settings.get("logging", "type")
         if not val:
@@ -148,7 +154,7 @@ class Settings(InterfaceView):
 
         self.logging_level = rabbitvcs.ui.widget.ComboBox(
             self.get_widget("logging_level"),
-            ["Debug", "Info", "Warning", "Error", "Critical"]
+            ["Debug", "Info", "Warning", "Error", "Critical"],
         )
         val = self.settings.get("logging", "level")
         if not val:
@@ -161,7 +167,10 @@ class Settings(InterfaceView):
         if base_dir:
             vcs = rabbitvcs.vcs.VCS()
             git_config_files = []
-            if vcs.is_in_a_or_a_working_copy(base_dir) and vcs.guess(base_dir)["vcs"] == rabbitvcs.vcs.VCS_GIT:
+            if (
+                vcs.is_in_a_or_a_working_copy(base_dir)
+                and vcs.guess(base_dir)["vcs"] == rabbitvcs.vcs.VCS_GIT
+            ):
                 git = vcs.git(base_dir)
                 git_config_files = git.get_config_files(base_dir)
 
@@ -170,7 +179,7 @@ class Settings(InterfaceView):
                     _("Config file:"),
                     git_config_files,
                     git_config_files,
-                    show_add_line=False
+                    show_add_line=False,
                 )
                 show_git = True
 
@@ -187,7 +196,8 @@ class Settings(InterfaceView):
                 session_bus = dbus.SessionBus()
                 self.checker_service = session_bus.get_object(
                     rabbitvcs.services.checkerservice.SERVICE,
-                    rabbitvcs.services.checkerservice.OBJECT_PATH)
+                    rabbitvcs.services.checkerservice.OBJECT_PATH,
+                )
                 # Initialize service locale in case it just started.
                 self.checker_service.SetLocale(*get_locale())
             except dbus.DBusException as ex:
@@ -206,9 +216,10 @@ class Settings(InterfaceView):
 
         self.get_widget("stop_checker").set_sensitive(bool(checker_service))
 
-        if(checker_service):
+        if checker_service:
             self.get_widget("checker_type").set_text(
-                S(checker_service.CheckerType()).display())
+                S(checker_service.CheckerType()).display()
+            )
             self.get_widget("pid").set_text(S(checker_service.PID()).display())
 
             memory = checker_service.MemoryUsage()
@@ -219,7 +230,8 @@ class Settings(InterfaceView):
                 self.get_widget("memory_usage").set_text(CHECKER_UNKNOWN_INFO)
 
             self.get_widget("locale").set_text(
-                S(".".join(checker_service.SetLocale())).display())
+                S(".".join(checker_service.SetLocale())).display()
+            )
 
             self._populate_info_table(checker_service.ExtraInformation())
 
@@ -286,82 +298,71 @@ class Settings(InterfaceView):
 
     def save(self):
         self.settings.set(
-            "general", "enable_attributes",
-            self.get_widget("enable_attributes").get_active()
+            "general",
+            "enable_attributes",
+            self.get_widget("enable_attributes").get_active(),
         )
         self.settings.set(
-            "general", "enable_emblems",
-            self.get_widget("enable_emblems").get_active()
+            "general", "enable_emblems", self.get_widget("enable_emblems").get_active()
         )
         self.settings.set(
-            "general", "enable_recursive",
-            self.get_widget("enable_recursive").get_active()
+            "general",
+            "enable_recursive",
+            self.get_widget("enable_recursive").get_active(),
         )
         self.settings.set(
-            "general", "enable_highlighting",
-            self.get_widget("enable_highlighting").get_active()
+            "general",
+            "enable_highlighting",
+            self.get_widget("enable_highlighting").get_active(),
         )
         self.settings.set(
-            "general", "enable_colorize",
-            self.get_widget("enable_colorize").get_active()
+            "general",
+            "enable_colorize",
+            self.get_widget("enable_colorize").get_active(),
         )
         self.settings.set(
-            "general", "show_debug",
-            self.get_widget("show_debug").get_active()
+            "general", "show_debug", self.get_widget("show_debug").get_active()
         )
         self.settings.set(
-            "HideItem", "svn",
-            not self.get_widget("enable_subversion").get_active()
+            "HideItem", "svn", not self.get_widget("enable_subversion").get_active()
         )
         self.settings.set(
-            "HideItem", "git",
-            not self.get_widget("enable_git").get_active()
+            "HideItem", "git", not self.get_widget("enable_git").get_active()
         )
         self.settings.set_multiline(
-            "general", "default_commit_message",
-            self.default_commit_message.get_text()
+            "general", "default_commit_message", self.default_commit_message.get_text()
         )
         self.settings.set(
-            "general", "datetime_format",
-            self.datetime_format.get_active_text()
+            "general", "datetime_format", self.datetime_format.get_active_text()
         )
         self.settings.set(
-            "external", "diff_tool",
-            self.get_widget("diff_tool").get_text()
+            "external", "diff_tool", self.get_widget("diff_tool").get_text()
         )
         self.settings.set(
-            "external", "diff_tool_swap",
-            self.get_widget("diff_tool_swap").get_active()
+            "external", "diff_tool_swap", self.get_widget("diff_tool_swap").get_active()
         )
         self.settings.set(
-            "external", "merge_tool",
-            self.get_widget("merge_tool").get_text()
+            "external", "merge_tool", self.get_widget("merge_tool").get_text()
         )
         self.settings.set(
-            "cache", "number_repositories",
-            self.get_widget("cache_number_repositories").get_text()
+            "cache",
+            "number_repositories",
+            self.get_widget("cache_number_repositories").get_text(),
         )
         self.settings.set(
-            "cache", "number_messages",
-            self.get_widget("cache_number_messages").get_text()
+            "cache",
+            "number_messages",
+            self.get_widget("cache_number_messages").get_text(),
         )
-        self.settings.set(
-            "logging", "type",
-            self.logging_type.get_active_text()
-        )
-        self.settings.set(
-            "logging", "level",
-            self.logging_level.get_active_text()
-        )
+        self.settings.set("logging", "type", self.logging_type.get_active_text())
+        self.settings.set("logging", "level", self.logging_level.get_active_text())
         self.settings.write()
 
         if self.file_editor:
             self.file_editor.save()
 
     def on_external_diff_tool_browse_clicked(self, widget):
-        chooser = rabbitvcs.ui.dialog.FileChooser(
-            _("Select a program"), "/usr/bin"
-        )
+        chooser = rabbitvcs.ui.dialog.FileChooser(_("Select a program"), "/usr/bin")
         path = chooser.run()
         if not path is None:
             path = path.replace("file://", "")
@@ -396,9 +397,9 @@ class Settings(InterfaceView):
         if confirmation.run() == Gtk.ResponseType.OK:
             home_dir = helper.get_user_path()
             subpaths = [
-                '/.subversion/auth/svn.simple',
-                '/.subversion/auth/svn.ssl.server',
-                '/.subversion/auth/svn.username'
+                "/.subversion/auth/svn.simple",
+                "/.subversion/auth/svn.ssl.server",
+                "/.subversion/auth/svn.username",
             ]
             for subpath in subpaths:
                 path = "%s%s" % (home_dir, subpath)
@@ -408,16 +409,13 @@ class Settings(InterfaceView):
                         filepath = "%s/%s" % (path, filename)
                         os.remove(filepath)
 
-            rabbitvcs.ui.dialog.MessageBox(
-                _("Authentication information cleared"))
+            rabbitvcs.ui.dialog.MessageBox(_("Authentication information cleared"))
 
 
 if __name__ == "__main__":
     from rabbitvcs.ui import main, BASEDIR_OPT
-    (options, paths) = main(
-        [BASEDIR_OPT],
-        usage="Usage: rabbitvcs settings"
-    )
+
+    (options, paths) = main([BASEDIR_OPT], usage="Usage: rabbitvcs settings")
 
     window = Settings(options.base_dir)
     window.register_gtk_quit()

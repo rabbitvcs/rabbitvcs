@@ -12,6 +12,7 @@ from rabbitvcs.util import helper
 import re
 import string
 import os.path
+
 #
 # This is an extension to the Nautilus file manager to allow better
 # integration with the Subversion source control system.
@@ -72,21 +73,21 @@ class About(object):
         if not authors_path:
             # Assumes the user is running RabbitVCS through an svn checkout
             # and the doc files are two directories up (from rabbitvcs/ui).
-            doc_path = os.path.dirname(os.path.realpath(__file__)).split('/')
-            doc_path = '/'.join(doc_path[:-2])
+            doc_path = os.path.dirname(os.path.realpath(__file__)).split("/")
+            doc_path = "/".join(doc_path[:-2])
             authors_path = os.path.join(doc_path, "AUTHORS")
 
         authors = open(authors_path, "r").read()
 
         self.about.set_authors(authors.split("\n"))
 
-        pixbuf = GdkPixbuf.Pixbuf.new_from_file(rabbitvcs.get_icon_path() +
-                                                "/scalable/apps/rabbitvcs.svg")
+        pixbuf = GdkPixbuf.Pixbuf.new_from_file(
+            rabbitvcs.get_icon_path() + "/scalable/apps/rabbitvcs.svg"
+        )
         self.about.set_logo(pixbuf)
 
         versions = []
-        versions.append("Subversion - %s" %
-                        ".".join(list(map(str, pysvn.svn_version))))
+        versions.append("Subversion - %s" % ".".join(list(map(str, pysvn.svn_version))))
         versions.append("Pysvn - %s" % ".".join(list(map(str, pysvn.version))))
         versions.append("ConfigObj - %s" % str(configobj.__version__))
 

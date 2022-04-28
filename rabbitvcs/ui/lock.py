@@ -9,6 +9,7 @@ from rabbitvcs.util.contextmenu import GtkFilesContextMenu, GtkContextMenuCaller
 from rabbitvcs.ui.action import SVNAction
 from rabbitvcs.ui import InterfaceView
 from gi.repository import Gtk, GObject, Gdk
+
 #
 # This is an extension to the Nautilus file manager to allow better
 # integration with the Subversion source control system.
@@ -37,6 +38,7 @@ import os
 from rabbitvcs.util import helper
 
 import gi
+
 gi.require_version("Gtk", "3.0")
 sa = helper.SanitizeArgv()
 sa.restore()
@@ -71,26 +73,24 @@ class SVNLock(InterfaceView, GtkContextMenuCaller):
 
         self.files_table = rabbitvcs.ui.widget.Table(
             self.get_widget("files_table"),
-            [GObject.TYPE_BOOLEAN, rabbitvcs.ui.widget.TYPE_HIDDEN_OBJECT,
-                rabbitvcs.ui.widget.TYPE_PATH, GObject.TYPE_STRING,
-                GObject.TYPE_STRING],
-            [rabbitvcs.ui.widget.TOGGLE_BUTTON, _("Path"), _("Extension"),
-                _("Locked")],
-            filters=[{
-                "callback": rabbitvcs.ui.widget.path_filter,
-                "user_data": {
-                    "base_dir": base_dir,
-                    "column": 2
+            [
+                GObject.TYPE_BOOLEAN,
+                rabbitvcs.ui.widget.TYPE_HIDDEN_OBJECT,
+                rabbitvcs.ui.widget.TYPE_PATH,
+                GObject.TYPE_STRING,
+                GObject.TYPE_STRING,
+            ],
+            [rabbitvcs.ui.widget.TOGGLE_BUTTON, _("Path"), _("Extension"), _("Locked")],
+            filters=[
+                {
+                    "callback": rabbitvcs.ui.widget.path_filter,
+                    "user_data": {"base_dir": base_dir, "column": 2},
                 }
-            }],
-            callbacks={
-                "mouse-event":   self.on_files_table_mouse_event
-            }
+            ],
+            callbacks={"mouse-event": self.on_files_table_mouse_event},
         )
 
-        self.message = rabbitvcs.ui.widget.TextView(
-            self.get_widget("message")
-        )
+        self.message = rabbitvcs.ui.widget.TextView(self.get_widget("message"))
 
         self.items = None
         self.initialize_items()
@@ -117,8 +117,7 @@ class SVNLock(InterfaceView, GtkContextMenuCaller):
         self.get_widget("status").set_text(_("Loading..."))
         self.items = self.vcs.get_items(self.paths)
         self.populate_files_table()
-        self.get_widget("status").set_text(
-            _("Found %d item(s)") % len(self.items))
+        self.get_widget("status").set_text(_("Found %d item(s)") % len(self.items))
 
     def populate_files_table(self):
         for item in self.items:
@@ -129,13 +128,15 @@ class SVNLock(InterfaceView, GtkContextMenuCaller):
             if not self.svn.is_versioned(item.path):
                 continue
 
-            self.files_table.append([
-                True,
-                S(item.path),
-                item.path,
-                helper.get_file_extension(item.path),
-                locked
-            ])
+            self.files_table.append(
+                [
+                    True,
+                    S(item.path),
+                    item.path,
+                    helper.get_file_extension(item.path),
+                    locked,
+                ]
+            )
 
     def show_files_table_popup_menu(self, treeview, data):
         paths = self.files_table.get_selected_row_items(1)
@@ -157,21 +158,14 @@ class SVNLock(InterfaceView, GtkContextMenuCaller):
         self.hide()
 
         self.action = rabbitvcs.ui.action.SVNAction(
-            self.svn,
-            register_gtk_quit=self.gtk_quit_is_set()
+            self.svn, register_gtk_quit=self.gtk_quit_is_set()
         )
 
         self.action.append(self.action.set_header, _("Get Lock"))
-        self.action.append(self.action.set_status,
-                           _("Running Lock Command..."))
+        self.action.append(self.action.set_status, _("Running Lock Command..."))
         self.action.append(helper.save_log_message, message)
         for path in items:
-            self.action.append(
-                self.svn.lock,
-                path,
-                message,
-                force=steal_locks
-            )
+            self.action.append(self.svn.lock, path, message, force=steal_locks)
         self.action.append(self.action.set_status, _("Completed Lock"))
         self.action.append(self.action.finish)
         self.action.schedule()
@@ -191,9 +185,7 @@ class SVNLock(InterfaceView, GtkContextMenuCaller):
             self.message.set_text(S(message).display())
 
 
-classes_map = {
-    rabbitvcs.vcs.VCS_SVN: SVNLock
-}
+classes_map = {rabbitvcs.vcs.VCS_SVN: SVNLock}
 
 
 def lock_factory(paths, base_dir):
@@ -203,9 +195,9 @@ def lock_factory(paths, base_dir):
 
 if __name__ == "__main__":
     from rabbitvcs.ui import main, BASEDIR_OPT
+
     (options, paths) = main(
-        [BASEDIR_OPT],
-        usage="Usage: rabbitvcs lock [path1] [path2] ..."
+        [BASEDIR_OPT], usage="Usage: rabbitvcs lock [path1] [path2] ..."
     )
 
     window = lock_factory(paths, options.base_dir)

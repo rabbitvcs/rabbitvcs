@@ -1,9 +1,11 @@
 from __future__ import absolute_import
+
 #
 # util.py
 #
 
 import os
+
 
 def splitall(path):
     """Split a path into all of its parts.
@@ -23,6 +25,7 @@ def splitall(path):
             path = parts[0]
             allparts.insert(0, parts[1])
     return allparts
+
 
 def relativepath(fromdir, tofile):
     """Find relative path from 'fromdir' to 'tofile'.
@@ -52,16 +55,18 @@ def relativepath(fromdir, tofile):
                 break
         del f1parts[0]
         del f2parts[0]
-    result = ['..' for part in f2parts]
+    result = [".." for part in f2parts]
     result.extend(f1parts)
     result.append(f1basename)
     return os.sep.join(result)
 
+
 def get_transport_and_path(uri):
     from dulwich.client import TCPGitClient, SSHGitClient, SubprocessGitClient
+
     for handler, transport in (("git://", TCPGitClient), ("git+ssh://", SSHGitClient)):
         if uri.startswith(handler):
-            host, path = uri[len(handler):].split("/", 1)
-            return transport(host), "/"+path
+            host, path = uri[len(handler) :].split("/", 1)
+            return transport(host), "/" + path
     # if its not git or git+ssh, try a local url..
     return SubprocessGitClient(), uri

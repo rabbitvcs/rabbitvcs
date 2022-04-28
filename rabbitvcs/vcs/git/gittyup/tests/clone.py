@@ -1,5 +1,6 @@
 from __future__ import absolute_import
 from __future__ import print_function
+
 #
 # test/clone.py
 #
@@ -24,10 +25,11 @@ if options.cleanup:
     print("clone.py clean")
 else:
     if os.path.isdir(DIR):
-        raise SystemExit("This test script has already been run.  Please call this script with --cleanup to start again")
+        raise SystemExit(
+            "This test script has already been run.  Please call this script with --cleanup to start again"
+        )
 
     g = GittyupClient()
     g.clone("git://github.com/adamplumb/sprout.git", DIR)
-
 
     print("clone.py pass")

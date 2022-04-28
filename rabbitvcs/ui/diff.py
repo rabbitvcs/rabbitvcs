@@ -7,6 +7,7 @@ import rabbitvcs.vcs
 from rabbitvcs.ui import InterfaceNonView
 from rabbitvcs import TEMP_DIR_PREFIX
 from gi.repository import Gtk, Gdk, GLib
+
 #
 # This is an extension to the Nautilus file manager to allow better
 # integration with the Subversion source control system.
@@ -36,6 +37,7 @@ import tempfile
 from rabbitvcs.util import helper
 
 import gi
+
 gi.require_version("Gtk", "3.0")
 sa = helper.SanitizeArgv()
 sa.restore()
@@ -47,8 +49,9 @@ _ = gettext.gettext
 
 
 class Diff(InterfaceNonView):
-    def __init__(self, path1, revision1=None, path2=None, revision2=None,
-                 sidebyside=False):
+    def __init__(
+        self, path1, revision1=None, path2=None, revision2=None, sidebyside=False
+    ):
         InterfaceNonView.__init__(self)
 
         self.vcs = rabbitvcs.vcs.VCS()
@@ -75,7 +78,9 @@ class Diff(InterfaceNonView):
 
     def _build_export_path(self, index, revision, path):
         dest = helper.get_tmp_path(
-            "rabbitvcs-%s-%s-%s" % (str(index), str(revision)[:5], os.path.basename(path)))
+            "rabbitvcs-%s-%s-%s"
+            % (str(index), str(revision)[:5], os.path.basename(path))
+        )
         if os.path.exists(dest):
             if os.path.isdir(dest):
                 rmtree(dest, ignore_errors=True)
@@ -101,8 +106,9 @@ class Diff(InterfaceNonView):
 
 
 class SVNDiff(Diff):
-    def __init__(self, path1, revision1=None, path2=None, revision2=None,
-                 sidebyside=False):
+    def __init__(
+        self, path1, revision1=None, path2=None, revision2=None, sidebyside=False
+    ):
         Diff.__init__(self, path1, revision1, path2, revision2, sidebyside)
 
         self.svn = self.vcs.svn()
@@ -137,11 +143,7 @@ class SVNDiff(Diff):
 
         """
 
-        action = SVNAction(
-            self.svn,
-            notification=False,
-            run_in_thread=False
-        )
+        action = SVNAction(self.svn, notification=False, run_in_thread=False)
 
         diff_text = action.run_single(
             self.svn.diff,
@@ -149,13 +151,14 @@ class SVNDiff(Diff):
             self.path1,
             self.revision1,
             self.path2,
-            self.revision2
+            self.revision2,
         )
         if diff_text is None:
             diff_text = ""
 
         fh = tempfile.mkstemp(
-            "-rabbitvcs-" + str(self.revision1) + "-" + str(self.revision2) + ".diff")
+            "-rabbitvcs-" + str(self.revision1) + "-" + str(self.revision2) + ".diff"
+        )
         os.write(fh[0], S(diff_text).bytes())
         os.close(fh[0])
         helper.open_item(fh[1])
@@ -166,42 +169,29 @@ class SVNDiff(Diff):
 
         """
 
-        action = SVNAction(
-            self.svn,
-            notification=False,
-            run_in_thread=False
-        )
+        action = SVNAction(self.svn, notification=False, run_in_thread=False)
 
         if self.revision1.kind == "working":
             dest1 = self.path1
         else:
             dest1 = self._build_export_path(1, self.revision1, self.path1)
-            action.run_single(
-                self.svn.export,
-                self.path1,
-                dest1,
-                self.revision1
-            )
+            action.run_single(self.svn.export, self.path1, dest1, self.revision1)
             action.stop_loader()
 
         if self.revision2.kind == "working":
             dest2 = self.path2
         else:
             dest2 = self._build_export_path(2, self.revision2, self.path2)
-            action.run_single(
-                self.svn.export,
-                self.path2,
-                dest2,
-                self.revision2
-            )
+            action.run_single(self.svn.export, self.path2, dest2, self.revision2)
             action.stop_loader()
 
         helper.launch_diff_tool(dest1, dest2)
 
 
 class GitDiff(Diff):
-    def __init__(self, path1, revision1=None, path2=None, revision2=None,
-                 sidebyside=False):
+    def __init__(
+        self, path1, revision1=None, path2=None, revision2=None, sidebyside=False
+    ):
         Diff.__init__(self, path1, revision1, path2, revision2, sidebyside)
 
         self.git = self.vcs.git(path1)
@@ -247,24 +237,21 @@ class GitDiff(Diff):
 
         """
 
-        action = GitAction(
-            self.git,
-            notification=False,
-            run_in_thread=False
-        )
+        action = GitAction(self.git, notification=False, run_in_thread=False)
 
         diff_text = action.run_single(
-            self.git.diff,
-            self.path1,
-            self.revision1,
-            self.path2,
-            self.revision2
+            self.git.diff, self.path1, self.revision1, self.path2, self.revision2
         )
         if diff_text is None:
             diff_text = ""
 
-        fh = tempfile.mkstemp("-rabbitvcs-" + str(self.revision1)
-                              [:5] + "-" + str(self.revision2)[:5] + ".diff")
+        fh = tempfile.mkstemp(
+            "-rabbitvcs-"
+            + str(self.revision1)[:5]
+            + "-"
+            + str(self.revision2)[:5]
+            + ".diff"
+        )
         os.write(fh[0], S(diff_text).bytes())
         os.close(fh[0])
         helper.open_item(fh[1])
@@ -275,42 +262,33 @@ class GitDiff(Diff):
 
         """
 
-        action = GitAction(
-            self.git,
-            notification=False,
-            run_in_thread=False
-        )
+        action = GitAction(self.git, notification=False, run_in_thread=False)
 
         if self.revision1.kind != "WORKING":
             dest1 = self._build_export_path(1, self.revision1, self.path1)
-            self.save_diff_to_file(dest1, action.run_single(
-                self.git.show,
-                self.path1,
-                self.revision1
-            ))
+            self.save_diff_to_file(
+                dest1, action.run_single(self.git.show, self.path1, self.revision1)
+            )
         else:
             dest1 = self.path1
 
         if self.revision2.kind != "WORKING":
             dest2 = self._build_export_path(2, self.revision2, self.path2)
-            self.save_diff_to_file(dest2, action.run_single(
-                self.git.show,
-                self.path2,
-                self.revision2
-            ))
+            self.save_diff_to_file(
+                dest2, action.run_single(self.git.show, self.path2, self.revision2)
+            )
         else:
             dest2 = self.path2
 
         helper.launch_diff_tool(dest1, dest2)
 
 
-classes_map = {
-    rabbitvcs.vcs.VCS_SVN: SVNDiff,
-    rabbitvcs.vcs.VCS_GIT: GitDiff
-}
+classes_map = {rabbitvcs.vcs.VCS_SVN: SVNDiff, rabbitvcs.vcs.VCS_GIT: GitDiff}
 
 
-def diff_factory(vcs, path1, revision_obj1, path2=None, revision_obj2=None, sidebyside=False):
+def diff_factory(
+    vcs, path1, revision_obj1, path2=None, revision_obj2=None, sidebyside=False
+):
     if not vcs:
         guess = rabbitvcs.vcs.guess(path1)
         vcs = guess["vcs"]
@@ -320,13 +298,20 @@ def diff_factory(vcs, path1, revision_obj1, path2=None, revision_obj2=None, side
 
 if __name__ == "__main__":
     from rabbitvcs.ui import main, VCS_OPT
-    (options, args) = main([
-        (["-s", "--sidebyside"], {
-            "help":     _("View diff as side-by-side comparison"),
-            "action":   "store_true",
-            "default":  False
-        }), VCS_OPT],
-        usage="Usage: rabbitvcs diff [url1@rev1] [url2@rev2]"
+
+    (options, args) = main(
+        [
+            (
+                ["-s", "--sidebyside"],
+                {
+                    "help": _("View diff as side-by-side comparison"),
+                    "action": "store_true",
+                    "default": False,
+                },
+            ),
+            VCS_OPT,
+        ],
+        usage="Usage: rabbitvcs diff [url1@rev1] [url2@rev2]",
     )
 
     pathrev1 = helper.parse_path_revision_string(args.pop(0))
@@ -334,5 +319,11 @@ if __name__ == "__main__":
     if len(args) > 0:
         pathrev2 = helper.parse_path_revision_string(args.pop(0))
 
-    diff_factory(options.vcs, pathrev1[0], pathrev1[1],
-                 pathrev2[0], pathrev2[1], sidebyside=options.sidebyside)
+    diff_factory(
+        options.vcs,
+        pathrev1[0],
+        pathrev1[1],
+        pathrev2[0],
+        pathrev2[1],
+        sidebyside=options.sidebyside,
+    )

@@ -47,10 +47,12 @@ from six.moves import range
 log = Log("rabbitvcs.vcs.svn")
 
 from rabbitvcs import gettext
+
 _ = gettext.gettext
 
 # Extra "action" for "commit completed"
 commit_completed = "commit_completed"
+
 
 @structure_map
 def pure_unicode(obj):
@@ -75,14 +77,14 @@ class Revision(object):
     """
 
     KINDS = {
-        "unspecified":      pysvn.opt_revision_kind.unspecified,
-        "number":           pysvn.opt_revision_kind.number,
-        "date":             pysvn.opt_revision_kind.date,
-        "committed":        pysvn.opt_revision_kind.committed,
-        "previous":         pysvn.opt_revision_kind.previous,
-        "working":          pysvn.opt_revision_kind.working,
-        "head":             pysvn.opt_revision_kind.head,
-        "base":             pysvn.opt_revision_kind.base
+        "unspecified": pysvn.opt_revision_kind.unspecified,
+        "number": pysvn.opt_revision_kind.number,
+        "date": pysvn.opt_revision_kind.date,
+        "committed": pysvn.opt_revision_kind.committed,
+        "previous": pysvn.opt_revision_kind.previous,
+        "working": pysvn.opt_revision_kind.working,
+        "head": pysvn.opt_revision_kind.head,
+        "base": pysvn.opt_revision_kind.base,
     }
 
     def __init__(self, kind, value=None):
@@ -91,7 +93,7 @@ class Revision(object):
         self.is_revision_object = True
 
         # TODO Shift to options factory?
-        if self.value and str(self.value).lower().strip() == 'head':
+        if self.value and str(self.value).lower().strip() == "head":
             self.kind = "head"
 
         if self.value is None and self.kind in ("number", "date"):
@@ -130,128 +132,133 @@ class Revision(object):
 
 
 class SVN(object):
-    """
-
-    """
+    """ """
 
     STATUS = {
-        "none"          : pysvn.wc_status_kind.none,
-        "unversioned"   : pysvn.wc_status_kind.unversioned,
-        "normal"        : pysvn.wc_status_kind.normal,
-        "added"         : pysvn.wc_status_kind.added,
-        "missing"       : pysvn.wc_status_kind.missing,
-        "deleted"       : pysvn.wc_status_kind.deleted,
-        "replaced"      : pysvn.wc_status_kind.replaced,
-        "modified"      : pysvn.wc_status_kind.modified,
-        "merged"        : pysvn.wc_status_kind.merged,
-        "conflicted"    : pysvn.wc_status_kind.conflicted,
-        "ignored"       : pysvn.wc_status_kind.ignored,
-        "obstructed"    : pysvn.wc_status_kind.obstructed,
-        "external"      : pysvn.wc_status_kind.external,
-        "incomplete"    : pysvn.wc_status_kind.incomplete
+        "none": pysvn.wc_status_kind.none,
+        "unversioned": pysvn.wc_status_kind.unversioned,
+        "normal": pysvn.wc_status_kind.normal,
+        "added": pysvn.wc_status_kind.added,
+        "missing": pysvn.wc_status_kind.missing,
+        "deleted": pysvn.wc_status_kind.deleted,
+        "replaced": pysvn.wc_status_kind.replaced,
+        "modified": pysvn.wc_status_kind.modified,
+        "merged": pysvn.wc_status_kind.merged,
+        "conflicted": pysvn.wc_status_kind.conflicted,
+        "ignored": pysvn.wc_status_kind.ignored,
+        "obstructed": pysvn.wc_status_kind.obstructed,
+        "external": pysvn.wc_status_kind.external,
+        "incomplete": pysvn.wc_status_kind.incomplete,
     }
 
-    STATUSES_FOR_COMMIT = list(map(str,
-        [
-            pysvn.wc_status_kind.unversioned,
-            pysvn.wc_status_kind.added,
-            pysvn.wc_status_kind.deleted,
-            pysvn.wc_status_kind.replaced,
-            pysvn.wc_status_kind.modified,
-            pysvn.wc_status_kind.missing,
-            pysvn.wc_status_kind.obstructed
-        ]))
+    STATUSES_FOR_COMMIT = list(
+        map(
+            str,
+            [
+                pysvn.wc_status_kind.unversioned,
+                pysvn.wc_status_kind.added,
+                pysvn.wc_status_kind.deleted,
+                pysvn.wc_status_kind.replaced,
+                pysvn.wc_status_kind.modified,
+                pysvn.wc_status_kind.missing,
+                pysvn.wc_status_kind.obstructed,
+            ],
+        )
+    )
 
-    STATUSES_FOR_REVERT = list(map(str,
-        [
-            pysvn.wc_status_kind.missing,
-            pysvn.wc_status_kind.added,
-            pysvn.wc_status_kind.modified,
-            pysvn.wc_status_kind.deleted
-        ]))
+    STATUSES_FOR_REVERT = list(
+        map(
+            str,
+            [
+                pysvn.wc_status_kind.missing,
+                pysvn.wc_status_kind.added,
+                pysvn.wc_status_kind.modified,
+                pysvn.wc_status_kind.deleted,
+            ],
+        )
+    )
 
-    STATUSES_FOR_ADD = list(map(str,
-        [
-            pysvn.wc_status_kind.unversioned,
-            pysvn.wc_status_kind.obstructed
-        ]))
+    STATUSES_FOR_ADD = list(
+        map(str, [pysvn.wc_status_kind.unversioned, pysvn.wc_status_kind.obstructed])
+    )
 
-    STATUSES_FOR_RESOLVE = list(map(str,
-        [
-            pysvn.wc_status_kind.conflicted
-        ]))
+    STATUSES_FOR_RESOLVE = list(map(str, [pysvn.wc_status_kind.conflicted]))
 
-    STATUSES_FOR_CHECK = list(map(str,
-        [
-            pysvn.wc_status_kind.added,
-            pysvn.wc_status_kind.deleted,
-            pysvn.wc_status_kind.replaced,
-            pysvn.wc_status_kind.modified,
-            pysvn.wc_status_kind.missing,
-            pysvn.wc_status_kind.conflicted,
-        ]))
+    STATUSES_FOR_CHECK = list(
+        map(
+            str,
+            [
+                pysvn.wc_status_kind.added,
+                pysvn.wc_status_kind.deleted,
+                pysvn.wc_status_kind.replaced,
+                pysvn.wc_status_kind.modified,
+                pysvn.wc_status_kind.missing,
+                pysvn.wc_status_kind.conflicted,
+            ],
+        )
+    )
 
     PROPERTIES = {
-        "executable":   "svn:executable",
-        "mime-type":    "svn:mime-type",
-        "ignore":       "svn:ignore",
-        "keywords":     "svn:keywords",
-        "eol-style":    "svn:eol-style",
-        "externals":    "svn:externals",
-        "special":      "svn:special"
+        "executable": "svn:executable",
+        "mime-type": "svn:mime-type",
+        "ignore": "svn:ignore",
+        "keywords": "svn:keywords",
+        "eol-style": "svn:eol-style",
+        "externals": "svn:externals",
+        "special": "svn:special",
     }
 
     NOTIFY_ACTIONS = {
-        pysvn.wc_notify_action.add:                     _("Added"),
-        pysvn.wc_notify_action.copy:                    _("Copied"),
-        pysvn.wc_notify_action.delete:                  _("Deleted"),
-        pysvn.wc_notify_action.restore:                 _("Restored"),
-        pysvn.wc_notify_action.revert:                  _("Reverted"),
-        pysvn.wc_notify_action.failed_revert:           _("Failed Revert"),
-        pysvn.wc_notify_action.resolved:                _("Resolved"),
-        pysvn.wc_notify_action.skip:                    _("Skipped"),
-        pysvn.wc_notify_action.update_delete:           _("Deleted"),
-        pysvn.wc_notify_action.update_add:              _("Added"),
-        pysvn.wc_notify_action.update_started:          _("Updating"),
-        pysvn.wc_notify_action.update_update:           _("Updated"),
-        pysvn.wc_notify_action.update_completed:        _("Completed"),
-        pysvn.wc_notify_action.update_external:         _("External"),
-        pysvn.wc_notify_action.status_completed:        _("Completed"),
-        pysvn.wc_notify_action.status_external:         _("External"),
-        pysvn.wc_notify_action.commit_modified:         _("Modified"),
-        pysvn.wc_notify_action.commit_added:            _("Added"),
-        pysvn.wc_notify_action.commit_deleted:          _("Deleted"),
-        pysvn.wc_notify_action.commit_replaced:         _("Replaced"),
-        pysvn.wc_notify_action.commit_postfix_txdelta:  _("Changed"),
-        pysvn.wc_notify_action.annotate_revision:       _("Annotated"),
-        pysvn.wc_notify_action.locked:                  _("Locked"),
-        pysvn.wc_notify_action.unlocked:                _("Unlocked"),
-        pysvn.wc_notify_action.failed_lock:             _("Failed Lock"),
-        pysvn.wc_notify_action.failed_unlock:           _("Failed Unlock")
+        pysvn.wc_notify_action.add: _("Added"),
+        pysvn.wc_notify_action.copy: _("Copied"),
+        pysvn.wc_notify_action.delete: _("Deleted"),
+        pysvn.wc_notify_action.restore: _("Restored"),
+        pysvn.wc_notify_action.revert: _("Reverted"),
+        pysvn.wc_notify_action.failed_revert: _("Failed Revert"),
+        pysvn.wc_notify_action.resolved: _("Resolved"),
+        pysvn.wc_notify_action.skip: _("Skipped"),
+        pysvn.wc_notify_action.update_delete: _("Deleted"),
+        pysvn.wc_notify_action.update_add: _("Added"),
+        pysvn.wc_notify_action.update_started: _("Updating"),
+        pysvn.wc_notify_action.update_update: _("Updated"),
+        pysvn.wc_notify_action.update_completed: _("Completed"),
+        pysvn.wc_notify_action.update_external: _("External"),
+        pysvn.wc_notify_action.status_completed: _("Completed"),
+        pysvn.wc_notify_action.status_external: _("External"),
+        pysvn.wc_notify_action.commit_modified: _("Modified"),
+        pysvn.wc_notify_action.commit_added: _("Added"),
+        pysvn.wc_notify_action.commit_deleted: _("Deleted"),
+        pysvn.wc_notify_action.commit_replaced: _("Replaced"),
+        pysvn.wc_notify_action.commit_postfix_txdelta: _("Changed"),
+        pysvn.wc_notify_action.annotate_revision: _("Annotated"),
+        pysvn.wc_notify_action.locked: _("Locked"),
+        pysvn.wc_notify_action.unlocked: _("Unlocked"),
+        pysvn.wc_notify_action.failed_lock: _("Failed Lock"),
+        pysvn.wc_notify_action.failed_unlock: _("Failed Unlock"),
     }
 
     NOTIFY_ACTIONS_COMPLETE = [
         pysvn.wc_notify_action.status_completed,
         pysvn.wc_notify_action.update_completed,
-        commit_completed
+        commit_completed,
     ]
 
     NOTIFY_STATES = {
-        pysvn.wc_notify_state.inapplicable:             _("Inapplicable"),
-        pysvn.wc_notify_state.unknown:                  _("Unknown"),
-        pysvn.wc_notify_state.unchanged:                _("Unchanged"),
-        pysvn.wc_notify_state.missing:                  _("Missing"),
-        pysvn.wc_notify_state.obstructed:               _("Obstructed"),
-        pysvn.wc_notify_state.changed:                  _("Changed"),
-        pysvn.wc_notify_state.merged:                   _("Merged"),
-        pysvn.wc_notify_state.conflicted:               _("Conflicted")
+        pysvn.wc_notify_state.inapplicable: _("Inapplicable"),
+        pysvn.wc_notify_state.unknown: _("Unknown"),
+        pysvn.wc_notify_state.unchanged: _("Unchanged"),
+        pysvn.wc_notify_state.missing: _("Missing"),
+        pysvn.wc_notify_state.obstructed: _("Obstructed"),
+        pysvn.wc_notify_state.changed: _("Changed"),
+        pysvn.wc_notify_state.merged: _("Merged"),
+        pysvn.wc_notify_state.conflicted: _("Conflicted"),
     }
 
     NODE_KINDS_REVERSE = {
         pysvn.node_kind.none: "none",
         pysvn.node_kind.file: "file",
-        pysvn.node_kind.dir:  "dir",
-        pysvn.node_kind.unknown: "unknown"
+        pysvn.node_kind.dir: "dir",
+        pysvn.node_kind.unknown: "unknown",
     }
 
     def __init__(self):
@@ -280,9 +287,9 @@ class SVN(object):
             return [on_error]
 
         try:
-            pysvn_statuses = self.client_status(path,
-                                                depth=pysvn.depth.infinity,
-                                                update=update)
+            pysvn_statuses = self.client_status(
+                path, depth=pysvn.depth.infinity, update=update
+            )
             if not len(pysvn_statuses):
                 # This is NOT in the PySVN documentation, but sometimes it
                 # returns an empty list if the file goes missing...
@@ -304,7 +311,7 @@ class SVN(object):
                 return statuslist
         except pysvn.ClientError as ex:
             # TODO: uncommenting these might not be a good idea
-            #~ traceback.print_exc()
+            # ~ traceback.print_exc()
             log.debug("Exception occurred in SVN.status() for %s" % path)
             log.exception(ex)
             return [on_error]
@@ -364,14 +371,16 @@ class SVN(object):
             # And it's associated with the status "obstructed". The only
             # way to make sure that we're dealing with a working copy
             # is by verifying the SVN administration area exists.
-            if (isdir(path) and
-                    self.client_info(path) and
-                    isdir(os.path.join(path, ".svn"))):
+            if (
+                isdir(path)
+                and self.client_info(path)
+                and isdir(os.path.join(path, ".svn"))
+            ):
                 return True
             return False
         except Exception as e:
             # FIXME: ClientError client in use on another thread
-            #~ log.debug("EXCEPTION in is_working_copy(): %s" % str(e))
+            # ~ log.debug("EXCEPTION in is_working_copy(): %s" % str(e))
             return False
 
     def is_in_a_or_a_working_copy(self, path):
@@ -387,8 +396,7 @@ class SVN(object):
         else:
             try:
                 # info will return nothing for an unversioned file inside a working copy
-                if (self.is_in_a_or_a_working_copy(path) and
-                        self.client_info(path)):
+                if self.is_in_a_or_a_working_copy(path) and self.client_info(path):
                     return True
             except Exception as e:
                 log.exception("is_versioned exception for %s" % path)
@@ -405,12 +413,15 @@ class SVN(object):
         # If looking for "NORMAL", then both statuses must be normal (or propstatus=none)
         # Otherwise, it is an either or situation
         if status_kind == pysvn.wc_status_kind.normal:
-            return (status.data["text_status"] == status_kind
-                and (status.data["prop_status"] == status_kind
-                    or status.data["prop_status"] == pysvn.wc_status_kind.none))
+            return status.data["text_status"] == status_kind and (
+                status.data["prop_status"] == status_kind
+                or status.data["prop_status"] == pysvn.wc_status_kind.none
+            )
         else:
-            return (status.data["text_status"] == status_kind
-                or status.data["prop_status"] == status_kind)
+            return (
+                status.data["text_status"] == status_kind
+                or status.data["prop_status"] == status_kind
+            )
 
         return False
 
@@ -421,7 +432,7 @@ class SVN(object):
             is_locked = self.client.info2(path, recurse=False)[0][1].lock is not None
         except pysvn.ClientError as e:
             return False
-            #log.exception("is_locked exception for %s" % path)
+            # log.exception("is_locked exception for %s" % path)
 
         return is_locked
 
@@ -446,7 +457,9 @@ class SVN(object):
 
             sts = self.statuses(path, invalidate=True)
             for st in sts:
-                if (not statuses) or (st.content in statuses or st.metadata in statuses):
+                if (not statuses) or (
+                    st.content in statuses or st.metadata in statuses
+                ):
                     items.append(st)
 
         return items
@@ -558,7 +571,9 @@ class SVN(object):
         except KeyError as e:
             log.exception("KeyError exception in svn.py get_revision() for %s" % path)
         except AttributeError as e:
-            log.exception("AttributeError exception in svn.py get_revision() for %s" % path)
+            log.exception(
+                "AttributeError exception in svn.py get_revision() for %s" % path
+            )
 
         return returner
 
@@ -601,33 +616,34 @@ class SVN(object):
         """
 
         from_url_root = self.get_repo_root_url(from_url)
-        from_branch = from_url.replace(from_url_root, '')
-        from_branch = from_branch.rstrip('/')
+        from_branch = from_url.replace(from_url_root, "")
+        from_branch = from_branch.rstrip("/")
 
         merge_info = self.propget(to_path, "svn:mergeinfo")
 
         merged_revisions = []
-        for branch in merge_info.split('\n'):
-            if not branch.startswith(from_branch + ':'):
+        for branch in merge_info.split("\n"):
+            if not branch.startswith(from_branch + ":"):
                 continue
-            revisions = branch.split(':')[1]  # branch:rev,rev-rev,...
-            for rev in revisions.split(','):
-                if rev.find('-') != -1:
-                    (rev_s, rev_e) = rev.split('-')
+            revisions = branch.split(":")[1]  # branch:rev,rev-rev,...
+            for rev in revisions.split(","):
+                if rev.find("-") != -1:
+                    (rev_s, rev_e) = rev.split("-")
                     merged_revisions += list(range(int(rev_s), int(rev_e) + 1))
                 else:
                     merged_revisions.append(int(rev))
 
         from_log = self.log(from_url, strict_node_history=False)
-        from_revisions = [ int(l.revision.short()) for l in from_log ]
+        from_revisions = [int(l.revision.short()) for l in from_log]
 
         to_log = self.log(to_path, strict_node_history=False)
-        to_revisions = [ int(l.revision.short()) for l in to_log ]
+        to_revisions = [int(l.revision.short()) for l in to_log]
 
-        candidate_revisions = list(set(from_revisions) - set(to_revisions) - set(merged_revisions))
+        candidate_revisions = list(
+            set(from_revisions) - set(to_revisions) - set(merged_revisions)
+        )
 
         return candidate_revisions
-
 
     #
     # properties
@@ -689,13 +705,18 @@ class SVN(object):
                 pure_unicode(prop_name),
                 pure_unicode(props),
                 pure_unicode(path),
-                recurse=recurse
+                recurse=recurse,
             )
             return True
         except pysvn.ClientError as e:
-            log.exception("pysvn.ClientError exception in svn.py propset() for %s" % S(path).display())
+            log.exception(
+                "pysvn.ClientError exception in svn.py propset() for %s"
+                % S(path).display()
+            )
         except TypeError as e:
-            log.exception("TypeError exception in svn.py propset() %s" % S(path).display())
+            log.exception(
+                "TypeError exception in svn.py propset() %s" % S(path).display()
+            )
 
         return False
 
@@ -744,19 +765,14 @@ class SVN(object):
         try:
             if rev:
                 returner = self.client.propget(
-                    prop_name,
-                    path,
-                    recurse=True,
-                    revision=rev
+                    prop_name, path, recurse=True, revision=rev
                 )
             else:
-                returner = self.client.propget(
-                    prop_name,
-                    path,
-                    recurse=True
-                )
+                returner = self.client.propget(prop_name, path, recurse=True)
         except pysvn.ClientError as e:
-            log.exception("pysvn.ClientError exception in svn.py propget() for %s" % path)
+            log.exception(
+                "pysvn.ClientError exception in svn.py propget() for %s" % path
+            )
             return ""
 
         try:
@@ -787,15 +803,18 @@ class SVN(object):
         returner = False
         try:
             self.client.propdel(
-                pure_unicode(prop_name),
-                pure_unicode(path),
-                recurse=recurse
+                pure_unicode(prop_name), pure_unicode(path), recurse=recurse
             )
             returner = True
         except pysvn.ClientError as e:
-            log.exception("pysvn.ClientError exception in svn.py propdel() for %s" % S(path).display())
+            log.exception(
+                "pysvn.ClientError exception in svn.py propdel() for %s"
+                % S(path).display()
+            )
         except TypeError as e:
-            log.exception("TypeError exception in svn.py propdel() %s" % S(path).display())
+            log.exception(
+                "TypeError exception in svn.py propdel() %s" % S(path).display()
+            )
 
         return returner
 
@@ -816,34 +835,41 @@ class SVN(object):
 
         """
         local_props = self.proplist(path)
-        base_props = self.proplist(path,
-                                   rev=Revision("base").primitive())
+        base_props = self.proplist(path, rev=Revision("base").primitive())
 
         prop_details = {}
 
         local_propnames = set(local_props.keys())
         base_propnames = set(base_props.keys())
 
-        for propname in (local_propnames | base_propnames):
+        for propname in local_propnames | base_propnames:
 
             if propname in (local_propnames & base_propnames):
                 # These are the property names that are common to the WC and
                 # base. If their values have changed, list them as changed
                 if local_props[propname] == base_props[propname]:
-                    prop_details[propname] = {"status": rabbitvcs.vcs.status.status_normal,
-                                              "value": local_props[propname]}
+                    prop_details[propname] = {
+                        "status": rabbitvcs.vcs.status.status_normal,
+                        "value": local_props[propname],
+                    }
 
                 else:
-                    prop_details[propname] = {"status": rabbitvcs.vcs.status.status_modified,
-                                              "value": local_props[propname]}
+                    prop_details[propname] = {
+                        "status": rabbitvcs.vcs.status.status_modified,
+                        "value": local_props[propname],
+                    }
 
             elif propname in local_propnames:
-                prop_details[propname] = {"status": rabbitvcs.vcs.status.status_added,
-                                          "value": local_props[propname]}
+                prop_details[propname] = {
+                    "status": rabbitvcs.vcs.status.status_added,
+                    "value": local_props[propname],
+                }
 
             elif propname in base_propnames:
-                prop_details[propname] = {"status": rabbitvcs.vcs.status.status_deleted,
-                                          "value": base_props[propname]}
+                prop_details[propname] = {
+                    "status": rabbitvcs.vcs.status.status_deleted,
+                    "value": base_props[propname],
+                }
 
         return prop_details
 
@@ -872,10 +898,12 @@ class SVN(object):
         if rev is None:
             rev = self.revision("head")
 
-        self.client.revpropset(pure_unicode(prop_name),
-                               pure_unicode(prop_value),
-                               pure_unicode(url),
-                               revision=rev.primitive())
+        self.client.revpropset(
+            pure_unicode(prop_name),
+            pure_unicode(prop_value),
+            pure_unicode(url),
+            revision=rev.primitive(),
+        )
 
     def revproplist(self, url, rev=None):
         """
@@ -919,9 +947,7 @@ class SVN(object):
             rev = self.revision("head")
 
         return self.client.revpropget(
-            pure_unicode(prop_name),
-            pure_unicode(url),
-            revision=rev.primitive()
+            pure_unicode(prop_name), pure_unicode(url), revision=rev.primitive()
         )
 
     def revpropdel(self, url, prop_name, rev=None, force=False):
@@ -949,7 +975,7 @@ class SVN(object):
             pure_unicode(prop_name),
             pure_unicode(url),
             revision=rev.primitive(),
-            force=force
+            force=force,
         )
 
     #
@@ -1041,7 +1067,7 @@ class SVN(object):
         @param path: the path to add to version control
         @type path: string
         """
-        head, tail = pure_unicode(path),""
+        head, tail = pure_unicode(path), ""
         tails = list()
 
         # We need to add backwards-recursively, since patch could create
@@ -1077,8 +1103,14 @@ class SVN(object):
         dest = helper.urlize(pure_unicode(dest))
         return self.client.copy(src, dest, revision.primitive())
 
-    def copy_all(self, sources, dest_url_or_path, copy_as_child=False,
-            make_parents=False, ignore_externals=False):
+    def copy_all(
+        self,
+        sources,
+        dest_url_or_path,
+        copy_as_child=False,
+        make_parents=False,
+        ignore_externals=False,
+    ):
         """
         Copy sources to the dest_url_or_path.
 
@@ -1100,12 +1132,18 @@ class SVN(object):
 
         """
 
-        return self.client.copy2(pure_unicode(sources),
-            pure_unicode(dest_url_or_path), copy_as_child,
-            make_parents, None, ignore_externals)
+        return self.client.copy2(
+            pure_unicode(sources),
+            pure_unicode(dest_url_or_path),
+            copy_as_child,
+            make_parents,
+            None,
+            ignore_externals,
+        )
 
-    def checkout(self, url, path, recurse=True, revision=Revision("head"),
-            ignore_externals=False):
+    def checkout(
+        self, url, path, recurse=True, revision=Revision("head"), ignore_externals=False
+    ):
 
         """
         Checkout a working copy from a vcs repository
@@ -1129,9 +1167,13 @@ class SVN(object):
 
         url = helper.urlize(pure_unicode(url))
 
-        return self.client.checkout(url, pure_unicode(path),
-            recurse=recurse, revision=revision.primitive(),
-            ignore_externals=ignore_externals)
+        return self.client.checkout(
+            url,
+            pure_unicode(path),
+            recurse=recurse,
+            revision=revision.primitive(),
+            ignore_externals=ignore_externals,
+        )
 
     def cleanup(self, path):
         """
@@ -1179,23 +1221,30 @@ class SVN(object):
             # committed.  The pysvn.depth kwarg must be set to empty.
             # Unfortunately, older pysvn/svn installations do not have the depth
             # enum so for those, recurse must be used.
-            kwargs["depth"] = (recurse and pysvn.depth.infinity or pysvn.depth.empty)
+            kwargs["depth"] = recurse and pysvn.depth.infinity or pysvn.depth.empty
         except AttributeError:
             kwargs["recurse"] = recurse
 
-        retval = self.client.checkin(pure_unicode(paths),
-                                     pure_unicode(log_message), **kwargs)
+        retval = self.client.checkin(
+            pure_unicode(paths), pure_unicode(log_message), **kwargs
+        )
         dummy_commit_dict = {
             "revision": retval,
-            "action": rabbitvcs.vcs.svn.commit_completed
-            }
+            "action": rabbitvcs.vcs.svn.commit_completed,
+        }
         self.client.callback_notify(dummy_commit_dict)
 
         return retval
 
-    def log(self, url_or_path, revision_start=Revision("head"),
-            revision_end=Revision("number", 0), limit=0,
-            discover_changed_paths=True, strict_node_history=False):
+    def log(
+        self,
+        url_or_path,
+        revision_start=Revision("head"),
+        revision_end=Revision("number", 0),
+        limit=0,
+        discover_changed_paths=True,
+        strict_node_history=False,
+    ):
         """
         Retrieve log items for a given path in the repository
 
@@ -1213,14 +1262,23 @@ class SVN(object):
 
         """
 
-        log = self.client.log(pure_unicode(url_or_path),
-            revision_start.primitive(), revision_end.primitive(),
-            discover_changed_paths, strict_node_history, limit)
+        log = self.client.log(
+            pure_unicode(url_or_path),
+            revision_start.primitive(),
+            revision_end.primitive(),
+            discover_changed_paths,
+            strict_node_history,
+            limit,
+        )
 
         returner = []
         for item in log:
             revision = Revision(pysvn.opt_revision_kind.number, item.revision.number)
-            date = datetime.fromtimestamp(item.date) if hasattr(item, "date") else datetime(1900, 1, 1)
+            date = (
+                datetime.fromtimestamp(item.date)
+                if hasattr(item, "date")
+                else datetime(1900, 1, 1)
+            )
 
             author = _("(no author)")
             if hasattr(item, "author"):
@@ -1234,32 +1292,41 @@ class SVN(object):
             for changed_path in item.changed_paths:
                 copy_from_rev = ""
                 if hasattr(changed_path.copyfrom_revision, "number"):
-                    copy_from_rev = self.revision("number", changed_path.copyfrom_revision.number)
+                    copy_from_rev = self.revision(
+                        "number", changed_path.copyfrom_revision.number
+                    )
 
                 copy_from_path = ""
                 if hasattr(changed_path, "copy_from_path"):
                     copy_from_path = changed_path.copy_from_path
 
-                changed_paths.append(rabbitvcs.vcs.log.LogChangedPath(
-                    changed_path.path,
-                    changed_path.action,
-                    copy_from_path,
-                    copy_from_rev
-                ))
+                changed_paths.append(
+                    rabbitvcs.vcs.log.LogChangedPath(
+                        changed_path.path,
+                        changed_path.action,
+                        copy_from_path,
+                        copy_from_rev,
+                    )
+                )
 
-            returner.append(rabbitvcs.vcs.log.Log(
-                date,
-                revision,
-                author,
-                message,
-                changed_paths,
-                None
-            ))
+            returner.append(
+                rabbitvcs.vcs.log.Log(
+                    date, revision, author, message, changed_paths, None
+                )
+            )
 
         return returner
 
-    def export(self, src_url_or_path, dest_path, revision=Revision("head"),
-            recurse=True, ignore_externals=False, force=False, native_eol=None):
+    def export(
+        self,
+        src_url_or_path,
+        dest_path,
+        revision=Revision("head"),
+        recurse=True,
+        ignore_externals=False,
+        force=False,
+        native_eol=None,
+    ):
 
         """
         Export files from either a working copy or repository into a local
@@ -1282,9 +1349,15 @@ class SVN(object):
 
         """
 
-        self.client.export(pure_unicode(src_url_or_path),
-            pure_unicode(dest_path), force,
-            revision.primitive(), native_eol, ignore_externals, recurse)
+        self.client.export(
+            pure_unicode(src_url_or_path),
+            pure_unicode(dest_path),
+            force,
+            revision.primitive(),
+            native_eol,
+            ignore_externals,
+            recurse,
+        )
 
     def import_(self, path, url, log_message, ignore=False):
 
@@ -1306,9 +1379,9 @@ class SVN(object):
         """
 
         url = helper.urlize(url)
-        return self.client.import_(pure_unicode(path),
-                                   pure_unicode(url),
-                                   pure_unicode(log_message), ignore)
+        return self.client.import_(
+            pure_unicode(path), pure_unicode(url), pure_unicode(log_message), ignore
+        )
 
     def lock(self, url_or_path, lock_comment, force=False):
 
@@ -1326,8 +1399,9 @@ class SVN(object):
 
         """
 
-        return self.client.lock(pure_unicode(url_or_path),
-                                pure_unicode(lock_comment), force)
+        return self.client.lock(
+            pure_unicode(url_or_path), pure_unicode(lock_comment), force
+        )
 
     def relocate(self, from_url, to_url, path, recurse=True):
 
@@ -1367,11 +1441,11 @@ class SVN(object):
         if hasattr(self.client, "move2"):
             return self.client.move2([src_url_or_path], dest_url_or_path)
         else:
-            return self.client.move(src_url_or_path, dest_url_or_path,
-                force=True)
+            return self.client.move(src_url_or_path, dest_url_or_path, force=True)
 
-    def move_all(self, sources, dest_url_or_path, move_as_child=False,
-            make_parents=False):
+    def move_all(
+        self, sources, dest_url_or_path, move_as_child=False, make_parents=False
+    ):
         """
         Move sources to the dest_url_or_path.
 
@@ -1390,9 +1464,12 @@ class SVN(object):
 
         """
 
-        return self.client.move2(pure_unicode(sources),
+        return self.client.move2(
+            pure_unicode(sources),
             pure_unicode(dest_url_or_path),
-            move_as_child=move_as_child, make_parents=make_parents)
+            move_as_child=move_as_child,
+            make_parents=make_parents,
+        )
 
     def remove(self, url_or_path, force=False, keep_local=False):
 
@@ -1410,8 +1487,7 @@ class SVN(object):
 
         """
 
-        return self.client.remove(pure_unicode(url_or_path),
-                                  force, keep_local)
+        return self.client.remove(pure_unicode(url_or_path), force, keep_local)
 
     def revert(self, paths, recurse=False):
         """
@@ -1473,8 +1549,9 @@ class SVN(object):
 
         return self.client.unlock(pure_unicode(path), force)
 
-    def update(self, path, recurse=True, revision=Revision("head"),
-            ignore_externals=False):
+    def update(
+        self, path, recurse=True, revision=Revision("head"), ignore_externals=False
+    ):
         """
         Update a working copy.
 
@@ -1492,12 +1569,16 @@ class SVN(object):
 
         """
 
-        return self.client.update(pure_unicode(path),
-                                  recurse, revision.primitive(),
-                                  ignore_externals)
+        return self.client.update(
+            pure_unicode(path), recurse, revision.primitive(), ignore_externals
+        )
 
-    def annotate(self, url_or_path, from_revision=Revision("number", 1),
-            to_revision=Revision("head")):
+    def annotate(
+        self,
+        url_or_path,
+        from_revision=Revision("number", 1),
+        to_revision=Revision("head"),
+    ):
         """
         Get the annotate results for the given file and revision range.
 
@@ -1512,13 +1593,23 @@ class SVN(object):
 
         """
 
-        return self.client.annotate(pure_unicode(url_or_path),
-                                    from_revision.primitive(),
-                                    to_revision.primitive())
+        return self.client.annotate(
+            pure_unicode(url_or_path),
+            from_revision.primitive(),
+            to_revision.primitive(),
+        )
 
-    def merge_ranges(self, source, ranges_to_merge, peg_revision,
-            target_wcpath, notice_ancestry=False, force=False, dry_run=False,
-            record_only=False):
+    def merge_ranges(
+        self,
+        source,
+        ranges_to_merge,
+        peg_revision,
+        target_wcpath,
+        notice_ancestry=False,
+        force=False,
+        dry_run=False,
+        record_only=False,
+    ):
         """
         Merge a range of revisions.
 
@@ -1549,14 +1640,16 @@ class SVN(object):
         TODO: Will firm up the parameter documentation later
 
         """
-        return self.client.merge_peg2(pure_unicode(source),
-                                      ranges_to_merge,
-                                      peg_revision.primitive(),
-                                      pure_unicode(target_wcpath),
-                                      notice_ancestry=notice_ancestry,
-                                      force=force,
-                                      dry_run=dry_run,
-                                      record_only=record_only)
+        return self.client.merge_peg2(
+            pure_unicode(source),
+            ranges_to_merge,
+            peg_revision.primitive(),
+            pure_unicode(target_wcpath),
+            notice_ancestry=notice_ancestry,
+            force=force,
+            dry_run=dry_run,
+            record_only=record_only,
+        )
 
     def has_merge2(self):
         """
@@ -1565,8 +1658,18 @@ class SVN(object):
         """
         return hasattr(self.client, "merge_peg2")
 
-    def merge_trees(self, url_or_path1, revision1, url_or_path2, revision2,
-            local_path, force=False, recurse=True, dry_run=False, record_only=False):
+    def merge_trees(
+        self,
+        url_or_path1,
+        revision1,
+        url_or_path2,
+        revision2,
+        local_path,
+        force=False,
+        recurse=True,
+        dry_run=False,
+        record_only=False,
+    ):
         """
         Merge two trees into one.
 
@@ -1603,15 +1706,17 @@ class SVN(object):
 
         url_or_path1 = helper.urlize(pure_unicode(url_or_path1))
         url_or_path2 = helper.urlize(pure_unicode(url_or_path2))
-        return self.client.merge(url_or_path1,
-                                 revision1.primitive(),
-                                 url_or_path2,
-                                 revision2.primitive(),
-                                 pure_unicode(local_path),
-                                 force = force,
-                                 recurse = recurse,
-                                 dry_run = dry_run,
-                                 record_only = record_only)
+        return self.client.merge(
+            url_or_path1,
+            revision1.primitive(),
+            url_or_path2,
+            revision2.primitive(),
+            pure_unicode(local_path),
+            force=force,
+            recurse=recurse,
+            dry_run=dry_run,
+            record_only=record_only,
+        )
 
     def has_merge_reintegrate(self):
         """
@@ -1638,15 +1743,25 @@ class SVN(object):
 
         """
 
-        return self.client.merge_reintegrate(pure_unicode(url_or_path),
-                                             revision.primitive(),
-                                             pure_unicode(local_path),
-                                             dry_run = dry_run)
+        return self.client.merge_reintegrate(
+            pure_unicode(url_or_path),
+            revision.primitive(),
+            pure_unicode(local_path),
+            dry_run=dry_run,
+        )
 
-
-    def diff(self, tmp_path, url_or_path, revision1, url_or_path2, revision2,
-            recurse=True, ignore_ancestry=False, diff_deleted=True,
-            ignore_content_type=False):
+    def diff(
+        self,
+        tmp_path,
+        url_or_path,
+        revision1,
+        url_or_path2,
+        revision2,
+        recurse=True,
+        ignore_ancestry=False,
+        diff_deleted=True,
+        ignore_content_type=False,
+    ):
         """
         Returns the diff text between the base code and the working copy.
 
@@ -1679,15 +1794,27 @@ class SVN(object):
 
         """
 
-        return self.client.diff(pure_unicode(tmp_path),
-                                pure_unicode(url_or_path),
-                                revision1.primitive(),
-                                pure_unicode(url_or_path2),
-                                revision2.primitive(), recurse, ignore_ancestry,
-                                diff_deleted, ignore_content_type)
+        return self.client.diff(
+            pure_unicode(tmp_path),
+            pure_unicode(url_or_path),
+            revision1.primitive(),
+            pure_unicode(url_or_path2),
+            revision2.primitive(),
+            recurse,
+            ignore_ancestry,
+            diff_deleted,
+            ignore_content_type,
+        )
 
-    def diff_summarize(self, url_or_path1, revision1, url_or_path2, revision2,
-            recurse=True, ignore_ancestry=False):
+    def diff_summarize(
+        self,
+        url_or_path1,
+        revision1,
+        url_or_path2,
+        revision2,
+        recurse=True,
+        ignore_ancestry=False,
+    ):
         """
         Returns a summary of changed items between two paths/revisions
 
@@ -1714,16 +1841,20 @@ class SVN(object):
 
         """
 
-        return self.client.diff_summarize(pure_unicode(url_or_path1),
-                                          revision1.primitive(),
-                                          pure_unicode(url_or_path2),
-                                          revision2.primitive(),
-                                          recurse, ignore_ancestry)
+        return self.client.diff_summarize(
+            pure_unicode(url_or_path1),
+            revision1.primitive(),
+            pure_unicode(url_or_path2),
+            revision2.primitive(),
+            recurse,
+            ignore_ancestry,
+        )
 
     def list(self, url_or_path, revision=Revision("HEAD"), recurse=True):
         url_or_path = helper.urlize(url_or_path)
-        return self.client.list(pure_unicode(url_or_path),
-                                revision=revision.primitive(), recurse=recurse)
+        return self.client.list(
+            pure_unicode(url_or_path), revision=revision.primitive(), recurse=recurse
+        )
 
     def mkdir(self, url_or_path, log_message):
         """
@@ -1737,8 +1868,7 @@ class SVN(object):
 
         """
 
-        return self.client.mkdir(pure_unicode(url_or_path),
-                                 pure_unicode(log_message))
+        return self.client.mkdir(pure_unicode(url_or_path), pure_unicode(log_message))
 
     def apply_patch(self, patch_file, base_dir):
         """
@@ -1761,31 +1891,29 @@ class SVN(object):
             event_dict = dict()
 
             event_dict["path"] = file
-            event_dict["mime_type"] = "" # meh
+            event_dict["mime_type"] = ""  # meh
 
             if success:
-                event_dict["action"] = _("Patched") # not in pysvn, but
-                                                    # we have a fallback
+                event_dict["action"] = _("Patched")  # not in pysvn, but
+                # we have a fallback
             else:
                 any_failures = True
-                event_dict["action"] = _("Patch Failed") # better wording needed?
+                event_dict["action"] = _("Patch Failed")  # better wording needed?
 
             # Creates its own notifications.
             self.add_backwards(fullpath)
 
             if rej_file:
                 rej_info = {
-                    "path" : rej_file,
-                    "action" : _("Rejected Patch"),
-                    "mime_type" : None
+                    "path": rej_file,
+                    "action": _("Rejected Patch"),
+                    "mime_type": None,
                 }
 
             if self.client.callback_notify:
                 self.client.callback_notify(event_dict)
                 if rej_file:
                     self.client.callback_notify(rej_info)
-
-
 
     def is_version_less_than(self, version):
         """
@@ -1796,19 +1924,22 @@ class SVN(object):
         if version[0] > pysvn.version[0]:
             return True
 
-        if ((version[0] == pysvn.version[0])
-                and (version[1] > pysvn.version[1])):
+        if (version[0] == pysvn.version[0]) and (version[1] > pysvn.version[1]):
             return True
 
-        if ((version[0] == pysvn.version[0])
-                and (version[1] == pysvn.version[1])
-                and (version[2] > pysvn.version[2])):
+        if (
+            (version[0] == pysvn.version[0])
+            and (version[1] == pysvn.version[1])
+            and (version[2] > pysvn.version[2])
+        ):
             return True
 
-        if ((version[0] == pysvn.version[0])
-                and (version[1] == pysvn.version[1])
-                and (version[2] == pysvn.version[2])
-                and (version[3] > pysvn.version[3])):
+        if (
+            (version[0] == pysvn.version[0])
+            and (version[1] == pysvn.version[1])
+            and (version[2] == pysvn.version[2])
+            and (version[3] > pysvn.version[3])
+        ):
             return True
 
         return False

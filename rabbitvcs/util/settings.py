@@ -38,8 +38,9 @@ import re
 
 from rabbitvcs import package_prefix
 
-MULTILINE_ESCAPE_RE = re.compile(r'''([\\'"])''')
+MULTILINE_ESCAPE_RE = re.compile(r"""([\\'"])""")
 MULTILINE_UNESCAPE_RE = re.compile(r"\\(.)")
+
 
 def get_home_folder():
     """
@@ -58,8 +59,7 @@ def get_home_folder():
     # Make sure we adher to the freedesktop.org XDG Base Directory
     # Specifications. $XDG_CONFIG_HOME if set, by default ~/.config
     xdg_config_home = os.environ.get(
-        "XDG_CONFIG_HOME",
-        os.path.join(os.path.expanduser("~"), ".config")
+        "XDG_CONFIG_HOME", os.path.join(os.path.expanduser("~"), ".config")
     )
     config_home = os.path.join(xdg_config_home, "rabbitvcs")
 
@@ -70,7 +70,9 @@ def get_home_folder():
 
     return config_home
 
+
 SETTINGS_FILE = "%s/settings.conf" % get_home_folder()
+
 
 def find_configspec():
     # Search the following paths for a configspec file
@@ -78,7 +80,7 @@ def find_configspec():
         os.path.join(dirname(__file__), "configspec/configspec.ini"),
         os.path.join(package_prefix(), "share/rabbitvcs/configspec.ini"),
         "/usr/share/rabbitvcs/configspec.ini",
-        "/usr/local/share/rabbitvcs/configspec.ini"
+        "/usr/local/share/rabbitvcs/configspec.ini",
     ]
 
     for path in configspec_paths:
@@ -86,6 +88,7 @@ def find_configspec():
             return path
 
     raise IOError("Cannot find a configspec.ini file")
+
 
 SETTINGS_SPEC = find_configspec()
 
@@ -113,7 +116,7 @@ class SettingsManager(object):
             infile=SETTINGS_FILE,
             create_empty=True,
             indent_type="    ",
-            configspec=SETTINGS_SPEC
+            configspec=SETTINGS_SPEC,
         )
 
         self.validator = validate.Validator()
@@ -132,7 +135,6 @@ class SettingsManager(object):
             # One option is to copy it to a different file and recreate it...
             log.warning("User configuration not valid. Backing up and recreating.")
             self.backup_and_rewrite_config()
-
 
     def get(self, section=None, keyword=None):
         """
@@ -244,10 +246,7 @@ class SettingsManager(object):
 
         """
 
-        self.settings = configobj.ConfigObj(
-            DEFAULT_SETTINGS,
-            indent_type="    "
-        )
+        self.settings = configobj.ConfigObj(DEFAULT_SETTINGS, indent_type="    ")
         self.settings.filename = SETTINGS_FILE
 
     def get_default(self, section, keyword):
@@ -280,7 +279,7 @@ class SettingsManager(object):
 
         return returner
 
-    def backup_and_rewrite_config(self) :
+    def backup_and_rewrite_config(self):
         """
         Backs up the user configuration file (for debugging) and rewrites a
         valid config file.
@@ -300,20 +299,20 @@ class SettingsManager(object):
             # FIXME: is this too paranoid?
             if not os.path.exists(new_name):
 
-                    new_file_free = True
+                new_file_free = True
 
-                    created = False
+                created = False
 
-                    try:
-                        os.rename(SETTINGS_FILE, new_name)
-                        created = True
-                    except IOError:
-                        # Paranoid again?
-                        print("Could not back up user configuration.")
+                try:
+                    os.rename(SETTINGS_FILE, new_name)
+                    created = True
+                except IOError:
+                    # Paranoid again?
+                    print("Could not back up user configuration.")
 
-                    if created:
-                        self.settings.reset()
-                        self.write()
+                if created:
+                    self.settings.reset()
+                    self.write()
             else:
                 renumber += 1
 

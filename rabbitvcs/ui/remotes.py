@@ -9,6 +9,7 @@ import time
 from datetime import datetime
 from gi.repository import Gtk, GObject, Gdk, Pango
 from __future__ import print_function
+
 #
 # This is an extension to the Nautilus file manager to allow better
 # integration with the Subversion source control system.
@@ -36,6 +37,7 @@ import os
 from rabbitvcs.util import helper
 
 import gi
+
 gi.require_version("Gtk", "3.0")
 sa = helper.SanitizeArgv()
 sa.restore()
@@ -62,8 +64,7 @@ class GitRemotes(InterfaceView):
 
         self.get_widget("right_side").hide()
         self.get_widget("Manager").set_title(_("Remote Repository Manager"))
-        self.get_widget("items_label").set_markup(
-            _("<b>Remote Repositories</b>"))
+        self.get_widget("items_label").set_markup(_("<b>Remote Repositories</b>"))
 
         self.selected_branch = None
         self.items_treeview = rabbitvcs.ui.widget.Table(
@@ -71,15 +72,11 @@ class GitRemotes(InterfaceView):
             [GObject.TYPE_STRING, GObject.TYPE_STRING],
             [_("Name"), _("Host")],
             callbacks={
-                "mouse-event":   self.on_treeview_mouse_event,
-                "key-event":     self.on_treeview_key_event,
-                "cell-edited":   self.on_treeview_cell_edited_event
+                "mouse-event": self.on_treeview_mouse_event,
+                "key-event": self.on_treeview_key_event,
+                "cell-edited": self.on_treeview_cell_edited_event,
             },
-            flags={
-                "sortable": False,
-                "sort_on": 0,
-                "editable": [0, 1]
-            }
+            flags={"sortable": False, "sort_on": 0, "editable": [0, 1]},
         )
 
         self.load()
@@ -125,7 +122,8 @@ class GitRemotes(InterfaceView):
         selected = self.items_treeview.get_selected_row_items(0)
 
         confirm = rabbitvcs.ui.dialog.Confirmation(
-            _("Are you sure you want to delete %s?" % ", ".join(selected)))
+            _("Are you sure you want to delete %s?" % ", ".join(selected))
+        )
         result = confirm.run()
 
         if result == Gtk.ResponseType.OK or result == True:
@@ -165,6 +163,7 @@ class GitRemotes(InterfaceView):
 
 if __name__ == "__main__":
     from rabbitvcs.ui import main
+
     (options, paths) = main(usage="Usage: rabbitvcs branch-manager path")
 
     window = GitRemotes(paths[0])

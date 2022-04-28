@@ -8,6 +8,7 @@ from rabbitvcs.ui.clone import GitClone
 from rabbitvcs.ui.checkout import SVNCheckout
 from rabbitvcs.ui import InterfaceView
 from gi.repository import Gtk, GObject, Gdk
+
 #
 # This is an extension to the Nautilus file manager to allow better
 # integration with the Subversion source control system.
@@ -35,6 +36,7 @@ import os.path
 from rabbitvcs.util import helper
 
 import gi
+
 gi.require_version("Gtk", "3.0")
 sa = helper.SanitizeArgv()
 sa.restore()
@@ -77,7 +79,8 @@ class SVNExport(SVNCheckout):
 
         if not url or not path:
             MessageBox(
-                _("The repository URL and destination path are both required fields."))
+                _("The repository URL and destination path are both required fields.")
+            )
             return
 
         if url.startswith("file://"):
@@ -92,14 +95,10 @@ class SVNExport(SVNCheckout):
         revision = self.revision_selector.get_revision_object()
 
         self.hide()
-        self.action = SVNAction(
-            self.svn,
-            register_gtk_quit=self.gtk_quit_is_set()
-        )
+        self.action = SVNAction(self.svn, register_gtk_quit=self.gtk_quit_is_set())
 
         self.action.append(self.action.set_header, _("Export"))
-        self.action.append(self.action.set_status,
-                           _("Running Export Command..."))
+        self.action.append(self.action.set_status, _("Running Export Command..."))
         self.action.append(helper.save_repository_path, url)
         self.action.append(
             self.svn.export,
@@ -108,7 +107,7 @@ class SVNExport(SVNCheckout):
             force=True,
             recurse=recursive,
             revision=revision,
-            ignore_externals=omit_externals
+            ignore_externals=omit_externals,
         )
         self.action.append(self.action.set_status, _("Completed Export"))
         self.action.append(self.action.finish)
@@ -138,7 +137,7 @@ class GitExport(GitClone):
             self.git,
             revision=revision,
             url_combobox=self.repositories,
-            expand=True
+            expand=True,
         )
 
         self.get_widget("revision_selector_box").show()
@@ -149,7 +148,8 @@ class GitExport(GitClone):
 
         if not url or not path:
             MessageBox(
-                _("The repository URL and destination path are both required fields."))
+                _("The repository URL and destination path are both required fields.")
+            )
             return
 
         if url.startswith("file://"):
@@ -164,21 +164,12 @@ class GitExport(GitClone):
         revision = self.revision_selector.get_revision_object()
 
         self.hide()
-        self.action = GitAction(
-            self.git,
-            register_gtk_quit=self.gtk_quit_is_set()
-        )
+        self.action = GitAction(self.git, register_gtk_quit=self.gtk_quit_is_set())
 
         self.action.append(self.action.set_header, _("Export"))
-        self.action.append(self.action.set_status,
-                           _("Running Export Command..."))
+        self.action.append(self.action.set_status, _("Running Export Command..."))
         self.action.append(helper.save_repository_path, url)
-        self.action.append(
-            self.git.export,
-            url,
-            path,
-            revision=revision
-        )
+        self.action.append(self.git.export, url, path, revision=revision)
         self.action.append(self.action.set_status, _("Completed Export"))
         self.action.append(self.action.finish)
         self.action.schedule()
@@ -206,10 +197,7 @@ class GitExport(GitClone):
         self.check_form()
 
 
-classes_map = {
-    rabbitvcs.vcs.VCS_SVN: SVNExport,
-    rabbitvcs.vcs.VCS_GIT: GitExport
-}
+classes_map = {rabbitvcs.vcs.VCS_SVN: SVNExport, rabbitvcs.vcs.VCS_GIT: GitExport}
 
 
 def export_factory(vcs, path, revision=None):
@@ -225,9 +213,10 @@ def export_factory(vcs, path, revision=None):
 
 if __name__ == "__main__":
     from rabbitvcs.ui import main, REVISION_OPT, VCS_OPT
+
     (options, paths) = main(
         [REVISION_OPT, VCS_OPT],
-        usage="Usage: rabbitvcs export --vcs=[git|svn] [url_or_path]"
+        usage="Usage: rabbitvcs export --vcs=[git|svn] [url_or_path]",
     )
 
     window = export_factory(options.vcs, paths[0], revision=options.revision)

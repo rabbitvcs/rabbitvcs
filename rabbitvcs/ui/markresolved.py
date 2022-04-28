@@ -9,6 +9,7 @@ from rabbitvcs.ui.action import SVNAction
 from rabbitvcs.ui.add import Add
 from rabbitvcs.ui import InterfaceView
 from gi.repository import Gtk, GObject, Gdk
+
 #
 # This is an extension to the Nautilus file manager to allow better
 # integration with the Subversion source control system.
@@ -36,6 +37,7 @@ import six.moves._thread
 from rabbitvcs.util import helper
 
 import gi
+
 gi.require_version("Gtk", "3.0")
 sa = helper.SanitizeArgv()
 sa.restore()
@@ -50,24 +52,38 @@ class SVNMarkResolved(Add):
         window.set_title(_("Mark as Resolved"))
         self.svn = self.vcs.svn()
         self.statuses = self.svn.STATUSES_FOR_RESOLVE
-        columns[0] = [GObject.TYPE_BOOLEAN,
-                      rabbitvcs.ui.widget.TYPE_HIDDEN_OBJECT,
-                      rabbitvcs.ui.widget.TYPE_PATH,
-                      GObject.TYPE_STRING, GObject.TYPE_STRING, GObject.TYPE_STRING],
-        columns[1] = [rabbitvcs.ui.widget.TOGGLE_BUTTON, "", _("Path"),
-                      _("Extension"), _("Text Status"), _("Property Status")]
+        columns[0] = (
+            [
+                GObject.TYPE_BOOLEAN,
+                rabbitvcs.ui.widget.TYPE_HIDDEN_OBJECT,
+                rabbitvcs.ui.widget.TYPE_PATH,
+                GObject.TYPE_STRING,
+                GObject.TYPE_STRING,
+                GObject.TYPE_STRING,
+            ],
+        )
+        columns[1] = [
+            rabbitvcs.ui.widget.TOGGLE_BUTTON,
+            "",
+            _("Path"),
+            _("Extension"),
+            _("Text Status"),
+            _("Property Status"),
+        ]
 
     def populate_files_table(self):
         self.files_table.clear()
         for item in self.items:
-            self.files_table.append([
-                True,
-                S(item.path),
-                item.path,
-                helper.get_file_extension(item.path),
-                item.simple_content_status(),
-                item.simple_metadata_status()
-            ])
+            self.files_table.append(
+                [
+                    True,
+                    S(item.path),
+                    item.path,
+                    helper.get_file_extension(item.path),
+                    item.simple_content_status(),
+                    item.simple_metadata_status(),
+                ]
+            )
 
     def on_ok_clicked(self, widget):
         items = self.files_table.get_activated_rows(1)
@@ -77,24 +93,19 @@ class SVNMarkResolved(Add):
         self.hide()
 
         self.action = rabbitvcs.ui.action.SVNAction(
-            self.svn,
-            register_gtk_quit=self.gtk_quit_is_set()
+            self.svn, register_gtk_quit=self.gtk_quit_is_set()
         )
 
         self.action.append(self.action.set_header, _("Mark as Resolved"))
-        self.action.append(self.action.set_status,
-                           _("Running Resolved Command..."))
+        self.action.append(self.action.set_status, _("Running Resolved Command..."))
         for item in items:
             self.action.append(self.svn.resolve, item, recurse=True)
-        self.action.append(self.action.set_status,
-                           _("Completed Mark as Resolved"))
+        self.action.append(self.action.set_status, _("Completed Mark as Resolved"))
         self.action.append(self.action.finish)
         self.action.schedule()
 
 
-classes_map = {
-    rabbitvcs.vcs.VCS_SVN: SVNMarkResolved
-}
+classes_map = {rabbitvcs.vcs.VCS_SVN: SVNMarkResolved}
 
 
 def markresolved_factory(paths, base_dir=None):
@@ -104,9 +115,9 @@ def markresolved_factory(paths, base_dir=None):
 
 if __name__ == "__main__":
     from rabbitvcs.ui import main, BASEDIR_OPT
+
     (options, paths) = main(
-        [BASEDIR_OPT],
-        usage="Usage: rabbitvcs markresolved [path1] [path2] ..."
+        [BASEDIR_OPT], usage="Usage: rabbitvcs markresolved [path1] [path2] ..."
     )
 
     window = markresolved_factory(paths, options.base_dir)

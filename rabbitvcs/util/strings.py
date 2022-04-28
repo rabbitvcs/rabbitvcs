@@ -37,9 +37,13 @@ __all__ = ["S", "IDENTITY_ENCODING", "UTF8_ENCODING", "SURROGATE_ESCAPE"]
 unicode_null_string = six.u("")
 non_alpha_num_re = re.compile("[^A-Za-z0-9]+")
 SURROGATE_BASE = 0xDC00
-RE_SURROGATE = re.compile(six.u("[") + six.unichr(SURROGATE_BASE + 0x80) +
-                          six.u("-") + six.unichr(SURROGATE_BASE + 0xFF) +
-                          six.u("]"))
+RE_SURROGATE = re.compile(
+    six.u("[")
+    + six.unichr(SURROGATE_BASE + 0x80)
+    + six.u("-")
+    + six.unichr(SURROGATE_BASE + 0xFF)
+    + six.u("]")
+)
 RE_UTF8 = re.compile("^[Uu][Tt][Ff][ _-]?8$")
 
 #   Codec that maps ord(byte) == ord(unicode_char).
@@ -47,17 +51,17 @@ RE_UTF8 = re.compile("^[Uu][Tt][Ff][ _-]?8$")
 IDENTITY_ENCODING = "latin-1"
 
 
-
 #   An UTF-8 codec that implements surrogates, even in Python 2.
 
 UTF8_ENCODING = "rabbitvcs-utf8"
+
 
 def utf8_decode(input, errors="strict"):
     return codecs.utf_8_decode(input, errors, True)
 
 
 def utf8_encode(input, errors="strict"):
-    output = b''
+    output = b""
     pos = 0
     end = len(input)
     eh = None
@@ -71,9 +75,9 @@ def utf8_encode(input, errors="strict"):
             output += p
             pos = n
         if pos < end:
-            e = UnicodeEncodeError(UTF8_ENCODING,
-                                   input, pos, pos + 1,
-                                   "surrogates not allowed")
+            e = UnicodeEncodeError(
+                UTF8_ENCODING, input, pos, pos + 1, "surrogates not allowed"
+            )
             if not eh:
                 eh = codecs.lookup_error(errors)
             p, n = eh(e)
@@ -83,16 +87,20 @@ def utf8_encode(input, errors="strict"):
             pos = n
     return (output, len(input))
 
+
 class Utf8IncrementalEncoder(codecs.IncrementalEncoder):
     def encode(self, input, final=False):
         return utf8_encode(input, self.errors)[0]
 
+
 class Utf8IncrementalDecoder(codecs.BufferedIncrementalDecoder):
     _buffer_decode = codecs.utf_8_decode
 
+
 class Utf8StreamWriter(codecs.StreamWriter):
-    def encode(self, input, errors='strict'):
+    def encode(self, input, errors="strict"):
         return utf8_encode(input, errors)
+
 
 class Utf8StreamReader(codecs.StreamReader):
     decode = codecs.utf_8_decode
@@ -103,14 +111,15 @@ def utf8_search(encoding):
     if encoding != UTF8_ENCODING:
         return None
     return codecs.CodecInfo(
-                   name=UTF8_ENCODING,
-                   encode=utf8_encode,
-                   decode=utf8_decode,
-                   incrementalencoder=Utf8IncrementalEncoder,
-                   incrementaldecoder=Utf8IncrementalDecoder,
-                   streamwriter=Utf8StreamWriter,
-                   streamreader=Utf8StreamReader
+        name=UTF8_ENCODING,
+        encode=utf8_encode,
+        decode=utf8_decode,
+        incrementalencoder=Utf8IncrementalEncoder,
+        incrementaldecoder=Utf8IncrementalDecoder,
+        streamwriter=Utf8StreamWriter,
+        streamreader=Utf8StreamReader,
     )
+
 
 codecs.register(utf8_search)
 
@@ -120,13 +129,16 @@ codecs.register(utf8_search)
 
 SURROGATE_ESCAPE = "rabbitvcs-surrogateescape"
 
+
 def rabbitvcs_surrogate_escape(e):
     if not isinstance(e, UnicodeError):
         raise e
-    input = e.object[e.start:e.end]
+    input = e.object[e.start : e.end]
     if isinstance(e, UnicodeDecodeError):
-        output = [six.unichr(b) if b < 0x80 else                             \
-                  six.unichr(SURROGATE_BASE + b) for b in bytearray(input)]
+        output = [
+            six.unichr(b) if b < 0x80 else six.unichr(SURROGATE_BASE + b)
+            for b in bytearray(input)
+        ]
         return (unicode_null_string.join(output), e.end)
     if isinstance(e, UnicodeEncodeError):
         output = b""
@@ -137,6 +149,7 @@ def rabbitvcs_surrogate_escape(e):
             output += six.int2byte(b)
         return (output, e.end)
     raise e
+
 
 codecs.register_error(SURROGATE_ESCAPE, rabbitvcs_surrogate_escape)
 
@@ -179,7 +192,7 @@ class S(str):
             encoding, errors = self._codeargs(encoding, errors)
             return str.decode(self, encoding, errors)
 
-        def display(self, encoding=None, errors='replace'):
+        def display(self, encoding=None, errors="replace"):
             encoding, errors = self._codeargs(encoding, errors)
             value = str.decode(self, UTF8_ENCODING, errors)
             return value.encode(encoding, errors)
@@ -201,9 +214,9 @@ class S(str):
             return str.encode(self, encoding, errors)
 
         def decode(self, encoding=UTF8_ENCODING, errors=SURROGATE_ESCAPE):
-            return str(self);
+            return str(self)
 
-        def display(self, encoding=None, errors='replace'):
+        def display(self, encoding=None, errors="replace"):
             return RE_SURROGATE.sub(six.unichr(0xFFFD), self)
 
     def bytes(self, encoding=UTF8_ENCODING, errors=SURROGATE_ESCAPE):
@@ -223,6 +236,6 @@ class S(str):
                 encoding = sys.getdefaultencoding()
         if RE_UTF8.match(encoding):
             encoding = UTF8_ENCODING
-        if errors.lower() == 'strict':
+        if errors.lower() == "strict":
             errors = SURROGATE_ESCAPE
         return encoding, errors

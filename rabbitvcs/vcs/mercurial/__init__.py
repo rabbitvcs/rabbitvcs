@@ -42,6 +42,7 @@ from rabbitvcs.util.log import Log
 log = Log("rabbitvcs.vcs.mercurial")
 
 from rabbitvcs import gettext
+
 _ = gettext.gettext
 
 
@@ -83,44 +84,30 @@ class Revision(object):
 
 class Mercurial(object):
     STATUS = {
-        "normal":       "C",
-        "added":        "A",
-        "removed":      "R",
-        "modified":     "M",
-        "untracked":    "?",
-        "missing":      "!"
+        "normal": "C",
+        "added": "A",
+        "removed": "R",
+        "modified": "M",
+        "untracked": "?",
+        "missing": "!",
     }
 
     STATUS_REVERSE = {
-        "C":       "normal",
-        "A":        "added",
-        "R":      "removed",
-        "M":     "modified",
-        "?":    "untracked",
-        "!":      "missing"
+        "C": "normal",
+        "A": "added",
+        "R": "removed",
+        "M": "modified",
+        "?": "untracked",
+        "!": "missing",
     }
 
-    STATUSES_FOR_REVERT = [
-        "missing",
-        "modified",
-        "removed"
-    ]
+    STATUSES_FOR_REVERT = ["missing", "modified", "removed"]
 
-    STATUSES_FOR_COMMIT = [
-        "untracked",
-        "missing",
-        "modified",
-        "added",
-        "removed"
-    ]
+    STATUSES_FOR_COMMIT = ["untracked", "missing", "modified", "added", "removed"]
 
-    STATUSES_FOR_STAGE = [
-        "untracked"
-    ]
+    STATUSES_FOR_STAGE = ["untracked"]
 
-    STATUSES_FOR_UNSTAGE = [
-        "added"
-    ]
+    STATUSES_FOR_UNSTAGE = ["added"]
 
     def __init__(self, repo=None):
         self.vcs = rabbitvcs.vcs.VCS_MERCURIAL
@@ -165,7 +152,15 @@ class Mercurial(object):
 
         # the status method returns a series of tuples filled with files matching
         # the statuses below
-        tuple_order = ["modified", "added", "removed", "missing", "unknown", "ignored", "clean"]
+        tuple_order = [
+            "modified",
+            "added",
+            "removed",
+            "missing",
+            "unknown",
+            "ignored",
+            "clean",
+        ]
 
         # go through each tuple (each of which has a defined status), and
         # generate a flat list of rabbitvcs statuses
@@ -177,10 +172,9 @@ class Mercurial(object):
             for item in status_tuple:
                 st_path = self.get_absolute_path(item)
 
-                rabbitvcs_status = rabbitvcs.vcs.status.MercurialStatus({
-                    "path": st_path,
-                    "content": content
-                })
+                rabbitvcs_status = rabbitvcs.vcs.status.MercurialStatus(
+                    {"path": st_path, "content": content}
+                )
                 statuses.append(rabbitvcs_status)
 
                 # determine the statuses of the parent folders
@@ -190,11 +184,13 @@ class Mercurial(object):
 
                 path_to_check = os.path.dirname(st_path)
                 while True:
-                    if path_to_check not in directories or directories[path_to_check] not in self.STATUSES_FOR_COMMIT:
-                        rabbitvcs_status = rabbitvcs.vcs.status.MercurialStatus({
-                            "path": path_to_check,
-                            "content": dir_content
-                        })
+                    if (
+                        path_to_check not in directories
+                        or directories[path_to_check] not in self.STATUSES_FOR_COMMIT
+                    ):
+                        rabbitvcs_status = rabbitvcs.vcs.status.MercurialStatus(
+                            {"path": path_to_check, "content": dir_content}
+                        )
                         statuses.append(rabbitvcs_status)
                         directories[path_to_check] = dir_content
 
@@ -227,8 +223,7 @@ class Mercurial(object):
         return path_status
 
     def is_working_copy(self, path):
-        if (os.path.isdir(path) and
-                os.path.isdir(os.path.join(path, ".hg"))):
+        if os.path.isdir(path) and os.path.isdir(os.path.join(path, ".hg")):
             return True
         return False
 
@@ -236,7 +231,7 @@ class Mercurial(object):
         if self.is_working_copy(path):
             return True
 
-        return (self.find_repository_path(os.path.split(path)[0]) != "")
+        return self.find_repository_path(os.path.split(path)[0]) != ""
 
     def is_versioned(self, path):
         if self.is_working_copy(path):

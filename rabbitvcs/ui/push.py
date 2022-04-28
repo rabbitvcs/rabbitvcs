@@ -8,6 +8,7 @@ import rabbitvcs.ui.dialog
 import rabbitvcs.ui.widget
 from rabbitvcs.ui import InterfaceView
 from gi.repository import Gtk, GObject, Gdk
+
 #
 # This is an extension to the Nautilus file manager to allow better
 # integration with the Subversion source control system.
@@ -37,6 +38,7 @@ from datetime import datetime
 from rabbitvcs.util import helper
 
 import gi
+
 gi.require_version("Gtk", "3.0")
 sa = helper.SanitizeArgv()
 sa.restore()
@@ -72,19 +74,14 @@ class GitPush(Push):
         self.git = self.vcs.git(path)
 
         self.repository_selector = rabbitvcs.ui.widget.GitRepositorySelector(
-            self.get_widget("repository_container"),
-            self.git,
-            self.on_branch_changed
+            self.get_widget("repository_container"), self.git, self.on_branch_changed
         )
 
         self.log_table = rabbitvcs.ui.widget.Table(
             self.get_widget("log"),
             [GObject.TYPE_STRING, GObject.TYPE_STRING],
             [_("Date"), _("Message")],
-            flags={
-                "sortable": True,
-                "sort_on": 0
-            }
+            flags={"sortable": True, "sort_on": 0},
         )
 
         # Set default for checkboxes.
@@ -102,14 +99,11 @@ class GitPush(Push):
         force_with_lease = self.get_widget("force_with_lease").get_active()
 
         self.action = rabbitvcs.ui.action.GitAction(
-            self.git,
-            register_gtk_quit=self.gtk_quit_is_set()
+            self.git, register_gtk_quit=self.gtk_quit_is_set()
         )
         self.action.append(self.action.set_header, _("Push"))
-        self.action.append(self.action.set_status,
-                           _("Running Push Command..."))
-        self.action.append(self.git.push, repository,
-                           branch, tags, force_with_lease)
+        self.action.append(self.action.set_status, _("Running Push Command..."))
+        self.action.append(self.git.push, repository, branch, tags, force_with_lease)
         self.action.append(self.action.set_status, _("Completed Push"))
         self.action.append(self.action.finish)
         self.action.schedule()
@@ -129,8 +123,7 @@ class GitPush(Push):
         self.update_widgets()
 
     def load_logs(self):
-        helper.run_in_main_thread(self.get_widget(
-            "status").set_text, _("Loading..."))
+        helper.run_in_main_thread(self.get_widget("status").set_text, _("Loading..."))
 
         self.load_push_log()
         helper.run_in_main_thread(self.load_logs_exit)
@@ -141,7 +134,8 @@ class GitPush(Push):
 
         refspec = "refs/remotes/%s/%s" % (repository, branch)
         self.push_log = self.git.log(
-            revision=self.git.revision(refspec), showtype="push")
+            revision=self.git.revision(refspec), showtype="push"
+        )
 
     def on_branch_changed(self, repository, branch):
         self.load_push_log()
@@ -159,10 +153,12 @@ class GitPush(Push):
 
         has_commits = False
         for item in self.push_log:
-            self.log_table.append([
-                helper.format_datetime(item.date, self.datetime_format),
-                helper.format_long_text(item.message.rstrip("\n"))
-            ])
+            self.log_table.append(
+                [
+                    helper.format_datetime(item.date, self.datetime_format),
+                    helper.format_long_text(item.message.rstrip("\n")),
+                ]
+            )
             has_commits = True
 
         self.get_widget("ok").set_sensitive(True)
@@ -170,9 +166,7 @@ class GitPush(Push):
             self.get_widget("status").set_text(_("No commits found"))
 
 
-classes_map = {
-    rabbitvcs.vcs.VCS_GIT: GitPush
-}
+classes_map = {rabbitvcs.vcs.VCS_GIT: GitPush}
 
 
 def push_factory(path):
@@ -182,9 +176,8 @@ def push_factory(path):
 
 if __name__ == "__main__":
     from rabbitvcs.ui import main
-    (options, paths) = main(
-        usage="Usage: rabbitvcs push [path]"
-    )
+
+    (options, paths) = main(usage="Usage: rabbitvcs push [path]")
 
     window = push_factory(paths[0])
     window.register_gtk_quit()

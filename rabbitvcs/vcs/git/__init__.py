@@ -43,6 +43,7 @@ from rabbitvcs.util.log import Log
 log = Log("rabbitvcs.vcs.git")
 
 from rabbitvcs import gettext
+
 _ = gettext.gettext
 
 
@@ -64,7 +65,7 @@ class Revision(object):
     def __str__(self):
         if self.value:
             return S(self.value)
-        return  S(self.kind)
+        return S(self.kind)
 
     def __unicode__(self):
         return self.__str__().unicode()
@@ -84,37 +85,30 @@ class Revision(object):
 
 class Git(object):
     STATUS = {
-        "normal":       gittyup.objects.NormalStatus,
-        "added":        gittyup.objects.AddedStatus,
-        "renamed":      gittyup.objects.RenamedStatus,
-        "removed":      gittyup.objects.RemovedStatus,
-        "modified":     gittyup.objects.ModifiedStatus,
-        "killed":       gittyup.objects.KilledStatus,
-        "untracked":    gittyup.objects.UntrackedStatus,
-        "missing":      gittyup.objects.MissingStatus
+        "normal": gittyup.objects.NormalStatus,
+        "added": gittyup.objects.AddedStatus,
+        "renamed": gittyup.objects.RenamedStatus,
+        "removed": gittyup.objects.RemovedStatus,
+        "modified": gittyup.objects.ModifiedStatus,
+        "killed": gittyup.objects.KilledStatus,
+        "untracked": gittyup.objects.UntrackedStatus,
+        "missing": gittyup.objects.MissingStatus,
     }
 
     STATUS_REVERSE = {
-        gittyup.objects.NormalStatus:       "normal",
-        gittyup.objects.AddedStatus:        "added",
-        gittyup.objects.RenamedStatus:      "renamed",
-        gittyup.objects.RemovedStatus:      "removed",
-        gittyup.objects.ModifiedStatus:     "modified",
-        gittyup.objects.KilledStatus:       "killed",
-        gittyup.objects.UntrackedStatus:    "untracked",
-        gittyup.objects.MissingStatus:      "missing"
+        gittyup.objects.NormalStatus: "normal",
+        gittyup.objects.AddedStatus: "added",
+        gittyup.objects.RenamedStatus: "renamed",
+        gittyup.objects.RemovedStatus: "removed",
+        gittyup.objects.ModifiedStatus: "modified",
+        gittyup.objects.KilledStatus: "killed",
+        gittyup.objects.UntrackedStatus: "untracked",
+        gittyup.objects.MissingStatus: "missing",
     }
 
-    STATUSES_FOR_REVERT = [
-        "missing",
-        "renamed",
-        "modified",
-        "removed"
-    ]
+    STATUSES_FOR_REVERT = ["missing", "renamed", "modified", "removed"]
 
-    STATUSES_FOR_ADD = [
-        "untracked"
-    ]
+    STATUSES_FOR_ADD = ["untracked"]
 
     STATUSES_FOR_COMMIT = [
         "untracked",
@@ -122,16 +116,12 @@ class Git(object):
         "renamed",
         "modified",
         "added",
-        "removed"
+        "removed",
     ]
 
-    STATUSES_FOR_STAGE = [
-        "untracked"
-    ]
+    STATUSES_FOR_STAGE = ["untracked"]
 
-    STATUSES_FOR_UNSTAGE = [
-        "added"
-    ]
+    STATUSES_FOR_UNSTAGE = ["added"]
 
     def __init__(self, repo=None):
         self.vcs = rabbitvcs.vcs.VCS_GIT
@@ -229,8 +219,7 @@ class Git(object):
         return path_status
 
     def is_working_copy(self, path):
-        if (os.path.isdir(path) and
-                os.path.isdir(os.path.join(path, ".git"))):
+        if os.path.isdir(path) and os.path.isdir(os.path.join(path, ".git")):
             return True
         return False
 
@@ -238,7 +227,7 @@ class Git(object):
         if self.is_working_copy(path):
             return True
 
-        return (self.find_repository_path(os.path.split(path)[0]) != "")
+        return self.find_repository_path(os.path.split(path)[0]) != ""
 
     def is_versioned(self, path):
         if self.is_working_copy(path):
@@ -327,7 +316,6 @@ class Git(object):
 
     def is_tracking(self, name):
         return self.client.is_tracking("refs/heads/%s" % name)
-
 
     #
     # Action Methods
@@ -443,12 +431,14 @@ class Git(object):
         results = self.client.branch_list(revision_str)
         branches = []
         for result in results:
-            branches.append(BranchEntry(
-                result["name"],
-                result["tracking"],
-                result["revision"],
-                result["message"]
-            ))
+            branches.append(
+                BranchEntry(
+                    result["name"],
+                    result["tracking"],
+                    result["revision"],
+                    result["message"],
+                )
+            )
 
         return branches
 
@@ -460,7 +450,7 @@ class Git(object):
                     result["name"],
                     result["tracking"],
                     result["revision"],
-                    result["message"]
+                    result["message"],
                 )
 
         return None
@@ -501,9 +491,19 @@ class Git(object):
 
         return self.client.clone(host, path, bare, origin)
 
-    def commit(self, message, parents=None, committer=None, commit_time=None,
-            commit_timezone=None, author=None, author_time=None,
-            author_timezone=None, encoding=None, commit_all=False):
+    def commit(
+        self,
+        message,
+        parents=None,
+        committer=None,
+        commit_time=None,
+        commit_timezone=None,
+        author=None,
+        author_time=None,
+        author_timezone=None,
+        encoding=None,
+        commit_all=False,
+    ):
         """
         Commit staged files to the local repository
 
@@ -543,9 +543,18 @@ class Git(object):
 
         """
 
-        return self.client.commit(message, parents, committer, commit_time,
-            commit_timezone, author, author_time, author_timezone, encoding,
-            commit_all)
+        return self.client.commit(
+            message,
+            parents,
+            committer,
+            commit_time,
+            commit_timezone,
+            author,
+            author_time,
+            author_timezone,
+            encoding,
+            commit_all,
+        )
 
     def remove(self, paths):
         """
@@ -589,7 +598,9 @@ class Git(object):
 
         return self.client.pull(repository, refspec, options)
 
-    def push(self, repository="origin", refspec="master", tags=True, force_with_lease=False):
+    def push(
+        self, repository="origin", refspec="master", tags=True, force_with_lease=False
+    ):
         """
         Push objects from the local repository into the remote repository
             and merge them.
@@ -735,8 +746,9 @@ class Git(object):
 
         return self.client.tag_list()
 
-
-    def log(self, path=None, skip=0, limit=None, revision=Revision("HEAD"), showtype="all"):
+    def log(
+        self, path=None, skip=0, limit=None, revision=Revision("HEAD"), showtype="all"
+    ):
         """
         Returns a revision history list
 
@@ -768,6 +780,7 @@ class Git(object):
         # Temporarily change the locale to en_US so strptime can work consistently
         # Then change it back at the end of the method
         import locale
+
         current_locale = locale.getlocale()
         if current_locale[0] is not None:
             locale.setlocale(locale.LC_ALL, "C")
@@ -794,13 +807,16 @@ class Git(object):
             changed_paths = []
             if "changed_paths" in item:
                 for changed_path in item["changed_paths"]:
-                    action = "+%s/-%s" % (changed_path["additions"], changed_path["removals"])
+                    action = "+%s/-%s" % (
+                        changed_path["additions"],
+                        changed_path["removals"],
+                    )
 
-                    changed_paths.append(rabbitvcs.vcs.log.LogChangedPath(
-                        changed_path["path"],
-                        action,
-                        "", ""
-                    ))
+                    changed_paths.append(
+                        rabbitvcs.vcs.log.LogChangedPath(
+                            changed_path["path"], action, "", ""
+                        )
+                    )
 
             parents = []
             if "parents" in item:
@@ -811,15 +827,11 @@ class Git(object):
             if item["commit"] == self.client.head():
                 head = True
 
-            returner.append(rabbitvcs.vcs.log.Log(
-                date,
-                revision,
-                author,
-                message,
-                changed_paths,
-                parents,
-                head
-            ))
+            returner.append(
+                rabbitvcs.vcs.log.Log(
+                    date, revision, author, message, changed_paths, parents, head
+                )
+            )
 
         locale.setlocale(locale.LC_ALL, current_locale)
 
@@ -843,12 +855,15 @@ class Git(object):
 
         """
 
-        summary_raw = self.client.diff_summarize(path1, revision_obj1.primitive(),
-            path2, revision_obj2.primitive())
+        summary_raw = self.client.diff_summarize(
+            path1, revision_obj1.primitive(), path2, revision_obj2.primitive()
+        )
 
         summary = []
         for item in summary_raw:
-            summary.append(rabbitvcs.vcs.log.LogChangedPath(item["path"], item["action"], "", ""))
+            summary.append(
+                rabbitvcs.vcs.log.LogChangedPath(item["path"], item["action"], "", "")
+            )
 
         return summary
 
@@ -898,8 +913,9 @@ class Git(object):
 
         """
 
-        return self.client.diff(path1, revision_obj1.primitive(), path2,
-            revision_obj2.primitive())
+        return self.client.diff(
+            path1, revision_obj1.primitive(), path2, revision_obj2.primitive()
+        )
 
     def apply_patch(self, patch_file, base_dir):
         """
@@ -915,28 +931,30 @@ class Git(object):
 
         any_failures = False
 
-        for file, success, rej_file in helper.parse_patch_output(patch_file, base_dir, 1):
+        for file, success, rej_file in helper.parse_patch_output(
+            patch_file, base_dir, 1
+        ):
 
             fullpath = os.path.join(base_dir, file)
 
             event_dict = dict()
 
             event_dict["path"] = file
-            event_dict["mime_type"] = "" # meh
+            event_dict["mime_type"] = ""  # meh
 
             if success:
-                event_dict["action"] = _("Patched") # not in pysvn, but
-                                                    # we have a fallback
+                event_dict["action"] = _("Patched")  # not in pysvn, but
+                # we have a fallback
             else:
                 any_failures = True
-                event_dict["action"] = _("Patch Failed") # better wording needed?
+                event_dict["action"] = _("Patch Failed")  # better wording needed?
 
             if rej_file:
                 rej_info = {
-                    "path" : rej_file,
-                    "action" : _("Rejected Patch"),
-                    "mime_type" : None
-                            }
+                    "path": rej_file,
+                    "action": _("Rejected Patch"),
+                    "mime_type": None,
+                }
 
             if self.client.callback_notify:
                 self.client.callback_notify(event_dict)
@@ -960,11 +978,19 @@ class Git(object):
 
         return self.client.export(path, dest_path, revision.primitive())
 
-    def clean(self, path, remove_dir=True, remove_ignored_too=False,
-            remove_only_ignored=False, dry_run=False, force=True):
+    def clean(
+        self,
+        path,
+        remove_dir=True,
+        remove_ignored_too=False,
+        remove_only_ignored=False,
+        dry_run=False,
+        force=True,
+    ):
 
-        return self.client.clean(path, remove_dir, remove_ignored_too,
-            remove_only_ignored, dry_run, force)
+        return self.client.clean(
+            path, remove_dir, remove_ignored_too, remove_only_ignored, dry_run, force
+        )
 
     def reset(self, path, revision, type=None):
         """
@@ -998,7 +1024,7 @@ class Git(object):
         self.client.set_callback_notify(func)
 
     def set_callback_progress_update(self, func):
-        self.client.set_callback_progress_update (func)
+        self.client.set_callback_progress_update(func)
 
     def set_callback_get_user(self, func):
         self.client.set_callback_get_user(func)

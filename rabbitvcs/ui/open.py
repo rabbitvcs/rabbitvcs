@@ -6,6 +6,7 @@ import rabbitvcs.vcs
 from rabbitvcs.ui.action import SVNAction, GitAction
 from rabbitvcs.ui import InterfaceNonView
 from gi.repository import Gtk, GObject, Gdk
+
 #
 # This is an extension to the Nautilus file manager to allow better
 # integration with the Subversion source control system.
@@ -34,6 +35,7 @@ import os.path
 from rabbitvcs.util import helper
 
 import gi
+
 gi.require_version("Gtk", "3.0")
 sa = helper.SanitizeArgv()
 sa.restore()
@@ -70,16 +72,12 @@ class SVNOpen(InterfaceNonView):
 
         url = path
         if not self.svn.is_path_repository_url(path):
-            url = self.svn.get_repo_root_url(path) + '/' + path
+            url = self.svn.get_repo_root_url(path) + "/" + path
         dest = helper.get_tmp_path(
-            "rabbitvcs-" + revision + "-" + os.path.basename(path))
-
-        self.svn.export(
-            url,
-            dest,
-            revision=revision_obj,
-            force=True
+            "rabbitvcs-" + revision + "-" + os.path.basename(path)
         )
+
+        self.svn.export(url, dest, revision=revision_obj, force=True)
 
         helper.open_item(dest)
 
@@ -114,16 +112,12 @@ class GitOpen(InterfaceNonView):
 
         dest_dir = helper.get_tmp_path("rabbitvcs-" + S(revision))
 
-        self.git.export(
-            path,
-            dest_dir,
-            revision=revision_obj
-        )
+        self.git.export(path, dest_dir, revision=revision_obj)
 
         repo_path = self.git.find_repository_path(path)
         relative_path = path
         if path.startswith(repo_path):
-            relative_path = path[len(repo_path)+1:]
+            relative_path = path[len(repo_path) + 1 :]
 
         dest_path = "%s/%s" % (dest_dir, relative_path)
 
@@ -132,10 +126,7 @@ class GitOpen(InterfaceNonView):
         raise SystemExit()
 
 
-classes_map = {
-    rabbitvcs.vcs.VCS_SVN: SVNOpen,
-    rabbitvcs.vcs.VCS_GIT: GitOpen
-}
+classes_map = {rabbitvcs.vcs.VCS_SVN: SVNOpen, rabbitvcs.vcs.VCS_GIT: GitOpen}
 
 
 def open_factory(vcs, path, revision):
@@ -148,9 +139,9 @@ def open_factory(vcs, path, revision):
 
 if __name__ == "__main__":
     from rabbitvcs.ui import main, REVISION_OPT, VCS_OPT
+
     (options, paths) = main(
-        [REVISION_OPT, VCS_OPT],
-        usage="Usage: rabbitvcs open path [-r REVISION]"
+        [REVISION_OPT, VCS_OPT], usage="Usage: rabbitvcs open path [-r REVISION]"
     )
 
     window = open_factory(options.vcs, paths[0], options.revision)
