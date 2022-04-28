@@ -35,7 +35,8 @@ except Exception as e:
 version = "0.18"
 APP_NAME = "RabbitVCS"
 TEMP_DIR_PREFIX = "rabbitvcs-"
-LOCALE_DIR = "%s/locale" % os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+LOCALE_DIR = "%s/locale" % os.path.dirname(
+    os.path.dirname(os.path.realpath(__file__)))
 if not os.path.exists(LOCALE_DIR):
     LOCALE_DIR = "/usr/share/locale"
 
@@ -52,14 +53,16 @@ _gettext.bindtextdomain(APP_NAME, LOCALE_DIR)
 _gettext.textdomain(APP_NAME)
 current_translation = None
 
+
 class gettext(object):
     @staticmethod
     def set_language(langs):
         global current_translation
         current_translation = _gettext.translation(APP_NAME,
                                                    LOCALE_DIR,
-                                                   languages = langs,
-                                                   fallback = True)
+                                                   languages=langs,
+                                                   fallback=True)
+
     @staticmethod
     def gettext(message):
         if not current_translation:
@@ -70,7 +73,9 @@ class gettext(object):
     def ngettext(msgid1, msgid2, n):
         return gettext.gettext(msgid1 if n == 1 else msgid2)
 
+
 gettext.set_language(langs)
+
 
 def package_name():
     """
@@ -99,6 +104,7 @@ def package_identifier():
     """
     return "%s-%s" % (package_name(), package_version())
 
+
 def package_prefix():
     """
     Return the prefix of the local RabbitVCS installation
@@ -110,6 +116,7 @@ def package_prefix():
         return rabbitvcs_prefix
     except ImportError as e:
         return ""
+
 
 def get_icon_path():
     """
