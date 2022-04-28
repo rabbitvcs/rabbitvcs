@@ -44,32 +44,33 @@ for c in sys.argv:
     elif c == '--user':
         PREFIX = os.path.expanduser("~/.local")
 
-#==============================================================================
+# ==============================================================================
 # Variables
-#==============================================================================
+# ==============================================================================
 
 # Some descriptive variables
 # This will eventually be passed to the setup function, but we already need them
 # for doing some other stuff so we have to declare them here.
-name                = "rabbitvcs"
-version             = "0.18"
-description         = "Easy version control"
-long_description    = """RabbitVCS is a set of graphical tools written to provide simple and straightforward access to the version control systems you use."""
-author              = "Adam Plumb"
-author_email        = "adamplumb@gmail.com"
-url                 = "http://www.rabbitvcs.org"
-license             = "GNU General Public License version 2 or later"
+name = "rabbitvcs"
+version = "0.18"
+description = "Easy version control"
+long_description = """RabbitVCS is a set of graphical tools written to provide simple and straightforward access to the version control systems you use."""
+author = "Adam Plumb"
+author_email = "adamplumb@gmail.com"
+url = "http://www.rabbitvcs.org"
+license = "GNU General Public License version 2 or later"
 
-#==============================================================================
+# ==============================================================================
 # Paths
-#==============================================================================
+# ==============================================================================
 
 icon_theme_directory = "share/icons/hicolor"
 locale_directory = "share/locale"
 
-#==============================================================================
+# ==============================================================================
 # Helper functions
-#==============================================================================
+# ==============================================================================
+
 
 def include_by_pattern(directory, directory_to_install, pattern):
     files_to_include = []
@@ -82,9 +83,10 @@ def include_by_pattern(directory, directory_to_install, pattern):
                 ))
     return files_to_include
 
-#==============================================================================
+# ==============================================================================
 # Gather all the files that need to be included
-#==============================================================================
+# ==============================================================================
+
 
 # Packages
 packages = []
@@ -120,9 +122,9 @@ fh = open(path, "w")
 fh.write(buildinfo)
 fh.close()
 
-#==============================================================================
+# ==============================================================================
 # Ready to install
-#==============================================================================
+# ==============================================================================
 
 # Calling the setup function will actually install RabbitVCS and also creates
 # an .egg-info file in /usr/lib/python<version>/site-packages/ or
@@ -167,6 +169,7 @@ if sys.argv[1] == "install":
         print("Running gtk-update-icon-cache")
 
         subprocess.Popen(
-            ["gtk-update-icon-cache", os.path.join(PREFIX, icon_theme_directory)],
+            ["gtk-update-icon-cache",
+                os.path.join(PREFIX, icon_theme_directory)],
             stdout=subprocess.PIPE
         ).communicate()[0]
