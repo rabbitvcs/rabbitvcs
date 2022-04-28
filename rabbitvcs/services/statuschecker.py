@@ -20,6 +20,7 @@ Very simple status checking class. Useful when you can't get any of the others
 to work, or you need to prototype things.
 """
 from __future__ import absolute_import
+from rabbitvcs.util.log import Log
 
 import rabbitvcs.vcs
 import rabbitvcs.vcs.status
@@ -27,8 +28,8 @@ import rabbitvcs.vcs.status
 from rabbitvcs import gettext
 _ = gettext.gettext
 
-from rabbitvcs.util.log import Log
 log = Log("rabbitvcs.services.statuschecker")
+
 
 class StatusChecker(object):
     """ A class for performing status checks. """

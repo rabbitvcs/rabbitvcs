@@ -43,8 +43,10 @@ data wherever possible (this is the case in the actual status cache and checker
 code).
 """
 from __future__ import absolute_import
+from rabbitvcs import version as SERVICE_VERSION
 
-import os, os.path
+import os
+import os.path
 import sys
 import json
 
@@ -67,12 +69,12 @@ import rabbitvcs.vcs.status
 from rabbitvcs.util.log import Log
 log = Log("rabbitvcs.services.checkerservice")
 
-from rabbitvcs import version as SERVICE_VERSION
 
 INTERFACE = "org.google.code.rabbitvcs.StatusChecker"
 OBJECT_PATH = "/org/google/code/rabbitvcs/StatusChecker"
 SERVICE = "org.google.code.rabbitvcs.RabbitVCS.Checker"
-TIMEOUT = 60*15*100 # seconds
+TIMEOUT = 60*15*100  # seconds
+
 
 def find_class(module, name):
     """ Given a module name and a class name, return the actual type object.
@@ -83,11 +85,13 @@ def find_class(module, name):
     klass = getattr(mod, name)
     return klass
 
+
 def encode_status(status):
     """ Before encoding a status object to JSON, we need to turn it into
     something simpler.
     """
     return status.__getstate__()
+
 
 def decode_status(json_dict):
     """ Once we get a JSON encoded string out the other side of DBUS, we need to
@@ -100,16 +104,19 @@ def decode_status(json_dict):
         st = cl.__new__(cl)
         st.__setstate__(json_dict)
     elif 'path' in json_dict:
-        log.warning("Could not deduce status class: %s" % json_dict['__type__'])
+        log.warning("Could not deduce status class: %s" %
+                    json_dict['__type__'])
         st = rabbitvcs.vcs.status.Status.status_error(json_dict['path'])
     else:
         raise TypeError("RabbitVCS status object has no path")
     return st
 
+
 def output_and_flush(*args):
     # Idle output function.
     sys.stdout.write(*args)
     sys.stdout.flush()
+
 
 class StatusCheckerService(dbus.service.Object):
     """ StatusCheckerService objects wrap a StatusCheckerPlus instance,
@@ -136,7 +143,7 @@ class StatusCheckerService(dbus.service.Object):
         dbus.service.Object.__init__(self, connection, OBJECT_PATH)
 
         self.encoder = json.JSONEncoder(default=encode_status,
-                                              separators=(',', ':'))
+                                        separators=(',', ':'))
 
         self.mainloop = mainloop
 
@@ -155,7 +162,7 @@ class StatusCheckerService(dbus.service.Object):
         return own_mem + checker_mem
 
     @dbus.service.method(INTERFACE)
-    def SetLocale(self, language = '', encoding = ''):
+    def SetLocale(self, language='', encoding=''):
         return rabbitvcs.util._locale.set_locale(language, encoding)
 
     @dbus.service.method(INTERFACE)
@@ -168,7 +175,7 @@ class StatusCheckerService(dbus.service.Object):
 
     @dbus.service.method(INTERFACE, in_signature='aybbb', out_signature='s')
     def CheckStatus(self, path, recurse=False, invalidate=False,
-                      summary=False):
+                    summary=False):
         """ Requests a status check from the underlying status checker.
             Path is given as an array of bytes instead of a string because
             dbus does not support strings with invalid characters.
@@ -198,8 +205,8 @@ class StatusCheckerService(dbus.service.Object):
         waiting for the process to exit).
         """
         if not self.CheckVersion(version):
-            log.warning("Version mismatch, quitting checker service " \
-                        "(service: %s, extension: %s)" \
+            log.warning("Version mismatch, quitting checker service "
+                        "(service: %s, extension: %s)"
                         % (SERVICE_VERSION, version))
             return self.Quit()
 
@@ -302,9 +309,8 @@ class StatusCheckerStub(object):
                     log.exception(ex)
                     self._connect_to_checker()
 
-
     def check_status_now(self, path, recurse=False, invalidate=False,
-                       summary=False):
+                         summary=False):
 
         status = None
 
@@ -337,8 +343,8 @@ class StatusCheckerStub(object):
             path1 = S(path)
             path2 = S(status.path)
             assert path1 == path2, "Status check returned the wrong path "\
-                                        "(asked about %s, got back %s)" % \
-                                        (path1.display(), path2.display())
+                "(asked about %s, got back %s)" % \
+                (path1.display(), path2.display())
             callback(status)
 
         def reply_handler(*args, **kwargs):
@@ -368,7 +374,7 @@ class StatusCheckerStub(object):
     # @rabbitvcs.util.decorators.deprecated
     # Can't decide whether this should be deprecated or not... -JH
     def check_status(self, path, recurse=False, invalidate=False,
-                       summary=False, callback=None):
+                     summary=False, callback=None):
         """ Check the VCS status of the given path.
 
         This is a pass-through method to the check_status method of the DBUS
@@ -376,7 +382,7 @@ class StatusCheckerStub(object):
         """
         if callback:
             GLib.idle_add(self.check_status_later,
-                     path, callback, recurse, invalidate, summary)
+                          path, callback, recurse, invalidate, summary)
             return rabbitvcs.vcs.status.Status.status_calc(path)
         else:
             return self.check_status_now(path, recurse, invalidate, summary)
@@ -402,10 +408,10 @@ class StatusCheckerStub(object):
         bpaths = [bytearray(S(p).bytes()) for p in paths]
         try:
             self.status_checker.GenerateMenuConditions(bpaths,
-                                            dbus_interface=INTERFACE,
-                                            timeout=TIMEOUT,
-                                            reply_handler=reply_handler,
-                                            error_handler=error_handler)
+                                                       dbus_interface=INTERFACE,
+                                                       timeout=TIMEOUT,
+                                                       reply_handler=reply_handler,
+                                                       error_handler=error_handler)
         except dbus.DBusException as ex:
             log.exception(ex)
             callback(provider, base_dir, paths, {})
@@ -413,13 +419,16 @@ class StatusCheckerStub(object):
             self._connect_to_checker()
 
     def generate_menu_conditions_async(self, provider, base_dir, paths, callback):
-        GLib.idle_add(self.generate_menu_conditions, provider, base_dir, paths, callback)
+        GLib.idle_add(self.generate_menu_conditions,
+                      provider, base_dir, paths, callback)
         return {}
+
 
 def start():
     """ Starts the checker service, via the utility method in "service.py". """
     rabbitvcs.services.service.start_service(os.path.abspath(__file__), SERVICE,
                                              OBJECT_PATH)
+
 
 def Main():
     """ The main point of entry for the checker service.
@@ -429,7 +438,8 @@ def Main():
     """
     global log
     log = Log("rabbitvcs.services.checkerservice:main")
-    log.debug("Checker: starting service: %s (%s)" % (OBJECT_PATH, os.getpid()))
+    log.debug("Checker: starting service: %s (%s)" %
+              (OBJECT_PATH, os.getpid()))
 
     # We need this to for the client to be able to do asynchronous calls
     dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
@@ -452,6 +462,7 @@ def Main():
     mainloop.run()
 
     log.debug("Checker: ended service: %s (%s)" % (OBJECT_PATH, os.getpid()))
+
 
 if __name__ == "__main__":
     rabbitvcs.util._locale.initialize_locale()

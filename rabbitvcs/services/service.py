@@ -32,6 +32,7 @@ import dbus
 from rabbitvcs.util.log import Log
 log = Log("rabbitvcs.services.service")
 
+
 def start_service(script_file, dbus_service_name, dbus_object_path):
     """
     This function is used to start a service that exports a DBUS object. If the
@@ -72,14 +73,13 @@ def start_service(script_file, dbus_service_name, dbus_object_path):
         object_exists = True
     except dbus.DBusException:
         proc = subprocess.Popen([sys.executable, script_file],
-                               stdin=subprocess.PIPE,
-                               stdout=subprocess.PIPE)
+                                stdin=subprocess.PIPE,
+                                stdout=subprocess.PIPE)
         pid = proc.pid
         log.debug("Started process: %i" % pid)
 
         # Wait for subprocess to send a newline, to tell us it's ready
-        proc.stdout.readline() # We don't care what the message is
+        proc.stdout.readline()  # We don't care what the message is
         object_exists = True
 
     return object_exists
-
