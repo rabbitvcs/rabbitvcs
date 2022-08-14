@@ -26,6 +26,7 @@ Our module for everything related to the Nautilus extension.
 
 """
 from __future__ import with_statement
+from __future__ import absolute_import
 from rabbitvcs.util.contextmenuitems import *
 import copy
 from rabbitvcs.services.checkerservice import StatusCheckerStub as StatusChecker
@@ -56,7 +57,6 @@ import datetime
 from os.path import isdir, isfile, realpath, basename, dirname
 import os.path
 import os
-from __future__ import absolute_import
 from six.moves import range
 
 

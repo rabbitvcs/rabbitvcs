@@ -25,6 +25,7 @@ Our module for everything related to the Thunar extension.
 """
 
 from __future__ import with_statement
+from __future__ import absolute_import
 from rabbitvcs.util.contextmenuitems import *
 from rabbitvcs.services.checkerservice import StatusCheckerStub as StatusChecker
 import rabbitvcs.services.service
@@ -41,7 +42,6 @@ import rabbitvcs.ui.property_page
 import rabbitvcs.ui
 from rabbitvcs.vcs.svn import SVN
 from gi.repository import GObject, Thunarx
-from __future__ import absolute_import
 import copy
 import os.path
 from os.path import realpath
