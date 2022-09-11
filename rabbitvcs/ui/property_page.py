@@ -127,9 +127,9 @@ class FileInfoPane(rabbitvcs.ui.GtkBuilderWidgetWrapper):
                 additional_props_table, expand=False, fill=False, padding=0
             )
 
-    def set_icon_from_status(self, icon, status, size=Gtk.IconSize.BUTTON):
+    def set_icon_from_status(self, icon, status):
         if status in rabbitvcs.ui.STATUS_EMBLEMS:
-            icon.set_from_icon_name("emblem-" + STATUS_EMBLEMS[status], size)
+            icon.set_from_icon_name("emblem-" + STATUS_EMBLEMS[status])
 
     def get_additional_info(self):
         vcs_type = rabbitvcs.vcs.guess_vcs(self.path)["vcs"]
