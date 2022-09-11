@@ -6,7 +6,7 @@ import pysvn
 import rabbitvcs.ui.widget
 from rabbitvcs.ui import InterfaceView
 import rabbitvcs
-from gi.repository import Gtk, GObject, GdkPixbuf
+from gi.repository import Gtk, GObject, GdkPixbuf, Gdk
 import gi
 from rabbitvcs.util import helper
 import re
@@ -85,7 +85,8 @@ class About(object):
         pixbuf = GdkPixbuf.Pixbuf.new_from_file(
             rabbitvcs.get_icon_path() + "/scalable/apps/rabbitvcs.svg"
         )
-        self.about.set_logo(pixbuf)
+        paintable = Gdk.Texture.new_for_pixbuf(pixbuf)
+        self.about.set_logo(paintable)
 
         versions = []
         versions.append("Subversion - %s" % ".".join(list(map(str, pysvn.svn_version))))
@@ -96,12 +97,12 @@ class About(object):
 
         self.about.set_license(license)
 
-    def run(self):
-        self.about.show_all()
-        self.about.run()
-        self.about.destroy()
-
+def on_activate(app):
+    about = About()
+    about.about.set_application(app)
+    about.about.present()
 
 if __name__ == "__main__":
-    window = About()
-    window.run()
+    app = Gtk.Application(application_id='org.google.code.rabbitvcs.about')
+    app.connect('activate', on_activate)
+    app.run(None)
