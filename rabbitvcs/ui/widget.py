@@ -1055,22 +1055,22 @@ class Clickable(object):
     - long_click(clickable, widget, event, data)
     """
 
-    _BUTTON_PRESS = Gdk.EventType.BUTTON_PRESS
-    _2BUTTON_PRESS = Gdk.EventType._2BUTTON_PRESS
-    _3BUTTON_PRESS = Gdk.EventType._3BUTTON_PRESS
+    # _BUTTON_PRESS = Gdk.EventType.BUTTON_PRESS
+    # _2BUTTON_PRESS = Gdk.EventType._2BUTTON_PRESS
+    # _3BUTTON_PRESS = Gdk.EventType._3BUTTON_PRESS
 
     def __init__(self, widget):
         self.widget = widget
         self._timer = None
-        self._signals = {
-            self._BUTTON_PRESS: self._signal_data(),
-            self._2BUTTON_PRESS: self._signal_data(),
-            self._3BUTTON_PRESS: self._signal_data(),
-            "long-click": self._signal_data(),
-            "button-press-event": self._signal_data(),
-            "button-release-event": self._signal_data(),
-            None: self._signal_data(),
-        }
+        # self._signals = {
+        #     self._BUTTON_PRESS: self._signal_data(),
+        #     self._2BUTTON_PRESS: self._signal_data(),
+        #     self._3BUTTON_PRESS: self._signal_data(),
+        #     "long-click": self._signal_data(),
+        #     "button-press-event": self._signal_data(),
+        #     "button-release-event": self._signal_data(),
+        #     None: self._signal_data(),
+        # }
         self._lastpress = None
         widget.connect("button-press-event", self._on_button_pressed, None)
         widget.connect("button-release-event", self._on_button_released, None)
