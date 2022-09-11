@@ -36,10 +36,7 @@ from rabbitvcs.util import helper
 
 import gi
 
-try:
-    gi.require_version("Gtk", "3.0")
-except:
-    gi.require_version("Gtk", "4.0")
+gi.require_version("Gtk", "4.0")
 from gi.repository import Gtk, Gdk, GLib
 sa = helper.SanitizeArgv()
 sa.restore()

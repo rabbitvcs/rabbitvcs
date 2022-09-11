@@ -35,7 +35,7 @@ import os.path
 
 import gi
 
-gi.require_version("Gtk", "3.0")
+gi.require_version("Gtk", "4.0")
 
 
 log = Log("rabbitvcs.ui.property_page")

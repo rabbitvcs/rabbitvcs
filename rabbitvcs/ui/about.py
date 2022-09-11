@@ -36,7 +36,7 @@ You should have received a copy of the GNU General Public License
 along with RabbitVCS;  If not, see <http://www.gnu.org/licenses/>.  """
 
 
-gi.require_version("Gtk", "3.0")
+gi.require_version("Gtk", "4.0")
 sa = helper.SanitizeArgv()
 sa.restore()
 

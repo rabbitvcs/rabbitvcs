@@ -29,7 +29,7 @@ from gi.repository import Gtk, GObject, Pango
 # Python translation from wrapLabel.{cc|h} by Gian Mario Tagliaretti
 import gi
 
-gi.require_version("Gtk", "3.0")
+gi.require_version("Gtk", "4.0")
 
 
 class WrapLabel(Gtk.Label):

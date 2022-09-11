@@ -32,7 +32,7 @@ from gettext import gettext as _
 import os.path
 import gi
 
-gi.require_version("Gtk", "3.0")
+gi.require_version("Gtk", "4.0")
 
 
 ERROR_NOTICE = _(
