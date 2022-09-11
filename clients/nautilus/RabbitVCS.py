@@ -382,7 +382,7 @@ class RabbitVCS(
         profile_data_file = os.path.join(
             helper.get_home_folder(), "checkerservice_%s.stats" % path
         )
-
+ 
         prof = cProfile.Profile()
         retval = prof.runcall(self.get_background_items_real, item)
         prof.dump_stats(profile_data_file)
