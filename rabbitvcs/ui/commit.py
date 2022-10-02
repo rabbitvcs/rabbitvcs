@@ -53,6 +53,21 @@ _ = gettext.gettext
 
 helper.gobject_threads_init()
 
+@Gtk.Template(filename=f"{os.path.dirname(os.path.abspath(__file__))}/xml/commit.xml")
+class CommitWindow(Gtk.Window):
+    __gtype_name__ = "CommitWindow"
+
+    files_table = Gtk.Template.Child()
+    toggle_show_unversioned = Gtk.Template.Child()
+    message = Gtk.Template.Child()
+    status = Gtk.Template.Child()
+    commit_to_box = Gtk.Template.Child()
+    to = Gtk.Template.Child()
+
+    def __init__(self):
+        Gtk.Window.__init__(self)
+
+
 
 class Commit(InterfaceView, GtkContextMenuCaller):
     """
@@ -79,12 +94,14 @@ class Commit(InterfaceView, GtkContextMenuCaller):
         """
         InterfaceView.__init__(self, "commit", "Commit")
 
+        self.window = CommitWindow()
+
         self.base_dir = base_dir
         self.vcs = rabbitvcs.vcs.VCS()
         self.items = []
 
         self.files_table = rabbitvcs.ui.widget.Table(
-            self.get_widget("files_table"),
+            self.window.files_table,
             [
                 GObject.TYPE_BOOLEAN,
                 rabbitvcs.ui.widget.TYPE_HIDDEN_OBJECT,
@@ -116,10 +133,10 @@ class Commit(InterfaceView, GtkContextMenuCaller):
             flags={"sortable": True, "sort_on": 2},
         )
         self.files_table.allow_multiple()
-        self.get_widget("toggle_show_unversioned").set_active(self.SHOW_UNVERSIONED)
+        self.window.toggle_show_unversioned.set_active(self.SHOW_UNVERSIONED)
         if not message:
             message = self.SETTINGS.get_multiline("general", "default_commit_message")
-        self.message = rabbitvcs.ui.widget.TextView(self.get_widget("message"), message)
+        self.message = rabbitvcs.ui.widget.TextView(self.window.message, message)
 
         self.paths = []
         for path in paths:
@@ -138,7 +155,7 @@ class Commit(InterfaceView, GtkContextMenuCaller):
         - Updates the status area
         """
 
-        self.get_widget("status").set_text(_("Loading..."))
+        self.window.status.set_text(_("Loading..."))
 
         self.items = self.vcs.get_items(
             self.paths, self.vcs.statuses_for_commit(self.paths)
@@ -283,7 +300,7 @@ class Commit(InterfaceView, GtkContextMenuCaller):
                     item.simple_metadata_status(),
                 ]
             )
-        self.get_widget("status").set_text(
+        self.window.status.set_text(
             _("Found %(changed)d changed and %(unversioned)d unversioned item(s)")
             % {"changed": n, "unversioned": m}
         )
@@ -293,9 +310,9 @@ class SVNCommit(Commit):
     def __init__(self, paths, base_dir=None, message=None):
         Commit.__init__(self, paths, base_dir, message)
 
-        self.get_widget("commit_to_box").show()
+        self.window.commit_to_box.show()
 
-        self.get_widget("to").set_text(
+        self.window.to.set_text(
             S(self.vcs.svn().get_repo_url(self.base_dir)).display()
         )
 
@@ -361,13 +378,13 @@ class GitCommit(Commit):
 
         self.git = self.vcs.git(paths[0])
 
-        self.get_widget("commit_to_box").show()
+        self.window.commit_to_box.show()
 
         active_branch = self.git.get_active_branch()
         if active_branch:
-            self.get_widget("to").set_text(S(active_branch.name).display())
+            self.window.to.set_text(S(active_branch.name).display())
         else:
-            self.get_widget("to").set_text("No active branch")
+            self.window.to.set_text("No active branch")
 
         self.items = None
         if len(self.paths):
@@ -420,8 +437,7 @@ def commit_factory(paths, base_dir=None, message=None):
     guess = rabbitvcs.vcs.guess(paths[0])
     return classes_map[guess["vcs"]](paths, base_dir, message)
 
-
-if __name__ == "__main__":
+def on_activate(app):
     from rabbitvcs.ui import main, BASEDIR_OPT
 
     (options, paths) = main(
@@ -430,5 +446,9 @@ if __name__ == "__main__":
     )
 
     window = commit_factory(paths, options.base_dir, message=options.message)
-    window.register_gtk_quit()
-    Gtk.main()
+    app.add_window(window.window)
+
+if __name__ == "__main__":
+    app = Gtk.Application()
+    app.connect('activate', on_activate)
+    app.run()

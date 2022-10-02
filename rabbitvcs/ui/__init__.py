@@ -113,7 +113,7 @@ class GtkBuilderWidgetWrapper(object):
         return self.tree.get_object(id)
 
 
-class InterfaceView(GtkBuilderWidgetWrapper):
+class InterfaceView(object):
     """
     Every ui window should inherit this class and send it the "self"
     variable, the Gtkbuilder filename (without the extension), and the id of the
@@ -126,7 +126,6 @@ class InterfaceView(GtkBuilderWidgetWrapper):
     """
 
     def __init__(self, *args, **kwargs):
-        GtkBuilderWidgetWrapper.__init__(self, *args, **kwargs)
         self.do_gtk_quit = False
 
         # On OSX, there is a glitch where GTK applications do not always come to the front

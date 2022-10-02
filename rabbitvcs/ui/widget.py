@@ -413,7 +413,7 @@ class TableBase(object):
         # This runs through the columns, and sets the "compare_items" comparator
         # as needed. Note that the user data tells which column to sort on.
         if flags["sortable"]:
-            self.sorted = Gtk.TreeModelSort(self.filter)
+            self.sorted = Gtk.TreeModelSort()
 
             self.sorted.set_default_sort_func(compare_items, None)
 
@@ -438,9 +438,10 @@ class TableBase(object):
         # selctions
         self.treeview.connect("cursor-changed", self.__cursor_changed_event)
         self.treeview.connect("row-activated", self.__row_activated_event)
-        self.treeview.connect("button-press-event", self.__button_press_event)
-        self.treeview.connect("button-release-event", self.__button_release_event)
-        self.treeview.connect("key-press-event", self.__key_press_event)
+        # TODO use GtkEventController
+        # self.treeview.connect("button-press-event", self.__button_press_event)
+        # self.treeview.connect("button-release-event", self.__button_release_event)
+        # self.treeview.connect("key-press-event", self.__key_press_event)
         self.treeview.connect("select-cursor-row", self.__row_selected)
         # Necessary for self.selected_rows to remain sane
         self.treeview.connect("select-all", self.__all_selected)
