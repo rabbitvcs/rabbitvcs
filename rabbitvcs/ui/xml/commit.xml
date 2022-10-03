@@ -13,7 +13,6 @@
     <property name="default_width">640</property>
     <property name="default_height">640</property>
     <property name="icon_name">rabbitvcs-small</property>
-    <signal name="destroy" handler="on_destroy" swapped="no"/>
     <!-- <signal name="key-press-event" handler="on_key_pressed" swapped="no"/> -->
     <property name="child">
       <object class="GtkBox">
@@ -96,7 +95,6 @@
                             <property name="label" translatable="1">Previous Messages</property>
                             <property name="focusable">1</property>
                             <property name="receives_default">1</property>
-                            <signal name="clicked" handler="on_previous_messages_clicked" swapped="no"/>
                           </object>
                         </child>
                       </object>
@@ -169,7 +167,6 @@
                             <property name="halign">start</property>
                             <property name="hexpand">1</property>
                             <property name="active">1</property>
-                            <signal name="toggled" handler="on_toggle_show_unversioned_toggled" swapped="no"/>
                           </object>
                         </child>
                         <child>
@@ -178,7 +175,6 @@
                             <property name="focusable">1</property>
                             <property name="halign">start</property>
                             <property name="hexpand">1</property>
-                            <signal name="toggled" handler="on_toggle_show_all_toggled" swapped="no"/>
                             <layout>
                               <property name="column">0</property>
                               <property name="row">0</property>
@@ -211,7 +207,6 @@
                 <property name="tooltip_text" translatable="1">Refresh</property>
                 <property name="margin-start">6</property>
                 <property name="margin-end">6</property>
-                <signal name="clicked" handler="on_refresh_clicked" swapped="no"/>
                 <child>
                   <object class="GtkImage" id="image1">
                     <property name="icon_name">view-refresh</property>
@@ -232,7 +227,6 @@
                     <property name="focusable">1</property>
                     <property name="receives_default">1</property>
                     <property name="use_underline">1</property>
-                    <signal name="clicked" handler="on_cancel_clicked" swapped="no"/>
                     <!-- <child>
                       <object class="GtkImage">
                         <property name="icon_name">rabbitvcs-cancel</property>
@@ -246,7 +240,6 @@
                     <property name="focusable">1</property>
                     <property name="receives_default">1</property>
                     <property name="use_underline">1</property>
-                    <signal name="clicked" handler="on_ok_clicked" swapped="no"/>
                     <!-- <child>
                       <object class="GtkImage">
                         <property name="icon_name">rabbitvcs-ok</property>

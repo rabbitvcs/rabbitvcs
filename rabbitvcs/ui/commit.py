@@ -63,6 +63,12 @@ class CommitWindow(Gtk.Window):
     status = Gtk.Template.Child()
     commit_to_box = Gtk.Template.Child()
     to = Gtk.Template.Child()
+    previous_messages = Gtk.Template.Child()
+    toggle_show_unversioned = Gtk.Template.Child()
+    toggle_show_all = Gtk.Template.Child()
+    refresh = Gtk.Template.Child()
+    cancel = Gtk.Template.Child()
+    ok = Gtk.Template.Child()
 
     def __init__(self):
         Gtk.Window.__init__(self)
@@ -95,6 +101,13 @@ class Commit(InterfaceView, GtkContextMenuCaller):
         InterfaceView.__init__(self, "commit", "Commit")
 
         self.window = CommitWindow()
+        self.window.previous_messages.connect("clicked", self.on_previous_messages_clicked)
+        self.window.toggle_show_unversioned.connect("toggled", self.on_toggle_show_unversioned_toggled)
+        self.window.toggle_show_all.connect("toggled", self.on_toggle_show_all_toggled)
+        self.window.refresh.connect("clicked", self.on_refresh_clicked)
+        self.window.cancel.connect("clicked", self.on_cancel_clicked)
+        self.window.ok.connect("clicked", self.on_ok_clicked)
+        self.window.connect("destroy", self.on_destroy)
 
         self.base_dir = base_dir
         self.vcs = rabbitvcs.vcs.VCS()
@@ -231,7 +244,7 @@ class Commit(InterfaceView, GtkContextMenuCaller):
             row[0] = self.TOGGLE_ALL
             self.changes[row[1]] = self.TOGGLE_ALL
 
-    def on_toggle_show_unversioned_toggled(self, widget, *args):
+    def on_toggle_show_unversioned_toggled(self, widget, data):
         self.SHOW_UNVERSIONED = widget.get_active()
         self.populate_files_table()
 
@@ -260,7 +273,7 @@ class Commit(InterfaceView, GtkContextMenuCaller):
         if event.button == 3 and event.type == Gdk.EventType.BUTTON_RELEASE:
             self.show_files_table_popup_menu(treeview, event)
 
-    def on_previous_messages_clicked(self, widget, data=None):
+    def on_previous_messages_clicked(self, widget):
         dialog = rabbitvcs.ui.dialog.PreviousMessages()
         message = dialog.run()
         if message is not None:

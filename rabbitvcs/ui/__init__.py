@@ -145,12 +145,12 @@ class InterfaceView(object):
                 pass
 
     def hide(self):
-        window = self.get_widget(self.gtkbuilder_id)
+        window = self.window
         if window:
             window.set_property("visible", False)
 
     def show(self):
-        window = self.get_widget(self.gtkbuilder_id)
+        window = self.window
         if window:
             window.set_property("visible", True)
 
@@ -158,7 +158,7 @@ class InterfaceView(object):
         self.close()
 
     def close(self, threaded=False):
-        window = self.get_widget(self.gtkbuilder_id)
+        window = self.window
         if window is not None:
             if threaded:
                 helper.run_in_main_thread(window.destroy)
@@ -169,7 +169,7 @@ class InterfaceView(object):
             Gtk.main_quit()
 
     def register_gtk_quit(self):
-        window = self.get_widget(self.gtkbuilder_id)
+        window = self.window
         self.do_gtk_quit = True
 
         # This means we've already been closed
