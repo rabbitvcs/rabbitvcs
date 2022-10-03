@@ -1,194 +1,94 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Generated with glade 3.22.1 -->
 <interface>
-  <requires lib="gtk+" version="3.20"/>
+  <requires lib="gtk" version="4.0"/>
   <object class="GtkImage" id="rabbitvcs-cancel">
-    <property name="visible">True</property>
-    <property name="can_focus">False</property>
     <property name="icon_name">rabbitvcs-cancel</property>
   </object>
   <object class="GtkImage" id="rabbitvcs-ok">
-    <property name="visible">True</property>
-    <property name="can_focus">False</property>
     <property name="icon_name">rabbitvcs-ok</property>
   </object>
-  <object class="GtkDialog" id="PreviousMessages">
-    <property name="width_request">500</property>
-    <property name="can_focus">False</property>
-    <property name="border_width">5</property>
-    <property name="title" translatable="yes">Previous Messages</property>
-    <property name="window_position">center</property>
-    <property name="default_width">450</property>
-    <property name="icon_name">rabbitvcs-small</property>
-    <property name="type_hint">dialog</property>
+  <template class="PreviousWidget" parent="GtkBox">
+    <property name="hexpand">1</property>
+    <property name="vexpand">1</property>
+    <property name="orientation">vertical</property>
+    <property name="spacing">18</property>
+    <property name="margin-start">6</property>
+    <property name="margin-top">6</property>
+    <property name="margin-end">6</property>
+    <property name="margin-bottom">6</property>
     <child>
-      <placeholder/>
-    </child>
-    <child internal-child="vbox">
-      <object class="GtkBox" id="dialog-vbox1">
-        <property name="visible">True</property>
-        <property name="can_focus">False</property>
-        <property name="hexpand">True</property>
-        <property name="vexpand">True</property>
+      <object class="GtkBox">
+        <property name="hexpand">1</property>
+        <property name="vexpand">1</property>
         <property name="orientation">vertical</property>
-        <property name="spacing">18</property>
-        <child internal-child="action_area">
-          <object class="GtkButtonBox" id="dialog-action_area1">
-            <property name="visible">True</property>
-            <property name="can_focus">False</property>
-            <property name="halign">end</property>
-            <property name="hexpand">True</property>
-            <property name="layout_style">end</property>
-            <child>
-              <object class="GtkButton" id="prevmes_cancel">
-                <property name="label" translatable="yes">_Cancel</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">True</property>
-                <property name="image">rabbitvcs-cancel</property>
-                <property name="use_underline">True</property>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">False</property>
-                <property name="position">0</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkButton" id="prevmes_ok">
-                <property name="label" translatable="yes">_OK</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">True</property>
-                <property name="image">rabbitvcs-ok</property>
-                <property name="use_underline">True</property>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">False</property>
-                <property name="position">1</property>
-              </packing>
-            </child>
+        <property name="spacing">6</property>
+        <child>
+          <object class="GtkLabel" id="label14">
+            <property name="hexpand">1</property>
+            <property name="label" translatable="1">&lt;b&gt;Previous Messages&lt;/b&gt;</property>
+            <property name="use_markup">1</property>
+            <property name="xalign">0</property>
           </object>
-          <packing>
-            <property name="expand">False</property>
-            <property name="fill">False</property>
-            <property name="pack_type">end</property>
-            <property name="position">0</property>
-          </packing>
         </child>
         <child>
-          <object class="GtkGrid">
-            <property name="visible">True</property>
-            <property name="can_focus">False</property>
-            <property name="hexpand">True</property>
-            <property name="vexpand">True</property>
-            <property name="orientation">vertical</property>
-            <property name="row_spacing">6</property>
-            <child>
-              <object class="GtkScrolledWindow" id="scrolledwindow4">
-                <property name="height_request">200</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="margin_left">12</property>
-                <property name="margin_right">12</property>
-                <property name="hexpand">True</property>
-                <property name="vexpand">True</property>
-                <property name="shadow_type">etched-in</property>
-                <child>
-                  <object class="GtkTreeView" id="prevmes_table">
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <child internal-child="selection">
-                      <object class="GtkTreeSelection"/>
-                    </child>
-                  </object>
+          <object class="GtkScrolledWindow" id="scrolledwindow4">
+            <property name="height_request">200</property>
+            <property name="focusable">1</property>
+            <property name="margin_start">12</property>
+            <property name="margin_end">12</property>
+            <property name="hexpand">1</property>
+            <property name="vexpand">1</property>
+            <property name="has-frame">1</property>
+            <property name="child">
+              <object class="GtkTreeView" id="prevmes_table">
+                <property name="focusable">1</property>
+                <child internal-child="selection">
+                  <object class="GtkTreeSelection"/>
                 </child>
               </object>
-              <packing>
-                <property name="left_attach">0</property>
-                <property name="top_attach">1</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkLabel" id="label14">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="hexpand">True</property>
-                <property name="label" translatable="yes">&lt;b&gt;Previous Messages&lt;/b&gt;</property>
-                <property name="use_markup">True</property>
-                <property name="xalign">0</property>
-              </object>
-              <packing>
-                <property name="left_attach">0</property>
-                <property name="top_attach">0</property>
-              </packing>
-            </child>
+            </property>
           </object>
-          <packing>
-            <property name="expand">True</property>
-            <property name="fill">True</property>
-            <property name="position">1</property>
-          </packing>
-        </child>
-        <child>
-          <object class="GtkGrid">
-            <property name="visible">True</property>
-            <property name="can_focus">False</property>
-            <property name="hexpand">True</property>
-            <property name="vexpand">True</property>
-            <property name="orientation">vertical</property>
-            <property name="row_spacing">6</property>
-            <child>
-              <object class="GtkScrolledWindow" id="scrolledwindow5">
-                <property name="height_request">175</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="margin_left">12</property>
-                <property name="margin_right">12</property>
-                <property name="hexpand">True</property>
-                <property name="vexpand">True</property>
-                <property name="shadow_type">etched-in</property>
-                <child>
-                  <object class="GtkTextView" id="prevmes_message">
-                    <property name="height_request">100</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="wrap_mode">word</property>
-                  </object>
-                </child>
-              </object>
-              <packing>
-                <property name="left_attach">0</property>
-                <property name="top_attach">1</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkLabel" id="label13">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="hexpand">True</property>
-                <property name="label" translatable="yes">&lt;b&gt;Message&lt;/b&gt;</property>
-                <property name="use_markup">True</property>
-                <property name="xalign">0</property>
-              </object>
-              <packing>
-                <property name="left_attach">0</property>
-                <property name="top_attach">0</property>
-              </packing>
-            </child>
-          </object>
-          <packing>
-            <property name="expand">True</property>
-            <property name="fill">True</property>
-            <property name="position">2</property>
-          </packing>
         </child>
       </object>
     </child>
-    <action-widgets>
+    <child>
+      <object class="GtkBox">
+        <property name="hexpand">1</property>
+        <property name="vexpand">1</property>
+        <property name="orientation">vertical</property>
+        <property name="spacing">6</property>
+        <child>
+          <object class="GtkLabel" id="label13">
+            <property name="hexpand">1</property>
+            <property name="label" translatable="1">&lt;b&gt;Message&lt;/b&gt;</property>
+            <property name="use_markup">1</property>
+            <property name="xalign">0</property>
+          </object>
+        </child>
+        <child>
+          <object class="GtkScrolledWindow" id="scrolledwindow5">
+            <property name="height_request">175</property>
+            <property name="focusable">1</property>
+            <property name="margin_start">12</property>
+            <property name="margin_end">12</property>
+            <property name="hexpand">1</property>
+            <property name="vexpand">1</property>
+            <property name="has-frame">1</property>
+            <property name="child">
+              <object class="GtkTextView" id="prevmes_message">
+                <property name="height_request">100</property>
+                <property name="focusable">1</property>
+                <property name="wrap_mode">word</property>
+              </object>
+            </property>
+          </object>
+        </child>
+      </object>
+    </child>
+  </template>
+    <!-- <action-widgets>
+      TODO
       <action-widget response="-6">prevmes_cancel</action-widget>
       <action-widget response="-5">prevmes_ok</action-widget>
-    </action-widgets>
-  </object>
+    </action-widgets> -->
 </interface>

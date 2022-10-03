@@ -221,11 +221,6 @@
                 <property name="focusable">1</property>
                 <property name="receives_default">1</property>
                 <property name="use_underline">1</property>
-                <!-- <child>
-                  <object class="GtkImage">
-                    <property name="icon_name">rabbitvcs-cancel</property>
-                  </object>
-                </child> -->
               </object>
             </child>
             <child>
@@ -234,11 +229,6 @@
                 <property name="focusable">1</property>
                 <property name="receives_default">1</property>
                 <property name="use_underline">1</property>
-                <!-- <child>
-                  <object class="GtkImage">
-                    <property name="icon_name">rabbitvcs-ok</property>
-                  </object>
-                </child> -->
               </object>
             </child>
           </object>

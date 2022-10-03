@@ -42,15 +42,27 @@ An error has occurred in the RabbitVCS Nautilus extension. Please contact the \
     % (rabbitvcs.WEBSITE)
 )
 
+@Gtk.Template(filename=f"{os.path.dirname(os.path.abspath(__file__))}/xml/dialogs/previous_messages.xml")
+class PreviousWidget(Gtk.Box):
+    __gtype_name__ = "PreviousWidget"
+
+    prevmes_message = Gtk.Template.Child()
+    prevmes_table = Gtk.Template.Child()
+
+    def __init__(self):
+        Gtk.Box.__init__(self)
 
 class PreviousMessages(InterfaceView):
-    def __init__(self):
-        InterfaceView.__init__(self, "dialogs/previous_messages", "PreviousMessages")
+    def __init__(self, parent):
+        InterfaceView.__init__(self, "dialogs/previous_messages", "Previous Messages")
 
-        self.message = rabbitvcs.ui.widget.TextView(self.get_widget("prevmes_message"))
+        self.widget = PreviousWidget()
+        self.window = self.get_popup_dialog(parent, self.widget)
+        self.window.connect("response", self.dialog_responded)
+        self.message = rabbitvcs.ui.widget.TextView(self.widget.prevmes_message)
 
         self.message_table = rabbitvcs.ui.widget.Table(
-            self.get_widget("prevmes_table"),
+            self.widget.prevmes_table,
             [GObject.TYPE_STRING, GObject.TYPE_STRING],
             [_("Date"), _("Message")],
             filters=[
@@ -80,14 +92,17 @@ class PreviousMessages(InterfaceView):
             return None
 
         returner = None
-        self.dialog = self.get_widget("PreviousMessages")
-        result = self.dialog.run()
-        if result == Gtk.ResponseType.OK:
-            returner = self.message.get_text()
-
-        self.dialog.destroy()
+        self.window.set_default_size(450, 0)
+        self.window.show()
 
         return returner
+
+    def dialog_responded(self, dialog, response_id):
+        if response_id == Gtk.ResponseType.OK:
+            # TODO emit signal to notify parent
+            returner = self.message.get_text()
+
+        dialog.destroy()
 
     def on_prevmes_table_row_activated(self, treeview, data, col):
         self.update_message_table()

@@ -278,7 +278,7 @@ class Commit(InterfaceView, GtkContextMenuCaller):
             self.show_files_table_popup_menu(treeview, event)
 
     def on_previous_messages_clicked(self, widget):
-        dialog = rabbitvcs.ui.dialog.PreviousMessages()
+        dialog = rabbitvcs.ui.dialog.PreviousMessages(self.window)
         message = dialog.run()
         if message is not None:
             self.message.set_text(S(message).display())
