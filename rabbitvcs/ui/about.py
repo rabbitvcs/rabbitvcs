@@ -13,6 +13,13 @@ import re
 import string
 import os.path
 
+adwaita_available = True
+try:
+    gi.require_version("Adw", "1")
+    from gi.repository import Adw
+except Exception as e:
+    adwaita_available = False
+
 #
 # This is an extension to the Nautilus file manager to allow better
 # integration with the Subversion source control system.
@@ -51,14 +58,6 @@ class About(object):
     """
 
     def __init__(self):
-        self.about = Gtk.AboutDialog()
-        self.about.set_name(rabbitvcs.APP_NAME)
-
-        self.about.set_program_name(rabbitvcs.APP_NAME)
-        self.about.set_version(rabbitvcs.version)
-        self.about.set_website("http://www.rabbitvcs.org")
-        self.about.set_website_label("http://www.rabbitvcs.org")
-
         doc_path_root = "/usr/share/doc"
         doc_path_regex = re.compile("rabbitvcs")
         authors_path = None
@@ -80,22 +79,36 @@ class About(object):
 
         authors = open(authors_path, "r").read()
 
-        self.about.set_authors(authors.split("\n"))
-
         pixbuf = GdkPixbuf.Pixbuf.new_from_file(
             rabbitvcs.get_icon_path() + "/scalable/apps/rabbitvcs.svg"
         )
         paintable = Gdk.Texture.new_for_pixbuf(pixbuf)
-        self.about.set_logo(paintable)
 
         versions = []
         versions.append("Subversion - %s" % ".".join(list(map(str, pysvn.svn_version))))
         versions.append("Pysvn - %s" % ".".join(list(map(str, pysvn.version))))
         versions.append("ConfigObj - %s" % str(configobj.__version__))
 
-        self.about.set_comments("\n".join(versions))
+        if adwaita_available:
+            self.about = Adw.AboutWindow()
+            self.about.set_application_name(rabbitvcs.APP_NAME)
+            self.about.set_developers(authors.split("\n"))
+            self.about.set_application_icon(rabbitvcs.get_icon_path() + "/scalable/apps/rabbitvcs.svg")
+            self.about.set_license_type(Gtk.License.GPL_3_0)
+        else:
+            self.about = Gtk.AboutDialog()
+            self.about.set_program_name(rabbitvcs.APP_NAME)
+            self.about.set_website_label("http://www.rabbitvcs.org")
+            self.about.set_authors(authors.split("\n"))
+            self.about.set_logo(paintable)
+            self.about.set_license(license)
 
-        self.about.set_license(license)
+        self.about.set_name(rabbitvcs.APP_NAME)
+
+        self.about.set_version(rabbitvcs.version)
+        self.about.set_website("http://www.rabbitvcs.org")
+
+        self.about.set_comments("\n".join(versions))
 
 def on_activate(app):
     about = About()
@@ -103,6 +116,9 @@ def on_activate(app):
     about.about.present()
 
 if __name__ == "__main__":
-    app = Gtk.Application(application_id='org.google.code.rabbitvcs.about')
+    if adwaita_available:
+        app = Adw.Application(application_id='org.google.code.rabbitvcs.about')
+    else:
+        app = Gtk.Application(application_id='org.google.code.rabbitvcs.about')
     app.connect('activate', on_activate)
     app.run(None)
