@@ -1,12 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
   <requires lib="gtk" version="4.0"/>
-  <object class="GtkImage" id="rabbitvcs-cancel">
-    <property name="icon_name">rabbitvcs-cancel</property>
-  </object>
-  <object class="GtkImage" id="rabbitvcs-ok">
-    <property name="icon_name">rabbitvcs-ok</property>
-  </object>
   <!-- TODO use Gtk.EventController -->
   <!-- <signal name="key-press-event" handler="on_key_pressed" swapped="no"/> -->
   <template class="CommitWidget" parent="GtkBox">

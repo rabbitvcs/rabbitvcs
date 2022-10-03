@@ -116,6 +116,7 @@ class GtkBuilderWidgetWrapper(object):
         return window
 
     def get_popup_dialog(self, parent, widget):
+        # TODO eventually use Adw.MessageDialog if adwaita_available is True
         dialog = Gtk.Dialog()
         dialog.set_title(self.gtkbuilder_id)
         dialog.set_modal(True)
