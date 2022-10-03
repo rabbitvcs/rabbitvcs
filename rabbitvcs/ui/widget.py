@@ -438,10 +438,13 @@ class TableBase(object):
         # selctions
         self.treeview.connect("cursor-changed", self.__cursor_changed_event)
         self.treeview.connect("row-activated", self.__row_activated_event)
-        # TODO use GtkEventController
-        # self.treeview.connect("button-press-event", self.__button_press_event)
-        # self.treeview.connect("button-release-event", self.__button_release_event)
-        # self.treeview.connect("key-press-event", self.__key_press_event)
+        gesture = Gtk.GestureClick()
+        gesture.connect("pressed", self.__button_press_event)
+        gesture.connect("released", self.__button_release_event)
+        self.treeview.add_controller(gesture)
+        keycontroller = Gtk.EventControllerKey()
+        keycontroller.connect("key-pressed", self.__key_press_event)
+        self.treeview.add_controller(keycontroller)
         self.treeview.connect("select-cursor-row", self.__row_selected)
         # Necessary for self.selected_rows to remain sane
         self.treeview.connect("select-all", self.__all_selected)
@@ -627,9 +630,9 @@ class TableBase(object):
         self.treeview.set_cursor((row,), treecol)
         self.treeview.grab_focus()
 
-    def __button_press_event(self, treeview, event, *args):
-        info = treeview.get_path_at_pos(int(event.x), int(event.y))
-        selection = treeview.get_selection()
+    def __button_press_event(self, n_press, x, y, user_data):
+        info = self.treeview.get_path_at_pos(int(x), int(y))
+        selection = self.treeview.get_selection()
         result = False
 
         # If info is none, that means the user is clicking the empty space
@@ -637,15 +640,16 @@ class TableBase(object):
         if info is None:
             selection.unselect_all()
             self.update_selection()
-        elif event.button == 3:
+        elif self.get_current_button() == 3:
             # this allows us to retain multiple selections with a right-click
             (model, indexes) = selection.get_selected_rows()
 
             # If the mouse click is one of the currently selected rows
             # keep the selection, otherwise, use the new selection
             result = any(index == info[0] for index in indexes)
-        if "mouse-event" in self.callbacks:
-            result = self.callbacks["mouse-event"](treeview, event, *args) or result
+        # TODO adapt mouse-events
+        # if "mouse-event" in self.callbacks:
+        #     result = self.callbacks["mouse-event"](self.treeview, event, *args) or result
         return result
 
     def __row_activated_event(self, treeview, data, col):
@@ -673,20 +677,22 @@ class TableBase(object):
         if "all-unselected" in self.callbacks:
             self.callbacks["all-unselected"](treeview)
 
-    def __key_press_event(self, treeview, event, *args):
+    def __key_press_event(self, keyval, keycode, state):
         self.update_selection()
-        if "key-event" in self.callbacks:
-            self.callbacks["key-event"](treeview, event, *args)
+        # TODO adapt key-events
+        # if "key-event" in self.callbacks:
+        #     self.callbacks["key-event"](treeview, event, *args)
 
     def __cursor_changed_event(self, treeview):
         self.update_selection()
         if "cursor-changed" in self.callbacks:
             self.callbacks["cursor-changed"](treeview)
 
-    def __button_release_event(self, treeview, event, *args):
+    def __button_release_event(self, n_press, x, y, user_data):
         self.update_selection()
-        if "mouse-event" in self.callbacks:
-            return self.callbacks["mouse-event"](treeview, event, *args)
+        # TODO adapt mouse-events
+        # if "mouse-event" in self.callbacks:
+        #     return self.callbacks["mouse-event"](treeview, event, *args)
 
     def __cell_edited(self, cell, row, data, column):
         self.update_selection()
