@@ -9,7 +9,7 @@ import rabbitvcs.ui.dialog
 import rabbitvcs.ui.widget
 import rabbitvcs.ui.action
 from rabbitvcs.util.contextmenu import GtkFilesContextMenu, GtkContextMenuCaller
-from rabbitvcs.ui import InterfaceView
+from rabbitvcs.ui import InterfaceView, GtkBuilderWidgetWrapper
 from gi.repository import Gtk, GObject, Gdk, GLib
 
 #
@@ -54,8 +54,8 @@ _ = gettext.gettext
 helper.gobject_threads_init()
 
 @Gtk.Template(filename=f"{os.path.dirname(os.path.abspath(__file__))}/xml/commit.xml")
-class CommitWindow(Gtk.Window):
-    __gtype_name__ = "CommitWindow"
+class CommitWidget(Gtk.Box):
+    __gtype_name__ = "CommitWidget"
 
     files_table = Gtk.Template.Child()
     toggle_show_unversioned = Gtk.Template.Child()
@@ -71,7 +71,7 @@ class CommitWindow(Gtk.Window):
     ok = Gtk.Template.Child()
 
     def __init__(self):
-        Gtk.Window.__init__(self)
+        Gtk.Box.__init__(self)
 
 
 
@@ -100,21 +100,25 @@ class Commit(InterfaceView, GtkContextMenuCaller):
         """
         InterfaceView.__init__(self, "commit", "Commit")
 
-        self.window = CommitWindow()
-        self.window.previous_messages.connect("clicked", self.on_previous_messages_clicked)
-        self.window.toggle_show_unversioned.connect("toggled", self.on_toggle_show_unversioned_toggled)
-        self.window.toggle_show_all.connect("toggled", self.on_toggle_show_all_toggled)
-        self.window.refresh.connect("clicked", self.on_refresh_clicked)
-        self.window.cancel.connect("clicked", self.on_cancel_clicked)
-        self.window.ok.connect("clicked", self.on_ok_clicked)
+        self.widget = CommitWidget()
+        self.window = self.get_window(self.widget)
+        # forward signals
+        self.widget.previous_messages.connect("clicked", self.on_previous_messages_clicked)
+        self.widget.toggle_show_unversioned.connect("toggled", self.on_toggle_show_unversioned_toggled)
+        self.widget.toggle_show_all.connect("toggled", self.on_toggle_show_all_toggled)
+        self.widget.refresh.connect("clicked", self.on_refresh_clicked)
+        self.widget.cancel.connect("clicked", self.on_cancel_clicked)
+        self.widget.ok.connect("clicked", self.on_ok_clicked)
         self.window.connect("destroy", self.on_destroy)
+        # set window properties
+        self.window.set_default_size(640, 640)
 
         self.base_dir = base_dir
         self.vcs = rabbitvcs.vcs.VCS()
         self.items = []
 
         self.files_table = rabbitvcs.ui.widget.Table(
-            self.window.files_table,
+            self.widget.files_table,
             [
                 GObject.TYPE_BOOLEAN,
                 rabbitvcs.ui.widget.TYPE_HIDDEN_OBJECT,
@@ -146,10 +150,10 @@ class Commit(InterfaceView, GtkContextMenuCaller):
             flags={"sortable": True, "sort_on": 2},
         )
         self.files_table.allow_multiple()
-        self.window.toggle_show_unversioned.set_active(self.SHOW_UNVERSIONED)
+        self.widget.toggle_show_unversioned.set_active(self.SHOW_UNVERSIONED)
         if not message:
             message = self.SETTINGS.get_multiline("general", "default_commit_message")
-        self.message = rabbitvcs.ui.widget.TextView(self.window.message, message)
+        self.message = rabbitvcs.ui.widget.TextView(self.widget.message, message)
 
         self.paths = []
         for path in paths:
@@ -168,7 +172,7 @@ class Commit(InterfaceView, GtkContextMenuCaller):
         - Updates the status area
         """
 
-        self.window.status.set_text(_("Loading..."))
+        self.widget.status.set_text(_("Loading..."))
 
         self.items = self.vcs.get_items(
             self.paths, self.vcs.statuses_for_commit(self.paths)
@@ -313,7 +317,7 @@ class Commit(InterfaceView, GtkContextMenuCaller):
                     item.simple_metadata_status(),
                 ]
             )
-        self.window.status.set_text(
+        self.widget.status.set_text(
             _("Found %(changed)d changed and %(unversioned)d unversioned item(s)")
             % {"changed": n, "unversioned": m}
         )
@@ -323,9 +327,9 @@ class SVNCommit(Commit):
     def __init__(self, paths, base_dir=None, message=None):
         Commit.__init__(self, paths, base_dir, message)
 
-        self.window.commit_to_box.show()
+        self.widget.commit_to_box.show()
 
-        self.window.to.set_text(
+        self.widget.to.set_text(
             S(self.vcs.svn().get_repo_url(self.base_dir)).display()
         )
 
@@ -391,13 +395,13 @@ class GitCommit(Commit):
 
         self.git = self.vcs.git(paths[0])
 
-        self.window.commit_to_box.show()
+        self.widget.commit_to_box.show()
 
         active_branch = self.git.get_active_branch()
         if active_branch:
-            self.window.to.set_text(S(active_branch.name).display())
+            self.widget.to.set_text(S(active_branch.name).display())
         else:
-            self.window.to.set_text("No active branch")
+            self.widget.to.set_text("No active branch")
 
         self.items = None
         if len(self.paths):
@@ -458,10 +462,9 @@ def on_activate(app):
         usage="Usage: rabbitvcs commit [path1] [path2] ...",
     )
 
-    window = commit_factory(paths, options.base_dir, message=options.message)
-    app.add_window(window.window)
+    widget = commit_factory(paths, options.base_dir, message=options.message)
+    app.add_window(widget.window)
+    widget.window.show()
 
 if __name__ == "__main__":
-    app = Gtk.Application()
-    app.connect('activate', on_activate)
-    app.run()
+    GtkBuilderWidgetWrapper.run_application(on_activate)

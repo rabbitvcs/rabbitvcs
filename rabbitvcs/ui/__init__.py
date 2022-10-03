@@ -38,6 +38,14 @@ import gi
 
 gi.require_version("Gtk", "4.0")
 from gi.repository import Gtk, Gdk, GLib
+
+adwaita_available = True
+try:
+    gi.require_version("Adw", "1")
+    from gi.repository import Adw
+except Exception as e:
+    adwaita_available = False
+
 sa = helper.SanitizeArgv()
 sa.restore()
 
@@ -89,22 +97,34 @@ class GtkBuilderWidgetWrapper(object):
 
         self.claim_domain = claim_domain
 
-        self.tree = self.get_tree()
-        self.tree.connect_signals(self)
+    def get_window(self, widget):
+        if adwaita_available:
+            window = Adw.ApplicationWindow()
+            header = Adw.HeaderBar()
+            box = Gtk.Box()
+            box.set_orientation(Gtk.Orientation.VERTICAL)
+            box.append(header)
+            box.append(widget)
+            window.set_content(box)
+        else:
+            window = Gtk.ApplicationWindow()
+            window.set_child(widget)
 
-    def get_tree(self):
-        path = "%s/xml/%s.xml" % (
-            os.path.dirname(os.path.realpath(__file__)),
-            self.gtkbuilder_filename,
-        )
+        window.set_title(self.gtkbuilder_id)
+        window.set_icon_name("rabbitvcs-small")
 
-        tree = Gtk.Builder()
-        tree.add_from_file(path)
+        return window
 
-        if self.claim_domain:
-            tree.set_translation_domain(APP_NAME)
+    @staticmethod
+    def run_application(on_activate):
+        if adwaita_available:
+            app = Adw.Application()
+        else:
+            app = Gtk.Application()
 
-        return tree
+        app.connect('activate', on_activate)
+        app.run()
+
 
     def get_widget(self, id=None):
         if not id:
@@ -113,7 +133,7 @@ class GtkBuilderWidgetWrapper(object):
         return self.tree.get_object(id)
 
 
-class InterfaceView(object):
+class InterfaceView(GtkBuilderWidgetWrapper):
     """
     Every ui window should inherit this class and send it the "self"
     variable, the Gtkbuilder filename (without the extension), and the id of the
@@ -126,6 +146,7 @@ class InterfaceView(object):
     """
 
     def __init__(self, *args, **kwargs):
+        GtkBuilderWidgetWrapper.__init__(self, *args, **kwargs)
         self.do_gtk_quit = False
 
         # On OSX, there is a glitch where GTK applications do not always come to the front
