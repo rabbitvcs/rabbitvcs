@@ -115,6 +115,16 @@ class GtkBuilderWidgetWrapper(object):
 
         return window
 
+    def get_popup_dialog(self, parent, widget):
+        dialog = Gtk.Dialog()
+        dialog.set_title(self.gtkbuilder_id)
+        dialog.set_modal(True)
+        dialog.add_buttons("_Cancel", Gtk.ResponseType.CANCEL, "_Ok", Gtk.ResponseType.OK)
+        content = dialog.get_content_area()
+        content.append(widget)
+
+        return dialog
+
     @staticmethod
     def run_application(on_activate):
         if adwaita_available:
@@ -124,13 +134,6 @@ class GtkBuilderWidgetWrapper(object):
 
         app.connect('activate', on_activate)
         app.run()
-
-
-    def get_widget(self, id=None):
-        if not id:
-            id = self.gtkbuilder_id
-
-        return self.tree.get_object(id)
 
 
 class InterfaceView(GtkBuilderWidgetWrapper):
