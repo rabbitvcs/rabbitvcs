@@ -10,76 +10,198 @@
   <template class="CommitWindow" parent="GtkWindow">
     <property name="visible">1</property>
     <property name="title" translatable="1">Commit</property>
-    <!-- <property name="window_position">center</property> -->
     <property name="default_width">640</property>
     <property name="default_height">640</property>
     <property name="icon_name">rabbitvcs-small</property>
     <signal name="destroy" handler="on_destroy" swapped="no"/>
     <!-- <signal name="key-press-event" handler="on_key_pressed" swapped="no"/> -->
-    <child>
-      <placeholder/>
-    </child>
     <property name="child">
-      <object class="GtkGrid">
+      <object class="GtkBox">
         <property name="margin-start">12</property>
         <property name="margin-end">12</property>
         <property name="margin_top">12</property>
         <property name="margin_bottom">12</property>
         <property name="orientation">vertical</property>
-        <property name="row_spacing">18</property>
+        <property name="spacing">18</property>
         <child>
-          <object class="GtkGrid">
+          <object class="GtkBox" id="commit_to_box">
             <property name="hexpand">1</property>
-            <property name="column_spacing">6</property>
+            <property name="spacing">12</property>
             <child>
-              <object class="GtkBox" id="hbuttonbox3">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="halign">end</property>
-                <property name="spacing">6</property>
-                <!-- <property name="layout_style">end</property> -->
-                <child>
-                  <object class="GtkButton" id="cancel">
-                    <property name="label" translatable="1">_Cancel</property>
-                    <property name="focusable">1</property>
-                    <property name="receives_default">1</property>
-                    <property name="use_underline">1</property>
-                    <signal name="clicked" handler="on_cancel_clicked" swapped="no"/>
-                    <child>
-                      <object class="GtkImage">
-                        <property name="icon_name">rabbitvcs-cancel</property>
-                      </object>
-                    </child>
-                  </object>
-                  <!-- <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">False</property>
-                    <property name="position">0</property>
-                  </packing> -->
-                </child>
-                <child>
-                  <object class="GtkButton" id="ok">
-                    <property name="label" translatable="1">_OK</property>
-                    <property name="focusable">1</property>
-                    <property name="receives_default">1</property>
-                    <property name="use_underline">1</property>
-                    <signal name="clicked" handler="on_ok_clicked" swapped="no"/>
-                    <child>
-                      <object class="GtkImage">
-                        <property name="icon_name">rabbitvcs-ok</property>
-                      </object>
-                    </child>
-                  </object>
-                  <!-- <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">False</property>
-                    <property name="position">1</property>
-                  </packing> -->
-                </child>
+              <object class="GtkLabel" id="label7">
+                <property name="label" translatable="1">&lt;b&gt;Commit to:&lt;/b&gt;</property>
+                <property name="use_markup">1</property>
+                <property name="wrap_mode">char</property>
+                <property name="xalign">0</property>
+                <property name="yalign">0</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkLabel" id="to">
+                <property name="width_request">500</property>
+                <property name="hexpand">1</property>
+                <property name="wrap">1</property>
+                <property name="wrap_mode">char</property>
+                <property name="selectable">1</property>
+                <property name="xalign">0</property>
                 <layout>
-                  <property name="column">2</property>
+                  <property name="column">1</property>
                   <property name="row">0</property>
                 </layout>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="GtkPaned" id="pane">
+            <property name="resize-end-child">0</property>
+            <property name="resize-start-child">0</property>
+            <property name="focusable">1</property>
+            <property name="hexpand">1</property>
+            <property name="vexpand">1</property>
+            <property name="orientation">vertical</property>
+            <child>
+              <object class="GtkBox" id="add_message_box">
+                <property name="hexpand">1</property>
+                <property name="vexpand">1</property>
+                <property name="orientation">vertical</property>
+                <property name="spacing">6</property>
+                <property name="margin-bottom">12</property>
+                <child>
+                  <object class="GtkLabel" id="label1">
+                    <property name="label" translatable="1">&lt;b&gt;Add Message&lt;/b&gt;</property>
+                    <property name="use_markup">1</property>
+                    <property name="xalign">0</property>
+                    <layout>
+                      <property name="column">0</property>
+                      <property name="row">0</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkBox">
+                    <property name="hexpand">1</property>
+                    <property name="vexpand">1</property>
+                    <property name="orientation">vertical</property>
+                    <property name="spacing">6</property>
+                    <child>
+                      <object class="GtkBox" id="hbuttonbox4">
+                        <property name="width_request">0</property>
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="hexpand">True</property>
+                        <!-- <property name="layout_style">start</property> -->
+                        <child>
+                          <object class="GtkButton" id="previous_messages">
+                            <property name="label" translatable="1">Previous Messages</property>
+                            <property name="focusable">1</property>
+                            <property name="receives_default">1</property>
+                            <signal name="clicked" handler="on_previous_messages_clicked" swapped="no"/>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkScrolledWindow" id="scrolledwindow3">
+                        <property name="focusable">1</property>
+                        <property name="hexpand">1</property>
+                        <property name="vexpand">1</property>
+                        <property name="has-frame">true</property>
+                        <property name="child">
+                          <object class="GtkTextView" id="message">
+                            <property name="focusable">1</property>
+                            <property name="hexpand">1</property>
+                            <property name="vexpand">1</property>
+                            <property name="wrap_mode">word</property>
+                            <property name="accepts_tab">0</property>
+                          </object>
+                        </property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+            <child>
+              <object class="GtkBox">
+                <property name="margin_top">10</property>
+                <property name="hexpand">1</property>
+                <property name="vexpand">1</property>
+                <property name="orientation">vertical</property>
+                <property name="spacing">6</property>
+                <child>
+                  <object class="GtkLabel" id="label2">
+                    <property name="label" translatable="1">&lt;b&gt;Changed Files&lt;/b&gt; (double-click to compare with base)</property>
+                    <property name="use_markup">1</property>
+                    <property name="xalign">0</property>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkBox">
+                    <property name="hexpand">1</property>
+                    <property name="vexpand">1</property>
+                    <property name="orientation">vertical</property>
+                    <property name="spacing">6</property>
+                    <child>
+                      <object class="GtkScrolledWindow" id="scrolledwindow2">
+                        <property name="focusable">1</property>
+                        <property name="hexpand">1</property>
+                        <property name="vexpand">1</property>
+                        <property name="has-frame">true</property>
+                        <property name="child">
+                          <object class="GtkTreeView" id="files_table">
+                            <property name="focusable">1</property>
+                            <child internal-child="selection">
+                              <object class="GtkTreeSelection"/>
+                            </child>
+                          </object>
+                        </property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkBox" id="options_box">
+                        <property name="hexpand">1</property>
+                        <property name="orientation">vertical</property>
+                        <child>
+                          <object class="GtkCheckButton" id="toggle_show_unversioned">
+                            <property name="label" translatable="1">Show unversioned files</property>
+                            <property name="focusable">1</property>
+                            <property name="halign">start</property>
+                            <property name="hexpand">1</property>
+                            <property name="active">1</property>
+                            <signal name="toggled" handler="on_toggle_show_unversioned_toggled" swapped="no"/>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkCheckButton" id="toggle_show_all">
+                            <property name="label" translatable="1">Select / Deselect all</property>
+                            <property name="focusable">1</property>
+                            <property name="halign">start</property>
+                            <property name="hexpand">1</property>
+                            <signal name="toggled" handler="on_toggle_show_all_toggled" swapped="no"/>
+                            <layout>
+                              <property name="column">0</property>
+                              <property name="row">0</property>
+                            </layout>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="GtkBox">
+            <property name="hexpand">1</property>
+            <property name="spacing">6</property>
+            <child>
+              <object class="GtkLabel" id="status">
+                <property name="hexpand">1</property>
+                <property name="selectable">1</property>
+                <property name="xalign">0</property>
               </object>
             </child>
             <child>
@@ -96,249 +218,44 @@
                   </object>
                 </child>
                 <!-- <accelerator key="r" signal="clicked" modifiers="GDK_MOD1_MASK"/> -->
-                <layout>
-                  <property name="column">1</property>
-                  <property name="row">0</property>
-                </layout>
               </object>
             </child>
             <child>
-              <object class="GtkLabel" id="status">
-                <property name="hexpand">1</property>
-                <property name="selectable">1</property>
-                <property name="xalign">0</property>
-                <layout>
-                  <property name="column">0</property>
-                  <property name="row">0</property>
-                </layout>
-              </object>
-            </child>
-            <layout>
-              <property name="column">0</property>
-              <property name="row">2</property>
-            </layout>
-          </object>
-        </child>
-        <child>
-          <object class="GtkPaned" id="pane">
-            <property name="resize-end-child">0</property>
-            <property name="resize-start-child">0</property>
-            <property name="focusable">1</property>
-            <property name="hexpand">1</property>
-            <property name="vexpand">1</property>
-            <!-- <property name="border_width">6</property> -->
-            <property name="orientation">vertical</property>
-            <child>
-              <object class="GtkGrid" id="add_message_box">
-                <property name="hexpand">1</property>
-                <property name="vexpand">1</property>
-                <property name="orientation">vertical</property>
-                <property name="row_spacing">6</property>
+              <object class="GtkBox" id="hbuttonbox3">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="halign">end</property>
+                <property name="spacing">6</property>
                 <child>
-                  <object class="GtkGrid">
-                    <property name="margin-start">12</property>
-                    <property name="hexpand">1</property>
-                    <property name="vexpand">1</property>
-                    <property name="orientation">vertical</property>
-                    <property name="row_spacing">6</property>
-                    <child>
-                      <object class="GtkScrolledWindow" id="scrolledwindow3">
-                        <property name="focusable">1</property>
-                        <property name="hexpand">1</property>
-                        <property name="vexpand">1</property>
-                        <!-- <property name="shadow_type">etched-in</property> -->
-                        <property name="child">
-                          <object class="GtkTextView" id="message">
-                            <property name="focusable">1</property>
-                            <!-- <property name="has_focus">1</property> -->
-                            <property name="hexpand">1</property>
-                            <property name="vexpand">1</property>
-                            <property name="wrap_mode">word</property>
-                            <property name="accepts_tab">0</property>
-                          </object>
-                        </property>
-                        <layout>
-                          <property name="column">0</property>
-                          <property name="row">1</property>
-                        </layout>
+                  <object class="GtkButton" id="cancel">
+                    <property name="label" translatable="1">_Cancel</property>
+                    <property name="focusable">1</property>
+                    <property name="receives_default">1</property>
+                    <property name="use_underline">1</property>
+                    <signal name="clicked" handler="on_cancel_clicked" swapped="no"/>
+                    <!-- <child>
+                      <object class="GtkImage">
+                        <property name="icon_name">rabbitvcs-cancel</property>
                       </object>
-                    </child>
-                    <child>
-                      <object class="GtkBox" id="hbuttonbox4">
-                        <property name="width_request">0</property>
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="hexpand">True</property>
-                        <!-- <property name="layout_style">start</property> -->
-                        <child>
-                          <object class="GtkButton" id="previous_messages">
-                            <property name="label" translatable="1">Previous Messages</property>
-                            <property name="focusable">1</property>
-                            <property name="receives_default">1</property>
-                            <signal name="clicked" handler="on_previous_messages_clicked" swapped="no"/>
-                          </object>
-                          <!-- <packing>
-                            <property name="expand">False</property>
-                            <property name="fill">False</property>
-                            <property name="position">0</property>
-                          </packing> -->
-                        </child>
-                        <layout>
-                          <property name="column">0</property>
-                          <property name="row">0</property>
-                        </layout>
-                      </object>
-                    </child>
-                    <layout>
-                      <property name="column">0</property>
-                      <property name="row">1</property>
-                    </layout>
+                    </child> -->
                   </object>
                 </child>
                 <child>
-                  <object class="GtkLabel" id="label1">
-                    <property name="label" translatable="1">&lt;b&gt;Add Message&lt;/b&gt;</property>
-                    <property name="use_markup">1</property>
-                    <property name="xalign">0</property>
-                    <layout>
-                      <property name="column">0</property>
-                      <property name="row">0</property>
-                    </layout>
+                  <object class="GtkButton" id="ok">
+                    <property name="label" translatable="1">_OK</property>
+                    <property name="focusable">1</property>
+                    <property name="receives_default">1</property>
+                    <property name="use_underline">1</property>
+                    <signal name="clicked" handler="on_ok_clicked" swapped="no"/>
+                    <!-- <child>
+                      <object class="GtkImage">
+                        <property name="icon_name">rabbitvcs-ok</property>
+                      </object>
+                    </child> -->
                   </object>
                 </child>
               </object>
             </child>
-            <child>
-              <object class="GtkGrid">
-                <property name="margin_top">10</property>
-                <property name="hexpand">1</property>
-                <property name="vexpand">1</property>
-                <property name="orientation">vertical</property>
-                <property name="row_spacing">6</property>
-                <child>
-                  <object class="GtkGrid">
-                    <property name="margin-start">12</property>
-                    <property name="hexpand">1</property>
-                    <property name="vexpand">1</property>
-                    <property name="orientation">vertical</property>
-                    <property name="row_spacing">6</property>
-                    <child>
-                      <object class="GtkGrid" id="options_box">
-                        <property name="hexpand">1</property>
-                        <property name="orientation">vertical</property>
-                        <child>
-                          <object class="GtkCheckButton" id="toggle_show_unversioned">
-                            <property name="label" translatable="1">Show unversioned files</property>
-                            <property name="focusable">1</property>
-                            <property name="halign">start</property>
-                            <property name="hexpand">1</property>
-                            <property name="active">1</property>
-                            <signal name="toggled" handler="on_toggle_show_unversioned_toggled" swapped="no"/>
-                            <layout>
-                              <property name="column">0</property>
-                              <property name="row">1</property>
-                            </layout>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkCheckButton" id="toggle_show_all">
-                            <property name="label" translatable="1">Select / Deselect all</property>
-                            <property name="focusable">1</property>
-                            <property name="halign">start</property>
-                            <property name="hexpand">1</property>
-                            <signal name="toggled" handler="on_toggle_show_all_toggled" swapped="no"/>
-                            <layout>
-                              <property name="column">0</property>
-                              <property name="row">0</property>
-                            </layout>
-                          </object>
-                        </child>
-                        <layout>
-                          <property name="column">0</property>
-                          <property name="row">1</property>
-                        </layout>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkScrolledWindow" id="scrolledwindow2">
-                        <property name="focusable">1</property>
-                        <property name="hexpand">1</property>
-                        <property name="vexpand">1</property>
-                        <!-- <property name="shadow_type">etched-in</property> -->
-                        <property name="child">
-                          <object class="GtkTreeView" id="files_table">
-                            <property name="focusable">1</property>
-                            <child internal-child="selection">
-                              <object class="GtkTreeSelection"/>
-                            </child>
-                          </object>
-                        </property>
-                        <layout>
-                          <property name="column">0</property>
-                          <property name="row">0</property>
-                        </layout>
-                      </object>
-                    </child>
-                    <layout>
-                      <property name="column">0</property>
-                      <property name="row">1</property>
-                    </layout>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkLabel" id="label2">
-                    <property name="label" translatable="1">&lt;b&gt;Changed Files&lt;/b&gt; (double-click to compare with base)</property>
-                    <property name="use_markup">1</property>
-                    <property name="xalign">0</property>
-                    <layout>
-                      <property name="column">0</property>
-                      <property name="row">0</property>
-                    </layout>
-                  </object>
-                </child>
-              </object>
-            </child>
-            <layout>
-              <property name="column">0</property>
-              <property name="row">1</property>
-            </layout>
-          </object>
-        </child>
-        <child>
-          <object class="GtkGrid" id="commit_to_box">
-            <property name="hexpand">1</property>
-            <property name="column_spacing">12</property>
-            <child>
-              <object class="GtkLabel" id="to">
-                <property name="width_request">500</property>
-                <property name="hexpand">1</property>
-                <property name="wrap">1</property>
-                <property name="wrap_mode">char</property>
-                <property name="selectable">1</property>
-                <property name="xalign">0</property>
-                <layout>
-                  <property name="column">1</property>
-                  <property name="row">0</property>
-                </layout>
-              </object>
-            </child>
-            <child>
-              <object class="GtkLabel" id="label7">
-                <property name="label" translatable="1">&lt;b&gt;Commit to:&lt;/b&gt;</property>
-                <property name="use_markup">1</property>
-                <property name="wrap_mode">char</property>
-                <property name="xalign">0</property>
-                <property name="yalign">0</property>
-                <layout>
-                  <property name="column">0</property>
-                  <property name="row">0</property>
-                </layout>
-              </object>
-            </child>
-            <layout>
-              <property name="column">0</property>
-              <property name="row">0</property>
-            </layout>
           </object>
         </child>
       </object>
