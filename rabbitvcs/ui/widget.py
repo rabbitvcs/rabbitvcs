@@ -630,8 +630,9 @@ class TableBase(object):
         self.treeview.set_cursor((row,), treecol)
         self.treeview.grab_focus()
 
-    def __button_press_event(self, n_press, x, y, user_data):
-        info = self.treeview.get_path_at_pos(int(x), int(y))
+    def __button_press_event(self, gesture, n_press, x, y):
+        (x, y) = self.treeview.convert_widget_to_bin_window_coords(x, y)
+        info = self.treeview.get_path_at_pos(x, y)
         selection = self.treeview.get_selection()
         result = False
 
@@ -677,7 +678,7 @@ class TableBase(object):
         if "all-unselected" in self.callbacks:
             self.callbacks["all-unselected"](treeview)
 
-    def __key_press_event(self, keyval, keycode, state):
+    def __key_press_event(self, controller, keyval, keycode, state):
         self.update_selection()
         # TODO adapt key-events
         # if "key-event" in self.callbacks:
@@ -688,7 +689,7 @@ class TableBase(object):
         if "cursor-changed" in self.callbacks:
             self.callbacks["cursor-changed"](treeview)
 
-    def __button_release_event(self, n_press, x, y, user_data):
+    def __button_release_event(self, gesture, n_press, x, y):
         self.update_selection()
         # TODO adapt mouse-events
         # if "mouse-event" in self.callbacks:
