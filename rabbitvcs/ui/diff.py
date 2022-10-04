@@ -4,7 +4,7 @@ from rabbitvcs.util.log import Log
 from rabbitvcs.util.strings import S
 from rabbitvcs.ui.action import SVNAction, GitAction
 import rabbitvcs.vcs
-from rabbitvcs.ui import InterfaceNonView
+from rabbitvcs.ui import InterfaceNonView, GtkBuilderWidgetWrapper
 from rabbitvcs import TEMP_DIR_PREFIX
 from gi.repository import Gtk, Gdk, GLib
 
@@ -91,7 +91,7 @@ class Diff(InterfaceNonView):
 
     def start_loading(self):
         self.dialog = rabbitvcs.ui.dialog.Loading()
-        self.dialog.run()
+        self.dialog.show()
 
     def stop_loading(self):
 
@@ -199,6 +199,7 @@ class GitDiff(Diff):
         self.revision1 = self.get_revision_object(revision1, "HEAD")
         self.revision2 = self.get_revision_object(revision2, "WORKING")
 
+        # TODO idle_add blocks main loop
         GLib.idle_add(self.launch)
         self.start_loading()
 
@@ -296,6 +297,23 @@ def diff_factory(
     return classes_map[vcs](path1, revision_obj1, path2, revision_obj2, sidebyside)
 
 
+def on_activate(app):
+    pathrev1 = helper.parse_path_revision_string(args.pop(0))
+    pathrev2 = (None, None)
+    if len(args) > 0:
+        pathrev2 = helper.parse_path_revision_string(args.pop(0))
+
+    diff = diff_factory(
+        options.vcs,
+        pathrev1[0],
+        pathrev1[1],
+        pathrev2[0],
+        pathrev2[1],
+        sidebyside=options.sidebyside,
+    )
+
+    app.add_window(diff.dialog)
+
 if __name__ == "__main__":
     from rabbitvcs.ui import main, VCS_OPT
 
@@ -314,16 +332,6 @@ if __name__ == "__main__":
         usage="Usage: rabbitvcs diff [url1@rev1] [url2@rev2]",
     )
 
-    pathrev1 = helper.parse_path_revision_string(args.pop(0))
-    pathrev2 = (None, None)
-    if len(args) > 0:
-        pathrev2 = helper.parse_path_revision_string(args.pop(0))
+    GtkBuilderWidgetWrapper.run_application(on_activate)
 
-    diff_factory(
-        options.vcs,
-        pathrev1[0],
-        pathrev1[1],
-        pathrev2[0],
-        pathrev2[1],
-        sidebyside=options.sidebyside,
-    )
+

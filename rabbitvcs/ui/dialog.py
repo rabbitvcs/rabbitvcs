@@ -569,24 +569,28 @@ class ConflictDecision(InterfaceView):
         return result
 
 
-class Loading(InterfaceView):
+@Gtk.Template(filename=f"{os.path.dirname(os.path.abspath(__file__))}/xml/dialogs/loading.xml")
+class Loading(Gtk.Window, InterfaceView):
+    __gtype_name__ = "Loading"
+
+    loading_cancel = Gtk.Template.Child()
+    pbar = Gtk.Template.Child()
+
     def __init__(self):
+        Gtk.Window.__init__(self)
         InterfaceView.__init__(self, "dialogs/loading", "Loading")
 
-        self.get_widget("loading_cancel").set_sensitive(False)
+        self.window = self
 
-        self.pbar = rabbitvcs.ui.widget.ProgressBar(self.get_widget("pbar"))
+        self.loading_cancel.set_sensitive(False)
+
+        self.pbar = rabbitvcs.ui.widget.ProgressBar(self.pbar)
         self.pbar.start_pulsate()
 
+    @Gtk.Template.Callback()
     def on_destroy(self, widget):
         self.close()
 
+    @Gtk.Template.Callback()
     def on_loading_cancel_clicked(self, widget):
         self.close()
-
-    def run(self):
-        self.dialog = self.get_widget("Loading")
-        self.dialog.run()
-
-    def destroy(self):
-        self.dialog.destroy()

@@ -1,84 +1,51 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Generated with glade 3.22.1 -->
 <interface>
-  <requires lib="gtk+" version="3.20"/>
-  <object class="GtkImage" id="rabbitvcs-cancel">
-    <property name="visible">True</property>
-    <property name="can_focus">False</property>
-    <property name="icon_name">rabbitvcs-cancel</property>
-  </object>
-  <object class="GtkDialog" id="Loading">
+  <requires lib="gtk" version="4.0"/>
+  <template class="Loading" parent="GtkWindow">
     <property name="width_request">300</property>
-    <property name="visible">True</property>
-    <property name="can_focus">False</property>
-    <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
-    <property name="border_width">5</property>
-    <property name="title" translatable="yes">Loading</property>
-    <property name="resizable">False</property>
-    <property name="window_position">center</property>
+    <property name="title" translatable="1">Loading</property>
+    <property name="resizable">0</property>
     <property name="icon_name">rabbitvcs-small</property>
-    <property name="type_hint">dialog</property>
-    <property name="gravity">center</property>
     <signal name="destroy" handler="on_destroy" swapped="no"/>
     <child>
-      <placeholder/>
-    </child>
-    <child internal-child="vbox">
-      <object class="GtkBox" id="dialog-vbox13">
-        <property name="visible">True</property>
-        <property name="can_focus">False</property>
-        <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
+      <object class="GtkBox">
         <property name="orientation">vertical</property>
-        <property name="spacing">18</property>
-        <child internal-child="action_area">
-          <object class="GtkButtonBox" id="dialog-action_area13">
-            <property name="visible">True</property>
-            <property name="can_focus">False</property>
-            <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
-            <property name="halign">end</property>
-            <property name="valign">end</property>
-            <property name="hexpand">True</property>
-            <property name="vexpand">True</property>
-            <property name="layout_style">end</property>
+        <property name="margin-start">6</property>
+        <property name="margin-top">6</property>
+        <property name="margin-end">6</property>
+        <property name="margin-bottom">6</property>
+        <property name="spacing">6</property>
+        <child>
+          <object class="GtkBox" id="dialog-vbox13">
+            <property name="orientation">vertical</property>
+            <property name="spacing">18</property>
             <child>
-              <object class="GtkButton" id="loading_cancel">
-                <property name="label" translatable="yes">_Cancel</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">True</property>
-                <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
-                <property name="image">rabbitvcs-cancel</property>
-                <property name="use_underline">True</property>
-                <signal name="clicked" handler="on_loading_cancel_clicked" swapped="no"/>
+              <object class="GtkProgressBar" id="pbar">
+                <property name="valign">center</property>
+                <property name="hexpand">1</property>
               </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">False</property>
-                <property name="position">0</property>
-              </packing>
             </child>
           </object>
-          <packing>
-            <property name="expand">False</property>
-            <property name="fill">False</property>
-            <property name="pack_type">end</property>
-            <property name="position">0</property>
-          </packing>
         </child>
         <child>
-          <object class="GtkProgressBar" id="pbar">
-            <property name="visible">True</property>
-            <property name="can_focus">False</property>
-            <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
-            <property name="hexpand">True</property>
+          <object class="GtkBox" id="dialog-action_area13">
+            <property name="halign">end</property>
+            <property name="valign">center</property>
+            <property name="hexpand">1</property>
+            <property name="vexpand">1</property>
+            <child>
+              <object class="GtkButton" id="loading_cancel">
+                <property name="halign">center</property>
+                <property name="label" translatable="1">_Cancel</property>
+                <property name="focusable">1</property>
+                <property name="receives_default">1</property>
+                <property name="use_underline">1</property>
+                <signal name="clicked" handler="on_loading_cancel_clicked" swapped="no"/>
+              </object>
+            </child>
           </object>
-          <packing>
-            <property name="expand">False</property>
-            <property name="fill">False</property>
-            <property name="position">1</property>
-          </packing>
         </child>
       </object>
     </child>
-  </object>
+  </template>
 </interface>
