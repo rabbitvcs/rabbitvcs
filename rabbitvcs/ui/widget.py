@@ -413,7 +413,7 @@ class TableBase(object):
         # This runs through the columns, and sets the "compare_items" comparator
         # as needed. Note that the user data tells which column to sort on.
         if flags["sortable"]:
-            self.sorted = Gtk.TreeModelSort()
+            self.sorted = Gtk.TreeModelSort.new_with_model(self.data)
 
             self.sorted.set_default_sort_func(compare_items, None)
 
