@@ -118,6 +118,7 @@ class GtkBuilderWidgetWrapper(object):
     def get_popup_dialog(self, parent, widget):
         # TODO eventually use Adw.MessageDialog if adwaita_available is True
         dialog = Gtk.Dialog()
+        dialog.set_transient_for(parent)
         dialog.set_title(self.gtkbuilder_id)
         dialog.set_modal(True)
         dialog.add_buttons("_Cancel", Gtk.ResponseType.CANCEL, "_Ok", Gtk.ResponseType.OK)
