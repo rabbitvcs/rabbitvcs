@@ -196,12 +196,8 @@ def compare_items(model, iter1, iter2, user_data=None):
 
     colnum, coltype = user_data
 
-    real_model = model.get_model()
-    real_iter1 = model.convert_iter_to_child_iter(iter1)
-    real_iter2 = model.convert_iter_to_child_iter(iter2)
-
-    value1 = real_model.get_value(real_iter1, colnum)
-    value2 = real_model.get_value(real_iter2, colnum)
+    value1 = model.get_value(iter1, colnum)
+    value2 = model.get_value(iter2, colnum)
 
     if coltype in [GObject.TYPE_STRING, str]:
         value1 = strxfrm(value1)
@@ -641,7 +637,7 @@ class TableBase(object):
         if info is None:
             selection.unselect_all()
             self.update_selection()
-        elif self.get_current_button() == 3:
+        elif gesture.get_current_button() == 3:
             # this allows us to retain multiple selections with a right-click
             (model, indexes) = selection.get_selected_rows()
 
