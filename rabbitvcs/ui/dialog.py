@@ -56,9 +56,8 @@ class PreviousMessages(InterfaceView):
     def __init__(self, parent):
         InterfaceView.__init__(self, "dialogs/previous_messages", "Previous Messages")
 
+        self.parent = parent
         self.widget = PreviousWidget()
-        self.window = self.get_popup_dialog(parent, self.widget)
-        self.window.connect("response", self.dialog_responded)
         self.message = rabbitvcs.ui.widget.TextView(self.widget.prevmes_message)
 
         self.message_table = rabbitvcs.ui.widget.Table(
@@ -86,23 +85,19 @@ class PreviousMessages(InterfaceView):
         if len(self.entries) > 0:
             self.message.set_text(S(self.entries[0][1]).display())
 
-    def run(self):
+    def run(self, on_response):
 
         if self.entries is None:
             return None
 
-        returner = None
-        self.window.set_default_size(450, 0)
-        self.window.show()
+        self.on_response = on_response
+        self.exec_dialog(self.parent, self.widget, self.dialog_responded)
 
-        return returner
-
-    def dialog_responded(self, dialog, response_id):
+    def dialog_responded(self, response_id):
         if response_id == Gtk.ResponseType.OK:
-            # TODO emit signal to notify parent
-            returner = self.message.get_text()
-
-        dialog.destroy()
+            message = self.message.get_text()
+            if (self.on_response):
+                self.on_response(message)
 
     def on_prevmes_table_row_activated(self, treeview, data, col):
         self.update_message_table()

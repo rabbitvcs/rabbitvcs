@@ -80,9 +80,4 @@
       </object>
     </child>
   </template>
-    <!-- <action-widgets>
-      TODO
-      <action-widget response="-6">prevmes_cancel</action-widget>
-      <action-widget response="-5">prevmes_ok</action-widget>
-    </action-widgets> -->
 </interface>

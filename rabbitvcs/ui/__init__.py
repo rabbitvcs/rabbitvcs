@@ -115,17 +115,41 @@ class GtkBuilderWidgetWrapper(object):
 
         return window
 
-    def get_popup_dialog(self, parent, widget):
-        # TODO eventually use Adw.MessageDialog if adwaita_available is True
-        dialog = Gtk.Dialog()
-        dialog.set_transient_for(parent)
-        dialog.set_title(self.gtkbuilder_id)
-        dialog.set_modal(True)
-        dialog.add_buttons("_Cancel", Gtk.ResponseType.CANCEL, "_Ok", Gtk.ResponseType.OK)
-        content = dialog.get_content_area()
-        content.append(widget)
+    def exec_dialog(self, parent, widget, on_response_callback = None):
+        if adwaita_available:
+            dialog = Adw.MessageDialog(transient_for = parent)
+            dialog.set_heading(self.gtkbuilder_id)
+            dialog.set_extra_child(widget)
+            dialog.add_response("ok", "Ok")
+            dialog.add_response("cancel", "Cancel")
+            dialog.connect("response", self.on_adw_dialog_response)
+        else:
+            dialog = Gtk.MessageDialog(transient_for = parent)
+            dialog.set_title(self.gtkbuilder_id)
+            dialog.set_modal(True)
+            dialog.add_buttons("_Cancel", Gtk.ResponseType.CANCEL, "_Ok", Gtk.ResponseType.OK)
+            dialog.connect("response", self.on_gtk_dialog_response)
+            content = dialog.get_content_area()
+            content.append(widget)
 
-        return dialog
+        self.on_response_callback = on_response_callback
+
+        dialog.set_size_request(550, 0)
+        dialog.show()
+        
+    def on_adw_dialog_response(self, dialog, response):
+        if self.on_response != None:
+            response_id = Gtk.ResponseType.CANCEL
+            if response == "ok":
+                response_id = Gtk.ResponseType.OK
+            if self.on_response_callback:
+                self.on_response_callback(response_id)
+    
+    def on_gtk_dialog_response(self, dialog, response_id):
+        if self.on_response_callback:
+            self.on_response_callback(response_id)
+
+        dialog.destroy()
 
     @staticmethod
     def run_application(on_activate):

@@ -279,9 +279,10 @@ class Commit(InterfaceView, GtkContextMenuCaller):
 
     def on_previous_messages_clicked(self, widget):
         dialog = rabbitvcs.ui.dialog.PreviousMessages(self.window)
-        message = dialog.run()
-        if message is not None:
-            self.message.set_text(S(message).display())
+        dialog.run(self.on_response)
+
+    def on_response(self, message):
+        self.message.set_text(S(message).display())
 
     def populate_files_table(self):
         """
