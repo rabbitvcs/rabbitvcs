@@ -35,6 +35,7 @@ from rabbitvcs.ui import InterfaceView
 from gi.repository import Gtk, GObject, Gdk
 import threading
 
+import os
 from os.path import basename
 
 import shutil
@@ -95,11 +96,20 @@ class DummyNotifier(object):
         MessageBox(str(e))
 
 
-class MessageCallbackNotifier(VCSNotifier):
+@Gtk.Template(filename=f"{os.path.dirname(os.path.abspath(__file__))}/xml/notification.xml")
+class MessageCallbackNotifier(VCSNotifier, Gtk.Window):
+    __gtype_name__ = "MessageCallbackNotifier"
     """
     Provides an interface to handle the Notification UI.
 
     """
+
+    table = Gtk.Template.Child()
+    pbar = Gtk.Template.Child()
+    ok = Gtk.Template.Child()
+    saveas = Gtk.Template.Child()
+    action = Gtk.Template.Child()
+    status = Gtk.Template.Child()
 
     gtkbuilder_filename = "notification"
     gtkbuilder_id = "Notification"
@@ -114,17 +124,19 @@ class MessageCallbackNotifier(VCSNotifier):
 
         """
 
+        self.window = self
+        Gtk.Window.__init__(self)
         VCSNotifier.__init__(self, callback_cancel, visible)
 
         self.client_in_same_thread = client_in_same_thread
 
         self.table = rabbitvcs.ui.widget.Table(
-            self.get_widget("table"),
+            self.table,
             [GObject.TYPE_STRING, GObject.TYPE_STRING, GObject.TYPE_STRING],
             [_("Action"), _("Path"), _("Mime Type")],
         )
 
-        self.pbar = rabbitvcs.ui.widget.ProgressBar(self.get_widget("pbar"))
+        self.pbar = rabbitvcs.ui.widget.ProgressBar(self.pbar)
         self.pbar.start_pulsate()
         self.finished = False
 
@@ -135,6 +147,7 @@ class MessageCallbackNotifier(VCSNotifier):
         self.canceled = True
         self.close()
 
+    @Gtk.Template.Callback()
     def on_cancel_clicked(self, widget):
 
         if self.canceled or self.finished:
@@ -145,54 +158,49 @@ class MessageCallbackNotifier(VCSNotifier):
 
         self.canceled = True
 
+    @Gtk.Template.Callback()
     def on_ok_clicked(self, widget):
         self.close()
 
     @gtk_unsafe
     def toggle_ok_button(self, sensitive):
         self.finished = True
-        self.get_widget("ok").set_sensitive(sensitive)
-        self.get_widget("saveas").set_sensitive(sensitive)
+        self.ok.set_sensitive(sensitive)
+        self.saveas.set_sensitive(sensitive)
 
     @gtk_unsafe
     def append(self, entry):
         self.table.append(entry)
         self.table.scroll_to_bottom()
 
-    def get_title(self):
-        return self.get_widget("Notification").get_title()
-
-    @gtk_unsafe
-    def set_title(self, title):
-        self.get_widget("Notification").set_title(title)
-
     @gtk_unsafe
     def set_header(self, header):
         self.set_title(header)
 
-        self.get_widget("action").set_markup(
+        self.action.set_markup(
             '<span size="xx-large"><b>%s</b></span>' % header
         )
 
     @gtk_unsafe
     def focus_on_ok_button(self):
-        self.get_widget("ok").grab_focus()
+        self.ok.grab_focus()
 
     def exception_callback(self, e):
         self.append(["", str(e), ""])
 
+    @Gtk.Template.Callback()
     def on_saveas_clicked(self, widget):
-        self.saveas()
+        self.save_as()
 
     @gtk_unsafe
     def enable_saveas(self):
-        self.get_widget("saveas").set_sensitive(True)
+        self.saveas.set_sensitive(True)
 
     @gtk_unsafe
     def disable_saveas(self):
-        self.get_widget("saveas").set_sensitive(False)
+        self.saveas.set_sensitive(False)
 
-    def saveas(self, path=None):
+    def save_as(self, path=None):
         if path is None:
             from rabbitvcs.ui.dialog import FileSaveAs
 
@@ -217,6 +225,7 @@ class LoadingNotifier(VCSNotifier):
         self.pbar = rabbitvcs.ui.widget.ProgressBar(self.get_widget("pbar"))
         self.pbar.start_pulsate()
 
+    @Gtk.Template.Callback()
     def on_destroy(self, widget):
         self.close()
 
@@ -544,7 +553,7 @@ class VCSAction(threading.Thread):
         """
 
         if message is not None:
-            self.notification.get_widget("status").set_text(S(message).display())
+            self.notification.status.set_text(S(message).display())
 
     def append(self, func, *args, **kwargs):
         """
