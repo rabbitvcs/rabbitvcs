@@ -31,7 +31,7 @@ import rabbitvcs.vcs
 import rabbitvcs.util
 import rabbitvcs.ui.dialog
 import rabbitvcs.ui.widget
-from rabbitvcs.ui import InterfaceView
+from rabbitvcs.ui import InterfaceView, GtkTemplateHelper
 from gi.repository import Gtk, GObject, Gdk
 import threading
 
@@ -51,14 +51,14 @@ helper.gobject_threads_init()
 log = Log("rabbitvcs.ui.action")
 
 
-class VCSNotifier(InterfaceView):
+class VCSNotifier(GtkTemplateHelper):
     """
     Provides a base class to handle threaded/gtk_unsafe calls to our vcs
 
     """
 
     def __init__(self, callback_cancel=None, visible=True):
-        InterfaceView.__init__(self)
+        GtkTemplateHelper.__init__(self)
 
         if visible:
             self.show()

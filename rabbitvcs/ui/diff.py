@@ -4,7 +4,7 @@ from rabbitvcs.util.log import Log
 from rabbitvcs.util.strings import S
 from rabbitvcs.ui.action import SVNAction, GitAction
 import rabbitvcs.vcs
-from rabbitvcs.ui import InterfaceNonView, GtkBuilderWidgetWrapper
+from rabbitvcs.ui import InterfaceNonView, GtkTemplateHelper
 from rabbitvcs import TEMP_DIR_PREFIX
 from gi.repository import Gtk, Gdk, GLib
 
@@ -332,6 +332,6 @@ if __name__ == "__main__":
         usage="Usage: rabbitvcs diff [url1@rev1] [url2@rev2]",
     )
 
-    GtkBuilderWidgetWrapper.run_application(on_activate)
+    GtkTemplateHelper.run_application(on_activate)
 
 

@@ -9,7 +9,7 @@ import rabbitvcs.ui.dialog
 import rabbitvcs.ui.widget
 import rabbitvcs.ui.action
 from rabbitvcs.util.contextmenu import GtkFilesContextMenu, GtkContextMenuCaller
-from rabbitvcs.ui import InterfaceView, GtkBuilderWidgetWrapper
+from rabbitvcs.ui import InterfaceView, GtkTemplateHelper
 from gi.repository import Gtk, GObject, Gdk, GLib
 
 #
@@ -75,7 +75,7 @@ class CommitWidget(Gtk.Box):
 
 
 
-class Commit(InterfaceView, GtkContextMenuCaller):
+class Commit(GtkTemplateHelper, GtkContextMenuCaller):
     """
     Provides a user interface for the user to commit working copy
     changes to a repository.  Pass it a list of local paths to commit.
@@ -98,7 +98,7 @@ class Commit(InterfaceView, GtkContextMenuCaller):
         @param paths:   A list of local paths.
 
         """
-        InterfaceView.__init__(self, "commit", "Commit")
+        GtkTemplateHelper.__init__(self, "Commit")
 
         self.widget = CommitWidget()
         self.window = self.get_window(self.widget)
@@ -109,7 +109,6 @@ class Commit(InterfaceView, GtkContextMenuCaller):
         self.widget.refresh.connect("clicked", self.on_refresh_clicked)
         self.widget.cancel.connect("clicked", self.on_cancel_clicked)
         self.widget.ok.connect("clicked", self.on_ok_clicked)
-        self.window.connect("destroy", self.on_destroy)
         # set window properties
         self.window.set_default_size(640, 640)
 
@@ -410,7 +409,7 @@ class GitCommit(Commit):
 
     def on_ok_clicked(self, widget, data=None):
         items = self.files_table.get_activated_rows(1)
-        self.hide()
+        self.window.hide()
 
         if len(items) == 0:
             self.close()
@@ -432,7 +431,7 @@ class GitCommit(Commit):
         ticks = staged + len(items) * 2
 
         self.action = rabbitvcs.ui.action.GitAction(
-            self.git, register_gtk_quit=self.gtk_quit_is_set()
+            self.git
         )
         self.action.set_pbar_ticks(ticks)
         self.action.append(self.action.set_header, _("Commit"))
@@ -468,4 +467,4 @@ def on_activate(app):
     widget.window.show()
 
 if __name__ == "__main__":
-    GtkBuilderWidgetWrapper.run_application(on_activate)
+    GtkTemplateHelper.run_application(on_activate)

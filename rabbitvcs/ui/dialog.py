@@ -3,7 +3,7 @@ from rabbitvcs.util.strings import S
 import rabbitvcs.util.helper
 import rabbitvcs.ui.wraplabel
 import rabbitvcs.ui.widget
-from rabbitvcs.ui import InterfaceView
+from rabbitvcs.ui import InterfaceView, GtkTemplateHelper
 from gi.repository import Gtk, GObject, Gdk, Pango
 
 #
@@ -52,9 +52,9 @@ class PreviousWidget(Gtk.Box):
     def __init__(self):
         Gtk.Box.__init__(self)
 
-class PreviousMessages(InterfaceView):
+class PreviousMessages(GtkTemplateHelper):
     def __init__(self, parent):
-        InterfaceView.__init__(self, "dialogs/previous_messages", "Previous Messages")
+        GtkTemplateHelper.__init__(self, "Previous Messages")
 
         self.parent = parent
         self.widget = PreviousWidget()

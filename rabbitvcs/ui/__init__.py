@@ -87,15 +87,10 @@ STATUS_EMBLEMS = {
 }
 
 
-class GtkBuilderWidgetWrapper(object):
-    def __init__(self, gtkbuilder_filename=None, gtkbuilder_id=None, claim_domain=True):
-        if gtkbuilder_filename:
-            self.gtkbuilder_filename = gtkbuilder_filename
-
-        if gtkbuilder_id:
-            self.gtkbuilder_id = gtkbuilder_id
-
-        self.claim_domain = claim_domain
+class GtkTemplateHelper(object):
+    def __init__(self, gtktemplate_id = None):
+        if gtktemplate_id:
+            self.gtktemplate_id = gtktemplate_id
 
     def get_window(self, widget):
         if adwaita_available:
@@ -110,7 +105,7 @@ class GtkBuilderWidgetWrapper(object):
             window = Gtk.ApplicationWindow()
             window.set_child(widget)
 
-        window.set_title(self.gtkbuilder_id)
+        window.set_title(self.gtktemplate_id)
         window.set_icon_name("rabbitvcs-small")
 
         return window
@@ -118,14 +113,14 @@ class GtkBuilderWidgetWrapper(object):
     def exec_dialog(self, parent, widget, on_response_callback = None):
         if adwaita_available:
             dialog = Adw.MessageDialog(transient_for = parent)
-            dialog.set_heading(self.gtkbuilder_id)
+            dialog.set_heading(self.gtktemplate_id)
             dialog.set_extra_child(widget)
             dialog.add_response("ok", "Ok")
             dialog.add_response("cancel", "Cancel")
             dialog.connect("response", self.on_adw_dialog_response)
         else:
             dialog = Gtk.MessageDialog(transient_for = parent)
-            dialog.set_title(self.gtkbuilder_id)
+            dialog.set_title(self.gtktemplate_id)
             dialog.set_modal(True)
             dialog.add_buttons("_Cancel", Gtk.ResponseType.CANCEL, "_Ok", Gtk.ResponseType.OK)
             dialog.connect("response", self.on_gtk_dialog_response)
@@ -160,6 +155,24 @@ class GtkBuilderWidgetWrapper(object):
 
         app.connect('activate', on_activate)
         app.run()
+
+    def on_cancel_clicked(self, widget):
+        if self.window:
+            self.window.close()
+
+    def on_close_clicked(self, widget):
+        if self.window:
+            self.window.close()
+
+class GtkBuilderWidgetWrapper(object):
+    def __init__(self, gtkbuilder_filename=None, gtkbuilder_id=None, claim_domain=True):
+        if gtkbuilder_filename:
+            self.gtkbuilder_filename = gtkbuilder_filename
+
+        if gtkbuilder_id:
+            self.gtkbuilder_id = gtkbuilder_id
+
+        self.claim_domain = claim_domain
 
 
 class InterfaceView(GtkBuilderWidgetWrapper):
