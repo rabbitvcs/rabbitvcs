@@ -433,6 +433,10 @@ class GitCommit(Commit):
         self.action = rabbitvcs.ui.action.GitAction(
             self.git
         )
+
+        # notifier window is registered, we can close now
+        self.window.close()
+
         self.action.set_pbar_ticks(ticks)
         self.action.append(self.action.set_header, _("Commit"))
         self.action.append(self.action.set_status, _("Running Commit Command..."))

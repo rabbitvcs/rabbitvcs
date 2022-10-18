@@ -128,6 +128,8 @@ class MessageCallbackNotifier(VCSNotifier, Gtk.Window):
         Gtk.Window.__init__(self)
         VCSNotifier.__init__(self, callback_cancel, visible)
 
+        self.register_window()
+
         self.client_in_same_thread = client_in_same_thread
 
         self.table = rabbitvcs.ui.widget.Table(
