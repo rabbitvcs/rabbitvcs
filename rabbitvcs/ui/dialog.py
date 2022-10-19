@@ -357,14 +357,16 @@ class Confirmation(InterfaceView):
         return result
 
 
-class MessageBox(InterfaceView):
-    def __init__(self, message):
-        InterfaceView.__init__(self, "dialogs/message_box", "MessageBox")
-        self.get_widget("messagebox_message").set_text(S(message).display())
+@Gtk.Template(filename=f"{os.path.dirname(os.path.abspath(__file__))}/xml/dialogs/message_box.xml")
+class MessageBox(GtkTemplateHelper, Gtk.Dialog):
+    __gtype_name__ = "MessageBox"
 
-        dialog = self.get_widget("MessageBox")
-        dialog.run()
-        dialog.destroy()
+    messagebox_message = Gtk.Template.Child()
+
+    def __init__(self, message):
+        Gtk.Dialog.__init__(self)
+        GtkTemplateHelper.__init__(self, "MessageBox")
+        self.messagebox_message.set_text(S(message).display())
 
 
 class DeleteConfirmation(InterfaceView):
@@ -564,28 +566,29 @@ class ConflictDecision(InterfaceView):
         return result
 
 
-@Gtk.Template(filename=f"{os.path.dirname(os.path.abspath(__file__))}/xml/dialogs/loading.xml")
-class Loading(Gtk.Window, InterfaceView):
-    __gtype_name__ = "Loading"
+# TODO this is a duplicate of LoadingNotifier in action.py
+# @Gtk.Template(filename=f"{os.path.dirname(os.path.abspath(__file__))}/xml/dialogs/loading.xml")
+# class Loading(Gtk.Window, InterfaceView):
+#     __gtype_name__ = "Loading"
 
-    loading_cancel = Gtk.Template.Child()
-    pbar = Gtk.Template.Child()
+#     loading_cancel = Gtk.Template.Child()
+#     pbar = Gtk.Template.Child()
 
-    def __init__(self):
-        Gtk.Window.__init__(self)
-        InterfaceView.__init__(self, "dialogs/loading", "Loading")
+#     def __init__(self):
+#         Gtk.Window.__init__(self)
+#         InterfaceView.__init__(self, "dialogs/loading", "Loading")
 
-        self.window = self
+#         self.window = self
 
-        self.loading_cancel.set_sensitive(False)
+#         self.loading_cancel.set_sensitive(False)
 
-        self.pbar = rabbitvcs.ui.widget.ProgressBar(self.pbar)
-        self.pbar.start_pulsate()
+#         self.pbar = rabbitvcs.ui.widget.ProgressBar(self.pbar)
+#         self.pbar.start_pulsate()
 
-    @Gtk.Template.Callback()
-    def on_destroy(self, widget):
-        self.close()
+#     @Gtk.Template.Callback()
+#     def on_destroy(self, widget):
+#         self.close()
 
-    @Gtk.Template.Callback()
-    def on_loading_cancel_clicked(self, widget):
-        self.close()
+#     @Gtk.Template.Callback()
+#     def on_loading_cancel_clicked(self, widget):
+#         self.close()

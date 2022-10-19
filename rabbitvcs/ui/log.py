@@ -32,7 +32,7 @@ from rabbitvcs.util.contextmenu import GtkContextMenu
 import rabbitvcs.ui.widget
 from rabbitvcs.ui.dialog import MessageBox
 from rabbitvcs.ui.action import SVNAction, GitAction, vcs_action_factory
-from rabbitvcs.ui import InterfaceView
+from rabbitvcs.ui import GtkTemplateHelper
 from gi.repository import Gtk, GObject, Gdk
 import six
 import threading
@@ -106,8 +106,25 @@ def revision_grapher(history):
 
     return items
 
+@Gtk.Template(filename=f"{os.path.dirname(os.path.abspath(__file__))}/xml/log.xml")
+class LogWidget(Gtk.Grid):
+    __gtype_name__ = "LogWidget"
 
-class Log(InterfaceView):
+    limit = Gtk.Template.Child()
+    message = Gtk.Template.Child()
+    revisions_table = Gtk.Template.Child()
+    paths_table = Gtk.Template.Child()
+    stop_on_copy = Gtk.Template.Child()
+    search_buffer = Gtk.Template.Child()
+    start = Gtk.Template.Child()
+    end = Gtk.Template.Child()
+    previous = Gtk.Template.Child()
+    next = Gtk.Template.Child()
+
+    def __init__(self):
+        Gtk.Grid.__init__(self)
+
+class Log(GtkTemplateHelper):
     """
     Provides an interface to the Log UI
 
@@ -127,9 +144,12 @@ class Log(InterfaceView):
 
         """
 
-        InterfaceView.__init__(self, "log", "Log")
+        GtkTemplateHelper.__init__(self, "Log")
 
-        self.get_widget("Log").set_title(_("Log - %s") % path)
+        self.widget = LogWidget()
+        self.window = self.get_window(self.widget)
+
+        self.window.set_title(_("Log - %s") % path)
         self.vcs = rabbitvcs.vcs.VCS()
 
         sm = rabbitvcs.util.settings.SettingsManager()
@@ -147,16 +167,18 @@ class Log(InterfaceView):
         self.initialize_revision_labels()
         self.revision_number_column = 0
         self.head_row = 0
-        self.get_widget("limit").set_text(S(self.limit).display())
+        self.widget.limit.set_text(S(self.limit).display())
 
-        self.message = rabbitvcs.ui.widget.TextView(self.get_widget("message"))
+        self.message = rabbitvcs.ui.widget.TextView(self.widget.message)
 
         self.stop_on_copy = False
-        self.revision_clipboard = Gtk.Clipboard.get(Gdk.SELECTION_CLIPBOARD)
+        self.revision_clipboard = self.widget.get_clipboard()
 
-        style = self.get_widget("revisions_table").get_style_context()
-        textcolor = style.get_color(Gtk.StateFlags.NORMAL)
+        style = self.widget.revisions_table.get_style_context()
+        textcolor = style.get_color()
         self.orgTextColor = textcolor.to_string()
+
+        self.window.show()
 
     #
     # UI Signal Callback Methods
@@ -174,7 +196,7 @@ class Log(InterfaceView):
         self.close()
 
     def on_key_pressed(self, widget, event, *args):
-        InterfaceView.on_key_pressed(self, widget, event)
+        # InterfaceView.on_key_pressed(self, widget, event)
         if (
             event.state & Gdk.ModifierType.CONTROL_MASK
             and Gdk.keyval_name(event.keyval).lower() == "c"
@@ -183,17 +205,17 @@ class Log(InterfaceView):
                 self.copy_revision_text()
 
     def on_stop_on_copy_toggled(self, widget):
-        self.stop_on_copy = self.get_widget("stop_on_copy").get_active()
+        self.stop_on_copy = self.widget.stop_on_copy.get_active()
         if not self.is_loading:
             self.refresh()
 
     def on_refresh_clicked(self, widget):
-        self.limit = int(self.get_widget("limit").get_text())
+        self.limit = int(self.widget.limit.get_text())
         self.cache.empty()
         self.load()
 
     def on_search(self, widget):
-        tb = self.get_widget("search_buffer")
+        tb = self.widget.search_buffer
         self.filter_text = tb.get_text(
             tb.get_start_iter(), tb.get_end_iter(), 0
         ).lower()
@@ -326,11 +348,11 @@ class Log(InterfaceView):
 
     @gtk_unsafe
     def set_start_revision(self, rev):
-        self.get_widget("start").set_text(S(rev).display())
+        self.widget.start.set_text(S(rev).display())
 
     @gtk_unsafe
     def set_end_revision(self, rev):
-        self.get_widget("end").set_text(S(rev).display())
+        self.widget.end.set_text(S(rev).display())
 
     def initialize_revision_labels(self):
         self.set_start_revision(_("N/A"))
@@ -398,7 +420,7 @@ class SVNLog(Log):
         self.merge_candidate_revisions = merge_candidate_revisions
 
         self.revisions_table = rabbitvcs.ui.widget.Table(
-            self.get_widget("revisions_table"),
+            self.revisions_table,
             [
                 GObject.TYPE_STRING,
                 GObject.TYPE_STRING,
@@ -419,7 +441,7 @@ class SVNLog(Log):
             column.add_attribute(cell, "foreground", 4)
 
         self.paths_table = rabbitvcs.ui.widget.Table(
-            self.get_widget("paths_table"),
+            self.widget.paths_table,
             [
                 GObject.TYPE_STRING,
                 rabbitvcs.ui.widget.TYPE_HIDDEN_OBJECT,
@@ -664,7 +686,7 @@ class SVNLog(Log):
 
     def check_previous_sensitive(self):
         sensitive = self.rev_start < self.rev_max
-        self.get_widget("previous").set_sensitive(sensitive)
+        self.widget.previous.set_sensitive(sensitive)
 
     def check_next_sensitive(self):
         sensitive = True
@@ -673,7 +695,7 @@ class SVNLog(Log):
         if len(self.revision_items) < self.limit:
             sensitive = False
 
-        self.get_widget("next").set_sensitive(sensitive)
+        self.widget.next.set_sensitive(sensitive)
 
 
 class GitLog(Log):
@@ -683,12 +705,12 @@ class GitLog(Log):
         self.git = self.vcs.git(path)
         self.limit = 500
 
-        self.get_widget("stop_on_copy").hide()
+        self.widget.stop_on_copy.hide()
 
         self.revision_number_column = 1
 
         self.revisions_table = rabbitvcs.ui.widget.Table(
-            self.get_widget("revisions_table"),
+            self.widget.revisions_table,
             [
                 rabbitvcs.ui.widget.TYPE_GRAPH,
                 GObject.TYPE_STRING,
@@ -710,7 +732,7 @@ class GitLog(Log):
         )
 
         self.paths_table = rabbitvcs.ui.widget.Table(
-            self.get_widget("paths_table"),
+            self.widget.paths_table,
             [
                 GObject.TYPE_STRING,
                 rabbitvcs.ui.widget.TYPE_HIDDEN_OBJECT,
@@ -922,14 +944,14 @@ class GitLog(Log):
 
     def check_previous_sensitive(self):
         sensitive = self.start_point > 0
-        self.get_widget("previous").set_sensitive(sensitive)
+        self.widget.previous.set_sensitive(sensitive)
 
     def check_next_sensitive(self):
         sensitive = True
         if len(self.revision_items) < self.limit:
             sensitive = False
 
-        self.get_widget("next").set_sensitive(sensitive)
+        self.widget.next.set_sensitive(sensitive)
 
     def initialize_root_url(self):
         self.root_url = self.git.get_repository() + "/"
@@ -1782,13 +1804,15 @@ def log_dialog_factory(path, ok_callback=None, multiple=False, vcs=None):
     return dialogs_map[vcs](path, ok_callback, multiple)
 
 
-if __name__ == "__main__":
+def on_activate(app):
     from rabbitvcs.ui import main, VCS_OPT
 
     (options, paths) = main(
         [VCS_OPT], usage="Usage: rabbitvcs log [--vcs=svn|git] [url_or_path]"
     )
 
-    window = log_factory(paths[0], vcs=options.vcs)
-    window.register_gtk_quit()
-    Gtk.main()
+    widget = log_factory(paths[0], vcs=options.vcs)
+    app.add_window(widget.window)
+
+if __name__ == "__main__":
+    GtkTemplateHelper.run_application(on_activate)
