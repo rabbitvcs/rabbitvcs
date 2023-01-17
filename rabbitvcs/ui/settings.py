@@ -103,6 +103,9 @@ class Settings(InterfaceView):
         self.get_widget("enable_git").set_active(
             int(self.settings.get("HideItem", "git")) == 0
         )
+        self.get_widget("enable_mercurial").set_active(
+            int(self.settings.get("HideItem", "hg")) == 0
+        )
         dtfs = []
         dt = datetime.datetime.today()
         # Disambiguate day.
@@ -328,6 +331,9 @@ class Settings(InterfaceView):
         )
         self.settings.set(
             "HideItem", "git", not self.get_widget("enable_git").get_active()
+        )
+        self.settings.set(
+            "HideItem", "hg", not self.get_widget("enable_mercurial").get_active()
         )
         self.settings.set_multiline(
             "general", "default_commit_message", self.default_commit_message.get_text()
