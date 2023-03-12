@@ -178,7 +178,7 @@ class Log(GtkTemplateHelper):
         textcolor = style.get_color()
         self.orgTextColor = textcolor.to_string()
 
-        self.window.show()
+        self.window.set_visible(True)
 
     #
     # UI Signal Callback Methods
@@ -705,7 +705,7 @@ class GitLog(Log):
         self.git = self.vcs.git(path)
         self.limit = 500
 
-        self.widget.stop_on_copy.hide()
+        self.widget.stop_on_copy.set_visible(False)
 
         self.revision_number_column = 1
 
