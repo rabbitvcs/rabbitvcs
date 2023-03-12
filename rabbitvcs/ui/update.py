@@ -3,7 +3,7 @@ from rabbitvcs import gettext
 import rabbitvcs.ui.dialog
 import rabbitvcs.ui.widget
 from rabbitvcs.ui.action import SVNAction, GitAction
-from rabbitvcs.ui import InterfaceNonView, InterfaceView
+from rabbitvcs.ui import InterfaceNonView, InterfaceView, GtkTemplateHelper
 from gi.repository import Gtk, GObject, Gdk
 
 #
@@ -28,6 +28,7 @@ from gi.repository import Gtk, GObject, Gdk
 # along with RabbitVCS;  If not, see <http://www.gnu.org/licenses/>.
 #
 
+import os
 from rabbitvcs.util import helper
 
 import gi
@@ -40,7 +41,33 @@ sa.restore()
 _ = gettext.gettext
 
 
-class SVNUpdate(InterfaceNonView):
+@Gtk.Template(filename=f"{os.path.dirname(os.path.abspath(__file__))}/xml/update.xml")
+class UpdateWidget(Gtk.Grid):
+    __gtype_name__ = "UpdateWidget"
+
+    ok = Gtk.Template.Child()
+    cancel = Gtk.Template.Child()
+
+    def __init__(self):
+        Gtk.Grid.__init__(self)
+
+@Gtk.Template(filename=f"{os.path.dirname(os.path.abspath(__file__))}/xml/git-update.xml")
+class GitUpdateWidget(Gtk.Grid):
+    __gtype_name__ = "GitUpdateWidget"
+
+    repository_container = Gtk.Template.Child()
+    merge = Gtk.Template.Child()
+    rebase = Gtk.Template.Child()
+    apply_changes = Gtk.Template.Child()
+    all = Gtk.Template.Child()
+    ok = Gtk.Template.Child()
+    cancel = Gtk.Template.Child()
+
+    def __init__(self):
+        Gtk.Grid.__init__(self)
+
+
+class SVNUpdate(GtkTemplateHelper):
     """
     This class provides an interface to generate an "update".
     Pass it a path and it will start an update, running the notification dialog.
@@ -49,6 +76,15 @@ class SVNUpdate(InterfaceNonView):
     """
 
     def __init__(self, paths):
+        GtkTemplateHelper.__init__(self, "Update")
+
+        self.widget = UpdateWidget()
+        self.window = self.get_window(self.widget)
+
+        # forward signals
+        self.widget.ok.connect("clicked", self.on_ok_clicked)
+        self.widget.cancel.connect("clicked", self.on_cancel_clicked)
+
         self.paths = paths
         self.vcs = rabbitvcs.vcs.VCS()
         self.svn = self.vcs.svn()
@@ -65,7 +101,7 @@ class SVNUpdate(InterfaceNonView):
         self.action.schedule()
 
 
-class GitUpdate(InterfaceView):
+class GitUpdate(GtkTemplateHelper):
     """
     This class provides an interface to generate an "update".
     Pass it a path and it will start an update, running the notification dialog.
@@ -74,39 +110,46 @@ class GitUpdate(InterfaceView):
     """
 
     def __init__(self, paths):
-        InterfaceView.__init__(self, "git-update", "Update")
+        GtkTemplateHelper.__init__(self, "Update")
+
+        self.widget = GitUpdateWidget()
+        self.window = self.get_window(self.widget)
+        # forward signals
+        self.widget.apply_changes.connect("toggled", self.on_apply_changes_toggled)
+        self.widget.ok.connect("clicked", self.on_ok_clicked)
+        self.widget.cancel.connect("clicked", self.on_cancel_clicked)
 
         self.paths = paths
         self.vcs = rabbitvcs.vcs.VCS()
         self.git = self.vcs.git(paths[0])
 
         self.repository_selector = rabbitvcs.ui.widget.GitRepositorySelector(
-            self.get_widget("repository_container"), self.git
+            self.widget.repository_container, self.git
         )
 
     def on_apply_changes_toggled(self, widget, data=None):
-        self.get_widget("merge").set_sensitive(
-            self.get_widget("apply_changes").get_active()
+        self.widget.merge.set_sensitive(
+            self.widget.apply_changes.get_active()
         )
-        self.get_widget("rebase").set_sensitive(
-            self.get_widget("apply_changes").get_active()
+        self.widget.rebase.set_sensitive(
+            self.widget.apply_changes.get_active()
         )
 
     def on_ok_clicked(self, widget, data=None):
-        self.hide()
+        self.window.set_visible(False)
 
-        rebase = self.get_widget("rebase").get_active()
+        rebase = self.widget.rebase.get_active()
 
         git_function_params = []
 
-        apply_changes = self.get_widget("apply_changes").get_active()
+        apply_changes = self.widget.apply_changes.get_active()
 
         repository = self.repository_selector.repository_opt.get_active_text()
         branch = self.repository_selector.branch_opt.get_active_text()
-        fetch_all = self.get_widget("all").get_active()
+        fetch_all = self.widget.all.get_active()
 
         self.action = GitAction(
-            self.git, register_gtk_quit=self.gtk_quit_is_set(), run_in_thread=False
+            self.git
         )
         self.action.append(self.action.set_header, _("Update"))
         self.action.append(self.action.set_status, _("Updating..."))
@@ -131,6 +174,8 @@ class GitUpdate(InterfaceView):
         self.action.append(self.action.finish)
         self.action.schedule()
 
+        self.window.close()
+
 
 classes_map = {rabbitvcs.vcs.VCS_SVN: SVNUpdate, rabbitvcs.vcs.VCS_GIT: GitUpdate}
 
@@ -139,14 +184,14 @@ def update_factory(paths):
     guess = rabbitvcs.vcs.guess(paths[0])
     return classes_map[guess["vcs"]](paths)
 
-
-if __name__ == "__main__":
+def on_activate(app):
     from rabbitvcs.ui import main
 
     (options, paths) = main(usage="Usage: rabbitvcs update [path1] [path2] ...")
+    
+    widget = update_factory(paths)
+    app.add_window(widget.window)
+    widget.window.set_visible(True)
 
-    window = update_factory(paths)
-    window.register_gtk_quit()
-    if isinstance(window, SVNUpdate):
-        window.start()
-    Gtk.main()
+if __name__ == "__main__":
+    GtkTemplateHelper.run_application(on_activate)

@@ -1491,8 +1491,7 @@ class GitRepositorySelector(object):
         grid.attach(label, 0, 2, 1, 1)
         grid.attach(self.host, 1, 2, 1, 1)
 
-        grid.show_all()
-        container.add(grid)
+        container.attach(grid, 0, 0, 1, 1)
 
         self.__update_host()
 
