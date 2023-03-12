@@ -343,7 +343,7 @@ class VCSAction(threading.Thread):
         """
 
         if self.has_notifier:
-            self.notification.pbar.update(fraction)
+            self.notification.widget.pbar.update(fraction)
 
     def set_header(self, header):
         self.notification.set_header(header)
