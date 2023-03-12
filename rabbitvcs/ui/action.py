@@ -222,35 +222,43 @@ class MessageCallbackNotifier(VCSNotifier):
 
 
 @Gtk.Template(filename=f"{os.path.dirname(os.path.abspath(__file__))}/xml/dialogs/loading.xml")
-class LoadingNotifier(VCSNotifier, Gtk.Window):
-    __gtype_name__ = "Loading"
+class LoadingNotifierWidget(Gtk.Box):
+    __gtype_name__ = "LoadingNotifierWidget"
 
     pbar = Gtk.Template.Child()
+    loading_cancel = Gtk.Template.Child()
+
+    def __init__(self):
+        Gtk.Box.__init__(self)
+
+class LoadingNotifier(VCSNotifier):
 
     gtktemplate_id = "Loading"
 
     def __init__(self, callback_cancel=None, visible=True):
 
-        Gtk.Window.__init__(self)
-        VCSNotifier.__init__(self, callback_cancel, visible)
+        VCSNotifier.__init__(self, callback_cancel)
 
-        self.pbar = rabbitvcs.ui.widget.ProgressBar(self.pbar)
+
+        self.widget = LoadingNotifierWidget()
+        self.window = self.get_window(self.widget)
+        self.window.set_size_request(300, -1)
+        self.window.set_visible(visible)
+        # forward signals
+        self.widget.loading_cancel.connect("clicked", self.on_loading_cancel_clicked)
+
+        self.pbar = rabbitvcs.ui.widget.ProgressBar(self.widget.pbar)
         self.pbar.start_pulsate()
 
-    @Gtk.Template.Callback()
-    def on_destroy(self, widget):
-        self.close()
-
-    @Gtk.Template.Callback()
     def on_loading_cancel_clicked(self, widget):
         self.set_canceled_by_user(True)
         if self.callback_cancel is not None:
             self.callback_cancel()
 
-        self.close()
+        self.window.close()
 
     def set_header(self, header):
-        self.set_title(header)
+        self.window.set_title(header)
 
     @gtk_unsafe
     def exception_callback(self, e):
