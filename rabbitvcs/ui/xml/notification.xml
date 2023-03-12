@@ -1,122 +1,107 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
   <requires lib="gtk" version="4.0"/>
-  <template class="MessageCallbackNotifier" parent="GtkWindow">
-    <property name="width_request">740</property>
-    <property name="focusable">1</property>
-    <property name="title" translatable="1">Notification Messages</property>
-    <property name="icon_name">rabbitvcs-small</property>
-    <signal name="destroy" handler="on_destroy" swapped="no"/>
-    <child type="titlebar">
-      <placeholder/>
-    </child>
-    <property name="child">
+  <template class="MessageCallbackNotifierWidget" parent="GtkGrid">
+    <property name="margin-start">12</property>
+    <property name="margin-end">12</property>
+    <property name="margin_top">12</property>
+    <property name="margin_bottom">12</property>
+    <property name="hexpand">1</property>
+    <property name="vexpand">1</property>
+    <property name="orientation">vertical</property>
+    <property name="row_spacing">18</property>
+    <child>
       <object class="GtkGrid">
-        <property name="margin-start">12</property>
-        <property name="margin-end">12</property>
-        <property name="margin_top">12</property>
-        <property name="margin_bottom">12</property>
+        <property name="orientation">vertical</property>
+        <property name="row_spacing">6</property>
+        <child>
+          <object class="GtkLabel" id="action">
+            <property name="hexpand">1</property>
+            <property name="use_markup">1</property>
+            <property name="xalign">0</property>
+          </object>
+        </child>
+        <child>
+          <object class="GtkLabel" id="status">
+            <property name="hexpand">1</property>
+            <property name="selectable">1</property>
+            <property name="xalign">0</property>
+          </object>
+        </child>
+      </object>
+    </child>
+    <child>
+      <object class="GtkScrolledWindow" id="scrolledwindow10">
+        <property name="height_request">225</property>
+        <property name="focusable">1</property>
         <property name="hexpand">1</property>
         <property name="vexpand">1</property>
-        <property name="orientation">vertical</property>
-        <property name="row_spacing">18</property>
-        <child>
-          <object class="GtkGrid">
-            <property name="orientation">vertical</property>
-            <property name="row_spacing">6</property>
-            <child>
-              <object class="GtkLabel" id="action">
-                <property name="hexpand">1</property>
-                <property name="use_markup">1</property>
-                <property name="xalign">0</property>
-              </object>
-            </child>
-            <child>
-              <object class="GtkLabel" id="status">
-                <property name="hexpand">1</property>
-                <property name="selectable">1</property>
-                <property name="xalign">0</property>
-              </object>
+        <property name="has_frame">1</property>
+        <property name="child">
+          <object class="GtkTreeView" id="table">
+            <property name="focusable">1</property>
+            <child internal-child="selection">
+              <object class="GtkTreeSelection"/>
             </child>
           </object>
-        </child>
+        </property>
+      </object>
+    </child>
+    <child>
+      <object class="GtkProgressBar" id="pbar">
+        <property name="hexpand">1</property>
+      </object>
+    </child>
+    <child>
+      <object class="GtkBox">
+        <property name="hexpand">1</property>
+        <property name="spacing">6</property>
         <child>
-          <object class="GtkScrolledWindow" id="scrolledwindow10">
-            <property name="height_request">225</property>
-            <property name="focusable">1</property>
-            <property name="hexpand">1</property>
-            <property name="vexpand">1</property>
-            <property name="has_frame">1</property>
-            <property name="child">
-              <object class="GtkTreeView" id="table">
+          <object class="GtkBox" id="hbuttonbox1">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="hexpand">True</property>
+            <child>
+              <object class="GtkButton" id="saveas">
+                <property name="label" translatable="1">Save _As</property>
+                <property name="sensitive">0</property>
                 <property name="focusable">1</property>
-                <child internal-child="selection">
-                  <object class="GtkTreeSelection"/>
+                <property name="receives_default">1</property>
+                <property name="use_underline">1</property>
+                <child>
+                  <object class="GtkImage">
+                    <property name="icon-name">document-save-as</property>
+                  </object>
                 </child>
               </object>
-            </property>
+            </child>
           </object>
         </child>
         <child>
-          <object class="GtkProgressBar" id="pbar">
-            <property name="hexpand">1</property>
-          </object>
-        </child>
-        <child>
-          <object class="GtkBox">
-            <property name="hexpand">1</property>
+          <object class="GtkBox" id="hbuttonbox10">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
             <property name="spacing">6</property>
             <child>
-              <object class="GtkBox" id="hbuttonbox1">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="hexpand">True</property>
-                <child>
-                  <object class="GtkButton" id="saveas">
-                    <property name="label" translatable="1">Save _As</property>
-                    <property name="sensitive">0</property>
-                    <property name="focusable">1</property>
-                    <property name="receives_default">1</property>
-                    <property name="use_underline">1</property>
-                    <signal name="clicked" handler="on_saveas_clicked" swapped="no"/>
-                    <child>
-                      <object class="GtkImage">
-                        <property name="icon-name">document-save-as</property>
-                      </object>
-                    </child>
-                  </object>
-                </child>
+              <object class="GtkButton" id="cancel">
+                <property name="label" translatable="1">_Cancel</property>
+                <property name="focusable">1</property>
+                <property name="receives_default">1</property>
+                <property name="use_underline">1</property>
               </object>
             </child>
             <child>
-              <object class="GtkBox" id="hbuttonbox10">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="spacing">6</property>
-                <child>
-                  <object class="GtkButton" id="cancel">
-                    <property name="label" translatable="1">_Cancel</property>
-                    <property name="focusable">1</property>
-                    <property name="receives_default">1</property>
-                    <property name="use_underline">1</property>
-                    <signal name="clicked" handler="on_cancel_clicked" swapped="no"/>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkButton" id="ok">
-                    <property name="label" translatable="1">_OK</property>
-                    <property name="sensitive">0</property>
-                    <property name="focusable">1</property>
-                    <property name="receives_default">1</property>
-                    <property name="use_underline">1</property>
-                    <signal name="clicked" handler="on_ok_clicked" swapped="no"/>
-                  </object>
-                </child>
+              <object class="GtkButton" id="ok">
+                <property name="label" translatable="1">_OK</property>
+                <property name="sensitive">0</property>
+                <property name="focusable">1</property>
+                <property name="receives_default">1</property>
+                <property name="use_underline">1</property>
               </object>
             </child>
           </object>
         </child>
       </object>
-    </property>
+    </child>
   </template>
 </interface>

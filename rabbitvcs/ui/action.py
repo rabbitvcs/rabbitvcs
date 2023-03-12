@@ -57,11 +57,8 @@ class VCSNotifier(GtkTemplateHelper):
 
     """
 
-    def __init__(self, callback_cancel=None, visible=True):
+    def __init__(self, callback_cancel=None):
         GtkTemplateHelper.__init__(self)
-
-        if visible:
-            self.show()
 
         self.callback_cancel = callback_cancel
         self.was_canceled_by_user = False
@@ -97,22 +94,27 @@ class DummyNotifier(object):
 
 
 @Gtk.Template(filename=f"{os.path.dirname(os.path.abspath(__file__))}/xml/notification.xml")
-class MessageCallbackNotifier(VCSNotifier, Gtk.Window):
-    __gtype_name__ = "MessageCallbackNotifier"
+class MessageCallbackNotifierWidget(Gtk.Grid):
+    __gtype_name__ = "MessageCallbackNotifierWidget"
+
+    table = Gtk.Template.Child()
+    pbar = Gtk.Template.Child()
+    ok = Gtk.Template.Child()
+    cancel = Gtk.Template.Child()
+    saveas = Gtk.Template.Child()
+    action = Gtk.Template.Child()
+    status = Gtk.Template.Child()
+
+    def __init__(self):
+        Gtk.Grid.__init__(self)
+
+class MessageCallbackNotifier(VCSNotifier):
     """
     Provides an interface to handle the Notification UI.
 
     """
 
-    table = Gtk.Template.Child()
-    pbar = Gtk.Template.Child()
-    ok = Gtk.Template.Child()
-    saveas = Gtk.Template.Child()
-    action = Gtk.Template.Child()
-    status = Gtk.Template.Child()
-
-    gtkbuilder_filename = "notification"
-    gtkbuilder_id = "Notification"
+    gtktemplate_id = "Notification"
 
     def __init__(self, callback_cancel=None, visible=True, client_in_same_thread=True):
         """
@@ -124,23 +126,30 @@ class MessageCallbackNotifier(VCSNotifier, Gtk.Window):
 
         """
 
-        self.window = self
-        Gtk.Window.__init__(self)
-        VCSNotifier.__init__(self, callback_cancel, visible)
+        VCSNotifier.__init__(self, callback_cancel)
+
+        self.widget = MessageCallbackNotifierWidget()
+        self.window = self.get_window(self.widget)
+        self.window.set_size_request(740, -1)
+        self.window.set_visible(visible)
+        # forward signals
+        self.widget.saveas.connect("clicked", self.on_saveas_clicked)
+        self.widget.cancel.connect("clicked", self.on_cancel_clicked)
+        self.widget.ok.connect("clicked", self.on_ok_clicked)
 
         self.register_window()
 
         self.client_in_same_thread = client_in_same_thread
 
         self.table = rabbitvcs.ui.widget.Table(
-            self.table,
+            self.widget.table,
             [GObject.TYPE_STRING, GObject.TYPE_STRING, GObject.TYPE_STRING],
             [_("Action"), _("Path"), _("Mime Type")],
         )
 
-        self.pbar = rabbitvcs.ui.widget.ProgressBar(self.pbar)
-        self.pbar.start_pulsate()
-        self.finished = False
+        self.widget.pbar = rabbitvcs.ui.widget.ProgressBar(self.widget.pbar)
+        self.widget.pbar.start_pulsate()
+        self.widget.finished = False
 
     def on_destroy(self, widget):
         if self.callback_cancel is not None:
@@ -149,7 +158,6 @@ class MessageCallbackNotifier(VCSNotifier, Gtk.Window):
         self.canceled = True
         self.close()
 
-    @Gtk.Template.Callback()
     def on_cancel_clicked(self, widget):
 
         if self.canceled or self.finished:
@@ -160,15 +168,14 @@ class MessageCallbackNotifier(VCSNotifier, Gtk.Window):
 
         self.canceled = True
 
-    @Gtk.Template.Callback()
     def on_ok_clicked(self, widget):
-        self.close()
+        self.window.close()
 
     @gtk_unsafe
     def toggle_ok_button(self, sensitive):
         self.finished = True
-        self.ok.set_sensitive(sensitive)
-        self.saveas.set_sensitive(sensitive)
+        self.widget.ok.set_sensitive(sensitive)
+        self.widget.saveas.set_sensitive(sensitive)
 
     @gtk_unsafe
     def append(self, entry):
@@ -177,30 +184,29 @@ class MessageCallbackNotifier(VCSNotifier, Gtk.Window):
 
     @gtk_unsafe
     def set_header(self, header):
-        self.set_title(header)
+        self.window.set_title(header)
 
-        self.action.set_markup(
+        self.widget.action.set_markup(
             '<span size="xx-large"><b>%s</b></span>' % header
         )
 
     @gtk_unsafe
     def focus_on_ok_button(self):
-        self.ok.grab_focus()
+        self.widget.ok.grab_focus()
 
     def exception_callback(self, e):
         self.append(["", str(e), ""])
 
-    @Gtk.Template.Callback()
     def on_saveas_clicked(self, widget):
         self.save_as()
 
     @gtk_unsafe
     def enable_saveas(self):
-        self.saveas.set_sensitive(True)
+        self.widget.saveas.set_sensitive(True)
 
     @gtk_unsafe
     def disable_saveas(self):
-        self.saveas.set_sensitive(False)
+        self.widget.saveas.set_sensitive(False)
 
     def save_as(self, path=None):
         if path is None:
@@ -371,11 +377,11 @@ class VCSAction(threading.Thread):
         if self.has_notifier:
             self.notification.append(["", _("Finished"), ""])
             self.notification.focus_on_ok_button()
-            title = self.notification.get_title()
-            self.notification.set_title(_("%s - Finished") % title)
+            title = self.notification.window.get_title()
+            self.notification.window.set_title(_("%s - Finished") % title)
             self.set_status(message)
-            self.notification.pbar.stop_pulsate()
-            self.notification.pbar.update(1)
+            self.notification.widget.pbar.stop_pulsate()
+            self.notification.widget.pbar.update(1)
             self.notification.toggle_ok_button(True)
 
     def get_log_message(self):
@@ -553,7 +559,7 @@ class VCSAction(threading.Thread):
         """
 
         if message is not None:
-            self.notification.status.set_text(S(message).display())
+            self.notification.widget.status.set_text(S(message).display())
 
     def append(self, func, *args, **kwargs):
         """

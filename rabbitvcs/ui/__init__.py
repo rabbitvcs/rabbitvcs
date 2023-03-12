@@ -88,6 +88,8 @@ STATUS_EMBLEMS = {
 
 
 class GtkTemplateHelper(object):
+    gtktemplate_id = ""
+
     def __init__(self, gtktemplate_id = None):
         if gtktemplate_id:
             self.gtktemplate_id = gtktemplate_id
