@@ -326,7 +326,7 @@ class SVNCommit(Commit):
     def __init__(self, paths, base_dir=None, message=None):
         Commit.__init__(self, paths, base_dir, message)
 
-        self.widget.commit_to_box.show()
+        self.widget.commit_to_box.set_visible(True)
 
         self.widget.to.set_text(
             S(self.vcs.svn().get_repo_url(self.base_dir)).display()
@@ -394,7 +394,7 @@ class GitCommit(Commit):
 
         self.git = self.vcs.git(paths[0])
 
-        self.widget.commit_to_box.show()
+        self.widget.commit_to_box.set_visible(True)
 
         active_branch = self.git.get_active_branch()
         if active_branch:
@@ -467,7 +467,7 @@ def on_activate(app):
 
     widget = commit_factory(paths, options.base_dir, message=options.message)
     app.add_window(widget.window)
-    widget.window.show()
+    widget.window.set_visible(True)
 
 if __name__ == "__main__":
     GtkTemplateHelper.run_application(on_activate)

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
   <requires lib="gtk" version="4.0"/>
-  <template class="LoadingNotifierWidget" parent="GtkBox">
+  <template class="LoadingWidget" parent="GtkBox">
     <property name="orientation">vertical</property>
     <property name="margin-start">6</property>
     <property name="margin-top">6</property>

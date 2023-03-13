@@ -78,6 +78,8 @@ class VCSNotifier(GtkTemplateHelper):
 
 
 class DummyNotifier(object):
+    window = None
+    
     def __init__(self):
         pass
 
@@ -220,15 +222,6 @@ class MessageCallbackNotifier(VCSNotifier):
             fh.close()
 
 
-@Gtk.Template(filename=f"{os.path.dirname(os.path.abspath(__file__))}/xml/dialogs/loading.xml")
-class LoadingNotifierWidget(Gtk.Box):
-    __gtype_name__ = "LoadingNotifierWidget"
-
-    pbar = Gtk.Template.Child()
-
-    def __init__(self):
-        Gtk.Box.__init__(self)
-
 class LoadingNotifier(VCSNotifier):
 
     gtktemplate_id = "Loading"
@@ -238,12 +231,12 @@ class LoadingNotifier(VCSNotifier):
         VCSNotifier.__init__(self, callback_cancel)
 
 
-        self.widget = LoadingNotifierWidget()
+        self.widget = rabbitvcs.ui.dialog.LoadingWidget()
         self.window = self.get_window(self.widget)
         self.window.set_size_request(300, -1)
         self.window.set_visible(visible)
         # add dialog buttons
-        self.loading_cancel = self.add_dialog_button("Ok", self.on_loading_cancel_clicked, suggested=True)
+        self.loading_cancel = self.add_dialog_button("Cancel", self.on_loading_cancel_clicked, suggested=True)
 
         self.pbar = rabbitvcs.ui.widget.ProgressBar(self.widget.pbar)
         self.pbar.start_pulsate()
@@ -603,7 +596,7 @@ class VCSAction(threading.Thread):
             self.stop()
 
     def stop(self):
-        if self.notification:
+        if self.notification and self.notification.window:
             self.notification.window.close()
 
     def run(self):

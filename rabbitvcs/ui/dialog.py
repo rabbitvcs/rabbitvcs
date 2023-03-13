@@ -566,29 +566,29 @@ class ConflictDecision(InterfaceView):
         return result
 
 
-# TODO this is a duplicate of LoadingNotifier in action.py
-# @Gtk.Template(filename=f"{os.path.dirname(os.path.abspath(__file__))}/xml/dialogs/loading.xml")
-# class Loading(Gtk.Window, InterfaceView):
-#     __gtype_name__ = "Loading"
+@Gtk.Template(filename=f"{os.path.dirname(os.path.abspath(__file__))}/xml/dialogs/loading.xml")
+class LoadingWidget(Gtk.Box):
+    __gtype_name__ = "LoadingWidget"
 
-#     loading_cancel = Gtk.Template.Child()
-#     pbar = Gtk.Template.Child()
+    pbar = Gtk.Template.Child()
 
-#     def __init__(self):
-#         Gtk.Window.__init__(self)
-#         InterfaceView.__init__(self, "dialogs/loading", "Loading")
+    def __init__(self):
+        Gtk.Box.__init__(self)
 
-#         self.window = self
+class Loading(GtkTemplateHelper):
 
-#         self.loading_cancel.set_sensitive(False)
+    def __init__(self):
+        GtkTemplateHelper.__init__(self, "Loading")
 
-#         self.pbar = rabbitvcs.ui.widget.ProgressBar(self.pbar)
-#         self.pbar.start_pulsate()
+        self.widget = LoadingWidget()
+        self.window = self.get_window(self.widget)
+        self.window.set_size_request(300, -1)
+        # add dialog buttons
+        self.loading_cancel = self.add_dialog_button("Cancel", self.on_loading_cancel_clicked, suggested=True)
+        self.loading_cancel.set_sensitive(False)
 
-#     @Gtk.Template.Callback()
-#     def on_destroy(self, widget):
-#         self.close()
+        self.pbar = rabbitvcs.ui.widget.ProgressBar(self.widget.pbar)
+        self.pbar.start_pulsate()
 
-#     @Gtk.Template.Callback()
-#     def on_loading_cancel_clicked(self, widget):
-#         self.close()
+    def on_loading_cancel_clicked(self):
+        self.close()

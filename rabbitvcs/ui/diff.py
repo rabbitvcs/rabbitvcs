@@ -91,7 +91,7 @@ class Diff(InterfaceNonView):
 
     def start_loading(self):
         self.dialog = rabbitvcs.ui.dialog.Loading()
-        self.dialog.show()
+        self.dialog.window.set_visible(True)
 
     def stop_loading(self):
 
@@ -101,7 +101,7 @@ class Diff(InterfaceNonView):
             # Wait for dialog's creation.
             pass
 
-        self.dialog.close()
+        self.dialog.window.close()
         self.dialog = None
 
 
@@ -312,7 +312,7 @@ def on_activate(app):
         sidebyside=options.sidebyside,
     )
 
-    app.add_window(diff.dialog)
+    app.add_window(diff.dialog.window)
 
 if __name__ == "__main__":
     from rabbitvcs.ui import main, VCS_OPT
