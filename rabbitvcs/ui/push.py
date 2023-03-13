@@ -58,8 +58,6 @@ class PushWidget(Gtk.Grid):
     tags = Gtk.Template.Child()
     force_with_lease = Gtk.Template.Child()
     status = Gtk.Template.Child()
-    ok = Gtk.Template.Child()
-    cancel = Gtk.Template.Child()
 
     def __init__(self):
         Gtk.Grid.__init__(self)
@@ -72,9 +70,9 @@ class GitPush(GtkTemplateHelper):
         self.widget = PushWidget()
         self.window = self.get_window(self.widget)
         self.window.set_default_size(640, 520)
-        # forward signals
-        self.widget.ok.connect("clicked", self.on_ok_clicked)
-        self.widget.cancel.connect("clicked", self.on_cancel_clicked)
+        # add dialog buttons
+        self.ok = self.add_dialog_button("Ok", self.on_ok_clicked, suggested=True)
+        self.cancel = self.add_dialog_button("Cancel", self.on_cancel_clicked)
 
         self.path = path
 
@@ -161,7 +159,7 @@ class GitPush(GtkTemplateHelper):
         branch = self.repository_selector.branch_opt.get_active_text()
 
         if not repository or not branch:
-            self.widget.ok.set_sensitive(False)
+            self.ok.set_sensitive(False)
             return
 
         has_commits = False
@@ -174,7 +172,7 @@ class GitPush(GtkTemplateHelper):
             )
             has_commits = True
 
-        self.widget.ok.set_sensitive(True)
+        self.ok.set_sensitive(True)
         if not has_commits:
             self.widget.status.set_text(_("No commits found"))
 
@@ -194,7 +192,7 @@ def on_activate(app):
 
     widget = push_factory(paths[0])
     app.add_window(widget.window)
-    widget.window.show()
+    widget.window.set_visible(True)
 
 if __name__ == "__main__":
     GtkTemplateHelper.run_application(on_activate)

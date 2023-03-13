@@ -11,37 +11,6 @@
     <property name="orientation">vertical</property>
     <property name="row_spacing">18</property>
     <child>
-      <object class="GtkButtonBox" id="hbuttonbox16">
-        <property name="visible">True</property>
-        <property name="can_focus">False</property>
-        <property name="valign">end</property>
-        <property name="hexpand">True</property>
-        <property name="vexpand">True</property>
-        <property name="spacing">6</property>
-        <property name="layout_style">end</property>
-        <child>
-          <object class="GtkButton" id="cancel">
-            <property name="label" translatable="1">_Cancel</property>
-            <property name="focusable">1</property>
-            <property name="receives_default">1</property>
-            <property name="use_underline">1</property>
-          </object>
-        </child>
-        <child>
-          <object class="GtkButton" id="ok">
-            <property name="label" translatable="1">_OK</property>
-            <property name="focusable">1</property>
-            <property name="receives_default">1</property>
-            <property name="use_underline">1</property>
-          </object>
-        </child>
-        <layout>
-          <property name="column">0</property>
-          <property name="row">2</property>
-        </layout>
-      </object>
-    </child>
-    <child>
       <object class="GtkGrid" id="options_box">
         <property name="hexpand">1</property>
         <property name="column_spacing">6</property>

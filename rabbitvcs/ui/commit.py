@@ -67,8 +67,6 @@ class CommitWidget(Gtk.Box):
     toggle_show_unversioned = Gtk.Template.Child()
     toggle_show_all = Gtk.Template.Child()
     refresh = Gtk.Template.Child()
-    cancel = Gtk.Template.Child()
-    ok = Gtk.Template.Child()
 
     def __init__(self):
         Gtk.Box.__init__(self)
@@ -102,13 +100,14 @@ class Commit(GtkTemplateHelper, GtkContextMenuCaller):
 
         self.widget = CommitWidget()
         self.window = self.get_window(self.widget)
+        # add dialog buttons
+        self.ok = self.add_dialog_button("Ok", self.on_ok_clicked, suggested=True)
+        self.cancel = self.add_dialog_button("Cancel", self.on_cancel_clicked)
         # forward signals
         self.widget.previous_messages.connect("clicked", self.on_previous_messages_clicked)
         self.widget.toggle_show_unversioned.connect("toggled", self.on_toggle_show_unversioned_toggled)
         self.widget.toggle_show_all.connect("toggled", self.on_toggle_show_all_toggled)
         self.widget.refresh.connect("clicked", self.on_refresh_clicked)
-        self.widget.cancel.connect("clicked", self.on_cancel_clicked)
-        self.widget.ok.connect("clicked", self.on_ok_clicked)
         # set window properties
         self.window.set_default_size(640, 640)
 

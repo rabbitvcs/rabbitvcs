@@ -190,30 +190,6 @@
             <!-- <accelerator key="r" signal="clicked" modifiers="GDK_MOD1_MASK"/> -->
           </object>
         </child>
-        <child>
-          <object class="GtkBox" id="hbuttonbox3">
-            <property name="visible">True</property>
-            <property name="can_focus">False</property>
-            <property name="halign">end</property>
-            <property name="spacing">6</property>
-            <child>
-              <object class="GtkButton" id="cancel">
-                <property name="label" translatable="1">_Cancel</property>
-                <property name="focusable">1</property>
-                <property name="receives_default">1</property>
-                <property name="use_underline">1</property>
-              </object>
-            </child>
-            <child>
-              <object class="GtkButton" id="ok">
-                <property name="label" translatable="1">_OK</property>
-                <property name="focusable">1</property>
-                <property name="receives_default">1</property>
-                <property name="use_underline">1</property>
-              </object>
-            </child>
-          </object>
-        </child>
       </object>
     </child>
   </template>

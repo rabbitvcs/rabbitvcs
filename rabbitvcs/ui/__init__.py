@@ -89,6 +89,8 @@ STATUS_EMBLEMS = {
 
 class GtkTemplateHelper(object):
     gtktemplate_id = ""
+    header = None
+    button_box = None
 
     def __init__(self, gtktemplate_id = None):
         if gtktemplate_id:
@@ -97,20 +99,49 @@ class GtkTemplateHelper(object):
     def get_window(self, widget):
         if adwaita_available:
             window = Adw.ApplicationWindow()
-            header = Adw.HeaderBar()
+            self.header = Adw.HeaderBar()
             box = Gtk.Box()
             box.set_orientation(Gtk.Orientation.VERTICAL)
-            box.append(header)
+            box.append(self.header)
             box.append(widget)
             window.set_content(box)
         else:
             window = Gtk.ApplicationWindow()
-            window.set_child(widget)
+            box = Gtk.Box()
+            box.set_orientation(Gtk.Orientation.VERTICAL)
+            box.append(widget)
+            window.set_child(box)
 
         window.set_title(self.gtktemplate_id)
         window.set_icon_name("rabbitvcs-small")
 
         return window
+    
+    def add_dialog_button(self, text, callback, suggested = False):
+        button = Gtk.Button()
+        button.set_label(text)
+        button.connect("clicked", callback)
+        if suggested:
+            button.add_css_class("suggested-action")
+
+        if adwaita_available:
+            self.header.pack_start(button)
+        else:
+            if self.button_box == None:
+                self.button_box = Gtk.Box()
+                self.button_box.set_margin_start(6)
+                self.button_box.set_margin_end(6)
+                self.button_box.set_margin_bottom(6)
+                self.button_box.set_spacing(6)
+                self.button_box.set_hexpand(True)
+                self.button_box.set_halign(Gtk.Align.END)
+                box = self.window.get_child()
+                box.append(self.button_box)
+
+            self.button_box.append(button)
+
+        return button
+
 
     def exec_dialog(self, parent, widget, on_response_callback = None):
         if adwaita_available:

@@ -45,9 +45,6 @@ _ = gettext.gettext
 class UpdateWidget(Gtk.Grid):
     __gtype_name__ = "UpdateWidget"
 
-    ok = Gtk.Template.Child()
-    cancel = Gtk.Template.Child()
-
     def __init__(self):
         Gtk.Grid.__init__(self)
 
@@ -60,8 +57,6 @@ class GitUpdateWidget(Gtk.Grid):
     rebase = Gtk.Template.Child()
     apply_changes = Gtk.Template.Child()
     all = Gtk.Template.Child()
-    ok = Gtk.Template.Child()
-    cancel = Gtk.Template.Child()
 
     def __init__(self):
         Gtk.Grid.__init__(self)
@@ -81,9 +76,9 @@ class SVNUpdate(GtkTemplateHelper):
         self.widget = UpdateWidget()
         self.window = self.get_window(self.widget)
 
-        # forward signals
-        self.widget.ok.connect("clicked", self.on_ok_clicked)
-        self.widget.cancel.connect("clicked", self.on_cancel_clicked)
+        # add dialog buttons
+        self.ok = self.add_dialog_button("Ok", self.on_ok_clicked, suggested=True)
+        self.cancel = self.add_dialog_button("Cancel", self.on_cancel_clicked)
 
         self.paths = paths
         self.vcs = rabbitvcs.vcs.VCS()
@@ -114,10 +109,11 @@ class GitUpdate(GtkTemplateHelper):
 
         self.widget = GitUpdateWidget()
         self.window = self.get_window(self.widget)
+        # add dialog buttons
+        self.ok = self.add_dialog_button("Ok", self.on_ok_clicked, suggested=True)
+        self.cancel = self.add_dialog_button("Cancel", self.on_cancel_clicked)
         # forward signals
         self.widget.apply_changes.connect("toggled", self.on_apply_changes_toggled)
-        self.widget.ok.connect("clicked", self.on_ok_clicked)
-        self.widget.cancel.connect("clicked", self.on_cancel_clicked)
 
         self.paths = paths
         self.vcs = rabbitvcs.vcs.VCS()

@@ -52,56 +52,5 @@
         <property name="hexpand">1</property>
       </object>
     </child>
-    <child>
-      <object class="GtkBox">
-        <property name="hexpand">1</property>
-        <property name="spacing">6</property>
-        <child>
-          <object class="GtkBox" id="hbuttonbox1">
-            <property name="visible">True</property>
-            <property name="can_focus">False</property>
-            <property name="hexpand">True</property>
-            <child>
-              <object class="GtkButton" id="saveas">
-                <property name="label" translatable="1">Save _As</property>
-                <property name="sensitive">0</property>
-                <property name="focusable">1</property>
-                <property name="receives_default">1</property>
-                <property name="use_underline">1</property>
-                <child>
-                  <object class="GtkImage">
-                    <property name="icon-name">document-save-as</property>
-                  </object>
-                </child>
-              </object>
-            </child>
-          </object>
-        </child>
-        <child>
-          <object class="GtkBox" id="hbuttonbox10">
-            <property name="visible">True</property>
-            <property name="can_focus">False</property>
-            <property name="spacing">6</property>
-            <child>
-              <object class="GtkButton" id="cancel">
-                <property name="label" translatable="1">_Cancel</property>
-                <property name="focusable">1</property>
-                <property name="receives_default">1</property>
-                <property name="use_underline">1</property>
-              </object>
-            </child>
-            <child>
-              <object class="GtkButton" id="ok">
-                <property name="label" translatable="1">_OK</property>
-                <property name="sensitive">0</property>
-                <property name="focusable">1</property>
-                <property name="receives_default">1</property>
-                <property name="use_underline">1</property>
-              </object>
-            </child>
-          </object>
-        </child>
-      </object>
-    </child>
   </template>
 </interface>

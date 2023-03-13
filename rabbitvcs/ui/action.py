@@ -99,9 +99,6 @@ class MessageCallbackNotifierWidget(Gtk.Grid):
 
     table = Gtk.Template.Child()
     pbar = Gtk.Template.Child()
-    ok = Gtk.Template.Child()
-    cancel = Gtk.Template.Child()
-    saveas = Gtk.Template.Child()
     action = Gtk.Template.Child()
     status = Gtk.Template.Child()
 
@@ -132,10 +129,12 @@ class MessageCallbackNotifier(VCSNotifier):
         self.window = self.get_window(self.widget)
         self.window.set_size_request(740, -1)
         self.window.set_visible(visible)
-        # forward signals
-        self.widget.saveas.connect("clicked", self.on_saveas_clicked)
-        self.widget.cancel.connect("clicked", self.on_cancel_clicked)
-        self.widget.ok.connect("clicked", self.on_ok_clicked)
+        # add dialog buttons
+        self.ok = self.add_dialog_button("Ok", self.on_ok_clicked, suggested=True)
+        self.cancel = self.add_dialog_button("Cancel", self.on_cancel_clicked)
+        self.saveas = self.add_dialog_button("Save As", self.on_saveas_clicked)
+        self.saveas.set_icon_name("document-save-as")
+
 
         self.register_window()
 
@@ -156,12 +155,12 @@ class MessageCallbackNotifier(VCSNotifier):
             self.callback_cancel()
 
         self.canceled = True
-        self.close()
+        self.window.close()
 
     def on_cancel_clicked(self, widget):
 
         if self.canceled or self.finished:
-            self.close()
+            self.window.close()
 
         if self.callback_cancel is not None:
             self.callback_cancel()
@@ -174,8 +173,8 @@ class MessageCallbackNotifier(VCSNotifier):
     @gtk_unsafe
     def toggle_ok_button(self, sensitive):
         self.finished = True
-        self.widget.ok.set_sensitive(sensitive)
-        self.widget.saveas.set_sensitive(sensitive)
+        self.ok.set_sensitive(sensitive)
+        self.saveas.set_sensitive(sensitive)
 
     @gtk_unsafe
     def append(self, entry):
@@ -192,7 +191,7 @@ class MessageCallbackNotifier(VCSNotifier):
 
     @gtk_unsafe
     def focus_on_ok_button(self):
-        self.widget.ok.grab_focus()
+        self.ok.grab_focus()
 
     def exception_callback(self, e):
         self.append(["", str(e), ""])
@@ -202,11 +201,11 @@ class MessageCallbackNotifier(VCSNotifier):
 
     @gtk_unsafe
     def enable_saveas(self):
-        self.widget.saveas.set_sensitive(True)
+        self.saveas.set_sensitive(True)
 
     @gtk_unsafe
     def disable_saveas(self):
-        self.widget.saveas.set_sensitive(False)
+        self.saveas.set_sensitive(False)
 
     def save_as(self, path=None):
         if path is None:
@@ -226,7 +225,6 @@ class LoadingNotifierWidget(Gtk.Box):
     __gtype_name__ = "LoadingNotifierWidget"
 
     pbar = Gtk.Template.Child()
-    loading_cancel = Gtk.Template.Child()
 
     def __init__(self):
         Gtk.Box.__init__(self)
@@ -244,8 +242,8 @@ class LoadingNotifier(VCSNotifier):
         self.window = self.get_window(self.widget)
         self.window.set_size_request(300, -1)
         self.window.set_visible(visible)
-        # forward signals
-        self.widget.loading_cancel.connect("clicked", self.on_loading_cancel_clicked)
+        # add dialog buttons
+        self.loading_cancel = self.add_dialog_button("Ok", self.on_loading_cancel_clicked, suggested=True)
 
         self.pbar = rabbitvcs.ui.widget.ProgressBar(self.widget.pbar)
         self.pbar.start_pulsate()
@@ -606,7 +604,7 @@ class VCSAction(threading.Thread):
 
     def stop(self):
         if self.notification:
-            self.notification.close()
+            self.notification.window.close()
 
     def run(self):
         """
@@ -616,7 +614,7 @@ class VCSAction(threading.Thread):
         """
 
         if self.has_loader:
-            self.queue.append(self.notification.close)
+            self.queue.append(self.notification.window.close)
 
         self.queue.set_exception_callback(self.__queue_exception_callback)
         self.queue.start()
