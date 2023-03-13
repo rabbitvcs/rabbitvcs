@@ -109,7 +109,7 @@ class Commit(GtkTemplateHelper, GtkContextMenuCaller):
         self.widget.toggle_show_all.connect("toggled", self.on_toggle_show_all_toggled)
         self.widget.refresh.connect("clicked", self.on_refresh_clicked)
         # set window properties
-        self.window.set_default_size(640, 640)
+        self.window.set_default_size(800, 640)
 
         self.base_dir = base_dir
         self.vcs = rabbitvcs.vcs.VCS()

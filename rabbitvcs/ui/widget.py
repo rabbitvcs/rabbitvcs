@@ -1598,10 +1598,10 @@ class MultiFileTextEditor(object):
         grid.set_vexpand(True)
 
         combo_label = Gtk.Label(label=label)
-        combo_label.set_alignment(0, 0.5)
+        combo_label.set_xalign(0)
+        combo_label.set_yalign(0.5)
         scrolled_window = Gtk.ScrolledWindow()
-        scrolled_window.set_shadow_type(Gtk.ShadowType.ETCHED_IN)
-        scrolled_window.add(self.textview.view)
+        scrolled_window.set_child(self.textview.view)
         scrolled_window.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
         scrolled_window.set_size_request(320, 150)
         scrolled_window.set_hexpand(True)
@@ -1623,11 +1623,10 @@ class MultiFileTextEditor(object):
             grid.attach(add_button, 2, 1, 1, 1)
 
         grid.attach(scrolled_window, 0, 2, 3, 1)
-        grid.show_all()
 
         self.combobox.set_active(0)
 
-        container.add(grid)
+        container.attach(grid, 0, 0, 1, 1)
 
     def __combobox_changed(self, widget):
         index = self.combobox.get_active()
