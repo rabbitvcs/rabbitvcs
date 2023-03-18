@@ -338,207 +338,117 @@
           <object class="GtkNotebookPage">
             <property name="position">2</property>
             <property name="child">
-              <object class="GtkGrid" id="saved_page">
+              <object class="GtkBox" id="saved_page">
                 <property name="margin-start">12</property>
                 <property name="margin-end">12</property>
                 <property name="margin_top">12</property>
                 <property name="margin_bottom">12</property>
                 <property name="hexpand">1</property>
                 <property name="orientation">vertical</property>
-                <property name="row_spacing">18</property>
                 <child>
-                  <object class="GtkGrid">
+                  <object class="GtkLabel" id="label1">
                     <property name="hexpand">1</property>
-                    <property name="orientation">vertical</property>
-                    <property name="row_spacing">6</property>
-                    <child>
-                      <object class="GtkGrid">
-                        <property name="margin-start">12</property>
-                        <property name="hexpand">1</property>
-                        <property name="column_spacing">6</property>
-                        <child>
-                          <object class="GtkButton" id="cache_clear_authentication">
-                            <property name="label" translatable="1">Clear</property>
-                            <property name="focusable">1</property>
-                            <property name="receives_default">1</property>
-                            <signal name="clicked" handler="on_cache_clear_authentication_clicked" swapped="no"/>
-                            <layout>
-                              <property name="column">1</property>
-                              <property name="row">0</property>
-                            </layout>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkLabel" id="label6">
-                            <property name="hexpand">1</property>
-                            <property name="label" translatable="1">Clear your authentication information</property>
-                            <property name="xalign">0.0099999997764825821</property>
-                            <layout>
-                              <property name="column">0</property>
-                              <property name="row">0</property>
-                            </layout>
-                          </object>
-                        </child>
-                        <layout>
-                          <property name="column">0</property>
-                          <property name="row">1</property>
-                        </layout>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkLabel" id="label5">
-                        <property name="label" translatable="1">&lt;b&gt;Authentication&lt;/b&gt;</property>
-                        <property name="use_markup">1</property>
-                        <property name="xalign">0</property>
-                        <layout>
-                          <property name="column">0</property>
-                          <property name="row">0</property>
-                        </layout>
-                      </object>
-                    </child>
-                    <layout>
-                      <property name="column">0</property>
-                      <property name="row">2</property>
-                    </layout>
+                    <property name="label" translatable="1">&lt;b&gt;URL History&lt;/b&gt;</property>
+                    <property name="use_markup">1</property>
+                    <property name="xalign">0</property>
                   </object>
                 </child>
                 <child>
-                  <object class="GtkGrid">
+                  <object class="GtkBox">
+                    <property name="margin_start">12</property>
+                    <property name="margin_bottom">12</property>
                     <property name="hexpand">1</property>
-                    <property name="orientation">vertical</property>
-                    <property name="row_spacing">6</property>
+                    <property name="orientation">horizontal</property>
+                    <property name="spacing">6</property>
                     <child>
-                      <object class="GtkGrid">
-                        <property name="margin-start">12</property>
+                      <object class="GtkLabel" id="label2">
                         <property name="hexpand">1</property>
-                        <property name="column_spacing">6</property>
-                        <child>
-                          <object class="GtkButton" id="cache_clear_messages">
-                            <property name="label" translatable="1">Clear</property>
-                            <property name="focusable">1</property>
-                            <property name="receives_default">1</property>
-                            <signal name="clicked" handler="on_cache_clear_messages_clicked" swapped="no"/>
-                            <layout>
-                              <property name="column">2</property>
-                              <property name="row">0</property>
-                            </layout>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkEntry" id="cache_number_messages">
-                            <property name="width_request">60</property>
-                            <property name="focusable">1</property>
-                            <property name="primary_icon_activatable">0</property>
-                            <property name="secondary_icon_activatable">0</property>
-                            <layout>
-                              <property name="column">1</property>
-                              <property name="row">0</property>
-                            </layout>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkLabel" id="label14">
-                            <property name="hexpand">1</property>
-                            <property name="label" translatable="1">Number of messages to remember</property>
-                            <property name="wrap_mode">word-char</property>
-                            <property name="xalign">0</property>
-                            <layout>
-                              <property name="column">0</property>
-                              <property name="row">0</property>
-                            </layout>
-                          </object>
-                        </child>
-                        <layout>
-                          <property name="column">0</property>
-                          <property name="row">1</property>
-                        </layout>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkLabel" id="label3">
-                        <property name="hexpand">1</property>
-                        <property name="label" translatable="1">&lt;b&gt;Log Messages&lt;/b&gt;</property>
-                        <property name="use_markup">1</property>
+                        <property name="label" translatable="1">Number of URLs to remember</property>
                         <property name="xalign">0</property>
-                        <layout>
-                          <property name="column">0</property>
-                          <property name="row">0</property>
-                        </layout>
                       </object>
                     </child>
-                    <layout>
-                      <property name="column">0</property>
-                      <property name="row">1</property>
-                    </layout>
+                    <child>
+                      <object class="GtkEntry" id="cache_number_repositories">
+                        <property name="width_request">60</property>
+                        <property name="focusable">1</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkButton" id="cache_clear_repositories">
+                        <property name="label" translatable="1">Clear</property>
+                        <property name="focusable">1</property>
+                        <property name="receives_default">1</property>
+                        <signal name="clicked" handler="on_cache_clear_repositories_clicked" swapped="no"/>
+                      </object>
+                    </child>
                   </object>
                 </child>
                 <child>
-                  <object class="GtkGrid">
+                  <object class="GtkLabel" id="label3">
                     <property name="hexpand">1</property>
-                    <property name="orientation">vertical</property>
-                    <property name="row_spacing">6</property>
+                    <property name="label" translatable="1">&lt;b&gt;Log Messages&lt;/b&gt;</property>
+                    <property name="use_markup">1</property>
+                    <property name="xalign">0</property>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkBox">
+                    <property name="margin-start">12</property>
+                    <property name="margin_bottom">12</property>
+                    <property name="hexpand">1</property>
+                    <property name="spacing">6</property>
                     <child>
-                      <object class="GtkGrid">
-                        <property name="margin-start">12</property>
+                      <object class="GtkLabel" id="label14">
                         <property name="hexpand">1</property>
-                        <property name="column_spacing">6</property>
-                        <child>
-                          <object class="GtkButton" id="cache_clear_repositories">
-                            <property name="label" translatable="1">Clear</property>
-                            <property name="focusable">1</property>
-                            <property name="receives_default">1</property>
-                            <signal name="clicked" handler="on_cache_clear_repositories_clicked" swapped="no"/>
-                            <layout>
-                              <property name="column">2</property>
-                              <property name="row">0</property>
-                            </layout>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkEntry" id="cache_number_repositories">
-                            <property name="width_request">60</property>
-                            <property name="focusable">1</property>
-                            <property name="primary_icon_activatable">0</property>
-                            <property name="secondary_icon_activatable">0</property>
-                            <layout>
-                              <property name="column">1</property>
-                              <property name="row">0</property>
-                            </layout>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkLabel" id="label2">
-                            <property name="hexpand">1</property>
-                            <property name="label" translatable="1">Number of URLs to remember</property>
-                            <property name="xalign">0</property>
-                            <layout>
-                              <property name="column">0</property>
-                              <property name="row">0</property>
-                            </layout>
-                          </object>
-                        </child>
-                        <layout>
-                          <property name="column">0</property>
-                          <property name="row">1</property>
-                        </layout>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkLabel" id="label1">
-                        <property name="hexpand">1</property>
-                        <property name="label" translatable="1">&lt;b&gt;URL History&lt;/b&gt;</property>
-                        <property name="use_markup">1</property>
+                        <property name="label" translatable="1">Number of messages to remember</property>
+                        <property name="wrap_mode">word-char</property>
                         <property name="xalign">0</property>
-                        <layout>
-                          <property name="column">0</property>
-                          <property name="row">0</property>
-                        </layout>
                       </object>
                     </child>
-                    <layout>
-                      <property name="column">0</property>
-                      <property name="row">0</property>
-                    </layout>
+                    <child>
+                      <object class="GtkEntry" id="cache_number_messages">
+                        <property name="width_request">60</property>
+                        <property name="focusable">1</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkButton" id="cache_clear_messages">
+                        <property name="label" translatable="1">Clear</property>
+                        <property name="focusable">1</property>
+                        <property name="receives_default">1</property>
+                        <signal name="clicked" handler="on_cache_clear_messages_clicked" swapped="no"/>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="label5">
+                    <property name="label" translatable="1">&lt;b&gt;Authentication&lt;/b&gt;</property>
+                    <property name="use_markup">1</property>
+                    <property name="xalign">0</property>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkBox">
+                    <property name="margin-start">12</property>
+                    <property name="margin_bottom">12</property>
+                    <property name="hexpand">1</property>
+                    <property name="spacing">6</property>
+                    <child>
+                      <object class="GtkLabel" id="label6">
+                        <property name="hexpand">1</property>
+                        <property name="label" translatable="1">Clear your authentication information</property>
+                        <property name="xalign">0.0099999997764825821</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkButton" id="cache_clear_authentication">
+                        <property name="label" translatable="1">Clear</property>
+                        <property name="focusable">1</property>
+                        <property name="receives_default">1</property>
+                        <signal name="clicked" handler="on_cache_clear_authentication_clicked" swapped="no"/>
+                      </object>
+                    </child>
                   </object>
                 </child>
               </object>
