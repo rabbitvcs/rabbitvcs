@@ -3,7 +3,7 @@ from rabbitvcs import gettext
 import rabbitvcs.vcs
 import rabbitvcs.ui.widget
 from rabbitvcs.ui.action import GitAction
-from rabbitvcs.ui import InterfaceView
+from rabbitvcs.ui import InterfaceView, GtkTemplateHelper
 import time
 from datetime import datetime
 from gi.repository import Gtk, GObject, Gdk, Pango
@@ -44,28 +44,52 @@ sa.restore()
 _ = gettext.gettext
 
 
-class GitClean(InterfaceView):
+@Gtk.Template(filename=f"{os.path.dirname(os.path.abspath(__file__))}/xml/clean.xml")
+class CleanWidget(Gtk.Box):
+    __gtype_name__ = "CleanWidget"
+
+    remove_directories = Gtk.Template.Child()
+    remove_ignored_too = Gtk.Template.Child()
+    remove_only_ignored = Gtk.Template.Child()
+    dryrun = Gtk.Template.Child()
+    force = Gtk.Template.Child()
+
+    def __init__(self):
+        Gtk.Box.__init__(self)
+
+
+class GitClean(GtkTemplateHelper):
     """
     Provides a UI to clean your repository of untracked files
 
     """
 
     def __init__(self, path):
-        InterfaceView.__init__(self, "clean", "Clean")
+        GtkTemplateHelper.__init__(self, "Clean")
+
+        self.widget = CleanWidget()
+        self.window = self.get_window(self.widget)
+        # add dialog buttons
+        self.ok = self.add_dialog_button("Ok", self.on_ok_clicked, suggested=True)
+        self.cancel = self.add_dialog_button("Cancel", self.on_cancel_clicked)
+        # forward signals
+        self.widget.remove_ignored_too.connect("toggled", self.on_remove_ignored_too_toggled)
+        self.widget.remove_only_ignored.connect("toggled", self.on_remove_only_ignored_toggled)
+        
         self.vcs = rabbitvcs.vcs.VCS()
         self.git = self.vcs.git(path)
         self.path = path
 
     def on_ok_clicked(self, widget):
-        remove_dir = self.get_widget("remove_directories").get_active()
-        remove_ignored_too = self.get_widget("remove_ignored_too").get_active()
-        remove_only_ignored = self.get_widget("remove_only_ignored").get_active()
-        dry_run = self.get_widget("dryrun").get_active()
-        force = self.get_widget("force").get_active()
+        remove_dir = self.widget.remove_directories.get_active()
+        remove_ignored_too = self.widget.remove_ignored_too.get_active()
+        remove_only_ignored = self.widget.remove_only_ignored.get_active()
+        dry_run = self.widget.dryrun.get_active()
+        force = self.widget.force.get_active()
 
-        self.hide()
+        self.window.set_visible(False)
         self.action = rabbitvcs.ui.action.GitAction(
-            self.git, register_gtk_quit=self.gtk_quit_is_set()
+            self.git
         )
         self.action.append(self.action.set_header, _("Clean"))
         self.action.append(self.action.set_status, _("Running Clean Command..."))
@@ -82,26 +106,25 @@ class GitClean(InterfaceView):
         self.action.append(self.action.finish)
         self.action.schedule()
 
-    def on_remove_ignored_too_toggled(self, widget):
-        remove_ignored_too = self.get_widget("remove_ignored_too")
-        remove_only_ignored = self.get_widget("remove_only_ignored")
+        self.window.close()
 
-        if remove_ignored_too.get_active():
-            remove_only_ignored.set_active(False)
+    def on_remove_ignored_too_toggled(self, widget):
+        if self.widget.remove_ignored_too.get_active():
+            self.widget.remove_only_ignored.set_active(False)
 
     def on_remove_only_ignored_toggled(self, widget):
-        remove_ignored_too = self.get_widget("remove_ignored_too")
-        remove_only_ignored = self.get_widget("remove_only_ignored")
-
-        if remove_only_ignored.get_active():
-            remove_ignored_too.set_active(False)
+        if self.widget.remove_only_ignored.get_active():
+            self.widget.remove_ignored_too.set_active(False)
 
 
-if __name__ == "__main__":
+def on_activate(app):
     from rabbitvcs.ui import main
 
     (options, paths) = main(usage="Usage: rabbitvcs clean path")
 
-    window = GitClean(paths[0])
-    window.register_gtk_quit()
-    Gtk.main()
+    widget = GitClean(paths[0])
+    app.add_window(widget.window)
+    widget.window.set_visible(True)
+
+if __name__ == "__main__":
+    GtkTemplateHelper.run_application(on_activate)
