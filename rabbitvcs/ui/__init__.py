@@ -130,6 +130,7 @@ class GtkTemplateHelper(object):
             if self.button_box == None:
                 self.button_box = Gtk.Box()
                 self.button_box.set_margin_start(6)
+                self.button_box.set_margin_top(6)
                 self.button_box.set_margin_end(6)
                 self.button_box.set_margin_bottom(6)
                 self.button_box.set_spacing(6)

@@ -2,10 +2,6 @@
 <interface>
   <requires lib="gtk" version="4.0"/>
   <template class="SettingsWidget" parent="GtkGrid">
-    <property name="margin-start">6</property>
-    <property name="margin-end">6</property>
-    <property name="margin_top">6</property>
-    <property name="margin_bottom">6</property>
     <property name="hexpand">1</property>
     <property name="vexpand">1</property>
     <property name="orientation">vertical</property>
@@ -15,114 +11,42 @@
         <property name="focusable">1</property>
         <property name="hexpand">1</property>
         <property name="vexpand">1</property>
+        <property name="show_border">0</property>
+
+        <!-- general page -->
         <child>
           <object class="GtkNotebookPage">
             <property name="child">
-              <object class="GtkGrid" id="general_page">
+              <object class="GtkBox" id="general_page">
                 <property name="margin-start">12</property>
                 <property name="margin-end">12</property>
                 <property name="margin_top">12</property>
                 <property name="margin_bottom">12</property>
                 <property name="orientation">vertical</property>
-                <property name="row_spacing">18</property>
+                <property name="spacing">18</property>
                 <child>
-                  <object class="GtkGrid">
-                    <property name="hexpand">1</property>
+                  <object class="GtkBox">
                     <property name="orientation">vertical</property>
-                    <property name="row_spacing">6</property>
+                    <property name="spacing">6</property>
                     <child>
-                      <object class="GtkLabel" id="label10">
-                        <property name="hexpand">1</property>
-                        <property name="label" translatable="1">&lt;b&gt;Version Control Systems&lt;/b&gt;</property>
+                      <object class="GtkLabel" id="label8">
+                        <property name="label" translatable="1">&lt;b&gt;RabbitVCS&lt;/b&gt;</property>
                         <property name="use_markup">1</property>
                         <property name="xalign">0</property>
-                        <layout>
-                          <property name="column">0</property>
-                          <property name="row">0</property>
-                        </layout>
                       </object>
                     </child>
                     <child>
-                      <object class="GtkGrid">
+                      <object class="GtkBox">
                         <property name="margin-start">12</property>
                         <property name="hexpand">1</property>
                         <property name="orientation">vertical</property>
                         <child>
-                          <object class="GtkCheckButton" id="enable_subversion">
-                            <property name="label" translatable="1">Enable Subversion</property>
+                          <object class="GtkCheckButton" id="enable_attributes">
+                            <property name="label" translatable="1">Enable file attributes</property>
                             <property name="focusable">1</property>
                             <property name="halign">start</property>
                             <property name="hexpand">1</property>
                             <property name="active">1</property>
-                            <layout>
-                              <property name="column">0</property>
-                              <property name="row">0</property>
-                            </layout>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkCheckButton" id="enable_git">
-                            <property name="label" translatable="1">Enable Git</property>
-                            <property name="focusable">1</property>
-                            <property name="halign">start</property>
-                            <property name="hexpand">1</property>
-                            <property name="active">1</property>
-                            <layout>
-                              <property name="column">0</property>
-                              <property name="row">1</property>
-                            </layout>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkCheckButton" id="enable_mercurial">
-                            <property name="label" translatable="yes">Enable Mercurial</property>
-                            <property name="visible">True</property>
-                            <property name="can_focus">True</property>
-                            <property name="receives_default">False</property>
-                            <property name="halign">start</property>
-                            <property name="hexpand">True</property>
-                            <property name="active">True</property>
-                            <property name="draw_indicator">True</property>
-                          </object>
-                          <layout>
-                            <property name="column">0</property>
-                            <property name="row">2</property>
-                          </layout>
-                        </child>
-                        <layout>
-                          <property name="column">0</property>
-                          <property name="row">1</property>
-                        </layout>
-                      </object>
-                    </child>
-                    <layout>
-                      <property name="column">0</property>
-                      <property name="row">1</property>
-                    </layout>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkGrid">
-                    <property name="orientation">vertical</property>
-                    <property name="row_spacing">6</property>
-                    <child>
-                      <object class="GtkGrid">
-                        <property name="margin-start">12</property>
-                        <property name="hexpand">1</property>
-                        <property name="orientation">vertical</property>
-                        <property name="column_spacing">5</property>
-                        <child>
-                          <object class="GtkCheckButton" id="enable_emblems">
-                            <property name="label" translatable="1">Enable emblems</property>
-                            <property name="focusable">1</property>
-                            <property name="halign">start</property>
-                            <property name="hexpand">1</property>
-                            <property name="active">1</property>
-                            <layout>
-                              <property name="column">0</property>
-                              <property name="row">2</property>
-                              <property name="column-span">2</property>
-                            </layout>
                           </object>
                         </child>
                         <child>
@@ -133,46 +57,15 @@
                             <property name="halign">start</property>
                             <property name="hexpand">1</property>
                             <property name="active">1</property>
-                            <layout>
-                              <property name="column">0</property>
-                              <property name="row">1</property>
-                              <property name="column-span">2</property>
-                            </layout>
                           </object>
                         </child>
                         <child>
-                          <object class="GtkCheckButton" id="enable_attributes">
-                            <property name="label" translatable="1">Enable file attributes</property>
+                          <object class="GtkCheckButton" id="enable_emblems">
+                            <property name="label" translatable="1">Enable emblems</property>
                             <property name="focusable">1</property>
                             <property name="halign">start</property>
                             <property name="hexpand">1</property>
                             <property name="active">1</property>
-                            <layout>
-                              <property name="column">0</property>
-                              <property name="row">0</property>
-                              <property name="column-span">2</property>
-                            </layout>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkLabel">
-                            <property name="halign">start</property>
-                            <property name="hexpand">0</property>
-                            <property name="label" translatable="1">Date/time format</property>
-                            <layout>
-                              <property name="column">0</property>
-                              <property name="row">6</property>
-                            </layout>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkComboBox" id="datetime_format">
-                            <property name="halign">start</property>
-                            <property name="hexpand">1</property>
-                            <layout>
-                              <property name="column">1</property>
-                              <property name="row">6</property>
-                            </layout>
                           </object>
                         </child>
                         <child>
@@ -183,11 +76,6 @@
                             <property name="halign">start</property>
                             <property name="hexpand">1</property>
                             <property name="active">1</property>
-                            <layout>
-                              <property name="column">0</property>
-                              <property name="row">3</property>
-                              <property name="column-span">2</property>
-                            </layout>
                           </object>
                         </child>
                         <child>
@@ -198,11 +86,6 @@
                             <property name="halign">start</property>
                             <property name="hexpand">1</property>
                             <property name="active">1</property>
-                            <layout>
-                              <property name="column">0</property>
-                              <property name="row">4</property>
-                              <property name="column-span">2</property>
-                            </layout>
                           </object>
                         </child>
                         <child>
@@ -212,51 +95,91 @@
                             <property name="tooltip_text" translatable="1">The debug menu is used to diagnose problems with RabbitVCS itself</property>
                             <property name="halign">start</property>
                             <property name="hexpand">1</property>
-                            <layout>
-                              <property name="column">0</property>
-                              <property name="row">5</property>
-                              <property name="column-span">2</property>
-                            </layout>
                           </object>
                         </child>
-                        <layout>
-                          <property name="column">0</property>
-                          <property name="row">1</property>
-                        </layout>
+                        <child>
+                          <object class="GtkBox">
+                            <property name="orientation">horizontal</property>
+                            <property name="spacing">12</property>
+                            <child>
+                              <object class="GtkLabel">
+                                <property name="halign">start</property>
+                                <property name="hexpand">0</property>
+                                <property name="label" translatable="1">Date/time format</property>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkComboBox" id="datetime_format">
+                                <property name="halign">start</property>
+                                <property name="hexpand">1</property>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
                       </object>
                     </child>
-                    <child>
-                      <object class="GtkLabel" id="label8">
-                        <property name="label" translatable="1">&lt;b&gt;RabbitVCS&lt;/b&gt;</property>
-                        <property name="use_markup">1</property>
-                        <property name="xalign">0</property>
-                        <layout>
-                          <property name="column">0</property>
-                          <property name="row">0</property>
-                        </layout>
-                      </object>
-                    </child>
-                    <layout>
-                      <property name="column">0</property>
-                      <property name="row">0</property>
-                    </layout>
                   </object>
                 </child>
                 <child>
-                  <object class="GtkGrid">
+                  <object class="GtkBox">
+                    <property name="hexpand">1</property>
+                    <property name="orientation">vertical</property>
+                    <property name="spacing">6</property>
+                    <child>
+                      <object class="GtkLabel" id="label10">
+                        <property name="hexpand">1</property>
+                        <property name="label" translatable="1">&lt;b&gt;Version Control Systems&lt;/b&gt;</property>
+                        <property name="use_markup">1</property>
+                        <property name="xalign">0</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkBox">
+                        <property name="margin-start">12</property>
+                        <property name="hexpand">1</property>
+                        <property name="orientation">vertical</property>
+                        <child>
+                          <object class="GtkCheckButton" id="enable_subversion">
+                            <property name="label" translatable="1">Enable Subversion</property>
+                            <property name="focusable">1</property>
+                            <property name="halign">start</property>
+                            <property name="hexpand">1</property>
+                            <property name="active">1</property>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkCheckButton" id="enable_git">
+                            <property name="label" translatable="1">Enable Git</property>
+                            <property name="focusable">1</property>
+                            <property name="halign">start</property>
+                            <property name="hexpand">1</property>
+                            <property name="active">1</property>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkCheckButton" id="enable_mercurial">
+                            <property name="label" translatable="yes">Enable Mercurial</property>
+                            <property name="focusable">1</property>
+                            <property name="halign">start</property>
+                            <property name="hexpand">1</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkBox">
                     <property name="hexpand">1</property>
                     <property name="vexpand">1</property>
-                    <property name="row_spacing">6</property>
+                    <property name="spacing">6</property>
+                    <property name="orientation">vertical</property>
                     <child>
                       <object class="GtkLabel">
                         <property name="halign">start</property>
                         <property name="hexpand">1</property>
                         <property name="label" translatable="1">&lt;b&gt;Default Commit Message&lt;/b&gt;</property>
                         <property name="use_markup">1</property>
-                        <layout>
-                          <property name="column">0</property>
-                          <property name="row">0</property>
-                        </layout>
                       </object>
                     </child>
                     <child>
@@ -265,6 +188,7 @@
                         <property name="hexpand">1</property>
                         <property name="vexpand">1</property>
                         <property name="hscrollbar_policy">never</property>
+                        <property name="has_frame">1</property>
                         <property name="child">
                           <object class="GtkTextView" id="default_commit_message">
                             <property name="focusable">1</property>
@@ -274,16 +198,8 @@
                             <property name="accepts_tab">0</property>
                           </object>
                         </property>
-                        <layout>
-                          <property name="column">0</property>
-                          <property name="row">1</property>
-                        </layout>
                       </object>
                     </child>
-                    <layout>
-                      <property name="column">0</property>
-                      <property name="row">2</property>
-                    </layout>
                   </object>
                 </child>
               </object>
@@ -296,6 +212,8 @@
             </property>
           </object>
         </child>
+
+        <!-- external page -->
         <child>
           <object class="GtkNotebookPage">
             <property name="position">1</property>
@@ -456,6 +374,8 @@
             </property>
           </object>
         </child>
+
+        <!-- saved page -->
         <child>
           <object class="GtkNotebookPage">
             <property name="position">2</property>
@@ -672,6 +592,8 @@
             </property>
           </object>
         </child>
+
+        <!-- logging page -->
         <child>
           <object class="GtkNotebookPage">
             <property name="position">3</property>
@@ -765,6 +687,8 @@
             </property>
           </object>
         </child>
+
+        <!-- checker page -->
         <child>
           <object class="GtkNotebookPage">
             <property name="position">4</property>
@@ -959,6 +883,8 @@
             </property>
           </object>
         </child>
+
+        <!-- git page -->
         <child>
           <object class="GtkNotebookPage">
             <property name="position">5</property>
@@ -1020,6 +946,7 @@
             </property>
           </object>
         </child>
+
         <layout>
           <property name="column">0</property>
           <property name="row">0</property>
