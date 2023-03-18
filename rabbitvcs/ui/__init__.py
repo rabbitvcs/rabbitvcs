@@ -90,6 +90,7 @@ STATUS_EMBLEMS = {
 class GtkTemplateHelper(object):
     gtktemplate_id = ""
     header = None
+    toast_overlay = None
     button_box = None
 
     def __init__(self, gtktemplate_id = None):
@@ -100,10 +101,12 @@ class GtkTemplateHelper(object):
         if adwaita_available:
             window = Adw.ApplicationWindow()
             self.header = Adw.HeaderBar()
+            self.toast_overlay = Adw.ToastOverlay()
+            self.toast_overlay.set_child(widget)
             box = Gtk.Box()
             box.set_orientation(Gtk.Orientation.VERTICAL)
             box.append(self.header)
-            box.append(widget)
+            box.append(self.toast_overlay)
             window.set_content(box)
         else:
             window = Gtk.ApplicationWindow()
@@ -116,7 +119,7 @@ class GtkTemplateHelper(object):
         window.set_icon_name("rabbitvcs-small")
 
         return window
-    
+
     def add_dialog_button(self, text, callback, suggested = False):
         button = Gtk.Button()
         button.set_label(text)
@@ -142,24 +145,36 @@ class GtkTemplateHelper(object):
             self.button_box.append(button)
 
         return button
+    
+    def exec_notification(self, notification):
+        if adwaita_available:
+            toast = Adw.Toast()
+            toast.set_title(notification)
+            self.toast_overlay.add_toast(toast)
+        else:
+            self.exec_dialog(self.window, notification, None, False)
 
-
-    def exec_dialog(self, parent, widget, on_response_callback = None):
+    def exec_dialog(self, parent, content, on_response_callback = None, show_cancel = True):
         if adwaita_available:
             dialog = Adw.MessageDialog(transient_for = parent)
             dialog.set_heading(self.gtktemplate_id)
-            dialog.set_extra_child(widget)
+            if type(content) == str:
+                dialog.set_body(content)
+            else:
+                dialog.set_extra_child(content)
             dialog.add_response("ok", "Ok")
-            dialog.add_response("cancel", "Cancel")
+            if show_cancel:
+                dialog.add_response("cancel", "Cancel")
             dialog.connect("response", self.on_adw_dialog_response)
         else:
             dialog = Gtk.MessageDialog(transient_for = parent)
             dialog.set_title(self.gtktemplate_id)
             dialog.set_modal(True)
-            dialog.add_buttons("_Cancel", Gtk.ResponseType.CANCEL, "_Ok", Gtk.ResponseType.OK)
+            if show_cancel:
+                dialog.add_buttons("_Cancel", Gtk.ResponseType.CANCEL, "_Ok", Gtk.ResponseType.OK)
             dialog.connect("response", self.on_gtk_dialog_response)
             content = dialog.get_content_area()
-            content.append(widget)
+            content.append(content)
 
         self.on_response_callback = on_response_callback
 
@@ -167,7 +182,7 @@ class GtkTemplateHelper(object):
         dialog.show()
         
     def on_adw_dialog_response(self, dialog, response):
-        if self.on_response != None:
+        if self.on_response_callback != None:
             response_id = Gtk.ResponseType.CANCEL
             if response == "ok":
                 response_id = Gtk.ResponseType.OK
