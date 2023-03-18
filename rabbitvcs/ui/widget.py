@@ -1606,6 +1606,7 @@ class MultiFileTextEditor(object):
         scrolled_window.set_size_request(320, 150)
         scrolled_window.set_hexpand(True)
         scrolled_window.set_vexpand(True)
+        scrolled_window.set_has_frame(True)
 
         grid.attach(combo_label, 0, 0, 1, 1)
         grid.attach(self.combobox.cb, 1, 0, 2, 1)

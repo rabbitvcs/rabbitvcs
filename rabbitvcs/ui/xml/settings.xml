@@ -710,7 +710,7 @@
           <object class="GtkNotebookPage">
             <property name="position">5</property>
             <property name="child">
-              <object class="GtkGrid" id="git_page">
+              <object class="GtkBox" id="git_page">
                 <property name="margin-start">12</property>
                 <property name="margin-end">12</property>
                 <property name="margin_top">12</property>
@@ -718,44 +718,24 @@
                 <property name="hexpand">1</property>
                 <property name="vexpand">1</property>
                 <property name="orientation">vertical</property>
-                <property name="row_spacing">18</property>
+                <property name="spacing">12</property>
                 <child>
-                  <object class="GtkGrid">
+                  <object class="GtkLabel" id="label18">
+                    <property name="hexpand">1</property>
+                    <property name="label" translatable="1">&lt;b&gt;Configuration Editor&lt;/b&gt;</property>
+                    <property name="use_markup">1</property>
+                    <property name="xalign">0</property>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkGrid" id="git_config_container">
+                    <property name="margin-start">12</property>
                     <property name="hexpand">1</property>
                     <property name="vexpand">1</property>
                     <property name="orientation">vertical</property>
-                    <property name="row_spacing">6</property>
                     <child>
-                      <object class="GtkLabel" id="label18">
-                        <property name="hexpand">1</property>
-                        <property name="label" translatable="1">&lt;b&gt;Configuration Editor&lt;/b&gt;</property>
-                        <property name="use_markup">1</property>
-                        <property name="xalign">0</property>
-                        <layout>
-                          <property name="column">0</property>
-                          <property name="row">0</property>
-                        </layout>
-                      </object>
+                      <placeholder/>
                     </child>
-                    <child>
-                      <object class="GtkGrid" id="git_config_container">
-                        <property name="margin-start">12</property>
-                        <property name="hexpand">1</property>
-                        <property name="vexpand">1</property>
-                        <property name="orientation">vertical</property>
-                        <child>
-                          <placeholder/>
-                        </child>
-                        <layout>
-                          <property name="column">0</property>
-                          <property name="row">1</property>
-                        </layout>
-                      </object>
-                    </child>
-                    <layout>
-                      <property name="column">0</property>
-                      <property name="row">0</property>
-                    </layout>
                   </object>
                 </child>
               </object>
