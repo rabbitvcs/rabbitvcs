@@ -535,19 +535,139 @@
           <object class="GtkNotebookPage">
             <property name="position">4</property>
             <property name="child">
-              <object class="GtkGrid" id="checker_page">
+              <object class="GtkBox" id="checker_page">
                 <property name="margin-start">12</property>
                 <property name="margin-end">12</property>
                 <property name="margin_top">12</property>
                 <property name="margin_bottom">12</property>
                 <property name="hexpand">1</property>
                 <property name="orientation">vertical</property>
-                <property name="row_spacing">18</property>
+                <property name="spacing">18</property>
+                <child>
+                  <object class="GtkBox">
+                    <property name="orientation">vertical</property>
+                    <property name="spacing">6</property>
+                    <child>
+                      <object class="GtkBox">
+                        <property name="margin-start">6</property>
+                        <property name="hexpand">1</property>
+                        <property name="spacing">6</property>
+                        <child>
+                          <object class="GtkLabel" id="label13">
+                            <property name="label" translatable="1">&lt;b&gt;Checker type:&lt;/b&gt;</property>
+                            <property name="width_request">120</property>
+                            <property name="use_markup">1</property>
+                            <property name="xalign">0</property>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkLabel" id="checker_type">
+                            <property name="hexpand">1</property>
+                            <property name="label" translatable="1">Unknown</property>
+                            <property name="xalign">0</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkBox">
+                        <property name="margin-start">6</property>
+                        <property name="hexpand">1</property>
+                        <property name="spacing">6</property>
+                        <child>
+                          <object class="GtkLabel" id="label16">
+                            <property name="label" translatable="1">&lt;b&gt;Process ID:&lt;/b&gt;</property>
+                            <property name="width_request">120</property>
+                            <property name="use_markup">1</property>
+                            <property name="xalign">0</property>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkLabel" id="pid">
+                            <property name="hexpand">1</property>
+                            <property name="label" translatable="1">Unknown</property>
+                            <property name="xalign">0</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkBox">
+                        <property name="margin-start">6</property>
+                        <property name="hexpand">1</property>
+                        <property name="spacing">6</property>
+                        <child>
+                          <object class="GtkLabel" id="label15">
+                            <property name="label" translatable="1">&lt;b&gt;Memory usage:&lt;/b&gt; </property>
+                            <property name="width_request">120</property>
+                            <property name="use_markup">1</property>
+                            <property name="xalign">0</property>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkLabel" id="memory_usage">
+                            <property name="hexpand">1</property>
+                            <property name="label" translatable="1">Unknown</property>
+                            <property name="xalign">0</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkBox">
+                        <property name="margin-start">6</property>
+                        <property name="hexpand">1</property>
+                        <property name="spacing">6</property>
+                        <child>
+                          <object class="GtkLabel" id="label17">
+                            <property name="label" translatable="1">&lt;b&gt;Locale:&lt;/b&gt; </property>
+                            <property name="width_request">120</property>
+                            <property name="use_markup">1</property>
+                            <property name="xalign">0</property>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkLabel" id="locale">
+                            <property name="hexpand">1</property>
+                            <property name="label" translatable="1">Unknown</property>
+                            <property name="xalign">0</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkFrame" id="frame1">
+                    <property name="hexpand">1</property>
+                    <property name="child">
+                      <object class="GtkBox" id="info_table_area">
+                        <property name="margin-start">12</property>
+                        <property name="margin-end">12</property>
+                        <property name="margin_top">12</property>
+                        <property name="margin_bottom">12</property>
+                        <property name="hexpand">1</property>
+                        <property name="orientation">vertical</property>
+                        <child>
+                          <placeholder/>
+                        </child>
+                      </object>
+                    </property>
+                    <child type="label">
+                      <object class="GtkLabel" id="label7">
+                        <property name="hexpand">1</property>
+                        <property name="label" translatable="1">&lt;b&gt;Other Information&lt;/b&gt;</property>
+                        <property name="use_markup">1</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
                 <child>
                   <object class="GtkBox" id="hbuttonbox2">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="hexpand">True</property>
+                    <property name="spacing">6</property>
                     <child>
                       <object class="GtkButton" id="refresh_info">
                         <property name="label" translatable="1">Refresh Information</property>
@@ -573,147 +693,6 @@
                         <signal name="clicked" handler="on_stop_checker_clicked" swapped="no"/>
                       </object>
                     </child>
-                    <layout>
-                      <property name="column">0</property>
-                      <property name="row">3</property>
-                    </layout>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkFrame" id="frame1">
-                    <property name="hexpand">1</property>
-                    <property name="child">
-                      <object class="GtkGrid" id="info_table_area">
-                        <property name="margin-start">12</property>
-                        <property name="margin-end">12</property>
-                        <property name="margin_top">12</property>
-                        <property name="margin_bottom">12</property>
-                        <property name="hexpand">1</property>
-                        <property name="orientation">vertical</property>
-                        <child>
-                          <placeholder/>
-                        </child>
-                      </object>
-                    </property>
-                    <child type="label">
-                      <object class="GtkLabel" id="label7">
-                        <property name="hexpand">1</property>
-                        <property name="label" translatable="1">&lt;b&gt;Other Information&lt;/b&gt;</property>
-                        <property name="use_markup">1</property>
-                      </object>
-                    </child>
-                    <layout>
-                      <property name="column">0</property>
-                      <property name="row">2</property>
-                    </layout>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkSeparator">
-                    <layout>
-                      <property name="column">0</property>
-                      <property name="row">1</property>
-                    </layout>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkGrid">
-                    <property name="margin-start">6</property>
-                    <property name="hexpand">1</property>
-                    <property name="row_spacing">6</property>
-                    <property name="column_spacing">12</property>
-                    <child>
-                      <object class="GtkLabel" id="label13">
-                        <property name="label" translatable="1">&lt;b&gt;Checker type:&lt;/b&gt;</property>
-                        <property name="use_markup">1</property>
-                        <property name="xalign">0</property>
-                        <layout>
-                          <property name="column">0</property>
-                          <property name="row">0</property>
-                        </layout>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkLabel" id="checker_type">
-                        <property name="hexpand">1</property>
-                        <property name="label" translatable="1">Unknown</property>
-                        <property name="xalign">0</property>
-                        <layout>
-                          <property name="column">1</property>
-                          <property name="row">0</property>
-                        </layout>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkLabel" id="pid">
-                        <property name="hexpand">1</property>
-                        <property name="label" translatable="1">Unknown</property>
-                        <property name="xalign">0</property>
-                        <layout>
-                          <property name="column">1</property>
-                          <property name="row">1</property>
-                        </layout>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkLabel" id="memory_usage">
-                        <property name="hexpand">1</property>
-                        <property name="label" translatable="1">Unknown</property>
-                        <property name="xalign">0</property>
-                        <layout>
-                          <property name="column">1</property>
-                          <property name="row">2</property>
-                        </layout>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkLabel" id="label16">
-                        <property name="label" translatable="1">&lt;b&gt;Process ID:&lt;/b&gt;</property>
-                        <property name="use_markup">1</property>
-                        <property name="xalign">0</property>
-                        <layout>
-                          <property name="column">0</property>
-                          <property name="row">1</property>
-                        </layout>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkLabel" id="label15">
-                        <property name="label" translatable="1">&lt;b&gt;Memory usage:&lt;/b&gt; </property>
-                        <property name="use_markup">1</property>
-                        <property name="xalign">0</property>
-                        <layout>
-                          <property name="column">0</property>
-                          <property name="row">2</property>
-                        </layout>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkLabel" id="label17">
-                        <property name="label" translatable="1">&lt;b&gt;Locale:&lt;/b&gt; </property>
-                        <property name="use_markup">1</property>
-                        <property name="xalign">0</property>
-                        <layout>
-                          <property name="column">0</property>
-                          <property name="row">3</property>
-                        </layout>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkLabel" id="locale">
-                        <property name="hexpand">1</property>
-                        <property name="label" translatable="1">Unknown</property>
-                        <property name="xalign">0</property>
-                        <layout>
-                          <property name="column">1</property>
-                          <property name="row">3</property>
-                        </layout>
-                      </object>
-                    </child>
-                    <layout>
-                      <property name="column">0</property>
-                      <property name="row">0</property>
-                    </layout>
                   </object>
                 </child>
               </object>

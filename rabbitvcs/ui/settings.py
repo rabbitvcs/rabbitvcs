@@ -299,7 +299,7 @@ class Settings(GtkTemplateHelper):
         table_place = self.widget.info_table_area
 
         table = rabbitvcs.ui.widget.KeyValueTable(info)
-        table_place.attach(table, 0, 0, 1, 1)
+        table_place.append(table)
         table.set_visible(True)
 
     def on_refresh_info_clicked(self, widget):
