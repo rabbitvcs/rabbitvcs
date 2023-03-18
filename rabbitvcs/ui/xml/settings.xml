@@ -218,34 +218,96 @@
           <object class="GtkNotebookPage">
             <property name="position">1</property>
             <property name="child">
-              <object class="GtkGrid" id="external_page">
+              <object class="GtkBox" id="external_page">
                 <property name="margin-start">12</property>
                 <property name="margin-end">12</property>
                 <property name="margin_top">12</property>
                 <property name="margin_bottom">12</property>
                 <property name="hexpand">1</property>
                 <property name="orientation">vertical</property>
-                <property name="row_spacing">18</property>
+                <property name="spacing">18</property>
                 <child>
-                  <object class="GtkGrid">
+                  <object class="GtkBox">
+                    <property name="hexpand">1</property>
                     <property name="orientation">vertical</property>
-                    <property name="row_spacing">6</property>
+                    <property name="spacing">6</property>
+                    <child>
+                      <object class="GtkLabel" id="label4">
+                        <property name="hexpand">1</property>
+                        <property name="label" translatable="1">&lt;b&gt;Program used to compare files&lt;/b&gt;</property>
+                        <property name="use_markup">1</property>
+                        <property name="xalign">0</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkBox">
+                        <property name="margin-start">12</property>
+                        <property name="hexpand">1</property>
+                        <property name="orientation">vertical</property>
+                        <property name="spacing">6</property>
+                        <child>
+                          <object class="GtkBox">
+                            <property name="hexpand">1</property>
+                            <property name="orientation">horizontal</property>
+                            <property name="spacing">6</property>
+                            <child>
+                              <object class="GtkEntry" id="diff_tool">
+                                <property name="focusable">1</property>
+                                <property name="hexpand">1</property>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkButton" id="diff_tool_browse">
+                                <property name="focusable">1</property>
+                                <property name="receives_default">1</property>
+                                <property name="tooltip_text" translatable="1">Browse...</property>
+                                <signal name="clicked" handler="on_external_diff_tool_browse_clicked" swapped="no"/>
+                                <child>
+                                  <object class="GtkImage">
+                                    <property name="icon_name">drive-harddisk</property>
+                                  </object>
+                                </child>
+                                <!-- <accelerator key="p" signal="clicked" modifiers="GDK_MOD1_MASK"/> todo -->
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkCheckButton" id="diff_tool_swap">
+                            <property name="label" translatable="1">Show new version on the left side</property>
+                            <property name="focusable">1</property>
+                            <property name="halign">start</property>
+                            <property name="hexpand">1</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkBox">
+                    <property name="orientation">vertical</property>
+                    <property name="spacing">6</property>
                     <child>
                       <object class="GtkLabel" id="merge_label">
                         <property name="label" translatable="1">&lt;b&gt;Configure the program to resolve conflicted files.&lt;/b&gt;</property>
                         <property name="use_markup">1</property>
                         <property name="xalign">0</property>
-                        <layout>
-                          <property name="column">0</property>
-                          <property name="row">0</property>
-                        </layout>
                       </object>
                     </child>
                     <child>
-                      <object class="GtkGrid">
+                      <object class="GtkBox">
                         <property name="margin-start">12</property>
                         <property name="hexpand">1</property>
                         <property name="orientation">vertical</property>
+                        <property name="spacing">6</property>
+                        <child>
+                          <object class="GtkEntry" id="merge_tool">
+                            <property name="focusable">1</property>
+                            <property name="hexpand">1</property>
+                            <property name="invisible_char">•</property>
+                          </object>
+                        </child>
                         <child>
                           <object class="GtkLabel" id="merge_arg_hints">
                             <property name="label" translatable="1">Use the following macros to configure the merge tool:
@@ -255,114 +317,10 @@
 %merged - The file to store the merged result.</property>
                             <!-- <property name="track_visited_links">False</property> todo -->
                             <property name="xalign">0</property>
-                            <layout>
-                              <property name="column">0</property>
-                              <property name="row">1</property>
-                            </layout>
                           </object>
                         </child>
-                        <child>
-                          <object class="GtkEntry" id="merge_tool">
-                            <property name="focusable">1</property>
-                            <property name="hexpand">1</property>
-                            <property name="invisible_char">•</property>
-                            <property name="primary_icon_activatable">0</property>
-                            <property name="secondary_icon_activatable">0</property>
-                            <layout>
-                              <property name="column">0</property>
-                              <property name="row">0</property>
-                            </layout>
-                          </object>
-                        </child>
-                        <layout>
-                          <property name="column">0</property>
-                          <property name="row">1</property>
-                        </layout>
                       </object>
                     </child>
-                    <layout>
-                      <property name="column">0</property>
-                      <property name="row">1</property>
-                    </layout>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkGrid">
-                    <property name="hexpand">1</property>
-                    <property name="orientation">vertical</property>
-                    <property name="row_spacing">6</property>
-                    <child>
-                      <object class="GtkGrid">
-                        <property name="margin-start">12</property>
-                        <property name="hexpand">1</property>
-                        <property name="orientation">vertical</property>
-                        <property name="row_spacing">6</property>
-                        <property name="column_spacing">6</property>
-                        <child>
-                          <object class="GtkButton" id="diff_tool_browse">
-                            <property name="focusable">1</property>
-                            <property name="receives_default">1</property>
-                            <property name="tooltip_text" translatable="1">Browse...</property>
-                            <signal name="clicked" handler="on_external_diff_tool_browse_clicked" swapped="no"/>
-                            <child>
-                              <object class="GtkImage">
-                                <property name="icon_name">drive-harddisk</property>
-                              </object>
-                            </child>
-                            <!-- <accelerator key="p" signal="clicked" modifiers="GDK_MOD1_MASK"/> todo -->
-                            <layout>
-                              <property name="column">1</property>
-                              <property name="row">0</property>
-                            </layout>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkCheckButton" id="diff_tool_swap">
-                            <property name="label" translatable="1">Show new version on the left side</property>
-                            <property name="focusable">1</property>
-                            <property name="halign">start</property>
-                            <property name="hexpand">1</property>
-                            <layout>
-                              <property name="column">0</property>
-                              <property name="row">1</property>
-                              <property name="column-span">2</property>
-                            </layout>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkEntry" id="diff_tool">
-                            <property name="focusable">1</property>
-                            <property name="hexpand">1</property>
-                            <property name="primary_icon_activatable">0</property>
-                            <property name="secondary_icon_activatable">0</property>
-                            <layout>
-                              <property name="column">0</property>
-                              <property name="row">0</property>
-                            </layout>
-                          </object>
-                        </child>
-                        <layout>
-                          <property name="column">0</property>
-                          <property name="row">1</property>
-                        </layout>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkLabel" id="label4">
-                        <property name="hexpand">1</property>
-                        <property name="label" translatable="1">&lt;b&gt;Program used to compare files&lt;/b&gt;</property>
-                        <property name="use_markup">1</property>
-                        <property name="xalign">0</property>
-                        <layout>
-                          <property name="column">0</property>
-                          <property name="row">0</property>
-                        </layout>
-                      </object>
-                    </child>
-                    <layout>
-                      <property name="column">0</property>
-                      <property name="row">0</property>
-                    </layout>
                   </object>
                 </child>
               </object>
