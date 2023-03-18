@@ -839,38 +839,39 @@ class Box(object):
             box.set_row_spacing(spacing)
             box.set_column_spacing(spacing)
         self.middle = 0
+        # todo
         # Determine pack start/end indexes.
-        ch = [
-            (
-                box.child_get_property(c, "left-attach"),
-                box.child_get_property(c, "width"),
-            )
-            for c in box.get_children()
-        ]
-        cv = [
-            (
-                box.child_get_property(c, "top-attach"),
-                box.child_get_property(c, "height"),
-            )
-            for c in box.get_children()
-        ]
-        if ch:
-            ch.sort(key=lambda x: x[0])
-            cv.sort(key=lambda x: x[0])
-            if ch[-1][0] - ch[0][0] > 0:
-                vertical = False
-            elif cv[-1][0] - cv[0][0] > 0:
-                vertical = True
-            c = cv if vertical else ch
-            last = c.pop()
-            self.middle = last[0] + last[1]
-            while c:
-                prev = c.pop()
-                next = prev[0] + prev[1]
-                if next < last[0]:
-                    self.middle = next
-                    break
-                last = prev
+        # ch = [
+        #     (
+        #         box.child_get_property(c, "left-attach"),
+        #         box.child_get_property(c, "width"),
+        #     )
+        #     for c in box.get_children()
+        # ]
+        # cv = [
+        #     (
+        #         box.child_get_property(c, "top-attach"),
+        #         box.child_get_property(c, "height"),
+        #     )
+        #     for c in box.get_children()
+        # ]
+        # if ch:
+        #     ch.sort(key=lambda x: x[0])
+        #     cv.sort(key=lambda x: x[0])
+        #     if ch[-1][0] - ch[0][0] > 0:
+        #         vertical = False
+        #     elif cv[-1][0] - cv[0][0] > 0:
+        #         vertical = True
+        #     c = cv if vertical else ch
+        #     last = c.pop()
+        #     self.middle = last[0] + last[1]
+        #     while c:
+        #         prev = c.pop()
+        #         next = prev[0] + prev[1]
+        #         if next < last[0]:
+        #             self.middle = next
+        #             break
+        #         last = prev
 
         self.insert = self.box.insert_column
         self.attach = lambda child, pos: self.box.attach(child, pos, 0, 1, 1)
@@ -1223,10 +1224,7 @@ class RevisionSelector(object):
             self.branch_selector.hide()
 
         self.revision_browse = Gtk.Button()
-        revision_browse_image = Gtk.Image()
-        revision_browse_image.set_from_icon_name("edit-find", Gtk.IconSize.MENU)
-        revision_browse_image.show()
-        self.revision_browse.add(revision_browse_image)
+        self.revision_browse.set_icon_name("edit-find")
         self.revision_browse.connect("clicked", self.__revision_browse_clicked)
         hbox.pack_start(self.revision_browse, False, False, 0)
 
@@ -1240,7 +1238,7 @@ class RevisionSelector(object):
         self.revision_browse.show()
         hbox.show()
 
-        container.add(hbox.box)
+        container.attach(hbox.box, 0, 0, 1, 1)
 
     def __revision_browse_clicked(self, widget):
         from rabbitvcs.ui.log import SVNLogDialog, GitLogDialog
@@ -1543,7 +1541,6 @@ class GitBranchSelector(object):
         hbox.pack_start(self.branch_opt.cb, True, False, 0)
         self.vbox.pack_start(hbox, False, False, 0)
 
-        self.vbox.show_all()
         container.add(self.vbox.box)
 
     def append(self, widget):
