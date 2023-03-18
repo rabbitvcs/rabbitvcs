@@ -76,6 +76,12 @@ class SettingsWidget(Gtk.Grid):
     logging_level = Gtk.Template.Child()
     git_config_container = Gtk.Template.Child()
     pages = Gtk.Template.Child()
+    diff_tool_browse = Gtk.Template.Child()
+    cache_clear_repositories = Gtk.Template.Child()
+    cache_clear_messages = Gtk.Template.Child()
+    cache_clear_authentication = Gtk.Template.Child()
+    refresh_info = Gtk.Template.Child()
+    restart_checker = Gtk.Template.Child()
     stop_checker = Gtk.Template.Child()
     checker_type = Gtk.Template.Child()
     pid = Gtk.Template.Child()
@@ -116,6 +122,14 @@ class Settings(GtkTemplateHelper):
         # add dialog buttons
         self.ok = self.add_dialog_button("Ok", self.on_ok_clicked, suggested=True)
         self.cancel = self.add_dialog_button("Cancel", self.on_cancel_clicked)
+        # forward signals
+        self.widget.diff_tool_browse.connect("clicked", self.on_external_diff_tool_browse_clicked)
+        self.widget.cache_clear_repositories.connect("clicked", self.on_cache_clear_repositories_clicked)
+        self.widget.cache_clear_messages.connect("clicked", self.on_cache_clear_messages_clicked)
+        self.widget.cache_clear_authentication.connect("clicked", self.on_cache_clear_authentication_clicked)
+        self.widget.refresh_info.connect("clicked", self.on_refresh_info_clicked)
+        self.widget.restart_checker.connect("clicked", self.on_restart_checker_clicked)
+        self.widget.stop_checker.connect("clicked", self.on_stop_checker_clicked)
 
         self.checker_service = None
         self.settings = rabbitvcs.util.settings.SettingsManager()
@@ -416,32 +430,32 @@ class Settings(GtkTemplateHelper):
             self.widget.diff_tool.set_text(S(path).display())
 
     def on_cache_clear_repositories_clicked(self, widget):
-        confirmation = rabbitvcs.ui.dialog.Confirmation(
-            _("Are you sure you want to clear your repository paths?")
-        )
-        if confirmation.run() == Gtk.ResponseType.OK:
+        self.exec_dialog(self.window, _("Are you sure you want to clear your repository paths?"), self.on_cache_clear_repositories_callback)
+
+    def on_cache_clear_repositories_callback(self, response_id):
+        if response_id == Gtk.ResponseType.OK:
             path = helper.get_repository_paths_path()
             fh = open(path, "w")
             fh.write("")
             fh.close()
-            rabbitvcs.ui.dialog.MessageBox(_("Repository paths cleared"))
+            self.exec_notification(_("Repository paths cleared"))
 
     def on_cache_clear_messages_clicked(self, widget):
-        confirmation = rabbitvcs.ui.dialog.Confirmation(
-            _("Are you sure you want to clear your previous messages?")
-        )
-        if confirmation.run() == Gtk.ResponseType.OK:
+        self.exec_dialog(self.window, _("Are you sure you want to clear your previous messages?"), self.on_cache_clear_messages_callback)
+
+    def on_cache_clear_messages_callback(self, response_id):
+        if response_id == Gtk.ResponseType.OK:
             path = helper.get_previous_messages_path()
             fh = open(path, "w")
             fh.write("")
             fh.close()
-            rabbitvcs.ui.dialog.MessageBox(_("Previous messages cleared"))
+            self.exec_notification(_("Previous messages cleared"))
 
     def on_cache_clear_authentication_clicked(self, widget):
-        confirmation = rabbitvcs.ui.dialog.Confirmation(
-            _("Are you sure you want to clear your authentication information?")
-        )
-        if confirmation.run() == Gtk.ResponseType.OK:
+        self.exec_dialog(self.window, _("Are you sure you want to clear your authentication information?"), self.on_cache_clear_authentication_callback)
+
+    def on_cache_clear_authentication_callback(self, response_id):
+        if response_id == Gtk.ResponseType.OK:
             home_dir = helper.get_user_path()
             subpaths = [
                 "/.subversion/auth/svn.simple",
@@ -456,7 +470,7 @@ class Settings(GtkTemplateHelper):
                         filepath = "%s/%s" % (path, filename)
                         os.remove(filepath)
 
-            rabbitvcs.ui.dialog.MessageBox(_("Authentication information cleared"))
+            self.exec_notification(_("Authentication information cleared"))
 
 
 def on_activate(app):

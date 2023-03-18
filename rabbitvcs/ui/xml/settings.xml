@@ -261,7 +261,6 @@
                                 <property name="focusable">1</property>
                                 <property name="receives_default">1</property>
                                 <property name="tooltip_text" translatable="1">Browse...</property>
-                                <signal name="clicked" handler="on_external_diff_tool_browse_clicked" swapped="no"/>
                                 <child>
                                   <object class="GtkImage">
                                     <property name="icon_name">drive-harddisk</property>
@@ -378,7 +377,6 @@
                         <property name="label" translatable="1">Clear</property>
                         <property name="focusable">1</property>
                         <property name="receives_default">1</property>
-                        <signal name="clicked" handler="on_cache_clear_repositories_clicked" swapped="no"/>
                       </object>
                     </child>
                   </object>
@@ -416,7 +414,6 @@
                         <property name="label" translatable="1">Clear</property>
                         <property name="focusable">1</property>
                         <property name="receives_default">1</property>
-                        <signal name="clicked" handler="on_cache_clear_messages_clicked" swapped="no"/>
                       </object>
                     </child>
                   </object>
@@ -446,7 +443,6 @@
                         <property name="label" translatable="1">Clear</property>
                         <property name="focusable">1</property>
                         <property name="receives_default">1</property>
-                        <signal name="clicked" handler="on_cache_clear_authentication_clicked" swapped="no"/>
                       </object>
                     </child>
                   </object>
@@ -673,7 +669,6 @@
                         <property name="label" translatable="1">Refresh Information</property>
                         <property name="focusable">1</property>
                         <property name="receives_default">1</property>
-                        <signal name="clicked" handler="on_refresh_info_clicked" swapped="no"/>
                       </object>
                     </child>
                     <child>
@@ -681,7 +676,6 @@
                         <property name="label" translatable="1">Restart Checker</property>
                         <property name="focusable">1</property>
                         <property name="receives_default">1</property>
-                        <signal name="clicked" handler="on_restart_checker_clicked" swapped="no"/>
                       </object>
                     </child>
                     <child>
@@ -690,7 +684,6 @@
                         <property name="focusable">1</property>
                         <property name="receives_default">1</property>
                         <!-- <property name="yalign">0.54000002145767212</property> todo -->
-                        <signal name="clicked" handler="on_stop_checker_clicked" swapped="no"/>
                       </object>
                     </child>
                   </object>
