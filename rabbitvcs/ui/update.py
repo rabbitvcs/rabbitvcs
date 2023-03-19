@@ -73,20 +73,13 @@ class SVNUpdate(GtkTemplateHelper):
     def __init__(self, paths):
         GtkTemplateHelper.__init__(self, "Update")
 
-        self.widget = UpdateWidget()
-        self.window = self.get_window(self.widget)
-
-        # add dialog buttons
-        self.ok = self.add_dialog_button("Ok", self.on_ok_clicked, suggested=True)
-        self.cancel = self.add_dialog_button("Cancel", self.on_cancel_clicked)
-
         self.paths = paths
         self.vcs = rabbitvcs.vcs.VCS()
         self.svn = self.vcs.svn()
 
     def start(self):
         self.action = SVNAction(
-            self.svn, register_gtk_quit=self.gtk_quit_is_set(), run_in_thread=False
+            self.svn, run_in_thread=False
         )
         self.action.append(self.action.set_header, _("Update"))
         self.action.append(self.action.set_status, _("Updating..."))
@@ -186,8 +179,12 @@ def on_activate(app):
     (options, paths) = main(usage="Usage: rabbitvcs update [path1] [path2] ...")
     
     widget = update_factory(paths)
-    app.add_window(widget.window)
-    widget.window.set_visible(True)
+
+    if isinstance(widget, SVNUpdate):
+        widget.start()
+    else:
+        app.add_window(widget.window)
+        widget.window.set_visible(True)
 
 if __name__ == "__main__":
     GtkTemplateHelper.run_application(on_activate)
