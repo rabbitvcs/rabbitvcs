@@ -383,6 +383,11 @@ class VCSAction(threading.Thread):
             self.notification.widget.pbar.update(1)
             self.notification.toggle_ok_button(True)
 
+    def show_text_change_dialog(self):
+        dial = rabbitvcs.ui.dialog.TextChange(_("Log Message"), "message")
+        dial.register_window()
+        dial.window.set_visible(True)
+        
     def get_log_message(self):
         """
         A callback method that retrieves a supplied log message.
@@ -404,10 +409,11 @@ class VCSAction(threading.Thread):
             settings = rabbitvcs.util.settings.SettingsManager()
             message = settings.get_multiline("general", "default_commit_message")
             result = helper.run_in_main_thread(
-                lambda: rabbitvcs.ui.dialog.TextChange(_("Log Message"), message).run()
+                lambda: self.show_text_change_dialog()
             )
-            should_continue = result[0] == Gtk.ResponseType.OK
-            message = result[1]
+
+            should_continue = False
+            message = ""
         if isinstance(message, bytes):
             message = message.decode()
         if not should_continue:
@@ -667,7 +673,7 @@ class SVNAction(VCSAction):
                 frac = self.pbar_ticks_current / self.pbar_ticks
                 if frac > 1:
                     frac = 1
-                self.notification.pbar.update(frac)
+                self.notification.widget.pbar.update(frac)
 
             is_known_action = False
             if data["action"] in self.client.NOTIFY_ACTIONS:

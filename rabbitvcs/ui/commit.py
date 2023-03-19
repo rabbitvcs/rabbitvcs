@@ -338,10 +338,10 @@ class SVNCommit(Commit):
 
     def on_ok_clicked(self, widget, data=None):
         items = self.files_table.get_activated_rows(1)
-        self.hide()
+        self.window.set_visible(False)
 
         if len(items) == 0:
-            self.close()
+            self.window.close()
             return
 
         added = 0
@@ -363,7 +363,7 @@ class SVNCommit(Commit):
         ticks = added + len(items) * 2
 
         self.action = rabbitvcs.ui.action.SVNAction(
-            self.vcs.svn(), register_gtk_quit=self.gtk_quit_is_set()
+            self.vcs.svn()
         )
         self.action.set_pbar_ticks(ticks)
         self.action.append(self.action.set_header, _("Commit"))
@@ -372,6 +372,8 @@ class SVNCommit(Commit):
         self.action.append(self.do_commit, items, recurse)
         self.action.append(self.action.finish)
         self.action.schedule()
+
+        self.window.close()
 
     def do_commit(self, items, recurse):
         # pysvn.Revision

@@ -392,14 +392,32 @@ class DeleteConfirmation(InterfaceView):
         return result
 
 
-class TextChange(InterfaceView):
+@Gtk.Template(filename=f"{os.path.dirname(os.path.abspath(__file__))}/xml/dialogs/text_change.xml")
+class TextChangeWidget(Gtk.Box):
+    __gtype_name__ = "TextChangeWidget"
+
+    textchange_message = Gtk.Template.Child()
+
+    def __init__(self):
+        Gtk.Box.__init__(self)
+
+class TextChange(GtkTemplateHelper):
     def __init__(self, title=None, message=""):
-        InterfaceView.__init__(self, "dialogs/text_change", "TextChange")
+        GtkTemplateHelper.__init__(self, "TextChange")
+        
+        self.widget = TextChangeWidget()
+        self.window = self.get_window(self.widget)
+        # add dialog buttons
+        self.ok = self.add_dialog_button("Ok", self.on_cancel_clicked, suggested=True) # todo ok callback
+        self.cancel = self.add_dialog_button("Cancel", self.on_cancel_clicked)
+        # set window properties
+        self.window.set_default_size(200, 200)
+
         if title:
-            self.get_widget("TextChange").set_title(title)
+            self.window.set_title(title)
 
         self.textview = rabbitvcs.ui.widget.TextView(
-            self.get_widget("textchange_message"), message
+            self.widget.textchange_message, message
         )
 
     def run(self):
