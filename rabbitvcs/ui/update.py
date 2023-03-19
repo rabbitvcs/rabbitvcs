@@ -41,13 +41,6 @@ sa.restore()
 _ = gettext.gettext
 
 
-@Gtk.Template(filename=f"{os.path.dirname(os.path.abspath(__file__))}/xml/update.xml")
-class UpdateWidget(Gtk.Grid):
-    __gtype_name__ = "UpdateWidget"
-
-    def __init__(self):
-        Gtk.Grid.__init__(self)
-
 @Gtk.Template(filename=f"{os.path.dirname(os.path.abspath(__file__))}/xml/git-update.xml")
 class GitUpdateWidget(Gtk.Grid):
     __gtype_name__ = "GitUpdateWidget"

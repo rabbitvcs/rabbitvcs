@@ -1553,10 +1553,10 @@ class GitBranchSelector(object):
         pass
 
     def show(self):
-        self.vbox.show_all()
+        self.vbox.set_visible(True)
 
     def hide(self):
-        self.vbox.hide()
+        self.vbox.set_visible(False)
 
 
 class MultiFileTextEditor(object):

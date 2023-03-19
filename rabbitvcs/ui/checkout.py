@@ -6,7 +6,7 @@ from rabbitvcs.util.strings import S
 import rabbitvcs.ui.action
 import rabbitvcs.ui.dialog
 import rabbitvcs.ui.widget
-from rabbitvcs.ui import InterfaceView
+from rabbitvcs.ui import InterfaceView, GtkTemplateHelper
 from gi.repository import Gtk, GObject, Gdk
 
 #
@@ -166,7 +166,7 @@ class SVNCheckout(Checkout):
 
         revision = self.revision_selector.get_revision_object()
 
-        self.hide()
+        self.window.hide()
         self.action = rabbitvcs.ui.action.SVNAction(
             self.svn, register_gtk_quit=self.gtk_quit_is_set()
         )
@@ -184,6 +184,8 @@ class SVNCheckout(Checkout):
         self.action.append(self.action.set_status, _("Completed Checkout"))
         self.action.append(self.action.finish)
         self.action.schedule()
+
+        self.window.close()
 
     def on_repositories_changed(self, widget, data=None):
         # Do not use quoting for this bit
@@ -211,8 +213,9 @@ class SVNCheckout(Checkout):
 class GitCheckout(GitUpdateToRevision):
     def __init__(self, path, url, revision):
         GitUpdateToRevision.__init__(self, path, revision)
-        self.get_widget("Update").set_title(_("Checkout - %s") % path)
-        self.get_widget("options_box").hide()
+        self.window.set_title(_("Checkout"))
+        self.widget.revision_label.set_text(path)
+        self.widget.options_box.hide()
 
 
 class GitCheckoutQuiet(object):
@@ -244,7 +247,7 @@ def checkout_factory(vcs, path=None, url=None, revision=None, quiet=False):
     return classes_map[vcs](path, url, revision)
 
 
-if __name__ == "__main__":
+def on_activate(app):
     from rabbitvcs.ui import main, REVISION_OPT, VCS_OPT, QUIET_OPT
 
     (options, args) = main(
@@ -269,7 +272,7 @@ if __name__ == "__main__":
             url = args[0]
 
     if options.quiet:
-        window = checkout_factory(
+        widget = checkout_factory(
             options.vcs,
             path=path,
             url=url,
@@ -277,12 +280,15 @@ if __name__ == "__main__":
             quiet=options.quiet,
         )
     else:
-        window = checkout_factory(
+        widget = checkout_factory(
             options.vcs,
             path=path,
             url=url,
             revision=options.revision,
             quiet=options.quiet,
         )
-        window.register_gtk_quit()
-        Gtk.main()
+        app.add_window(widget.window)
+        widget.window.set_visible(True)
+
+if __name__ == "__main__":
+    GtkTemplateHelper.run_application(on_activate)

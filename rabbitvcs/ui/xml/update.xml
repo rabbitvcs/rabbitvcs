@@ -8,7 +8,6 @@
     <property name="margin_bottom">12</property>
     <property name="hexpand">1</property>
     <property name="vexpand">1</property>
-    <property name="orientation">vertical</property>
     <property name="row_spacing">18</property>
     <child>
       <object class="GtkGrid" id="options_box">
@@ -22,8 +21,8 @@
             <property name="halign">start</property>
             <property name="hexpand">1</property>
             <layout>
-              <property name="column">1</property>
-              <property name="row">2</property>
+              <property name="column">0</property>
+              <property name="row">3</property>
             </layout>
           </object>
         </child>
@@ -34,8 +33,8 @@
             <property name="halign">start</property>
             <property name="hexpand">1</property>
             <layout>
-              <property name="column">1</property>
-              <property name="row">1</property>
+              <property name="column">0</property>
+              <property name="row">2</property>
             </layout>
           </object>
         </child>
@@ -47,8 +46,8 @@
             <property name="hexpand">1</property>
             <property name="active">1</property>
             <layout>
-              <property name="column">1</property>
-              <property name="row">0</property>
+              <property name="column">0</property>
+              <property name="row">1</property>
             </layout>
           </object>
         </child>
@@ -56,6 +55,7 @@
           <object class="GtkLabel" id="label2">
             <property name="halign">start</property>
             <property name="valign">start</property>
+            <property name="margin-bottom">6</property>
             <property name="label" translatable="1">&lt;b&gt;Options&lt;/b&gt;</property>
             <property name="use_markup">1</property>
             <property name="xalign">0</property>
@@ -63,7 +63,6 @@
             <layout>
               <property name="column">0</property>
               <property name="row">0</property>
-              <property name="row-span">3</property>
             </layout>
           </object>
         </child>
@@ -77,39 +76,13 @@
       <object class="GtkGrid" id="revision_box">
         <property name="hexpand">1</property>
         <property name="column_spacing">6</property>
+        <property name="row_spacing">6</property>
         <child>
           <object class="GtkGrid" id="revision_container">
             <property name="hexpand">1</property>
-            <child>
-              <placeholder/>
-            </child>
-            <child>
-              <placeholder/>
-            </child>
-            <child>
-              <placeholder/>
-            </child>
-            <child>
-              <placeholder/>
-            </child>
-            <child>
-              <placeholder/>
-            </child>
-            <child>
-              <placeholder/>
-            </child>
-            <child>
-              <placeholder/>
-            </child>
-            <child>
-              <placeholder/>
-            </child>
-            <child>
-              <placeholder/>
-            </child>
             <layout>
-              <property name="column">1</property>
-              <property name="row">0</property>
+              <property name="column">0</property>
+              <property name="row">1</property>
             </layout>
           </object>
         </child>

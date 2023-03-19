@@ -3,7 +3,7 @@ from rabbitvcs import gettext
 import rabbitvcs.ui.dialog
 import rabbitvcs.ui.widget
 import rabbitvcs.ui.action
-from rabbitvcs.ui import InterfaceView
+from rabbitvcs.ui import InterfaceView, GtkTemplateHelper
 from gi.repository import Gtk, GObject, Gdk
 
 #
@@ -28,6 +28,7 @@ from gi.repository import Gtk, GObject, Gdk
 # along with RabbitVCS;  If not, see <http://www.gnu.org/licenses/>.
 #
 
+import os
 from rabbitvcs.util import helper
 
 import gi
@@ -40,7 +41,22 @@ sa.restore()
 _ = gettext.gettext
 
 
-class UpdateToRevision(InterfaceView):
+@Gtk.Template(filename=f"{os.path.dirname(os.path.abspath(__file__))}/xml/update.xml")
+class UpdateWidget(Gtk.Grid):
+    __gtype_name__ = "UpdateWidget"
+
+    options_box = Gtk.Template.Child()
+    revision_container = Gtk.Template.Child()
+    recursive = Gtk.Template.Child()
+    omit_externals = Gtk.Template.Child()
+    rollback = Gtk.Template.Child()
+    revision_label = Gtk.Template.Child()
+
+    def __init__(self):
+        Gtk.Grid.__init__(self)
+
+
+class UpdateToRevision(GtkTemplateHelper):
     """
     This class provides an interface to update a working copy to a specific
     revision.  It has a glade .
@@ -48,7 +64,16 @@ class UpdateToRevision(InterfaceView):
     """
 
     def __init__(self, path, revision=None):
-        InterfaceView.__init__(self, "update", "Update")
+        GtkTemplateHelper.__init__(self, "Update")
+
+        self.widget = UpdateWidget()
+        self.window = self.get_window(self.widget)
+        # add dialog buttons
+        self.ok = self.add_dialog_button("Ok", self.on_ok_clicked, suggested=True)
+        self.cancel = self.add_dialog_button("Cancel", self.on_cancel_clicked)
+        # set window properties
+        self.window.set_default_size(520, -1)
+
         self.path = path
         self.revision = revision
         self.vcs = rabbitvcs.vcs.VCS()
@@ -59,10 +84,10 @@ class SVNUpdateToRevision(UpdateToRevision):
         UpdateToRevision.__init__(self, path, revision)
 
         self.svn = self.vcs.svn()
-        self.get_widget("options_box").show()
+        self.widget.options_box.set_visible(True)
 
         self.revision_selector = rabbitvcs.ui.widget.RevisionSelector(
-            self.get_widget("revision_container"),
+            self.widget.revision_container,
             self.svn,
             revision=revision,
             url=self.path,
@@ -73,9 +98,9 @@ class SVNUpdateToRevision(UpdateToRevision):
     def on_ok_clicked(self, widget):
 
         revision = self.revision_selector.get_revision_object()
-        recursive = self.get_widget("recursive").get_active()
-        omit_externals = self.get_widget("omit_externals").get_active()
-        rollback = self.get_widget("rollback").get_active()
+        recursive = self.widget.recursive.get_active()
+        omit_externals = self.widget.omit_externals.get_active()
+        rollback = self.widget.rollback.get_active()
 
         self.action = rabbitvcs.ui.action.SVNAction(
             self.svn, register_gtk_quit=self.gtk_quit_is_set()
@@ -113,23 +138,23 @@ class SVNUpdateToRevision(UpdateToRevision):
             revision_selector.revision_kind_opt.get_active() == 1
             and revision_selector.revision_entry.get_text() != ""
         ):
-            self.get_widget("rollback").set_sensitive(True)
+            self.widget.rollback.set_sensitive(True)
         else:
-            self.get_widget("rollback").set_sensitive(False)
+            self.widget.rollback.set_sensitive(False)
 
 
 class GitUpdateToRevision(UpdateToRevision):
     def __init__(self, path, revision):
         UpdateToRevision.__init__(self, path, revision)
 
-        self.get_widget("revision_label").set_text(
+        self.widget.revision_label.set_text(
             _("What revision/branch do you want to checkout?")
         )
 
         self.git = self.vcs.git(path)
 
         self.revision_selector = rabbitvcs.ui.widget.RevisionSelector(
-            self.get_widget("revision_container"),
+            self.widget.revision_container,
             self.git,
             revision=revision,
             url=self.path,
@@ -140,8 +165,10 @@ class GitUpdateToRevision(UpdateToRevision):
     def on_ok_clicked(self, widget):
         revision = self.revision_selector.get_revision_object()
 
+        self.window.set_visible(False)
+
         self.action = rabbitvcs.ui.action.GitAction(
-            self.git, register_gtk_quit=self.gtk_quit_is_set()
+            self.git
         )
 
         self.action.append(self.action.set_header, _("Checkout"))
@@ -150,6 +177,8 @@ class GitUpdateToRevision(UpdateToRevision):
         self.action.append(self.action.set_status, _("Completed Checkout"))
         self.action.append(self.action.finish)
         self.action.schedule()
+
+        self.window.close()
 
     def on_revision_changed(self, revision_selector):
         pass
@@ -169,13 +198,16 @@ def updateto_factory(vcs, path, revision=None):
     return classes_map[vcs](path, revision)
 
 
-if __name__ == "__main__":
+def on_activate(app):
     from rabbitvcs.ui import main, REVISION_OPT, VCS_OPT
 
     (options, args) = main(
         [REVISION_OPT, VCS_OPT], usage="Usage: rabbitvcs updateto [path]"
     )
 
-    window = updateto_factory(options.vcs, args[0], revision=options.revision)
-    window.register_gtk_quit()
-    Gtk.main()
+    widget = updateto_factory(options.vcs, args[0], revision=options.revision)
+    app.add_window(widget.window)
+    widget.window.set_visible(True)
+
+if __name__ == "__main__":
+    GtkTemplateHelper.run_application(on_activate)
