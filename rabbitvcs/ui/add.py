@@ -8,7 +8,7 @@ import rabbitvcs.ui.action
 import rabbitvcs.ui.dialog
 import rabbitvcs.ui.widget
 from rabbitvcs.util.contextmenu import GtkFilesContextMenu, GtkContextMenuCaller
-from rabbitvcs.ui import InterfaceView
+from rabbitvcs.ui import InterfaceView, GtkTemplateHelper
 from gi.repository import Gtk, GObject, Gdk
 
 #
@@ -52,7 +52,19 @@ _ = gettext.gettext
 helper.gobject_threads_init()
 
 
-class Add(InterfaceView, GtkContextMenuCaller):
+@Gtk.Template(filename=f"{os.path.dirname(os.path.abspath(__file__))}/xml/add.xml")
+class AddWidget(Gtk.Box):
+    __gtype_name__ = "AddWidget"
+
+    select_all = Gtk.Template.Child()
+    show_ignored = Gtk.Template.Child()
+    files_table = Gtk.Template.Child()
+    status = Gtk.Template.Child()
+
+    def __init__(self):
+        Gtk.Box.__init__(self)
+
+class Add(GtkTemplateHelper, GtkContextMenuCaller):
     """
     Provides an interface for the user to add unversioned files to a
     repository.  Also, provides a context menu with some extra functionality.
@@ -64,7 +76,18 @@ class Add(InterfaceView, GtkContextMenuCaller):
     TOGGLE_ALL = True
 
     def __init__(self, paths, base_dir=None):
-        InterfaceView.__init__(self, "add", "Add")
+        GtkTemplateHelper.__init__(self, "Add")
+
+        self.widget = AddWidget()
+        self.window = self.get_window(self.widget)
+        # add dialog buttons
+        self.ok = self.add_dialog_button("Ok", self.on_ok_clicked, suggested=True)
+        self.cancel = self.add_dialog_button("Cancel", self.on_cancel_clicked)
+        # forward signals
+        self.widget.select_all.connect("toggled", self.on_select_all_toggled)
+        self.widget.show_ignored.connect("toggled", self.on_show_ignored_toggled)
+        # set window properties
+        self.window.set_default_size(450, 300)
 
         self.paths = paths
         self.base_dir = base_dir
@@ -76,7 +99,7 @@ class Add(InterfaceView, GtkContextMenuCaller):
         # TODO Remove this when there is svn support
         for path in paths:
             if rabbitvcs.vcs.guess(path)["vcs"] == rabbitvcs.vcs.VCS_SVN:
-                self.get_widget("show_ignored").set_sensitive(False)
+                self.widget.show_ignored.set_sensitive(False)
 
         columns = [
             [
@@ -88,10 +111,10 @@ class Add(InterfaceView, GtkContextMenuCaller):
             [rabbitvcs.ui.widget.TOGGLE_BUTTON, "", _("Path"), _("Extension")],
         ]
 
-        self.setup(self.get_widget("Add"), columns)
+        self.setup(self.window, columns)
 
         self.files_table = rabbitvcs.ui.widget.Table(
-            self.get_widget("files_table"),
+            self.widget.files_table,
             columns[0],
             columns[1],
             filters=[
@@ -117,7 +140,7 @@ class Add(InterfaceView, GtkContextMenuCaller):
     #
 
     def load(self):
-        status = self.get_widget("status")
+        status = self.widget.status
         helper.run_in_main_thread(status.set_text, _("Loading..."))
         self.items = self.vcs.get_items(self.paths, self.statuses)
 
@@ -216,10 +239,10 @@ class SVNAdd(Add):
             self.close()
             return
 
-        self.hide()
+        self.window.set_visible(False)
 
         self.action = rabbitvcs.ui.action.SVNAction(
-            self.svn, register_gtk_quit=self.gtk_quit_is_set()
+            self.svn
         )
         self.action.append(self.action.set_header, _("Add"))
         self.action.append(self.action.set_status, _("Running Add Command..."))
@@ -227,6 +250,8 @@ class SVNAdd(Add):
         self.action.append(self.action.set_status, _("Completed Add"))
         self.action.append(self.action.finish)
         self.action.schedule()
+
+        self.window.close()
 
 
 class GitAdd(Add):
@@ -241,10 +266,10 @@ class GitAdd(Add):
             self.close()
             return
 
-        self.hide()
+        self.window.set_visible(False)
 
         self.action = rabbitvcs.ui.action.GitAction(
-            self.git, register_gtk_quit=self.gtk_quit_is_set()
+            self.git
         )
         self.action.append(self.action.set_header, _("Add"))
         self.action.append(self.action.set_status, _("Running Add Command..."))
@@ -252,6 +277,8 @@ class GitAdd(Add):
         self.action.append(self.action.set_status, _("Completed Add"))
         self.action.append(self.action.finish)
         self.action.schedule()
+
+        self.window.close()
 
 
 classes_map = {rabbitvcs.vcs.VCS_SVN: SVNAdd, rabbitvcs.vcs.VCS_GIT: GitAdd}
@@ -272,7 +299,7 @@ class AddQuiet(object):
         self.action.schedule()
 
 
-if __name__ == "__main__":
+def on_activate(app):
     from rabbitvcs.ui import main, BASEDIR_OPT, QUIET_OPT
 
     (options, paths) = main(
@@ -283,6 +310,9 @@ if __name__ == "__main__":
         AddQuiet(paths)
     else:
         # Add(paths, options.base_dir)
-        window = add_factory(paths, options.base_dir)
-        window.register_gtk_quit()
-        Gtk.main()
+        widget = add_factory(paths, options.base_dir)
+        app.add_window(widget.window)
+        widget.window.set_visible(True)
+
+if __name__ == "__main__":
+    GtkTemplateHelper.run_application(on_activate)

@@ -1,168 +1,58 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Generated with glade 3.22.1 -->
 <interface>
-  <requires lib="gtk+" version="3.0"/>
-  <object class="GtkImage" id="rabbitvcs-cancel">
-    <property name="visible">True</property>
-    <property name="can_focus">False</property>
-    <property name="icon_name">rabbitvcs-cancel</property>
-  </object>
-  <object class="GtkImage" id="rabbitvcs-ok">
-    <property name="visible">True</property>
-    <property name="can_focus">False</property>
-    <property name="icon_name">rabbitvcs-ok</property>
-  </object>
-  <object class="GtkWindow" id="Add">
-    <property name="width_request">450</property>
-    <property name="visible">True</property>
-    <property name="can_focus">False</property>
-    <property name="title" translatable="yes">Add</property>
-    <property name="window_position">center</property>
-    <property name="default_width">400</property>
-    <property name="default_height">300</property>
-    <property name="icon_name">rabbitvcs-small</property>
-    <property name="gravity">center</property>
-    <signal name="destroy" handler="on_destroy" swapped="no"/>
-    <signal name="key-press-event" handler="on_key_pressed" swapped="no"/>
-    <child type="titlebar">
-      <placeholder/>
+  <requires lib="gtk" version="4.0"/>
+  <template class="AddWidget" parent="GtkBox">
+    <property name="margin-start">12</property>
+    <property name="margin-end">12</property>
+    <property name="margin_top">12</property>
+    <property name="margin_bottom">12</property>
+    <property name="orientation">vertical</property>
+    <property name="spacing">6</property>
+    <child>
+      <object class="GtkScrolledWindow" id="scrolledwindow1">
+        <property name="height_request">200</property>
+        <property name="focusable">1</property>
+        <property name="vexpand">1</property>
+        <property name="has-frame">1</property>
+        <property name="child">
+          <object class="GtkTreeView" id="files_table">
+            <property name="focusable">1</property>
+            <property name="vexpand">1</property>
+            <child internal-child="selection">
+              <object class="GtkTreeSelection"/>
+            </child>
+          </object>
+        </property>
+      </object>
+    </child>
+    <child>
+      <object class="GtkCheckButton" id="select_all">
+        <property name="label" translatable="1">Select / Deselect all</property>
+        <property name="focusable">1</property>
+        <property name="halign">start</property>
+        <property name="hexpand">1</property>
+        <property name="active">1</property>
+      </object>
+    </child>
+    <child>
+      <object class="GtkCheckButton" id="show_ignored">
+        <property name="label" translatable="1">Show ignored files</property>
+        <property name="focusable">1</property>
+        <property name="halign">start</property>
+        <property name="hexpand">1</property>
+      </object>
     </child>
     <child>
       <object class="GtkGrid">
-        <property name="visible">True</property>
-        <property name="can_focus">False</property>
-        <property name="margin_left">12</property>
-        <property name="margin_right">13</property>
-        <property name="margin_top">12</property>
-        <property name="margin_bottom">13</property>
-        <property name="orientation">vertical</property>
-        <property name="row_spacing">6</property>
+        <property name="valign">end</property>
+        <property name="hexpand">1</property>
         <child>
-          <object class="GtkGrid">
-            <property name="visible">True</property>
-            <property name="can_focus">False</property>
-            <property name="valign">end</property>
-            <property name="hexpand">True</property>
-            <child>
-              <object class="GtkButtonBox" id="hbuttonbox2">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="halign">end</property>
-                <property name="spacing">6</property>
-                <property name="layout_style">end</property>
-                <child>
-                  <object class="GtkButton" id="cancel">
-                    <property name="label" translatable="yes">_Cancel</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                    <property name="image">rabbitvcs-cancel</property>
-                    <property name="use_underline">True</property>
-                    <signal name="clicked" handler="on_cancel_clicked" swapped="no"/>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">False</property>
-                    <property name="position">0</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkButton" id="ok">
-                    <property name="label" translatable="yes">_OK</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                    <property name="image">rabbitvcs-ok</property>
-                    <property name="use_underline">True</property>
-                    <signal name="clicked" handler="on_ok_clicked" swapped="no"/>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">False</property>
-                    <property name="position">1</property>
-                  </packing>
-                </child>
-              </object>
-              <packing>
-                <property name="left_attach">1</property>
-                <property name="top_attach">0</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkLabel" id="status">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="hexpand">True</property>
-                <property name="xalign">0</property>
-              </object>
-              <packing>
-                <property name="left_attach">0</property>
-                <property name="top_attach">0</property>
-              </packing>
-            </child>
+          <object class="GtkLabel" id="status">
+            <property name="hexpand">1</property>
+            <property name="xalign">0</property>
           </object>
-          <packing>
-            <property name="left_attach">0</property>
-            <property name="top_attach">3</property>
-          </packing>
-        </child>
-        <child>
-          <object class="GtkCheckButton" id="show_ignored">
-            <property name="label" translatable="yes">Show ignored files</property>
-            <property name="visible">True</property>
-            <property name="can_focus">True</property>
-            <property name="receives_default">False</property>
-            <property name="halign">start</property>
-            <property name="hexpand">True</property>
-            <property name="draw_indicator">True</property>
-            <signal name="toggled" handler="on_show_ignored_toggled" swapped="no"/>
-          </object>
-          <packing>
-            <property name="left_attach">0</property>
-            <property name="top_attach">2</property>
-          </packing>
-        </child>
-        <child>
-          <object class="GtkCheckButton" id="select_all">
-            <property name="label" translatable="yes">Select / Deselect all</property>
-            <property name="visible">True</property>
-            <property name="can_focus">True</property>
-            <property name="receives_default">False</property>
-            <property name="halign">start</property>
-            <property name="hexpand">True</property>
-            <property name="active">True</property>
-            <property name="draw_indicator">True</property>
-            <signal name="toggled" handler="on_select_all_toggled" swapped="no"/>
-          </object>
-          <packing>
-            <property name="left_attach">0</property>
-            <property name="top_attach">1</property>
-          </packing>
-        </child>
-        <child>
-          <object class="GtkScrolledWindow" id="scrolledwindow1">
-            <property name="height_request">200</property>
-            <property name="visible">True</property>
-            <property name="can_focus">True</property>
-            <property name="vexpand">True</property>
-            <property name="shadow_type">etched-in</property>
-            <child>
-              <object class="GtkTreeView" id="files_table">
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="vexpand">True</property>
-                <child internal-child="selection">
-                  <object class="GtkTreeSelection"/>
-                </child>
-              </object>
-            </child>
-          </object>
-          <packing>
-            <property name="left_attach">0</property>
-            <property name="top_attach">0</property>
-          </packing>
         </child>
       </object>
     </child>
-  </object>
+  </template>
 </interface>
