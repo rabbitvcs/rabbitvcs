@@ -441,6 +441,7 @@ class TableBase(object):
         self.treeview.add_controller(gesture)
         keycontroller = Gtk.EventControllerKey()
         keycontroller.connect("key-pressed", self.__key_press_event)
+        keycontroller.connect("key-released", self.__key_release_event)
         self.treeview.add_controller(keycontroller)
         self.treeview.connect("select-cursor-row", self.__row_selected)
         # Necessary for self.selected_rows to remain sane
@@ -677,7 +678,11 @@ class TableBase(object):
     def __key_press_event(self, controller, keyval, keycode, state):
         self.update_selection()
         if "key-event" in self.callbacks:
-            self.callbacks["key-event"](keyval, keycode, state)
+            self.callbacks["key-event"](controller, keyval, keycode, state, True)
+
+    def __key_release_event(self, controller, keyval, keycode, state):
+        if "key-event" in self.callbacks:
+            self.callbacks["key-event"](controller, keyval, keycode, state, False)
 
     def __cursor_changed_event(self, treeview):
         self.update_selection()

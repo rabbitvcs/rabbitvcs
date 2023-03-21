@@ -267,8 +267,8 @@ class Commit(GtkTemplateHelper, GtkContextMenuCaller):
         proc = helper.launch_ui_window("diff", ["-s", pathrev1, pathrev2])
         self.rescan_after_process_exit(proc, paths)
 
-    def on_files_table_key_event(self, keyval, keycode, state):
-        if Gdk.keyval_name(keyval) == "Delete":
+    def on_files_table_key_event(self, controller, keyval, keycode, state, pressed):
+        if not pressed and Gdk.keyval_name(keyval) == "Delete":
             self.delete_items()
 
     def on_files_table_mouse_event(self, gesture, n_press, x, y, pressed):

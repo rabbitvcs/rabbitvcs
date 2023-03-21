@@ -268,8 +268,8 @@ class GitBranchManager(GtkTemplateHelper):
         self.load()
         self.show_edit(branch_name)
 
-    def on_treeview_key_event(self, keyval, keycode, state):
-        if Gdk.keyval_name(keyval) in ("Up", "Down", "Return"):
+    def on_treeview_key_event(self, controller, keyval, keycode, state, pressed):
+        if not pressed and Gdk.keyval_name(keyval) in ("Up", "Down", "Return"):
             self.on_treeview_event()
 
     def on_treeview_mouse_event(self, gesture, n_press, x, y, pressed):
