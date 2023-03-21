@@ -435,6 +435,7 @@ class TableBase(object):
         self.treeview.connect("cursor-changed", self.__cursor_changed_event)
         self.treeview.connect("row-activated", self.__row_activated_event)
         gesture = Gtk.GestureClick()
+        gesture.set_button(0)
         gesture.connect("pressed", self.__button_press_event)
         gesture.connect("released", self.__button_release_event)
         self.treeview.add_controller(gesture)
@@ -644,9 +645,8 @@ class TableBase(object):
             # If the mouse click is one of the currently selected rows
             # keep the selection, otherwise, use the new selection
             result = any(index == info[0] for index in indexes)
-        # TODO adapt mouse-events
-        # if "mouse-event" in self.callbacks:
-        #     result = self.callbacks["mouse-event"](self.treeview, event, *args) or result
+        if "mouse-event" in self.callbacks:
+            result = self.callbacks["mouse-event"](gesture, n_press, x, y, True) or result
         return result
 
     def __row_activated_event(self, treeview, data, col):
@@ -676,9 +676,8 @@ class TableBase(object):
 
     def __key_press_event(self, controller, keyval, keycode, state):
         self.update_selection()
-        # TODO adapt key-events
-        # if "key-event" in self.callbacks:
-        #     self.callbacks["key-event"](treeview, event, *args)
+        if "key-event" in self.callbacks:
+            self.callbacks["key-event"](keyval, keycode, state)
 
     def __cursor_changed_event(self, treeview):
         self.update_selection()
@@ -687,9 +686,8 @@ class TableBase(object):
 
     def __button_release_event(self, gesture, n_press, x, y):
         self.update_selection()
-        # TODO adapt mouse-events
-        # if "mouse-event" in self.callbacks:
-        #     return self.callbacks["mouse-event"](treeview, event, *args)
+        if "mouse-event" in self.callbacks:
+            return self.callbacks["mouse-event"](gesture, n_press, x, y, False)
 
     def __cell_edited(self, cell, row, data, column):
         self.update_selection()
