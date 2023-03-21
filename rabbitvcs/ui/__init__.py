@@ -115,6 +115,10 @@ class GtkTemplateHelper(object):
             box.append(widget)
             window.set_child(box)
 
+        keycontroller = Gtk.EventControllerKey()
+        keycontroller.connect("key-pressed", self.on_key_pressed)
+        window.add_controller(keycontroller)
+
         window.set_title(self.gtktemplate_id)
         window.set_icon_name("rabbitvcs-small")
 
@@ -220,6 +224,35 @@ class GtkTemplateHelper(object):
     def on_close_clicked(self, widget):
         if self.window:
             self.window.close()
+
+    def on_key_pressed(self, controller, keyval, keycode, state):
+        widget = controller.get_widget()
+
+        if keyval == Gdk.keyval_from_name("Escape"):
+            self.on_cancel_clicked(widget)
+            return True
+
+        if (
+            controller.get_current_event_state() & Gdk.ModifierType.CONTROL_MASK
+            and Gdk.keyval_name(keyval).lower() == "w"
+        ):
+            self.on_cancel_clicked(widget)
+            return True
+
+        if (
+            controller.get_current_event_state() & Gdk.ModifierType.CONTROL_MASK
+            and Gdk.keyval_name(keyval).lower() == "q"
+        ):
+            self.on_cancel_clicked(widget)
+            return True
+
+        if (
+            controller.get_current_event_state() & Gdk.ModifierType.CONTROL_MASK
+            and Gdk.keyval_name(keyval).lower() == "r"
+        ):
+            self.on_refresh_clicked(widget)
+            return True
+
 
 class GtkBuilderWidgetWrapper(object):
     def __init__(self, gtkbuilder_filename=None, gtkbuilder_id=None, claim_domain=True):
