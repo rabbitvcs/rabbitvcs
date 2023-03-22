@@ -18,7 +18,7 @@ import math
 import gi
 
 gi.require_version("Gtk", "4.0")
-from gi.repository import Gtk, GObject, Pango
+from gi.repository import Gtk, GObject, Pango, Graphene
 
 import cairo
 
@@ -113,7 +113,7 @@ class CellRendererGraph(Gtk.CellRenderer):
         # FIXME I have no idea how to use cell_area properly
         return (0, 0, width, height)
 
-    def do_render(self, ctx, widget, bg_area, cell_area, flags):
+    def do_snapshot(self, snapshot, widget, bg_area, cell_area, flags):
         """Render an individual cell.
 
         Draws the cell contents using cairo, taking care to clip what we
@@ -129,6 +129,9 @@ class CellRendererGraph(Gtk.CellRenderer):
 
         """
 
+        r = Graphene.Rect()
+        r.init(bg_area.x, bg_area.y, bg_area.width, bg_area.height)
+        ctx = snapshot.append_cairo(r)
         ctx.rectangle(bg_area.x, bg_area.y, bg_area.width, bg_area.height)
         ctx.clip()
 

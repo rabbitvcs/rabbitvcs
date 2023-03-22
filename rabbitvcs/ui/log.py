@@ -118,6 +118,7 @@ class LogWidget(Gtk.Grid):
     search_buffer = Gtk.Template.Child()
     start = Gtk.Template.Child()
     end = Gtk.Template.Child()
+    refresh = Gtk.Template.Child()
     previous = Gtk.Template.Child()
     next = Gtk.Template.Child()
 
@@ -148,6 +149,16 @@ class Log(GtkTemplateHelper):
 
         self.widget = LogWidget()
         self.window = self.get_window(self.widget)
+        # add dialog buttons
+        self.cancel = self.add_dialog_button("Close", self.on_cancel_clicked, True)
+        # forward signals
+        self.widget.refresh.connect("clicked", self.on_refresh_clicked)
+        self.widget.previous.connect("clicked", self.on_previous_clicked)
+        self.widget.next.connect("clicked", self.on_next_clicked)
+        self.widget.stop_on_copy.connect("toggled", self.on_stop_on_copy_toggled)
+        self.widget.search_buffer.connect("changed", self.on_search)
+        # set window properties
+        self.window.set_default_size(860, 640)
 
         self.window.set_title(_("Log - %s") % path)
         self.vcs = rabbitvcs.vcs.VCS()
@@ -174,11 +185,8 @@ class Log(GtkTemplateHelper):
         self.stop_on_copy = False
         self.revision_clipboard = self.widget.get_clipboard()
 
-        style = self.widget.revisions_table.get_style_context()
-        textcolor = style.get_color()
+        textcolor = self.widget.revisions_table.get_color()
         self.orgTextColor = textcolor.to_string()
-
-        self.window.set_visible(True)
 
     #
     # UI Signal Callback Methods
@@ -195,11 +203,11 @@ class Log(GtkTemplateHelper):
 
         self.close()
 
-    def on_key_pressed(self, widget, event, *args):
-        # InterfaceView.on_key_pressed(self, widget, event)
+    def on_key_pressed(self, controller, keyval, keycode, state):
+        GtkTemplateHelper.on_key_pressed(self, controller, keyval, keycode, state)
         if (
-            event.state & Gdk.ModifierType.CONTROL_MASK
-            and Gdk.keyval_name(event.keyval).lower() == "c"
+            controller.get_current_event_state() & Gdk.ModifierType.CONTROL_MASK
+            and Gdk.keyval_name(keyval).lower() == "c"
         ):
             if len(self.revisions_table.get_selected_rows()) > 0:
                 self.copy_revision_text()
@@ -246,14 +254,15 @@ class Log(GtkTemplateHelper):
         self.message.set_text("")
         self.update_revision_message()
 
-    def on_revisions_table_mouse_event(self, treeview, event, *args):
+    def on_revisions_table_mouse_event(self, gesture, n_press, x, y, pressed):
         if len(self.revisions_table.get_selected_rows()) == 0:
             self.message.set_text("")
             self.paths_table.clear()
             return
 
-        if event.button == 3 and event.type == Gdk.EventType.BUTTON_RELEASE:
-            self.show_revisions_table_popup_menu(treeview, event)
+        if gesture.get_current_button() == 3 and not pressed:
+            # self.show_revisions_table_popup_menu(treeview, event) todo
+            pass
 
         # Let the rest be handled by the on_revisions_table_cursor changed event
 
@@ -279,9 +288,10 @@ class Log(GtkTemplateHelper):
         except IndexError:
             pass
 
-    def on_paths_table_mouse_event(self, treeview, event, *args):
-        if event.button == 3 and event.type == Gdk.EventType.BUTTON_RELEASE:
-            self.show_paths_table_popup_menu(treeview, event)
+    def on_paths_table_mouse_event(self, gesture, n_press, x, y, pressed):
+        if gesture.get_current_button() == 3 and not pressed:
+            # self.show_paths_table_popup_menu(treeview, event) todo
+            pass
 
     def show_paths_table_popup_menu(self, treeview, event):
         revisions = []
@@ -420,7 +430,7 @@ class SVNLog(Log):
         self.merge_candidate_revisions = merge_candidate_revisions
 
         self.revisions_table = rabbitvcs.ui.widget.Table(
-            self.revisions_table,
+            self.widget.revisions_table,
             [
                 GObject.TYPE_STRING,
                 GObject.TYPE_STRING,
@@ -703,7 +713,7 @@ class GitLog(Log):
         Log.__init__(self, path)
 
         self.git = self.vcs.git(path)
-        self.limit = 500
+        self.limit = int(self.widget.limit.get_text())
 
         self.widget.stop_on_copy.set_visible(False)
 
@@ -824,6 +834,8 @@ class GitLog(Log):
             graph_width = 21 * max_columns
             if graph_width < 55:
                 graph_width = 55
+            if graph_width > 135:
+                graph_width = 135
 
             graph_column = self.revisions_table.get_column(0)
             graph_column.set_fixed_width(graph_width)
@@ -1813,6 +1825,7 @@ def on_activate(app):
 
     widget = log_factory(paths[0], vcs=options.vcs)
     app.add_window(widget.window)
+    widget.window.set_visible(True)
 
 if __name__ == "__main__":
     GtkTemplateHelper.run_application(on_activate)

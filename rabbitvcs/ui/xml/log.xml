@@ -2,7 +2,6 @@
 <interface>
   <requires lib="gtk" version="4.0"/>
   <object class="GtkTextBuffer" id="search_buffer">
-    <signal name="changed" handler="on_search" swapped="no"/>
   </object>
   <template class="LogWidget" parent="GtkGrid">
     <property name="margin-start">12</property>
@@ -13,117 +12,75 @@
     <property name="row_spacing">18</property>
     <child>
       <object class="GtkGrid">
+        <property name="column_spacing">6</property>
         <child>
-          <object class="GtkButton" id="close">
-            <property name="label" translatable="1">_Close</property>
+          <object class="GtkButton" id="refresh">
             <property name="focusable">1</property>
             <property name="receives_default">1</property>
-            <property name="halign">end</property>
-            <property name="hexpand">1</property>
-            <property name="use_underline">1</property>
-            <signal name="clicked" handler="on_close_clicked" swapped="no"/>
+            <property name="tooltip_text" translatable="1">Refresh</property>
             <child>
-              <object class="GtkImage">
-                <property name="icon_name">window-close</property>
+              <object class="GtkImage" id="image1">
+                <property name="icon_name">view-refresh</property>
               </object>
             </child>
             <layout>
-              <property name="column">1</property>
+              <property name="column">4</property>
               <property name="row">0</property>
             </layout>
           </object>
         </child>
         <child>
-          <object class="GtkGrid">
+          <object class="GtkEntry" id="limit">
+            <property name="width_request">75</property>
+            <property name="focusable">1</property>
+            <property name="text" translatable="1">100</property>
+            <layout>
+              <property name="column">3</property>
+              <property name="row">0</property>
+            </layout>
+          </object>
+        </child>
+        <child>
+          <object class="GtkLabel" id="label5">
+            <property name="label" translatable="1">Limit:</property>
+            <layout>
+              <property name="column">2</property>
+              <property name="row">0</property>
+            </layout>
+          </object>
+        </child>
+        <child>
+          <object class="GtkButton" id="previous">
+            <property name="label" translatable="1">_Back</property>
+            <property name="sensitive">0</property>
+            <property name="focusable">1</property>
+            <property name="receives_default">1</property>
+            <property name="use_underline">1</property>
             <child>
-              <object class="GtkGrid">
-                <child>
-                  <object class="GtkButton" id="refresh">
-                    <property name="focusable">1</property>
-                    <property name="receives_default">1</property>
-                    <property name="tooltip_text" translatable="1">Refresh</property>
-                    <signal name="clicked" handler="on_refresh_clicked" swapped="no"/>
-                    <child>
-                      <object class="GtkImage" id="image1">
-                        <property name="icon_name">view-refresh</property>
-                      </object>
-                    </child>
-                    <!-- <accelerator key="r" signal="clicked" modifiers="GDK_MOD1_MASK"/> -->
-                    <layout>
-                      <property name="column">2</property>
-                      <property name="row">0</property>
-                    </layout>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkEntry" id="limit">
-                    <property name="width_request">75</property>
-                    <property name="focusable">1</property>
-                    <property name="text" translatable="1">100</property>
-                    <layout>
-                      <property name="column">1</property>
-                      <property name="row">0</property>
-                    </layout>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkLabel" id="label5">
-                    <property name="label" translatable="1">Limit:</property>
-                    <layout>
-                      <property name="column">0</property>
-                      <property name="row">0</property>
-                    </layout>
-                  </object>
-                </child>
-                <layout>
-                  <property name="column">1</property>
-                  <property name="row">0</property>
-                </layout>
-              </object>
-            </child>
-            <child>
-              <object class="GtkBox" id="hbuttonbox1">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="spacing">6</property>
-                <child>
-                  <object class="GtkButton" id="previous">
-                    <property name="label" translatable="1">_Back</property>
-                    <property name="sensitive">0</property>
-                    <property name="focusable">1</property>
-                    <property name="receives_default">1</property>
-                    <property name="use_underline">1</property>
-                    <signal name="clicked" handler="on_previous_clicked" swapped="no"/>
-                    <child>
-                      <object class="GtkImage">
-                        <property name="icon_name">go-previous</property>
-                      </object>
-                    </child>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkButton" id="next">
-                    <property name="label" translatable="1">_Forward</property>
-                    <property name="sensitive">0</property>
-                    <property name="focusable">1</property>
-                    <property name="receives_default">1</property>
-                    <property name="use_underline">1</property>
-                    <signal name="clicked" handler="on_next_clicked" swapped="no"/>
-                    <child>
-                      <object class="GtkImage">
-                        <property name="icon_name">go-next</property>
-                      </object>
-                    </child>
-                  </object>
-                </child>
-                <layout>
-                  <property name="column">0</property>
-                  <property name="row">0</property>
-                </layout>
+              <object class="GtkImage">
+                <property name="icon_name">go-previous</property>
               </object>
             </child>
             <layout>
               <property name="column">0</property>
+              <property name="row">0</property>
+            </layout>
+          </object>
+        </child>
+        <child>
+          <object class="GtkButton" id="next">
+            <property name="label" translatable="1">_Forward</property>
+            <property name="sensitive">0</property>
+            <property name="focusable">1</property>
+            <property name="receives_default">1</property>
+            <property name="use_underline">1</property>
+            <child>
+              <object class="GtkImage">
+                <property name="icon_name">go-next</property>
+              </object>
+            </child>
+            <layout>
+              <property name="column">1</property>
               <property name="row">0</property>
             </layout>
           </object>
@@ -233,7 +190,6 @@
                   <object class="GtkCheckButton" id="stop_on_copy">
                     <property name="label" translatable="1">Stop on copy</property>
                     <property name="focusable">1</property>
-                    <signal name="toggled" handler="on_stop_on_copy_toggled" swapped="no"/>
                     <layout>
                       <property name="column">2</property>
                       <property name="row">0</property>
