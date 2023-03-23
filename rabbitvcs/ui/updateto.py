@@ -69,8 +69,8 @@ class UpdateToRevision(GtkTemplateHelper):
         self.widget = UpdateWidget()
         self.window = self.get_window(self.widget)
         # add dialog buttons
-        self.ok = self.add_dialog_button("Ok", self.on_ok_clicked, suggested=True)
-        self.cancel = self.add_dialog_button("Cancel", self.on_cancel_clicked)
+        self.ok = self.add_dialog_button("Update", self.on_ok_clicked, suggested=True)
+        self.cancel = self.add_dialog_button("Cancel", self.on_cancel_clicked, hideOnAdwaita=True)
         # set window properties
         self.window.set_default_size(520, -1)
 

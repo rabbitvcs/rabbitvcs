@@ -92,6 +92,7 @@ class GtkTemplateHelper(object):
     header = None
     toast_overlay = None
     button_box = None
+    suggested_button = None
 
     def __init__(self, gtktemplate_id = None):
         if gtktemplate_id:
@@ -124,15 +125,26 @@ class GtkTemplateHelper(object):
 
         return window
 
-    def add_dialog_button(self, text, callback, suggested = False):
+    def update_dialog_title(self, title):
+        old_title = self.suggested_button.get_label()
+        if not adwaita_available or old_title != title:
+            self.window.set_title(title)
+
+    def add_dialog_button(self, text, callback, suggested = False, hideOnAdwaita = False):
         button = Gtk.Button()
         button.set_label(text)
         button.connect("clicked", callback)
         if suggested:
+            self.suggested_button = button
             button.add_css_class("suggested-action")
 
         if adwaita_available:
             self.header.pack_start(button)
+            # hide title if suggested button has the same text
+            if suggested and text == self.window.get_title():
+                self.window.set_title("")
+            if hideOnAdwaita:
+                button.set_visible(False)
         else:
             if self.button_box == None:
                 self.button_box = Gtk.Box()

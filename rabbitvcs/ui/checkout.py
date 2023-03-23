@@ -75,8 +75,8 @@ class Checkout(GtkTemplateHelper):
         self.widget = CheckoutWidget()
         self.window = self.get_window(self.widget)
         # add dialog buttons
-        self.ok = self.add_dialog_button("Ok", self.on_ok_clicked, suggested=True)
-        self.cancel = self.add_dialog_button("Cancel", self.on_cancel_clicked)
+        self.ok = self.add_dialog_button("Checkout", self.on_ok_clicked, suggested=True)
+        self.cancel = self.add_dialog_button("Cancel", self.on_cancel_clicked, hideOnAdwaita=True)
         # forward signals
         self.widget.destination.connect("changed", self.on_destination_changed)
         self.widget.file_chooser.connect("clicked", self.on_file_chooser_clicked)
@@ -246,7 +246,8 @@ class SVNCheckout(Checkout):
 class GitCheckout(GitUpdateToRevision):
     def __init__(self, path, url, revision):
         GitUpdateToRevision.__init__(self, path, revision)
-        self.window.set_title(_("Checkout"))
+        self.ok.set_label(_("Checkout"))
+        self.update_dialog_title(_("Checkout"))
         self.widget.revision_label.set_text(path)
         self.widget.options_box.hide()
 

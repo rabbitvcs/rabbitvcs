@@ -80,7 +80,7 @@ class GitBranchManager(GtkTemplateHelper):
         self.widget = ManagerWidget()
         self.window = self.get_window(self.widget)
         # add dialog buttons
-        self.ok = self.add_dialog_button("Close", self.on_close_clicked, suggested=True)
+        self.ok = self.add_dialog_button("Close", self.on_close_clicked, suggested=True, hideOnAdwaita=True)
         # forward signals
         self.widget.delete.connect("clicked", self.on_delete_clicked)
         self.widget.add.connect("clicked", self.on_add_clicked)

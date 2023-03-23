@@ -79,8 +79,8 @@ class Revert(GtkTemplateHelper, GtkContextMenuCaller):
         self.widget = RevertWidget()
         self.window = self.get_window(self.widget)
         # add dialog buttons
-        self.ok = self.add_dialog_button("Ok", self.on_ok_clicked, suggested=True)
-        self.cancel = self.add_dialog_button("Cancel", self.on_cancel_clicked)
+        self.ok = self.add_dialog_button("Revert", self.on_ok_clicked, suggested=True)
+        self.cancel = self.add_dialog_button("Cancel", self.on_cancel_clicked, hideOnAdwaita=True)
         # forward signals
         self.widget.select_all.connect("toggled", self.on_select_all_toggled)
         # set window properties

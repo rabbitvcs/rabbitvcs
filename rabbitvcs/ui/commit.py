@@ -101,8 +101,8 @@ class Commit(GtkTemplateHelper, GtkContextMenuCaller):
         self.widget = CommitWidget()
         self.window = self.get_window(self.widget)
         # add dialog buttons
-        self.ok = self.add_dialog_button("Ok", self.on_ok_clicked, suggested=True)
-        self.cancel = self.add_dialog_button("Cancel", self.on_cancel_clicked)
+        self.ok = self.add_dialog_button("Commit", self.on_ok_clicked, suggested=True)
+        self.cancel = self.add_dialog_button("Cancel", self.on_cancel_clicked, hideOnAdwaita=True)
         # forward signals
         self.widget.previous_messages.connect("clicked", self.on_previous_messages_clicked)
         self.widget.toggle_show_unversioned.connect("toggled", self.on_toggle_show_unversioned_toggled)

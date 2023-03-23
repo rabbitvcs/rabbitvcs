@@ -120,8 +120,8 @@ class Settings(GtkTemplateHelper):
         self.window = self.get_window(self.widget)
         self.window.set_default_size(550, 425)
         # add dialog buttons
-        self.ok = self.add_dialog_button("Ok", self.on_ok_clicked, suggested=True)
-        self.cancel = self.add_dialog_button("Cancel", self.on_cancel_clicked)
+        self.ok = self.add_dialog_button("Save", self.on_ok_clicked, suggested=True)
+        self.cancel = self.add_dialog_button("Cancel", self.on_cancel_clicked, hideOnAdwaita=True)
         # forward signals
         self.widget.diff_tool_browse.connect("clicked", self.on_external_diff_tool_browse_clicked)
         self.widget.cache_clear_repositories.connect("clicked", self.on_cache_clear_repositories_clicked)

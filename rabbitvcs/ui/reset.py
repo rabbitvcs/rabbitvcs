@@ -73,8 +73,8 @@ class GitReset(GtkTemplateHelper):
         self.widget = ResetWidget()
         self.window = self.get_window(self.widget)
         # add dialog buttons
-        self.ok = self.add_dialog_button("Ok", self.on_ok_clicked, suggested=True)
-        self.cancel = self.add_dialog_button("Cancel", self.on_cancel_clicked)
+        self.ok = self.add_dialog_button("Reset", self.on_ok_clicked, suggested=True)
+        self.cancel = self.add_dialog_button("Cancel", self.on_cancel_clicked, hideOnAdwaita=True)
         # forward signals
         self.widget.path.connect("changed", self.on_path_changed)
         self.widget.browse.connect("clicked", self.on_browse_clicked)

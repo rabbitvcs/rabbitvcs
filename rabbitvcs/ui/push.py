@@ -71,8 +71,8 @@ class GitPush(GtkTemplateHelper):
         self.window = self.get_window(self.widget)
         self.window.set_default_size(640, 520)
         # add dialog buttons
-        self.ok = self.add_dialog_button("Ok", self.on_ok_clicked, suggested=True)
-        self.cancel = self.add_dialog_button("Cancel", self.on_cancel_clicked)
+        self.ok = self.add_dialog_button("Push", self.on_ok_clicked, suggested=True)
+        self.cancel = self.add_dialog_button("Cancel", self.on_cancel_clicked, hideOnAdwaita=True)
 
         self.path = path
 

@@ -150,7 +150,7 @@ class Log(GtkTemplateHelper):
         self.widget = LogWidget()
         self.window = self.get_window(self.widget)
         # add dialog buttons
-        self.cancel = self.add_dialog_button("Close", self.on_cancel_clicked, True)
+        self.cancel = self.add_dialog_button("Close", self.on_cancel_clicked, suggested=True, hideOnAdwaita=True)
         # forward signals
         self.widget.refresh.connect("clicked", self.on_refresh_clicked)
         self.widget.previous.connect("clicked", self.on_previous_clicked)

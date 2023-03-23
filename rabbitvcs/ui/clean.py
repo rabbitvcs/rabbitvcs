@@ -70,8 +70,8 @@ class GitClean(GtkTemplateHelper):
         self.widget = CleanWidget()
         self.window = self.get_window(self.widget)
         # add dialog buttons
-        self.ok = self.add_dialog_button("Ok", self.on_ok_clicked, suggested=True)
-        self.cancel = self.add_dialog_button("Cancel", self.on_cancel_clicked)
+        self.ok = self.add_dialog_button("Clean", self.on_ok_clicked, suggested=True)
+        self.cancel = self.add_dialog_button("Cancel", self.on_cancel_clicked, hideOnAdwaita=True)
         # forward signals
         self.widget.remove_ignored_too.connect("toggled", self.on_remove_ignored_too_toggled)
         self.widget.remove_only_ignored.connect("toggled", self.on_remove_only_ignored_toggled)
