@@ -6,7 +6,7 @@ import rabbitvcs.ui.widget
 import rabbitvcs.vcs
 from rabbitvcs.ui.action import SVNAction
 from rabbitvcs.ui.log import SVNLogDialog
-from rabbitvcs.ui import InterfaceView
+from rabbitvcs.ui import InterfaceView, GtkTemplateHelper
 from gi.repository import Gtk, GObject, Gdk
 
 #
@@ -31,6 +31,7 @@ from gi.repository import Gtk, GObject, Gdk
 # along with RabbitVCS;  If not, see <http://www.gnu.org/licenses/>.
 #
 
+import os
 from rabbitvcs.util import helper
 
 import gi
@@ -43,7 +44,7 @@ sa.restore()
 _ = gettext.gettext
 
 
-class SVNMerge(InterfaceView):
+class SVNMerge(GtkTemplateHelper):
     def __init__(self, path, revision_range=None):
         InterfaceView.__init__(self, "merge", "Merge")
 
@@ -431,9 +432,26 @@ class SVNMerge(InterfaceView):
         self.assistant.set_page_complete(self.page, True)
 
 
-class BranchMerge(InterfaceView):
+@Gtk.Template(filename=f"{os.path.dirname(os.path.abspath(__file__))}/xml/branch-merge.xml")
+class BranchMergeWidget(Gtk.Grid):
+    __gtype_name__ = "BranchMergeWidget"
+
+    from_branch_container = Gtk.Template.Child()
+    to_branch = Gtk.Template.Child()
+    from_branch_info = Gtk.Template.Child()
+
+    def __init__(self):
+        Gtk.Grid.__init__(self)
+
+class GitMerge(GtkTemplateHelper):
     def __init__(self, path, branch=None):
-        InterfaceView.__init__(self, "branch-merge", "Merge")
+        GtkTemplateHelper.__init__(self, "Merge")
+
+        self.widget = BranchMergeWidget()
+        self.window = self.get_window(self.widget)
+        # add dialog buttons
+        self.ok = self.add_dialog_button("Merge", self.on_ok_clicked, suggested=True)
+        self.cancel = self.add_dialog_button("Cancel", self.on_cancel_clicked, hideOnAdwaita=True)
 
         self.path = path
         self.branch = branch
@@ -441,20 +459,12 @@ class BranchMerge(InterfaceView):
 
         sm = rabbitvcs.util.settings.SettingsManager()
         self.datetime_format = sm.get("general", "datetime_format")
-
-    def on_cancel_clicked(self, widget, data=None):
-        self.close()
-
-
-class GitMerge(BranchMerge):
-    def __init__(self, path, branch=None):
-        BranchMerge.__init__(self, path, branch)
         self.git = self.vcs.git(path)
 
         self.init_branch_widgets()
 
         self.from_branches = rabbitvcs.ui.widget.RevisionSelector(
-            self.get_widget("from_branch_container"),
+            self.widget.from_branch_container,
             self.git,
             revision=self.branch,
             url=path,
@@ -466,7 +476,7 @@ class GitMerge(BranchMerge):
 
         self.active_branch = self.git.get_active_branch()
         if self.active_branch:
-            self.get_widget("to_branch").set_text(
+            self.widget.to_branch.set_text(
                 S(
                     self.active_branch.name
                     + " ("
@@ -475,7 +485,7 @@ class GitMerge(BranchMerge):
                 ).display()
             )
         else:
-            self.get_widget("to_branch").set_text(_("No active branch"))
+            self.widget.to_branch.set_text(_("No active branch"))
 
     def init_branch_widgets(self):
 
@@ -483,7 +493,7 @@ class GitMerge(BranchMerge):
 
         # FROM BRANCH INFO #
         from_container = rabbitvcs.ui.widget.Box(
-            self.get_widget("from_branch_info"), vertical=True
+            self.widget.from_branch_info, vertical=True
         )
 
         # Set up the Author line
@@ -492,7 +502,7 @@ class GitMerge(BranchMerge):
         author.set_properties(xalign=0, yalign=0)
         self.info["from"]["author"] = Gtk.Label(label="")
         self.info["from"]["author"].set_properties(xalign=0, yalign=0, selectable=True)
-        self.info["from"]["author"].set_line_wrap(True)
+        self.info["from"]["author"].set_wrap(True)
         author_container = rabbitvcs.ui.widget.Box()
         author_container.pack_start(author, False, False, 0)
         author_container.pack_start(self.info["from"]["author"], False, False, 0)
@@ -515,7 +525,7 @@ class GitMerge(BranchMerge):
         revision.set_properties(xalign=0, yalign=0)
         self.info["from"]["revision"] = Gtk.Label(label="")
         self.info["from"]["revision"].set_properties(xalign=0, selectable=True)
-        self.info["from"]["revision"].set_line_wrap(True)
+        self.info["from"]["revision"].set_wrap(True)
         revision_container = rabbitvcs.ui.widget.Box()
         revision_container.pack_start(revision, False, False, 0)
         revision_container.pack_start(self.info["from"]["revision"], False, False, 0)
@@ -527,14 +537,12 @@ class GitMerge(BranchMerge):
         message.set_properties(xalign=0, yalign=0)
         self.info["from"]["message"] = Gtk.Label(label="")
         self.info["from"]["message"].set_properties(xalign=0, yalign=0, selectable=True)
-        self.info["from"]["message"].set_line_wrap(True)
+        self.info["from"]["message"].set_wrap(True)
         self.info["from"]["message"].set_size_request(250, -1)
         message_container = rabbitvcs.ui.widget.Box()
         message_container.pack_start(message, False, False, 0)
         message_container.pack_start(self.info["from"]["message"], False, False, 0)
         from_container.pack_start(message_container, False, False, 0)
-
-        from_container.show_all()
 
     def update_branch_info(self):
         from_branch = self.from_branches.get_revision_object()
@@ -564,12 +572,12 @@ class GitMerge(BranchMerge):
         self.update_branch_info()
 
     def on_ok_clicked(self, widget, data=None):
-        self.hide()
+        self.window.hide()
 
         from_branch = self.from_branches.get_revision_object()
 
         self.action = rabbitvcs.ui.action.GitAction(
-            self.git, register_gtk_quit=self.gtk_quit_is_set()
+            self.git
         )
 
         self.action.append(self.action.set_header, _("Merge"))
@@ -580,11 +588,13 @@ class GitMerge(BranchMerge):
         self.action.append(self.action.finish)
         self.action.schedule()
 
+        self.window.close()
+
     def __revision_changed(self, widget):
         self.update_branch_info()
 
 
-if __name__ == "__main__":
+def on_activate(app):
     from rabbitvcs.ui import main, VCS_OPT
 
     (options, args) = main(
@@ -597,16 +607,18 @@ if __name__ == "__main__":
     if not vcs_name:
         vcs_name = rabbitvcs.vcs.guess(path)["vcs"]
 
-    window = None
+    widget = None
     revision_text = None
     if len(args) >= 2:
         revision_text = args[1]
 
     if vcs_name == rabbitvcs.vcs.VCS_SVN:
-        window = SVNMerge(path, revision_text)
-        window.register_gtk_quit()
-        Gtk.main()
+        widget = SVNMerge(path, revision_text)
     elif vcs_name == rabbitvcs.vcs.VCS_GIT:
-        window = GitMerge(path, revision_text)
-        window.register_gtk_quit()
-        Gtk.main()
+        widget = GitMerge(path, revision_text)
+
+    app.add_window(widget.window)
+    widget.window.set_visible(True)
+
+if __name__ == "__main__":
+    GtkTemplateHelper.run_application(on_activate)
