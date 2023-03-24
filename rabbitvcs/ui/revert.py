@@ -157,13 +157,14 @@ class Revert(GtkTemplateHelper, GtkContextMenuCaller):
         paths = self.files_table.get_selected_row_items(1)
         helper.launch_diff_tool(*paths)
 
-    def on_files_table_key_event(self, treeview, event, *args):
-        if Gdk.keyval_name(event.keyval) == "Delete":
-            self.delete_items(treeview, event)
+    def on_files_table_key_event(self, controller, keyval, keycode, state, pressed):
+        if Gdk.keyval_name(keyval) == "Delete":
+            self.delete_items()
 
-    def on_files_table_mouse_event(self, treeview, event, *args):
-        if event.button == 3 and event.type == Gdk.EventType.BUTTON_RELEASE:
-            self.show_files_table_popup_menu(treeview, event)
+    def on_files_table_mouse_event(self, gesture, n_press, x, y, pressed):
+        if gesture.get_current_button() == 3 and type == Gdk.EventType.BUTTON_RELEASE:
+            # self.show_files_table_popup_menu(treeview, event) todo
+            pass
 
     def show_files_table_popup_menu(self, treeview, event):
         paths = self.files_table.get_selected_row_items(1)
