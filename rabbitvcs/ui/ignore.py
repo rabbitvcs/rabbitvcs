@@ -2,7 +2,7 @@ from __future__ import absolute_import
 from rabbitvcs import gettext
 import rabbitvcs.vcs
 from rabbitvcs.ui.action import SVNAction, GitAction
-from rabbitvcs.ui import InterfaceNonView, InterfaceView
+from rabbitvcs.ui import GtkTemplateHelper, InterfaceView
 from gi.repository import Gtk, GObject, Gdk
 
 #
@@ -42,7 +42,7 @@ sa.restore()
 _ = gettext.gettext
 
 
-class SVNIgnore(InterfaceNonView):
+class SVNIgnore():
     """
     This class provides a handler to Ignore functionality.
 
@@ -61,7 +61,6 @@ class SVNIgnore(InterfaceNonView):
 
         """
 
-        InterfaceNonView.__init__(self)
         self.path = path
         self.pattern = pattern
         self.glob = glob
@@ -75,9 +74,26 @@ class SVNIgnore(InterfaceNonView):
         raise SystemExit()
 
 
-class GitIgnore(InterfaceView):
+@Gtk.Template(filename=f"{os.path.dirname(os.path.abspath(__file__))}/xml/ignore.xml")
+class IgnoreWidget(Gtk.Grid):
+    __gtype_name__ = "IgnoreWidget"
+
+    fileeditor_container = Gtk.Template.Child()
+
+    def __init__(self):
+        Gtk.Grid.__init__(self)
+
+class GitIgnore(GtkTemplateHelper):
     def __init__(self, path, pattern=""):
-        InterfaceView.__init__(self, "ignore", "Ignore")
+        GtkTemplateHelper.__init__(self, "Ignore")
+
+        self.widget = IgnoreWidget()
+        self.window = self.get_window(self.widget)
+        # add dialog buttons
+        self.ok = self.add_dialog_button("Ignore", self.on_ok_clicked, suggested=True)
+        self.cancel = self.add_dialog_button("Cancel", self.on_cancel_clicked, hideOnAdwaita=True)
+        # set window properties
+        self.window.set_default_size(450, 300)
 
         self.path = path
         self.pattern = pattern
@@ -104,7 +120,7 @@ class GitIgnore(InterfaceView):
             text = pattern
 
         self.file_editor = rabbitvcs.ui.widget.MultiFileTextEditor(
-            self.get_widget("fileeditor_container"),
+            self.widget.fileeditor_container,
             _("Ignore file:"),
             ignore_file_labels,
             ignore_files,
@@ -114,7 +130,7 @@ class GitIgnore(InterfaceView):
 
     def on_ok_clicked(self, widget, data=None):
         self.file_editor.save()
-        self.close()
+        self.window.close()
 
 
 classes_map = {rabbitvcs.vcs.VCS_SVN: SVNIgnore, rabbitvcs.vcs.VCS_GIT: GitIgnore}
@@ -125,7 +141,7 @@ def ignore_factory(path, pattern):
     return classes_map[guess["vcs"]](path, pattern)
 
 
-if __name__ == "__main__":
+def on_activate(app):
     from rabbitvcs.ui import main
 
     (options, args) = main(usage="Usage: rabbitvcs ignore <folder> <pattern>")
@@ -140,6 +156,11 @@ if __name__ == "__main__":
                 path = args[0]
             pattern = args[1]
 
-    window = ignore_factory(path, pattern)
-    window.register_gtk_quit()
-    Gtk.main()
+    widget = ignore_factory(path, pattern)
+
+    if widget.window:
+        app.add_window(widget.window)
+        widget.window.set_visible(True)
+
+if __name__ == "__main__":
+    GtkTemplateHelper.run_application(on_activate)

@@ -1613,11 +1613,11 @@ class MultiFileTextEditor(object):
 
         if show_add_line:
             add_label = Gtk.Label(label=_("Add line:"))
-            add_label.set_alignment(0, 0.5)
             self.add_entry = Gtk.Entry()
             self.add_entry.set_text(S(line_content).display())
             self.add_entry.set_hexpand(True)
-            add_button = Gtk.Button(_("Add"))
+            add_button = Gtk.Button()
+            add_button.set_label(_("Add"))
             add_button.connect("clicked", self.__add_button_clicked)
             grid.attach(add_label, 0, 1, 1, 1)
             grid.attach(self.add_entry, 1, 1, 1, 1)
