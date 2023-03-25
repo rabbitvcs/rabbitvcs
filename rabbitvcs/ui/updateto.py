@@ -102,8 +102,10 @@ class SVNUpdateToRevision(UpdateToRevision):
         omit_externals = self.widget.omit_externals.get_active()
         rollback = self.widget.rollback.get_active()
 
+        self.window.close()
+
         self.action = rabbitvcs.ui.action.SVNAction(
-            self.svn, register_gtk_quit=self.gtk_quit_is_set()
+            self.svn
         )
 
         if rollback:
@@ -131,6 +133,8 @@ class SVNUpdateToRevision(UpdateToRevision):
 
         self.action.append(self.action.finish)
         self.action.schedule()
+
+        self.window.close()
 
     def on_revision_changed(self, revision_selector):
         # Only allow rollback when a revision number is specified

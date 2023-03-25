@@ -62,6 +62,10 @@ class PushWidget(Gtk.Grid):
     def __init__(self):
         Gtk.Grid.__init__(self)
 
+    def set_status_text(self, text):
+        self.status.set_text(text)
+        self.status.set_visible(text != "")
+
 
 class GitPush(GtkTemplateHelper):
     def __init__(self, path):
@@ -130,11 +134,11 @@ class GitPush(GtkTemplateHelper):
             log.exception(e)
 
     def load_logs_exit(self):
-        self.widget.status.set_text("")
+        self.widget.set_status_text("")
         self.update_widgets()
 
     def load_logs(self):
-        helper.run_in_main_thread(self.widget.status.set_text, _("Loading..."))
+        helper.run_in_main_thread(self.widget.set_status_text, _("Loading..."))
 
         self.load_push_log()
         helper.run_in_main_thread(self.load_logs_exit)
@@ -174,7 +178,7 @@ class GitPush(GtkTemplateHelper):
 
         self.ok.set_sensitive(True)
         if not has_commits:
-            self.widget.status.set_text(_("No commits found"))
+            self.widget.set_status_text(_("No commits found"))
 
 
 classes_map = {rabbitvcs.vcs.VCS_GIT: GitPush}

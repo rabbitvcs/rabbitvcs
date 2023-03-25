@@ -114,6 +114,8 @@ class MessageCallbackNotifier(VCSNotifier):
     """
 
     gtktemplate_id = "Notification"
+    canceled = False
+    finished = False
 
     def __init__(self, callback_cancel=None, visible=True, client_in_same_thread=True):
         """

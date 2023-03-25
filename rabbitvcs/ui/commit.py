@@ -411,10 +411,10 @@ class GitCommit(Commit):
 
     def on_ok_clicked(self, widget, data=None):
         items = self.files_table.get_activated_rows(1)
-        self.window.hide()
+        self.window.set_visible(False)
 
         if len(items) == 0:
-            self.close()
+            self.window.close()
             return
 
         staged = 0

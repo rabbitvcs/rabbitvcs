@@ -249,7 +249,7 @@ class GitCheckout(GitUpdateToRevision):
         self.ok.set_label(_("Checkout"))
         self.update_dialog_title(_("Checkout"))
         self.widget.revision_label.set_text(path)
-        self.widget.options_box.hide()
+        self.widget.options_box.set_visible(False)
 
 
 class GitCheckoutQuiet(object):

@@ -180,12 +180,12 @@ class SVNRevert(Revert):
     def on_ok_clicked(self, widget):
         items = self.files_table.get_activated_rows(1)
         if not items:
-            self.close()
+            self.window.close()
             return
-        self.hide()
+        self.window.hide()
 
         self.action = rabbitvcs.ui.action.SVNAction(
-            self.vcs.svn(), register_gtk_quit=self.gtk_quit_is_set()
+            self.vcs.svn()
         )
 
         self.action.append(self.action.set_header, _("Revert"))
@@ -194,6 +194,8 @@ class SVNRevert(Revert):
         self.action.append(self.action.set_status, _("Completed Revert"))
         self.action.append(self.action.finish)
         self.action.schedule()
+
+        self.window.close()
 
 
 class GitRevert(Revert):
