@@ -3,7 +3,7 @@ from rabbitvcs import gettext
 from rabbitvcs.util.log import Log
 import rabbitvcs.vcs
 from rabbitvcs.ui.action import SVNAction
-from rabbitvcs.ui import InterfaceNonView
+from rabbitvcs.ui import GtkTemplateHelper
 from gi.repository import Gtk, GObject
 
 #
@@ -44,14 +44,13 @@ log = Log("rabbitvcs.ui.delete")
 _ = gettext.gettext
 
 
-class Delete(InterfaceNonView):
+class Delete():
     """
     This class provides a handler to Delete functionality.
 
     """
 
     def __init__(self, paths):
-        InterfaceNonView.__init__(self)
         self.paths = paths
         self.vcs = rabbitvcs.vcs.VCS()
 
@@ -116,12 +115,13 @@ def delete_factory(paths):
     guess = rabbitvcs.vcs.guess(paths[0])
     return classes_map[guess["vcs"]](paths)
 
-
-if __name__ == "__main__":
+def on_activate(app):
     from rabbitvcs.ui import main
 
     (options, paths) = main(usage="Usage: rabbitvcs delete [path1] [path2] ...")
 
-    window = delete_factory(paths)
-    window.register_gtk_quit()
-    window.start()
+    widget = delete_factory(paths)
+    widget.start()
+
+if __name__ == "__main__":
+    GtkTemplateHelper.run_application(on_activate)

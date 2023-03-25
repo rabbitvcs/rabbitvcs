@@ -4,7 +4,7 @@ from rabbitvcs.util.log import Log
 from rabbitvcs.util.strings import S
 from rabbitvcs.ui.action import SVNAction, GitAction
 import rabbitvcs.vcs
-from rabbitvcs.ui import InterfaceNonView, GtkTemplateHelper
+from rabbitvcs.ui import GtkTemplateHelper
 from rabbitvcs import TEMP_DIR_PREFIX
 from gi.repository import Gtk, Gdk, GLib
 
@@ -48,12 +48,10 @@ log = Log("rabbitvcs.ui.diff")
 _ = gettext.gettext
 
 
-class Diff(InterfaceNonView):
+class Diff():
     def __init__(
         self, path1, revision1=None, path2=None, revision2=None, sidebyside=False
     ):
-        InterfaceNonView.__init__(self)
-
         self.vcs = rabbitvcs.vcs.VCS()
 
         self.path1 = path1

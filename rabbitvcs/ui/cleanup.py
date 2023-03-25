@@ -2,7 +2,7 @@ from __future__ import absolute_import
 from rabbitvcs import gettext
 import rabbitvcs.vcs
 from rabbitvcs.ui.action import SVNAction
-from rabbitvcs.ui import InterfaceNonView
+from rabbitvcs.ui import GtkTemplateHelper
 from gi.repository import Gtk, GObject, Gdk
 
 #
@@ -39,7 +39,7 @@ sa.restore()
 _ = gettext.gettext
 
 
-class SVNCleanup(InterfaceNonView):
+class SVNCleanup():
     """
     This class provides a handler to the Cleanup window view.
     The idea is that it displays a large folder icon with a label like
@@ -49,7 +49,6 @@ class SVNCleanup(InterfaceNonView):
     """
 
     def __init__(self, path):
-        InterfaceNonView.__init__(self)
         self.path = path
         self.vcs = rabbitvcs.vcs.VCS()
         self.svn = self.vcs.svn()
@@ -65,12 +64,13 @@ class SVNCleanup(InterfaceNonView):
         self.action.schedule()
 
 
-if __name__ == "__main__":
+def on_activate(app):
     from rabbitvcs.ui import main
 
     (options, paths) = main(usage="Usage: rabbitvcs cleanup [path]")
 
     window = SVNCleanup(paths[0])
-    window.register_gtk_quit()
     window.start()
-    Gtk.main()
+
+if __name__ == "__main__":
+    GtkTemplateHelper.run_application(on_activate)

@@ -4,7 +4,7 @@ from rabbitvcs import gettext
 from rabbitvcs.util.strings import S
 import rabbitvcs.vcs
 from rabbitvcs.ui.action import SVNAction, GitAction
-from rabbitvcs.ui import InterfaceNonView
+from rabbitvcs.ui import GtkTemplateHelper
 from gi.repository import Gtk, GObject, Gdk
 
 #
@@ -44,7 +44,7 @@ sa.restore()
 _ = gettext.gettext
 
 
-class SVNOpen(InterfaceNonView):
+class SVNOpen():
     """
     This class provides a handler to open tracked files.
 
@@ -59,8 +59,6 @@ class SVNOpen(InterfaceNonView):
         @param  revision: The revision of the file to open
 
         """
-
-        InterfaceNonView.__init__(self)
 
         self.vcs = rabbitvcs.vcs.VCS()
         self.svn = self.vcs.svn()
@@ -84,7 +82,7 @@ class SVNOpen(InterfaceNonView):
         raise SystemExit()
 
 
-class GitOpen(InterfaceNonView):
+class GitOpen():
     """
     This class provides a handler to open tracked files.
 
@@ -99,8 +97,6 @@ class GitOpen(InterfaceNonView):
         @param  revision: The revision of the file to open
 
         """
-
-        InterfaceNonView.__init__(self)
 
         self.vcs = rabbitvcs.vcs.VCS()
         self.git = self.vcs.git(path)
@@ -137,13 +133,14 @@ def open_factory(vcs, path, revision):
     return classes_map[vcs](path, revision)
 
 
-if __name__ == "__main__":
+def on_activate(app):
     from rabbitvcs.ui import main, REVISION_OPT, VCS_OPT
 
     (options, paths) = main(
         [REVISION_OPT, VCS_OPT], usage="Usage: rabbitvcs open path [-r REVISION]"
     )
 
-    window = open_factory(options.vcs, paths[0], options.revision)
-    window.register_gtk_quit()
-    Gtk.main()
+    widget = open_factory(options.vcs, paths[0], options.revision)
+
+if __name__ == "__main__":
+    GtkTemplateHelper.run_application(on_activate)
