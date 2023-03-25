@@ -245,21 +245,21 @@ class GtkTemplateHelper(object):
             return True
 
         if (
-            controller.get_current_event_state() & Gdk.ModifierType.CONTROL_MASK
+            state & Gdk.ModifierType.CONTROL_MASK
             and Gdk.keyval_name(keyval).lower() == "w"
         ):
             self.on_cancel_clicked(widget)
             return True
 
         if (
-            controller.get_current_event_state() & Gdk.ModifierType.CONTROL_MASK
+            state & Gdk.ModifierType.CONTROL_MASK
             and Gdk.keyval_name(keyval).lower() == "q"
         ):
             self.on_cancel_clicked(widget)
             return True
 
         if (
-            controller.get_current_event_state() & Gdk.ModifierType.CONTROL_MASK
+            state & Gdk.ModifierType.CONTROL_MASK
             and Gdk.keyval_name(keyval).lower() == "r"
         ):
             self.on_refresh_clicked(widget)

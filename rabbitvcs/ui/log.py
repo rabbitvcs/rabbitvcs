@@ -206,7 +206,7 @@ class Log(GtkTemplateHelper):
     def on_key_pressed(self, controller, keyval, keycode, state):
         GtkTemplateHelper.on_key_pressed(self, controller, keyval, keycode, state)
         if (
-            controller.get_current_event_state() & Gdk.ModifierType.CONTROL_MASK
+            state & Gdk.ModifierType.CONTROL_MASK
             and Gdk.keyval_name(keyval).lower() == "c"
         ):
             if len(self.revisions_table.get_selected_rows()) > 0:
@@ -915,7 +915,7 @@ class GitLog(Log):
             text += "%s: %s\n" % (DATE_LABEL, S(item.date).display())
             text += "%s\n\n" % S(item.message).display()
 
-        self.revision_clipboard.set_text(text, -1)
+        self.revision_clipboard.set(text)
 
     def update_revision_message(self):
         combined_paths = []

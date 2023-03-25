@@ -233,10 +233,10 @@ class Commit(GtkTemplateHelper, GtkContextMenuCaller):
             return True
 
         if (
-            event.state & Gdk.ModifierType.CONTROL_MASK
-            and Gdk.keyval_name(event.keyval) == "Return"
+            state & Gdk.ModifierType.CONTROL_MASK
+            and Gdk.keyval_name(keyval) == "Return"
         ):
-            self.on_ok_clicked(widget)
+            self.on_ok_clicked(controller.get_widget())
             return True
 
     def on_toggle_show_all_toggled(self, widget, data=None):
