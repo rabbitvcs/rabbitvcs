@@ -267,121 +267,11 @@ class GtkTemplateHelper(object):
 
 
 class GtkBuilderWidgetWrapper(object):
-    def __init__(self, gtkbuilder_filename=None, gtkbuilder_id=None, claim_domain=True):
-        if gtkbuilder_filename:
-            self.gtkbuilder_filename = gtkbuilder_filename
-
-        if gtkbuilder_id:
-            self.gtkbuilder_id = gtkbuilder_id
-
-        self.claim_domain = claim_domain
+    pass # todo remove
 
 
 class InterfaceView(GtkBuilderWidgetWrapper):
-    """
-    Every ui window should inherit this class and send it the "self"
-    variable, the Gtkbuilder filename (without the extension), and the id of the
-    main window widget.
-
-    When calling from the __main__ area (i.e. a window is opened via CLI,
-    call the register_gtk_quit method to make sure the main app quits when
-    the app is destroyed or finished.
-
-    """
-
-    def __init__(self, *args, **kwargs):
-        GtkBuilderWidgetWrapper.__init__(self, *args, **kwargs)
-        self.do_gtk_quit = False
-
-        # On OSX, there is a glitch where GTK applications do not always come to the front
-        # when a launched (and methods like 'present()' don't appear to work correctly).
-        # So until GTK on OSX is fixed let's work around this issue...
-        import platform
-
-        if platform.system() == "Darwin":
-            try:
-                import subprocess
-
-                subprocess.Popen(
-                    'osascript -e "tell application \\"Python\\" to activate"',
-                    shell=True,
-                )
-            except:
-                pass
-
-    def hide(self):
-        window = self.window
-        if window:
-            window.set_property("visible", False)
-
-    def show(self):
-        window = self.window
-        if window:
-            window.set_property("visible", True)
-
-    def destroy(self):
-        self.close()
-
-    def close(self, threaded=False):
-        window = self.window
-        if window is not None:
-            if threaded:
-                helper.run_in_main_thread(window.destroy)
-            else:
-                window.destroy()
-
-        if self.do_gtk_quit:
-            Gtk.main_quit()
-
-    def register_gtk_quit(self):
-        window = self.window
-        self.do_gtk_quit = True
-
-        # This means we've already been closed
-        if window is None:
-            GLib.idle_add(Gtk.main_quit)
-
-    def gtk_quit_is_set(self):
-        return self.do_gtk_quit
-
-    def on_destroy(self, widget):
-        self.destroy()
-
-    def on_cancel_clicked(self, widget):
-        self.close()
-
-    def on_close_clicked(self, widget):
-        self.close()
-
-    def on_refresh_clicked(self, widget):
-        return True
-
-    def on_key_pressed(self, widget, event, *args):
-        if event.keyval == Gdk.keyval_from_name("Escape"):
-            self.on_cancel_clicked(widget)
-            return True
-
-        if (
-            event.state & Gdk.ModifierType.CONTROL_MASK
-            and Gdk.keyval_name(event.keyval).lower() == "w"
-        ):
-            self.on_cancel_clicked(widget)
-            return True
-
-        if (
-            event.state & Gdk.ModifierType.CONTROL_MASK
-            and Gdk.keyval_name(event.keyval).lower() == "q"
-        ):
-            self.on_cancel_clicked(widget)
-            return True
-
-        if (
-            event.state & Gdk.ModifierType.CONTROL_MASK
-            and Gdk.keyval_name(event.keyval).lower() == "r"
-        ):
-            self.on_refresh_clicked(widget)
-            return True
-
+    # todo remove
     def change_button(self, id, label=None, icon=None):
         """
         Replace label and/or icon of the named button.
@@ -396,31 +286,7 @@ class InterfaceView(GtkBuilderWidgetWrapper):
 
 
 class InterfaceNonView(object):
-    """
-    Provides a way for an interface to handle quitting, etc without having
-    to have a visible interface.
-
-    """
-
-    def __init__(self):
-        self.do_gtk_quit = False
-
-    def close(self):
-        if self.do_gtk_quit:
-            if not Gtk.main_level():
-                GLib.idle_add(Gtk.main_quit)
-                self.do_gtk_quit = False
-            else:
-                try:
-                    Gtk.main_quit()
-                except RuntimeError:
-                    raise SystemExit()
-
-    def register_gtk_quit(self):
-        self.do_gtk_quit = True
-
-    def gtk_quit_is_set(self):
-        return self.do_gtk_quit
+    pass # todo remove
 
 
 class VCSNotSupportedError(Exception):

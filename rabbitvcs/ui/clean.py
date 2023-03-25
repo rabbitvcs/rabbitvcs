@@ -3,7 +3,7 @@ from rabbitvcs import gettext
 import rabbitvcs.vcs
 import rabbitvcs.ui.widget
 from rabbitvcs.ui.action import GitAction
-from rabbitvcs.ui import InterfaceView, GtkTemplateHelper
+from rabbitvcs.ui import GtkTemplateHelper
 import time
 from datetime import datetime
 from gi.repository import Gtk, GObject, Gdk, Pango

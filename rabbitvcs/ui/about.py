@@ -4,7 +4,6 @@ from rabbitvcs import gettext
 import configobj
 import pysvn
 import rabbitvcs.ui.widget
-from rabbitvcs.ui import InterfaceView
 import rabbitvcs
 from gi.repository import Gtk, GObject, GdkPixbuf, Gdk
 import gi

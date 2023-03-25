@@ -9,7 +9,7 @@ import rabbitvcs.ui.dialog
 import rabbitvcs.ui.widget
 import rabbitvcs.ui.action
 from rabbitvcs.util.contextmenu import GtkFilesContextMenu, GtkContextMenuCaller
-from rabbitvcs.ui import InterfaceView, GtkTemplateHelper
+from rabbitvcs.ui import GtkTemplateHelper
 from gi.repository import Gtk, GObject, Gdk, GLib
 
 #
@@ -228,8 +228,8 @@ class Commit(GtkTemplateHelper, GtkContextMenuCaller):
     def on_refresh_clicked(self, widget):
         self.initialize_items()
 
-    def on_key_pressed(self, widget, event, *args):
-        if InterfaceView.on_key_pressed(self, widget, event, *args):
+    def on_key_pressed(self, controller, keyval, keycode, state):
+        if GtkTemplateHelper.on_key_pressed(self, controller, keyval, keycode, state):
             return True
 
         if (

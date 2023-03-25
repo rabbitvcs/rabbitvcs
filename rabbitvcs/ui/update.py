@@ -3,7 +3,7 @@ from rabbitvcs import gettext
 import rabbitvcs.ui.dialog
 import rabbitvcs.ui.widget
 from rabbitvcs.ui.action import SVNAction, GitAction
-from rabbitvcs.ui import InterfaceNonView, InterfaceView, GtkTemplateHelper
+from rabbitvcs.ui import GtkTemplateHelper
 from gi.repository import Gtk, GObject, Gdk
 
 #

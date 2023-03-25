@@ -8,7 +8,7 @@ import rabbitvcs.ui.dialog
 import rabbitvcs.ui.widget
 from rabbitvcs.ui.action import SVNAction
 from rabbitvcs.ui.add import Add
-from rabbitvcs.ui import InterfaceView, GtkTemplateHelper
+from rabbitvcs.ui import GtkTemplateHelper
 from gi.repository import Gtk, GObject, Gdk
 
 #

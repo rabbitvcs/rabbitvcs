@@ -6,7 +6,7 @@ import rabbitvcs.ui.widget
 import rabbitvcs.vcs
 from rabbitvcs.ui.action import SVNAction
 from rabbitvcs.ui.log import SVNLogDialog
-from rabbitvcs.ui import InterfaceView, GtkTemplateHelper
+from rabbitvcs.ui import GtkTemplateHelper
 from gi.repository import Gtk, GObject, Gdk
 
 #
@@ -46,7 +46,7 @@ _ = gettext.gettext
 
 class SVNMerge(GtkTemplateHelper):
     def __init__(self, path, revision_range=None):
-        InterfaceView.__init__(self, "merge", "Merge")
+        GtkTemplateHelper.__init__(self, "merge", "Merge")
 
         self.revision_range = revision_range
 
