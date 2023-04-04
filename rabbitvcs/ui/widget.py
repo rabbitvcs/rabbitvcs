@@ -842,39 +842,36 @@ class Box(object):
             box.set_row_spacing(spacing)
             box.set_column_spacing(spacing)
         self.middle = 0
-        # todo
         # Determine pack start/end indexes.
-        # ch = [
-        #     (
-        #         box.child_get_property(c, "left-attach"),
-        #         box.child_get_property(c, "width"),
-        #     )
-        #     for c in box.get_children()
-        # ]
-        # cv = [
-        #     (
-        #         box.child_get_property(c, "top-attach"),
-        #         box.child_get_property(c, "height"),
-        #     )
-        #     for c in box.get_children()
-        # ]
-        # if ch:
-        #     ch.sort(key=lambda x: x[0])
-        #     cv.sort(key=lambda x: x[0])
-        #     if ch[-1][0] - ch[0][0] > 0:
-        #         vertical = False
-        #     elif cv[-1][0] - cv[0][0] > 0:
-        #         vertical = True
-        #     c = cv if vertical else ch
-        #     last = c.pop()
-        #     self.middle = last[0] + last[1]
-        #     while c:
-        #         prev = c.pop()
-        #         next = prev[0] + prev[1]
-        #         if next < last[0]:
-        #             self.middle = next
-        #             break
-        #         last = prev
+        ch = []
+        child = box.get_first_child()
+        while child:
+            (c, r, w, h) = box.query_child(child)
+            ch.append(c, w)
+            child = child.get_next_sibling()
+        cv = []
+        child = box.get_first_child()
+        while child:
+            (c, r, w, h) = box.query_child(child)
+            cv.append(r, h)
+            child = child.get_next_sibling()
+        if ch:
+            ch.sort(key=lambda x: x[0])
+            cv.sort(key=lambda x: x[0])
+            if ch[-1][0] - ch[0][0] > 0:
+                vertical = False
+            elif cv[-1][0] - cv[0][0] > 0:
+                vertical = True
+            c = cv if vertical else ch
+            last = c.pop()
+            self.middle = last[0] + last[1]
+            while c:
+                prev = c.pop()
+                next = prev[0] + prev[1]
+                if next < last[0]:
+                    self.middle = next
+                    break
+                last = prev
 
         self.insert = self.box.insert_column
         self.attach = lambda child, pos: self.box.attach(child, pos, 0, 1, 1)
