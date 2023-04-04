@@ -4,7 +4,7 @@ from rabbitvcs.util.strings import *
 import rabbitvcs.ui.dialog
 import rabbitvcs.ui.widget
 from rabbitvcs.ui.action import SVNAction
-from rabbitvcs.ui import InterfaceView
+from rabbitvcs.ui import GtkTemplateHelper
 from gi.repository import Gtk, GObject, Gdk
 
 #
@@ -29,6 +29,7 @@ from gi.repository import Gtk, GObject, Gdk
 # along with RabbitVCS;  If not, see <http://www.gnu.org/licenses/>.
 #
 
+import os.path
 from rabbitvcs.util import helper
 
 import gi
@@ -41,21 +42,39 @@ sa.restore()
 _ = gettext.gettext
 
 
-class SVNSwitch(InterfaceView):
+@Gtk.Template(filename=f"{os.path.dirname(os.path.abspath(__file__))}/xml/switch.xml")
+class SwitchWidget(Gtk.Grid):
+    __gtype_name__ = "SwitchWidget"
+
+    path = Gtk.Template.Child()
+    repositories = Gtk.Template.Child()
+    revision_container = Gtk.Template.Child()
+
+    def __init__(self):
+        Gtk.Grid.__init__(self)
+
+class SVNSwitch(GtkTemplateHelper):
     def __init__(self, path, revision=None):
-        InterfaceView.__init__(self, "switch", "Switch")
+        GtkTemplateHelper.__init__(self, "Switch")
+
+        self.widget = SwitchWidget()
+        self.window = self.get_window(self.widget)
+        self.window.set_default_size(550, -1)
+        # add dialog buttons
+        self.ok = self.add_dialog_button("Switch", self.on_ok_clicked, suggested=True)
+        self.cancel = self.add_dialog_button("Cancel", self.on_cancel_clicked, hideOnAdwaita=True)
 
         self.path = path
         self.vcs = rabbitvcs.vcs.VCS()
         self.svn = self.vcs.svn()
 
-        self.get_widget("path").set_text(S(self.path).display())
+        self.widget.path.set_text(S(self.path).display())
         self.repositories = rabbitvcs.ui.widget.ComboBox(
-            self.get_widget("repositories"), helper.get_repository_paths()
+            self.widget.repositories, helper.get_repository_paths()
         )
 
         self.revision_selector = rabbitvcs.ui.widget.RevisionSelector(
-            self.get_widget("revision_container"),
+            self.widget.revision_container,
             self.svn,
             revision=revision,
             url_combobox=self.repositories,
@@ -100,11 +119,14 @@ def switch_factory(path, revision=None):
     return classes_map[guess["vcs"]](path, revision)
 
 
-if __name__ == "__main__":
+def on_activate(app):
     from rabbitvcs.ui import main, REVISION_OPT
 
     (options, args) = main([REVISION_OPT], usage="Usage: rabbitvcs switch [url]")
 
-    window = switch_factory(args[0], revision=options.revision)
-    window.register_gtk_quit()
-    Gtk.main()
+    widget = switch_factory(args[0], revision=options.revision)
+    app.add_window(widget.window)
+    widget.window.set_visible(True)
+
+if __name__ == "__main__":
+    GtkTemplateHelper.run_application(on_activate)
