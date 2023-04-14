@@ -4,7 +4,7 @@ import rabbitvcs.util.helper
 import rabbitvcs.ui.wraplabel
 import rabbitvcs.ui.widget
 from rabbitvcs.ui import InterfaceView, GtkTemplateHelper
-from gi.repository import Gtk, GObject, Gdk, Pango
+from gi.repository import Gtk, GObject, Gdk, Pango, Gio
 
 #
 # This is an extension to the Nautilus file manager to allow better
@@ -115,24 +115,17 @@ class PreviousMessages(GtkTemplateHelper):
 
 
 class FolderChooser(object):
-    def __init__(self):
-        self.dialog = Gtk.FileChooserDialog(
+    def __init__(self, callback, parent=None):
+        self.open_dialog = Gtk.FileChooserNative.new(
             title=_("Select a Folder"),
-            parent=None,
-            action=Gtk.FileChooserAction.SELECT_FOLDER,
-        )
-        self.dialog.add_button(_("_Cancel"), Gtk.ResponseType.CANCEL)
-        self.dialog.add_button(_("_Select"), Gtk.ResponseType.OK)
-        self.dialog.set_default_response(Gtk.ResponseType.OK)
+            parent=parent, action=Gtk.FileChooserAction.SELECT_FOLDER)
+        self.open_dialog.connect("response", callback)
 
-    def run(self):
-        returner = None
-        result = self.dialog.run()
-        if result == Gtk.ResponseType.OK:
-            # returner = self.dialog.get_uri()
-            returner = self.dialog.get_file().get_path()
-        self.dialog.destroy()
-        return returner
+    def run(self, current_folder=None):
+        if current_folder and len(current_folder) > 0 and os.path.exists(current_folder):
+            self.open_dialog.set_current_folder(Gio.File.new_for_path(current_folder))
+
+        self.open_dialog.show()
 
 
 class Certificate(InterfaceView):

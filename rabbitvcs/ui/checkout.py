@@ -52,7 +52,7 @@ class CheckoutWidget(Gtk.Grid):
     destination = Gtk.Template.Child()
     revision_container = Gtk.Template.Child()
     options_box = Gtk.Template.Child()
-    revision_selector_box = Gtk.Template.Child()    
+    revision_selector_box = Gtk.Template.Child()
     omit_externals = Gtk.Template.Child()
     recursive = Gtk.Template.Child()
     file_chooser = Gtk.Template.Child()
@@ -68,6 +68,8 @@ class Checkout(GtkTemplateHelper):
     Pass it the destination path.
 
     """
+
+    chooser = None
 
     def __init__(self, path=None, url=None, revision=None):
         GtkTemplateHelper.__init__(self, "Checkout")
@@ -122,14 +124,19 @@ class Checkout(GtkTemplateHelper):
         return path
 
     def _get_path(self):
-        path = self._parse_path(self.widgetdestination.get_text())
+        path = self._parse_path(self.widget.destination.get_text())
         return os.path.normpath(path)
 
     def on_file_chooser_clicked(self, widget, data=None):
-        chooser = rabbitvcs.ui.dialog.FolderChooser()
-        path = chooser.run()
-        if path is not None:
-            self.widget.destination.set_text(S(path).display())
+        if not self.chooser:
+            self.chooser = rabbitvcs.ui.dialog.FolderChooser(self.on_file_chooser_response, parent=self.window)
+        path = self.chooser.run()
+
+    def on_file_chooser_response(self, dialog, response):
+        if response == Gtk.ResponseType.ACCEPT:
+            path = dialog.get_file().get_path()
+            if path is not None:
+                self.widget.destination.set_text(S(path).display())
 
     def on_repositories_key_released(self, controller, keyval, keycode, state):
         if keyval == Gdk.KEY_Return:
