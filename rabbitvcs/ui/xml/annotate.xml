@@ -19,7 +19,7 @@
             <property name="width_request">100</property>
             <property name="focusable">1</property>
             <property name="hexpand">1</property>
-            <!-- <signal name="focus-out-event" handler="on_revision_focus_out_event" swapped="no"/>
+            <!-- TODO <signal name="focus-out-event" handler="on_revision_focus_out_event" swapped="no"/>
             <signal name="key-press-event" handler="on_revision_key_press_event" swapped="no"/> -->
             <layout>
               <property name="column">2</property>

@@ -182,7 +182,8 @@ class Annotate(GtkTemplateHelper):
         return False
 
     def on_show_log_clicked(self, widget, data=None):
-        log_dialog_factory(self.path, ok_callback=self.on_log_closed)
+        log = log_dialog_factory(self.path, ok_callback=self.on_log_closed)
+        log.window.set_visible(True)
 
     def on_log_closed(self, data):
         if data:

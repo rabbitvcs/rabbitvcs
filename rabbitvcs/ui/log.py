@@ -201,7 +201,7 @@ class Log(GtkTemplateHelper):
             self.action.stop()
             self.set_loading(False)
 
-        self.close()
+        self.window.set_visible(False)
 
     def on_key_pressed(self, controller, keyval, keycode, state):
         GtkTemplateHelper.on_key_pressed(self, controller, keyval, keycode, state)
@@ -980,6 +980,8 @@ class SVNLogDialog(SVNLog):
         """
         SVNLog.__init__(self, path, merge_candidate_revisions)
         self.ok_callback = ok_callback
+        if self.ok_callback:
+            self.select = self.add_dialog_button("Select", self.on_close_clicked, suggested=True)
         self.multiple = multiple
         self.change_button("close", _("_Select"), "rabbitvcs-ok")
 
@@ -987,12 +989,13 @@ class SVNLogDialog(SVNLog):
         pass
 
     def on_close_clicked(self, widget, data=None):
-        self.hide()
         if self.ok_callback is not None:
             if self.multiple == True:
                 self.ok_callback(self.get_selected_revision_numbers())
             else:
                 self.ok_callback(self.get_selected_revision_number())
+
+        self.window.set_visible(False)
 
 
 class GitLogDialog(GitLog):
@@ -1004,18 +1007,21 @@ class GitLogDialog(GitLog):
         """
         GitLog.__init__(self, path)
         self.ok_callback = ok_callback
+        if self.ok_callback:
+            self.select = self.add_dialog_button("Select", self.on_close_clicked, suggested=True)
         self.multiple = multiple
 
     def on_destroy(self, widget):
         pass
 
     def on_close_clicked(self, widget, data=None):
-        self.hide()
         if self.ok_callback is not None:
             if self.multiple == True:
                 self.ok_callback(self.get_selected_revision_numbers())
             else:
                 self.ok_callback(self.get_selected_revision_number())
+
+        self.window.set_visible(False)
 
 
 class LogCache(object):
