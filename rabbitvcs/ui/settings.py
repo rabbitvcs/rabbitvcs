@@ -423,11 +423,14 @@ class Settings(GtkTemplateHelper):
             self.file_editor.save()
 
     def on_external_diff_tool_browse_clicked(self, widget):
-        chooser = rabbitvcs.ui.dialog.FileChooser(_("Select a program"), "/usr/bin")
-        path = chooser.run()
-        if not path is None:
-            path = path.replace("file://", "")
-            self.widget.diff_tool.set_text(S(path).display())
+        rabbitvcs.ui.dialog.FileChooser(
+            _("Select a program"),
+            "/usr/bin",
+            callback=self.on_external_diff_tool_browse_callback)
+
+    def on_external_diff_tool_browse_callback(self, path):
+        path = path.replace("file://", "")
+        self.widget.diff_tool.set_text(S(path).display())
 
     def on_cache_clear_repositories_clicked(self, widget):
         self.exec_dialog(self.window, _("Are you sure you want to clear your repository paths?"), self.on_cache_clear_repositories_callback)

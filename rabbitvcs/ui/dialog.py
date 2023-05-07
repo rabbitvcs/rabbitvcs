@@ -115,17 +115,25 @@ class PreviousMessages(GtkTemplateHelper):
 
 
 class FolderChooser(object):
-    def __init__(self, callback, parent=None):
+    _callback = None
+
+    def __init__(self, callback, folder=None, parent=None):
+        self._callback = callback
         self.open_dialog = Gtk.FileChooserNative.new(
             title=_("Select a Folder"),
             parent=parent, action=Gtk.FileChooserAction.SELECT_FOLDER)
-        self.open_dialog.connect("response", callback)
 
-    def run(self, current_folder=None):
-        if current_folder and len(current_folder) > 0 and os.path.exists(current_folder):
-            self.open_dialog.set_current_folder(Gio.File.new_for_path(current_folder))
+        if folder and len(folder) > 0 and os.path.exists(folder):
+            self.open_dialog.set_current_folder(Gio.File.new_for_path(folder))
+
+        self.open_dialog.connect("response", self._file_chooser_callback)
 
         self.open_dialog.show()
+
+    def _file_chooser_callback(self, dialog, response):
+        if response == Gtk.ResponseType.ACCEPT:
+            path = dialog.get_file().get_path()
+            self._callback(path)
 
 
 class Certificate(InterfaceView):
@@ -297,43 +305,47 @@ class Property(InterfaceView):
 
 
 class FileChooser(object):
-    def __init__(self, title=_("Select a File"), folder=None):
-        self.dialog = Gtk.FileChooserDialog(
-            title=title, parent=None, action=Gtk.FileChooserAction.OPEN
-        )
-        self.dialog.add_button(_("_Cancel"), Gtk.ResponseType.CANCEL)
-        self.dialog.add_button(_("_Open"), Gtk.ResponseType.OK)
-        if folder is not None:
-            self.dialog.set_current_folder(folder)
-        self.dialog.set_default_response(Gtk.ResponseType.OK)
+    _callback = None
 
-    def run(self):
-        returner = None
-        result = self.dialog.run()
-        if result == Gtk.ResponseType.OK:
-            returner = self.dialog.get_file().get_path()
-        self.dialog.destroy()
-        return returner
+    def __init__(self, title=_("Select a File"), folder=None, callback=None):
+        self._callback = callback
+        self.dialog = Gtk.FileChooserNative.new(
+            title=title,
+            parent=None, action=Gtk.FileChooserAction.OPEN)
+
+        if folder and len(folder) > 0 and os.path.exists(folder):
+            self.dialog.set_current_folder(Gio.File.new_for_path(folder))
+
+        self.dialog.connect("response", self._file_chooser_callback)
+
+        self.dialog.show()
+
+    def _file_chooser_callback(self, dialog, response):
+        if response == Gtk.ResponseType.ACCEPT:
+            path = dialog.get_file().get_path()
+            self._callback(path)
 
 
 class FileSaveAs(object):
-    def __init__(self, title=_("Save As..."), folder=None):
-        self.dialog = Gtk.FileChooserDialog(
-            title=title, parent=None, action=Gtk.FileChooserAction.SAVE
-        )
-        self.dialog.add_button(_("_Cancel"), Gtk.ResponseType.CANCEL)
-        self.dialog.add_button(_("_Save"), Gtk.ResponseType.OK)
-        if folder is not None:
-            self.dialog.set_current_folder(folder)
-        self.dialog.set_default_response(Gtk.ResponseType.OK)
+    _callback = None
 
-    def run(self):
-        returner = None
-        result = self.dialog.run()
-        if result == Gtk.ResponseType.OK:
-            returner = self.dialog.get_filename()
-        self.dialog.destroy()
-        return returner
+    def __init__(self, title=_("Save As..."), folder=None, parent=None, callback=None):
+        self._callback = callback
+        self.save_dialog = Gtk.FileChooserNative.new(
+            title=title, parent=parent, action=Gtk.FileChooserAction.SAVE
+        )
+
+        if folder and len(folder) > 0 and os.path.exists(folder):
+            self.save_dialog.set_current_folder(Gio.File.new_for_path(folder))
+
+        self.save_dialog.connect("response", self._file_chooser_callback)
+
+        self.save_dialog.show()
+
+    def _file_chooser_callback(self, dialog, response):
+        if response == Gtk.ResponseType.ACCEPT:
+            path = dialog.get_file().get_path()
+            self._callback(path)
 
 
 class Confirmation(InterfaceView):

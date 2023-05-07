@@ -215,9 +215,9 @@ class MessageCallbackNotifier(VCSNotifier):
         if path is None:
             from rabbitvcs.ui.dialog import FileSaveAs
 
-            dialog = FileSaveAs()
-            path = dialog.run()
+            dialog = FileSaveAs(parent=self.window, callback=self.save_callback)
 
+    def save_callback(self, path):
         if path is not None:
             fh = open(path, "w")
             fh.write(self.table.generate_string_from_data())

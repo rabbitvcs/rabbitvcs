@@ -338,14 +338,12 @@ class Annotate(GtkTemplateHelper):
     def save(self, path=None):
         if path is None:
             from rabbitvcs.ui.dialog import FileSaveAs
+            dialog = FileSaveAs(parent=self.window, callback=self.save_callback)
 
-            dialog = FileSaveAs()
-            path = dialog.run()
-
-        if path is not None:
-            fh = open(path, "w")
-            fh.write(self.generate_string_from_result())
-            fh.close()
+    def save_callback(self, path):
+        fh = open(path, "w")
+        fh.write(self.generate_string_from_result())
+        fh.close()
 
     def launch_loading(self):
         self.loading_dialog = Loading(self.window)

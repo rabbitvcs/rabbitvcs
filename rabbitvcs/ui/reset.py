@@ -134,8 +134,9 @@ class GitReset(GtkTemplateHelper):
         self.window.close()
 
     def on_browse_clicked(self, widget, data=None):
-        chooser = rabbitvcs.ui.dialog.FolderChooser()
-        path = chooser.run()
+        chooser = rabbitvcs.ui.dialog.FolderChooser(parent=self.window, callback=self.on_browse_callback)
+
+    def on_browse_callback(self, path):
         if path is not None:
             self.widget.path.set_text(S(path).display())
 
