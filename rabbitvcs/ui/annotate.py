@@ -8,7 +8,7 @@ from rabbitvcs.util.decorators import gtk_unsafe
 from rabbitvcs.util.strings import S
 from rabbitvcs.util.contextmenuitems import *
 from rabbitvcs.util.contextmenu import GtkContextMenu
-from rabbitvcs.ui.dialog import MessageBox, Loading
+from rabbitvcs.ui.dialog import Loading
 from rabbitvcs.ui.widget import Clickable, Table, TYPE_MARKUP, TYPE_HIDDEN
 from rabbitvcs.ui.action import SVNAction, GitAction
 from rabbitvcs.ui.log import log_dialog_factory
@@ -83,13 +83,9 @@ class Annotate(GtkTemplateHelper):
     Pass a single path to the class when initializing
 
     """
+    vcs = None
 
     def __init__(self, path, revision=None):
-        if os.path.isdir(path):
-            MessageBox(_("Cannot annotate a directory"))
-            raise SystemExit()
-            return
-
         GtkTemplateHelper.__init__(self, "Annotate")
 
         self.widget = AnnotateWidget()
@@ -103,6 +99,11 @@ class Annotate(GtkTemplateHelper):
         self.window.set_default_size(750, 550)
 
         self.window.set_title(_("Annotate - %s") % path)
+
+        if os.path.isdir(path):
+            self.exec_dialog(self.window, _("Cannot annotate a directory"), self.on_close_clicked, show_cancel=False)
+            return
+
         self.vcs = rabbitvcs.vcs.VCS()
 
         sm = SettingsManager()
@@ -168,7 +169,7 @@ class Annotate(GtkTemplateHelper):
         return table
 
     def on_close_clicked(self, widget):
-        self.close()
+        self.window.close()
 
     def on_save_clicked(self, widget):
         self.save()
@@ -350,7 +351,7 @@ class Annotate(GtkTemplateHelper):
         self.loading_dialog.window.set_visible(True)
 
     def kill_loading(self):
-        self.loading_dialog.window.set_visible(False)
+        self.loading_dialog.window.close()
 
     def show_annotate_table_popup_menu(self, treeview, event, data):
         revisions = list(set(self.table.get_selected_row_items(0)))
@@ -406,9 +407,11 @@ class Annotate(GtkTemplateHelper):
 class SVNAnnotate(Annotate):
     def __init__(self, path, revision=None):
         Annotate.__init__(self, path, revision)
-        self.svn = self.vcs.svn()
-        self.path = path
-        self.show_revision(forceload=True)
+
+        if (self.vcs):
+            self.svn = self.vcs.svn()
+            self.path = path
+            self.show_revision(forceload=True)
 
     #
     # Helper methods
@@ -510,9 +513,11 @@ class SVNAnnotate(Annotate):
 class GitAnnotate(Annotate):
     def __init__(self, path, revision=None):
         Annotate.__init__(self, path, revision)
-        self.git = self.vcs.git(path)
-        self.path = path
-        self.show_revision(forceload=True)
+
+        if self.vcs:
+            self.git = self.vcs.git(path)
+            self.path = path
+            self.show_revision(forceload=True)
 
     #
     # Helper methods
@@ -523,7 +528,7 @@ class GitAnnotate(Annotate):
         self.loading_dialog.window.set_visible(True)
 
     def kill_loading(self):
-        self.loading_dialog.window.set_visible(False)
+        self.loading_dialog.window.close()
 
     def load(self, revision):
         self.launch_loading()
