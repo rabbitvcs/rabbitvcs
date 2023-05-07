@@ -1060,68 +1060,52 @@ class Clickable(object):
     - long_click(clickable, widget, event, data)
     """
 
-    # _BUTTON_PRESS = Gdk.EventType.BUTTON_PRESS
-    # _2BUTTON_PRESS = Gdk.EventType._2BUTTON_PRESS
-    # _3BUTTON_PRESS = Gdk.EventType._3BUTTON_PRESS
-
     def __init__(self, widget):
         self.widget = widget
         self._timer = None
-        # self._signals = {
-        #     self._BUTTON_PRESS: self._signal_data(),
-        #     self._2BUTTON_PRESS: self._signal_data(),
-        #     self._3BUTTON_PRESS: self._signal_data(),
-        #     "long-click": self._signal_data(),
-        #     "button-press-event": self._signal_data(),
-        #     "button-release-event": self._signal_data(),
-        #     None: self._signal_data(),
-        # }
         self._lastpress = None
-        widget.connect("button-press-event", self._on_button_pressed, None)
-        widget.connect("button-release-event", self._on_button_released, None)
-        widget.add_events(Gdk.EventMask.BUTTON_PRESS_MASK)
+        self._signals = {}
+        gesture = Gtk.GestureClick()
+        # gesture.set_button(0)
+        gesture.connect("pressed", self._on_button_pressed)
+        gesture.connect("released", self._on_button_released)
+        self.widget.add_controller(gesture)
 
-    def connect(self, signal, func, *args):
-        if signal == "single-click":
-            self._signals[self._BUTTON_PRESS] = self._signal_data(func, args)
-        elif signal == "double-click":
-            self._signals[self._2BUTTON_PRESS] = self._signal_data(func, args)
-        elif signal == "triple-click":
-            self._signals[self._3BUTTON_PRESS] = self._signal_data(func, args)
-        elif signal in ("long-click", "button-press-event", "button-release-event"):
-            self._signals[signal] = self._signal_data(func, args)
-        else:
-            self.widget.connect(signal, func, *args)
+    def connect(self, signal, func):
+        if signal in ("single-click", "double-click", "triple-click", "long-click", "button-press-event", "button-release-event"):
+            self._signals[signal] = func
 
-    def _on_button_pressed(self, widget, event, data):
+    def _on_button_pressed(self, gesture, n_press, x, y):
         self._cancel_timer()
-        if self._callback("button-press-event", widget, event):
+        if self._callback("button-press-event"):
             return True
-        if event.button == 1:
-            self._lastpress = event.type
-            if event.type == self._BUTTON_PRESS:
-                self._start_timer(1000, self._long_click, event.copy())
+        if gesture.get_current_button() == 1:
+            click_types = ["single-click", "double-click", "triple-click"]
+            self._lastpress = click_types[n_press - 1]
+            if n_press == 1:
+                self._start_timer(1000, self._long_click)
         return False
 
-    def _on_button_released(self, widget, event, data):
+    def _on_button_released(self, gesture, n_press, x, y):
         self._cancel_timer()
-        if self._callback("button-release-event", widget, event):
+        if self._callback("button-release-event"):
             return True
-        if event.button == 1:
-            self._callback(self._lastpress, widget, event)
+        if gesture.get_current_button() == 1:
+            self._callback(self._lastpress)
             self._lastpress = None
         return False
 
-    def _long_click(self, event, *args):
+    def _long_click(self):
         self._timer = None
         self._lastpress = None
-        self._callback("long-click", self.widget, event)
+        self._callback("long-click")
         return False
 
-    def _callback(self, signal, *args):
-        func, data = self._signals[signal]
-        args = list(args) + data
-        return func(self, *args)
+    def _callback(self, signal):
+        if signal in self._signals:
+            func = self._signals[signal]
+            return func()
+        return False
 
     @gtk_unsafe
     def _cancel_timer(self):

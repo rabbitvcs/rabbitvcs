@@ -12,7 +12,7 @@ from rabbitvcs.ui.dialog import MessageBox, Loading
 from rabbitvcs.ui.widget import Clickable, Table, TYPE_MARKUP, TYPE_HIDDEN
 from rabbitvcs.ui.action import SVNAction, GitAction
 from rabbitvcs.ui.log import log_dialog_factory
-from rabbitvcs.ui import InterfaceView
+from rabbitvcs.ui import GtkTemplateHelper
 from gi.repository import Gtk, GObject, Gdk, GLib
 
 #
@@ -59,7 +59,23 @@ logger = Log("rabbitvcs.ui.annotate")
 LUMINANCE = 0.90
 
 
-class Annotate(InterfaceView):
+@Gtk.Template(filename=f"{os.path.dirname(os.path.abspath(__file__))}/xml/annotate.xml")
+class AnnotateWidget(Gtk.Grid):
+    __gtype_name__ = "AnnotateWidget"
+
+    revision = Gtk.Template.Child()
+    history_first = Gtk.Template.Child()
+    history_prev = Gtk.Template.Child()
+    history_next = Gtk.Template.Child()
+    history_last = Gtk.Template.Child()
+    table = Gtk.Template.Child()
+    show_log = Gtk.Template.Child()
+
+    def __init__(self):
+        Gtk.Grid.__init__(self)
+
+
+class Annotate(GtkTemplateHelper):
     """
     Provides a UI interface to annotate items in the repository or
     working copy.
@@ -74,9 +90,19 @@ class Annotate(InterfaceView):
             raise SystemExit()
             return
 
-        InterfaceView.__init__(self, "annotate", "Annotate")
+        GtkTemplateHelper.__init__(self, "Annotate")
 
-        self.get_widget("Annotate").set_title(_("Annotate - %s") % path)
+        self.widget = AnnotateWidget()
+        self.window = self.get_window(self.widget)
+        # add dialog buttons
+        self.ok = self.add_dialog_button("Save As", self.on_save_clicked, suggested=True)
+        self.cancel = self.add_dialog_button("Close", self.on_close_clicked, hideOnAdwaita=True)
+        # forward signals
+        self.widget.show_log.connect("clicked", self.on_show_log_clicked)
+        # set window properties
+        self.window.set_default_size(750, 550)
+
+        self.window.set_title(_("Annotate - %s") % path)
         self.vcs = rabbitvcs.vcs.VCS()
 
         sm = SettingsManager()
@@ -91,11 +117,11 @@ class Annotate(InterfaceView):
         self.loading_dialog = None
 
         self.table = self.build_table()
-        self.revision = self.get_widget("revision")
-        self.history_first = Clickable(self.get_widget("history_first"))
-        self.history_prev = Clickable(self.get_widget("history_prev"))
-        self.history_next = Clickable(self.get_widget("history_next"))
-        self.history_last = Clickable(self.get_widget("history_last"))
+        self.revision = self.widget.revision
+        self.history_first = Clickable(self.widget.history_first)
+        self.history_prev = Clickable(self.widget.history_prev)
+        self.history_next = Clickable(self.widget.history_next)
+        self.history_last = Clickable(self.widget.history_last)
         self.history_first.connect("single-click", self.on_history_first)
         self.history_prev.connect("single-click", self.on_history_prev)
         self.history_prev.connect("long-click", self.history_popup_menu)
@@ -105,7 +131,7 @@ class Annotate(InterfaceView):
         self.set_history_sensitive()
 
     def build_table(self):
-        treeview = self.get_widget("table")
+        treeview = self.widget.table
         table = Table(
             treeview,
             [
@@ -162,15 +188,16 @@ class Annotate(InterfaceView):
         if data:
             self.show_revision(data)
 
-    def on_annotate_table_mouse_event(self, treeview, event, data=None):
-        if event.button == 1:
-            if event.type == Gdk.EventType._2BUTTON_PRESS:
+    def on_annotate_table_mouse_event(self, gesture, n_press, x, y, pressed):
+        if gesture.get_current_button() == 1:
+            if n_press == 2:
                 revisions = self.table.get_selected_row_items(0)
                 if len(revisions) == 1:
                     if revisions[0]:
                         self.show_revision(revisions[0])
-        elif event.button == 3 and event.type == Gdk.EventType.BUTTON_RELEASE:
-            self.show_annotate_table_popup_menu(treeview, event, data)
+        elif gesture.get_current_button() == 3 and not pressed:
+            pass # TODO
+            # self.show_annotate_table_popup_menu(treeview, event, data)
 
     def on_query_tooltip(self, treeview, x, y, kbdmode, tooltip, data=None):
         if kbdmode:
@@ -213,31 +240,31 @@ class Annotate(InterfaceView):
         treeview.set_tooltip_cell(tooltip, path)
         return True
 
-    def on_history_first(self, clickable, widget, event, *args):
+    def on_history_first(self):
         forceload = self.history[self.history_index] != self.history[0]
         self.history_index = 0
         self.show_revision(forceload=forceload)
 
-    def on_history_prev(self, clickable, widget, event, *args):
+    def on_history_prev(self):
         forceload = (
             self.history[self.history_index] != self.history[self.history_index - 1]
         )
         self.history_index -= 1
         self.show_revision(forceload=forceload)
 
-    def on_history_next(self, clickable, widget, event, *args):
+    def on_history_next(self):
         forceload = (
             self.history[self.history_index] != self.history[self.history_index + 1]
         )
         self.history_index += 1
         self.show_revision(forceload=forceload)
 
-    def on_history_last(self, clickable, widget, event, *args):
+    def on_history_last(self):
         forceload = self.history[self.history_index] != self.history[-1]
         self.history_index = len(self.history) - 1
         self.show_revision(forceload=forceload)
 
-    def history_popup_menu(self, clickable, widget, event, *args):
+    def history_popup_menu(self):
         menu = Gtk.Menu()
         width = 0
         for i, revision in list(enumerate(self.history))[: self.history_index + 6][
@@ -302,10 +329,10 @@ class Annotate(InterfaceView):
             self.load(revision)
 
     def enable_saveas(self):
-        self.get_widget("save").set_sensitive(True)
+        self.ok.set_sensitive(True)
 
     def disable_saveas(self):
-        self.get_widget("save").set_sensitive(False)
+        self.ok.set_sensitive(False)
 
     def save(self, path=None):
         if path is None:
@@ -320,11 +347,11 @@ class Annotate(InterfaceView):
             fh.close()
 
     def launch_loading(self):
-        self.loading_dialog = Loading()
-        GLib.idle_add(self.loading_dialog.run)
+        self.loading_dialog = Loading(self.window)
+        self.loading_dialog.window.set_visible(True)
 
     def kill_loading(self):
-        GLib.idle_add(self.loading_dialog.destroy)
+        self.loading_dialog.window.set_visible(False)
 
     def show_annotate_table_popup_menu(self, treeview, event, data):
         revisions = list(set(self.table.get_selected_row_items(0)))
@@ -493,11 +520,11 @@ class GitAnnotate(Annotate):
     #
 
     def launch_loading(self):
-        self.loading_dialog = Loading()
-        GLib.idle_add(self.loading_dialog.run)
+        self.loading_dialog = Loading(self.window)
+        self.loading_dialog.window.set_visible(True)
 
     def kill_loading(self):
-        GLib.idle_add(self.loading_dialog.destroy)
+        self.loading_dialog.window.set_visible(False)
 
     def load(self, revision):
         self.launch_loading()
@@ -857,13 +884,16 @@ def annotate_factory(vcs, path, revision=None):
     return classes_map[vcs](path, revision)
 
 
-if __name__ == "__main__":
+def on_activate(app):
     from rabbitvcs.ui import main, REVISION_OPT, VCS_OPT
 
     (options, paths) = main(
         [REVISION_OPT, VCS_OPT], usage="Usage: rabbitvcs annotate url [-r REVISION]"
     )
 
-    window = annotate_factory(options.vcs, paths[0], options.revision)
-    window.register_gtk_quit()
-    Gtk.main()
+    widget = annotate_factory(options.vcs, paths[0], options.revision)
+    app.add_window(widget.window)
+    widget.window.set_visible(True)
+
+if __name__ == "__main__":
+    GtkTemplateHelper.run_application(on_activate)
