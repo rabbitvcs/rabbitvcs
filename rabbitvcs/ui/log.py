@@ -201,7 +201,7 @@ class Log(GtkTemplateHelper):
             self.action.stop()
             self.set_loading(False)
 
-        self.window.set_visible(False)
+        self.window.close()
 
     def on_key_pressed(self, controller, keyval, keycode, state):
         GtkTemplateHelper.on_key_pressed(self, controller, keyval, keycode, state)
@@ -983,7 +983,6 @@ class SVNLogDialog(SVNLog):
         if self.ok_callback:
             self.select = self.add_dialog_button("Select", self.on_close_clicked, suggested=True)
         self.multiple = multiple
-        self.change_button("close", _("_Select"), "rabbitvcs-ok")
 
     def on_destroy(self, widget):
         pass
@@ -995,7 +994,7 @@ class SVNLogDialog(SVNLog):
             else:
                 self.ok_callback(self.get_selected_revision_number())
 
-        self.window.set_visible(False)
+        self.window.close()
 
 
 class GitLogDialog(GitLog):
@@ -1021,7 +1020,7 @@ class GitLogDialog(GitLog):
             else:
                 self.ok_callback(self.get_selected_revision_number())
 
-        self.window.set_visible(False)
+        self.window.close()
 
 
 class LogCache(object):
