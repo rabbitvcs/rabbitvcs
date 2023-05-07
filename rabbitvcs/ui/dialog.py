@@ -588,12 +588,14 @@ class LoadingWidget(Gtk.Box):
 
 class Loading(GtkTemplateHelper):
 
-    def __init__(self):
+    def __init__(self, parent=None):
         GtkTemplateHelper.__init__(self, "Loading")
 
         self.widget = LoadingWidget()
         self.window = self.get_window(self.widget)
         self.window.set_size_request(300, -1)
+        if parent:
+            self.window.set_transient_for(parent)
         # add dialog buttons
         self.loading_cancel = self.add_dialog_button("Cancel", self.on_loading_cancel_clicked, suggested=True)
         self.loading_cancel.set_sensitive(False)
