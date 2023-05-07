@@ -1228,9 +1228,12 @@ class RevisionSelector(object):
         from rabbitvcs.ui.log import SVNLogDialog, GitLogDialog
 
         if self.client.vcs == rabbitvcs.vcs.VCS_GIT:
-            GitLogDialog(self.get_url(), ok_callback=self.__log_closed)
+            log = GitLogDialog(self.get_url(), ok_callback=self.__log_closed)
         elif self.client.vcs == rabbitvcs.vcs.VCS_SVN:
-            SVNLogDialog(self.get_url(), ok_callback=self.__log_closed)
+            log = SVNLogDialog(self.get_url(), ok_callback=self.__log_closed)
+
+        if log:
+            log.window.set_visible(True)
 
     def __log_closed(self, data):
         if data is not None:
