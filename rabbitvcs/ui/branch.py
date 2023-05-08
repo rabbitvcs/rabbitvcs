@@ -6,7 +6,7 @@ from rabbitvcs.util.strings import S
 import rabbitvcs.ui.action
 import rabbitvcs.ui.dialog
 import rabbitvcs.ui.widget
-from rabbitvcs.ui import InterfaceView
+from rabbitvcs.ui import GtkTemplateHelper
 from gi.repository import Gtk, GObject, Gdk
 
 #
@@ -31,6 +31,7 @@ from gi.repository import Gtk, GObject, Gdk
 # along with RabbitVCS;  If not, see <http://www.gnu.org/licenses/>.
 #
 
+import os
 from rabbitvcs.util import helper
 
 import gi
@@ -43,7 +44,22 @@ sa.restore()
 _ = gettext.gettext
 
 
-class SVNBranch(InterfaceView):
+@Gtk.Template(filename=f"{os.path.dirname(os.path.abspath(__file__))}/xml/branch.xml")
+class BranchWidget(Gtk.Grid):
+    __gtype_name__ = "BranchWidget"
+
+    previous_messages = Gtk.Template.Child()
+    from_urls = Gtk.Template.Child()
+    to_urls = Gtk.Template.Child()
+    message = Gtk.Template.Child()
+    toggle_switch_after_branch = Gtk.Template.Child()
+    revision_container = Gtk.Template.Child()
+    repo_browser = Gtk.Template.Child()
+
+    def __init__(self):
+        Gtk.Grid.__init__(self)
+
+class SVNBranch(GtkTemplateHelper):
     """
     Provides a UI interface to copy/branch/tag items in the repository or
     working copy.
@@ -57,7 +73,19 @@ class SVNBranch(InterfaceView):
     SWITCH_AFTER = SETTINGS.get("general", "switch_after_branch")
 
     def __init__(self, path, revision=None):
-        InterfaceView.__init__(self, "branch", "Branch")
+        GtkTemplateHelper.__init__(self, "Branch")
+
+        self.widget = BranchWidget()
+        self.window = self.get_window(self.widget)
+        # add dialog buttons
+        self.ok = self.add_dialog_button("Ok", self.on_ok_clicked, suggested=True)
+        self.cancel = self.add_dialog_button("Cancel", self.on_cancel_clicked, hideOnAdwaita=True)
+        # forward signals
+        self.widget.previous_messages.connect("clicked", self.on_previous_messages_clicked)
+        self.widget.toggle_switch_after_branch.connect("toggled", self.on_toggle_switch_after_branch_toggled)
+        self.widget.repo_browser.connect("clicked", self.on_repo_browser_clicked)
+        # set window properties
+        self.window.set_default_size(550, -1)
 
         self.vcs = rabbitvcs.vcs.VCS()
         self.svn = self.vcs.svn()
@@ -69,21 +97,21 @@ class SVNBranch(InterfaceView):
 
         repo_paths = helper.get_repository_paths()
         self.from_urls = rabbitvcs.ui.widget.ComboBox(
-            self.get_widget("from_urls"), repo_paths
+            self.widget.from_urls, repo_paths
         )
         self.to_urls = rabbitvcs.ui.widget.ComboBox(
-            self.get_widget("to_urls"), helper.get_repository_paths()
+            self.widget.to_urls, helper.get_repository_paths()
         )
 
         repository_url = self.svn.get_repo_url(path)
         self.from_urls.set_child_text(repository_url)
         self.to_urls.set_child_text(repository_url)
 
-        self.message = rabbitvcs.ui.widget.TextView(self.get_widget("message"))
-        self.get_widget("toggle_switch_after_branch").set_active(self.SWITCH_AFTER)
+        self.message = rabbitvcs.ui.widget.TextView(self.widget.message)
+        self.widget.toggle_switch_after_branch.set_active(self.SWITCH_AFTER)
 
         self.revision_selector = rabbitvcs.ui.widget.RevisionSelector(
-            self.get_widget("revision_container"),
+            self.widget.revision_container,
             self.svn,
             revision=revision,
             url_combobox=self.from_urls,
@@ -126,17 +154,20 @@ class SVNBranch(InterfaceView):
         self.action.schedule()
 
     def on_previous_messages_clicked(self, widget, data=None):
-        dialog = rabbitvcs.ui.dialog.PreviousMessages()
-        message = dialog.run()
+        dialog = rabbitvcs.ui.dialog.PreviousMessages(self.window)
+        dialog.run(self.on_response)
+
+    def on_response(self, message):
         if message is not None:
             self.message.set_text(S(message).display())
 
     def on_repo_browser_clicked(self, widget, data=None):
         from rabbitvcs.ui.browser import SVNBrowserDialog
 
-        SVNBrowserDialog(
+        browser = SVNBrowserDialog(
             self.from_urls.get_active_text(), callback=self.on_repo_browser_closed
         )
+        browser.window.set_visible(True)
 
     def on_repo_browser_closed(self, new_url):
         self.from_urls.set_child_text(new_url)
@@ -161,13 +192,16 @@ def branch_factory(vcs, path, revision=None):
     return classes_map[vcs](path, revision)
 
 
-if __name__ == "__main__":
+def on_activate(app):
     from rabbitvcs.ui import main, REVISION_OPT, VCS_OPT
 
     (options, args) = main(
         [REVISION_OPT, VCS_OPT], usage="Usage: rabbitvcs branch [url_or_path]"
     )
 
-    window = branch_factory(options.vcs, args[0], options.revision)
-    window.register_gtk_quit()
-    Gtk.main()
+    widget = branch_factory(options.vcs, args[0], options.revision)
+    app.add_window(widget.window)
+    widget.window.set_visible(True)
+
+if __name__ == "__main__":
+    GtkTemplateHelper.run_application(on_activate)
