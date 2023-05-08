@@ -39,6 +39,7 @@
             <property name="focusable">1</property>
             <property name="receives_default">1</property>
             <property name="use_underline">1</property>
+            <signal name="clicked" handler="on_ok_clicked" />
           </object>
         </child>
       </object>

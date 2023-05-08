@@ -373,6 +373,10 @@ class MessageBox(GtkTemplateHelper, Gtk.Dialog):
         GtkTemplateHelper.__init__(self, "MessageBox")
         self.messagebox_message.set_text(S(message).display())
 
+    @Gtk.Template.Callback()
+    def on_ok_clicked(self, widget):
+        self.close()
+
 
 class DeleteConfirmation(InterfaceView):
     def __init__(self, path=None):
