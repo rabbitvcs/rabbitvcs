@@ -14,7 +14,7 @@ from rabbitvcs.util.contextmenu import (
     GtkContextMenuCaller,
     GtkFilesContextMenuConditions,
 )
-from rabbitvcs.ui import InterfaceView
+from rabbitvcs.ui import GtkTemplateHelper
 from gi.repository import Gtk, GObject, Gdk
 
 #
@@ -60,9 +60,32 @@ _ = gettext.gettext
 helper.gobject_threads_init()
 
 
-class SVNBrowser(InterfaceView, GtkContextMenuCaller):
+@Gtk.Template(filename=f"{os.path.dirname(os.path.abspath(__file__))}/xml/browser.xml")
+class BrowserWidget(Gtk.Grid):
+    __gtype_name__ = "BrowserWidget"
+
+    create_folder_here = Gtk.Template.Child()
+    urls = Gtk.Template.Child()
+    revision_container = Gtk.Template.Child()
+    list = Gtk.Template.Child()
+
+    def __init__(self):
+        Gtk.Grid.__init__(self)
+
+class SVNBrowser(GtkTemplateHelper, GtkContextMenuCaller):
     def __init__(self, url):
-        InterfaceView.__init__(self, "browser", "Browser")
+        GtkTemplateHelper.__init__(self, "Browser")
+
+        self.widget = BrowserWidget()
+        self.window = self.get_window(self.widget)
+        # add dialog buttons
+        self.refresh = self.add_dialog_button("Refresh", self.on_refresh_clicked)
+        self.refresh.set_icon_name("reload")
+        self.cancel = self.add_dialog_button("Close", self.on_close_clicked, suggested=True, hideOnAdwaita=True)
+        # forward signals
+        self.widget.create_folder_here.connect("clicked", self.on_create_folder_here_clicked)
+        # set window properties
+        self.window.set_default_size(640, 480)
 
         self.vcs = rabbitvcs.vcs.VCS()
         self.svn = self.vcs.svn()
@@ -80,17 +103,17 @@ class SVNBrowser(InterfaceView, GtkContextMenuCaller):
             self.url = S(url)
 
         self.urls = rabbitvcs.ui.widget.ComboBox(
-            self.get_widget("urls"), helper.get_repository_paths()
+            self.widget.urls, helper.get_repository_paths()
         )
         if self.url:
             self.urls.set_child_text(helper.unquote_url(self.url))
 
         # We must set a signal handler for the Gtk.Entry inside the combobox
         # Because glade will not retain that information
-        self.urls.set_child_signal("key-release-event", self.on_urls_key_released)
+        self.urls.set_child_signal("key-released", self.on_urls_key_released)
 
         self.revision_selector = rabbitvcs.ui.widget.RevisionSelector(
-            self.get_widget("revision_container"),
+            self.widget.revision_container,
             self.svn,
             url_combobox=self.urls,
             expand=True,
@@ -98,7 +121,7 @@ class SVNBrowser(InterfaceView, GtkContextMenuCaller):
 
         self.items = []
         self.list_table = rabbitvcs.ui.widget.Table(
-            self.get_widget("list"),
+            self.widget.list,
             [
                 rabbitvcs.ui.widget.TYPE_HIDDEN_OBJECT,
                 rabbitvcs.ui.widget.TYPE_PATH,
@@ -130,7 +153,7 @@ class SVNBrowser(InterfaceView, GtkContextMenuCaller):
             flags={"sortable": True},
         )
 
-        self.url_clipboard = Gtk.Clipboard.get(Gdk.SELECTION_CLIPBOARD)
+        self.url_clipboard = Gdk.Display().get_default().get_clipboard()
         self.repo_root_url = None
 
         if self.url:
@@ -283,16 +306,16 @@ class SVNBrowser(InterfaceView, GtkContextMenuCaller):
 
         return str(row[column])
 
-    def on_list_table_mouse_event(self, treeview, event, *args):
-        if event.button == 3 and event.type == Gdk.EventType.BUTTON_RELEASE:
-            self.show_list_table_popup_menu(treeview, event)
+    def on_list_table_mouse_event(self, gesture, n_press, x, y, pressed):
+        if gesture.get_current_button() == 3 and not pressed:
+            self.show_list_table_popup_menu()
 
-    def show_list_table_popup_menu(self, treeview, event):
+    def show_list_table_popup_menu(self):
         paths = self.list_table.get_selected_row_items(0)
         if len(paths) == 0:
             paths.append(self.url)
 
-        BrowserContextMenu(self, event, None, self.vcs, paths).show()
+        # BrowserContextMenu(self, event, None, self.vcs, paths).show() TODO
 
     def set_url_clipboard(self, url):
         self.url_clipboard.set_text(S(url).display(), -1)
@@ -335,7 +358,8 @@ class SVNBrowserDialog(SVNBrowser):
 
         SVNBrowser.__init__(self, path)
 
-        self.change_button("close", _("_Select"), "rabbitvcs-ok")
+        self.cancel.set_visible(True)
+        self.cancel.set_label("Select")
 
     def on_destroy(self, widget):
         pass
@@ -627,11 +651,14 @@ def browser_factory(path):
     return classes_map[guess["vcs"]](path)
 
 
-if __name__ == "__main__":
+def on_activate(app):
     from rabbitvcs.ui import main
 
     (options, url) = main(usage="Usage: rabbitvcs browser [url]")
 
-    window = browser_factory(url[0])
-    window.register_gtk_quit()
-    Gtk.main()
+    widget = browser_factory(url[0])
+    app.add_window(widget.window)
+    widget.window.set_visible(True)
+
+if __name__ == "__main__":
+    GtkTemplateHelper.run_application(on_activate)

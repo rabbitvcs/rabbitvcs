@@ -972,8 +972,10 @@ class ComboBox(object):
     def set_sensitive(self, val):
         self.cb.set_sensitive(val)
 
-    def set_child_signal(self, signal, callback, userdata=None):
-        self.cb.get_child().connect(signal, callback, userdata)
+    def set_child_signal(self, signal, callback):
+        keycontroller = Gtk.EventControllerKey()
+        keycontroller.connect(signal, callback)
+        self.cb.get_child().add_controller(keycontroller)
 
 
 class TextView(object):
