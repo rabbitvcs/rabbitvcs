@@ -6,7 +6,7 @@ from rabbitvcs.util.strings import S
 from rabbitvcs.util.contextmenuitems import *
 from rabbitvcs.util.contextmenu import GtkContextMenu
 import rabbitvcs.ui.widget
-from rabbitvcs.ui import InterfaceView
+from rabbitvcs.ui import GtkTemplateHelper
 from gi.repository import Gtk, GObject, Gdk
 
 #
@@ -45,7 +45,24 @@ sa.restore()
 _ = gettext.gettext
 
 
-class Changes(InterfaceView):
+@Gtk.Template(filename=f"{os.path.dirname(os.path.abspath(__file__))}/xml/changes.xml")
+class ChangesWidget(Gtk.Grid):
+    __gtype_name__ = "ChangesWidget"
+
+    more_actions = Gtk.Template.Child()
+    first_urls = Gtk.Template.Child()
+    first_urls_browse = Gtk.Template.Child()
+    second_urls = Gtk.Template.Child()
+    second_urls_browse = Gtk.Template.Child()
+    first_revision_container = Gtk.Template.Child()
+    second_revision_container = Gtk.Template.Child()
+    changes_table = Gtk.Template.Child()
+
+    def __init__(self):
+        Gtk.Grid.__init__(self)
+
+
+class Changes(GtkTemplateHelper):
     """
     Show how files and folders are different between revisions.
 
@@ -59,27 +76,44 @@ class Changes(InterfaceView):
     MORE_ACTIONS_ITEMS = [_("More Actions..."), _("View unified diff")]
 
     def __init__(self, path1=None, revision1=None, path2=None, revision2=None):
-        InterfaceView.__init__(self, "changes", "Changes")
+        GtkTemplateHelper.__init__(self, "Changes")
+
+        self.widget = ChangesWidget()
+        self.window = self.get_window(self.widget)
+        # add dialog buttons
+        self.refresh = self.add_dialog_button("Refresh", self.on_refresh_clicked)
+        self.refresh.set_icon_name("reload")
+        self.cancel = self.add_dialog_button("Close", self.on_close_clicked, suggested=True, hideOnAdwaita=True)
+        # forward signals
+        self.widget.more_actions.connect("changed", self.on_more_actions_changed)
+        self.widget.changes_table.connect("cursor-changed", self.on_changes_table_cursor_changed)
+        self.widget.changes_table.connect("row-activated", self.on_changes_table_row_doubleclicked)
+        self.widget.second_urls.connect("changed", self.on_second_urls_changed)
+        self.widget.second_urls_browse.connect("clicked", self.on_second_urls_browse_clicked)
+        self.widget.first_urls.connect("changed", self.on_first_urls_changed)
+        self.widget.first_urls_browse.connect("clicked", self.on_first_urls_browse_clicked)
+        # set window properties
+        self.window.set_default_size(640, 500)
 
         self.vcs = rabbitvcs.vcs.VCS()
 
         self.MORE_ACTIONS_CALLBACKS = [None, self.on_more_actions_view_unified_diff]
 
         self.more_actions = rabbitvcs.ui.widget.ComboBox(
-            self.get_widget("more_actions"), self.MORE_ACTIONS_ITEMS
+            self.widget.more_actions, self.MORE_ACTIONS_ITEMS
         )
         self.more_actions.set_active(0)
 
         repo_paths = helper.get_repository_paths()
         self.first_urls = rabbitvcs.ui.widget.ComboBox(
-            self.get_widget("first_urls"), repo_paths
+            self.widget.first_urls, repo_paths
         )
-        self.first_urls_browse = self.get_widget("first_urls_browse")
+        self.first_urls_browse = self.widget.first_urls_browse
 
         self.second_urls = rabbitvcs.ui.widget.ComboBox(
-            self.get_widget("second_urls"), repo_paths
+            self.widget.second_urls, repo_paths
         )
-        self.second_urls_browse = self.get_widget("second_urls_browse")
+        self.second_urls_browse = self.widget.second_urls_browse
 
     #
     # UI Signal Callback Methods
@@ -95,11 +129,11 @@ class Changes(InterfaceView):
         self.check_first_urls()
         self.check_refresh_button()
 
-    def on_second_urls_changed(self, widget, data=None):
+    def on_second_urls_changed(self, widget):
         self.check_second_urls()
         self.check_refresh_button()
 
-    def on_first_urls_browse_clicked(self, widget, data=None):
+    def on_first_urls_browse_clicked(self, widget):
         pass
 
     def on_first_repo_chooser_closed(self, new_url):
@@ -107,7 +141,7 @@ class Changes(InterfaceView):
         self.check_first_urls()
         self.check_refresh_button()
 
-    def on_second_urls_browse_clicked(self, widget, data=None):
+    def on_second_urls_browse_clicked(self, widget):
         pass
 
     def on_second_repo_chooser_closed(self, new_url):
@@ -115,14 +149,14 @@ class Changes(InterfaceView):
         self.check_second_urls()
         self.check_refresh_button()
 
-    def on_changes_table_cursor_changed(self, treeview, data=None):
-        self.on_changes_table_event(treeview, data)
+    def on_changes_table_cursor_changed(self, treeview):
+        self.on_changes_table_event(treeview, None, False)
 
-    def on_changes_table_button_released(self, treeview, event, *args):
-        if event.type == Gdk.EventType.BUTTON_RELEASE:
-            self.on_changes_table_event(treeview, event, *args)
+    def on_changes_table_button_released(self, gesture, n_press, x, y, pressed):
+        if not pressed:
+            self.on_changes_table_event(self.widget.changes_table, gesture, pressed)
 
-    def on_changes_table_event(self, treeview, event, *args):
+    def on_changes_table_event(self, treeview, gesture, pressed):
         selection = treeview.get_selection()
         (liststore, indexes) = selection.get_selected_rows()
 
@@ -130,11 +164,12 @@ class Changes(InterfaceView):
         for tup in indexes:
             self.selected_rows.append(tup[0])
 
-        if not event is None:
-            if event.button == 3 and event.type == Gdk.EventType.BUTTON_RELEASE:
-                self.show_changes_table_popup_menu(treeview, event)
+        if not gesture is None:
+            if gesture.get_current_button() == 3 and not pressed:
+                # self.show_changes_table_popup_menu(treeview, event)
+                pass # TODO
 
-    def on_more_actions_changed(self, widget, data=None):
+    def on_more_actions_changed(self, widget):
         index = self.more_actions.get_active()
         if index < 0:
             return
@@ -183,7 +218,7 @@ class Changes(InterfaceView):
             self.can_first_browse_urls() and self.can_second_browse_urls()
         )
 
-        self.get_widget("refresh").set_sensitive(can_click_refresh)
+        self.refresh.set_sensitive(can_click_refresh)
 
     def check_first_urls(self):
         can_browse_urls = self.can_first_browse_urls()
@@ -266,7 +301,7 @@ class SVNChanges(Changes):
             self.second_urls.set_child_text(self.svn.get_repo_url(path1))
 
         self.first_revision_selector = rabbitvcs.ui.widget.RevisionSelector(
-            self.get_widget("first_revision_container"),
+            self.widget.first_revision_container,
             self.svn,
             revision=revision1,
             url_combobox=self.first_urls,
@@ -274,7 +309,7 @@ class SVNChanges(Changes):
         )
 
         self.second_revision_selector = rabbitvcs.ui.widget.RevisionSelector(
-            self.get_widget("second_revision_container"),
+            self.widget.second_revision_container,
             self.svn,
             revision=revision2,
             url_combobox=self.second_urls,
@@ -282,7 +317,7 @@ class SVNChanges(Changes):
         )
 
         self.changes_table = rabbitvcs.ui.widget.Table(
-            self.get_widget("changes_table"),
+            self.widget.changes_table,
             [GObject.TYPE_STRING, GObject.TYPE_STRING, GObject.TYPE_STRING],
             [_("Path"), _("Change"), _("Property Change")],
             flags={"sortable": True, "sort_on": 1},
@@ -325,7 +360,7 @@ class SVNChanges(Changes):
 
             self.changes_table.append([path, str(item["summarize_kind"]), prop_changed])
 
-    def on_first_urls_browse_clicked(self, widget, data=None):
+    def on_first_urls_browse_clicked(self, widget):
         from rabbitvcs.ui.browser import SVNBrowserDialog
 
         SVNBrowserDialog(
@@ -333,7 +368,7 @@ class SVNChanges(Changes):
             callback=self.on_first_repo_chooser_closed,
         )
 
-    def on_second_urls_browse_clicked(self, widget, data=None):
+    def on_second_urls_browse_clicked(self, widget):
         from rabbitvcs.ui.browser import SVNBrowserDialog
 
         SVNBrowserDialog(
@@ -348,8 +383,8 @@ class GitChanges(Changes):
 
         self.git = self.vcs.git(path1)
 
-        self.first_urls_browse.hide()
-        self.second_urls_browse.hide()
+        self.first_urls_browse.set_visible(False)
+        self.second_urls_browse.set_visible(False)
 
         if path1 is not None:
             self.first_urls.set_child_text(path1)
@@ -360,7 +395,7 @@ class GitChanges(Changes):
             self.second_urls.set_child_text(path1)
 
         self.first_revision_selector = rabbitvcs.ui.widget.RevisionSelector(
-            self.get_widget("first_revision_container"),
+            self.widget.first_revision_container,
             self.git,
             revision=revision1,
             url_combobox=self.first_urls,
@@ -368,7 +403,7 @@ class GitChanges(Changes):
         )
 
         self.second_revision_selector = rabbitvcs.ui.widget.RevisionSelector(
-            self.get_widget("second_revision_container"),
+            self.widget.second_revision_container,
             self.git,
             revision=revision2,
             url_combobox=self.second_urls,
@@ -376,7 +411,7 @@ class GitChanges(Changes):
         )
 
         self.changes_table = rabbitvcs.ui.widget.Table(
-            self.get_widget("changes_table"),
+            self.widget.changes_table,
             [GObject.TYPE_STRING, GObject.TYPE_STRING],
             [_("Path"), _("Change")],
         )
@@ -564,7 +599,7 @@ def changes_factory(vcs, path1=None, revision1=None, path2=None, revision2=None)
     return classes_map[vcs](path1, revision1, path2, revision2)
 
 
-if __name__ == "__main__":
+def on_activate(app):
     from rabbitvcs.ui import main, VCS_OPT
 
     (options, args) = main(
@@ -576,8 +611,11 @@ if __name__ == "__main__":
     if len(args) > 0:
         pathrev2 = helper.parse_path_revision_string(args.pop(0))
 
-    window = changes_factory(
+    widget = changes_factory(
         options.vcs, pathrev1[0], pathrev1[1], pathrev2[0], pathrev2[1]
     )
-    window.register_gtk_quit()
-    Gtk.main()
+    app.add_window(widget.window)
+    widget.window.set_visible(True)
+
+if __name__ == "__main__":
+    GtkTemplateHelper.run_application(on_activate)
