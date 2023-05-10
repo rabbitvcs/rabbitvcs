@@ -4,7 +4,7 @@ from rabbitvcs.util.strings import S
 import rabbitvcs.vcs
 from rabbitvcs.ui.dialog import MessageBox
 from rabbitvcs.ui.action import SVNAction
-from rabbitvcs.ui import InterfaceView
+from rabbitvcs.ui import GtkTemplateHelper
 from gi.repository import Gtk, GObject, Gdk
 
 #
@@ -28,7 +28,7 @@ from gi.repository import Gtk, GObject, Gdk
 # You should have received a copy of the GNU General Public License
 # along with RabbitVCS;  If not, see <http://www.gnu.org/licenses/>.
 #
-
+import os
 from rabbitvcs.util import helper
 
 import gi
@@ -41,7 +41,17 @@ sa.restore()
 _ = gettext.gettext
 
 
-class Relocate(InterfaceView):
+@Gtk.Template(filename=f"{os.path.dirname(os.path.abspath(__file__))}/xml/relocate.xml")
+class RelocateWidget(Gtk.Grid):
+    __gtype_name__ = "RelocateWidget"
+
+    from_url = Gtk.Template.Child()
+    to_url = Gtk.Template.Child()
+
+    def __init__(self):
+        Gtk.Grid.__init__(self)
+
+class Relocate(GtkTemplateHelper):
     """
     Interface to relocate your working copy's repository location.
 
@@ -54,30 +64,38 @@ class Relocate(InterfaceView):
 
         """
 
-        InterfaceView.__init__(self, "relocate", "Relocate")
+        GtkTemplateHelper.__init__(self, "Relocate")
+
+        self.widget = RelocateWidget()
+        self.window = self.get_window(self.widget)
+        # add dialog buttons
+        self.ok = self.add_dialog_button("Relocate", self.on_ok_clicked, suggested=True)
+        self.cancel = self.add_dialog_button("Cancel", self.on_cancel_clicked, hideOnAdwaita=True)
+        # set window properties
+        self.window.set_default_size(640, -1)
 
         self.path = path
         self.vcs = rabbitvcs.vcs.VCS()
         self.svn = self.vcs.svn()
 
         repo = S(self.svn.get_repo_url(self.path)).display()
-        self.get_widget("from_url").set_text(repo)
-        self.get_widget("to_url").set_text(repo)
+        self.widget.from_url.set_text(repo)
+        self.widget.to_url.get_child().set_text(repo)
 
         self.repositories = rabbitvcs.ui.widget.ComboBox(
-            self.get_widget("to_urls"), helper.get_repository_paths()
+            self.widget.to_url, helper.get_repository_paths()
         )
 
     def on_ok_clicked(self, widget):
 
-        from_url = self.get_widget("from_url").get_text()
-        to_url = self.get_widget("to_url").get_text()
+        from_url = self.widget.from_url.get_text()
+        to_url = self.widget.to_url.get_active_text()
 
         if not from_url or not to_url:
-            MessageBox(_("The from and to url fields are both required."))
+            self.exec_dialog(self.window, _("The from and to url fields are both required."), show_cancel=False)
             return
 
-        self.hide()
+        self.window.hide()
 
         self.action = SVNAction(self.svn, register_gtk_quit=self.gtk_quit_is_set())
 
@@ -88,12 +106,17 @@ class Relocate(InterfaceView):
         self.action.append(self.action.finish)
         self.action.schedule()
 
+        self.window.close()
 
-if __name__ == "__main__":
+
+def on_activate(app):
     from rabbitvcs.ui import main
 
     (options, paths) = main(usage="Usage: rabbitvcs relocate [path]")
 
-    window = Relocate(paths[0])
-    window.register_gtk_quit()
-    Gtk.main()
+    widget = Relocate(paths[0])
+    app.add_window(widget.window)
+    widget.window.set_visible(True)
+
+if __name__ == "__main__":
+    GtkTemplateHelper.run_application(on_activate)
