@@ -2,7 +2,7 @@ from __future__ import absolute_import
 from rabbitvcs import gettext
 import rabbitvcs.vcs
 from rabbitvcs.ui.action import SVNAction, GitAction
-from rabbitvcs.ui import GtkTemplateHelper, InterfaceView
+from rabbitvcs.ui import GtkTemplateHelper
 from gi.repository import Gtk, GObject, Gdk
 
 #

@@ -254,15 +254,25 @@ class SSLClientCertPrompt(InterfaceView):
             return (False, "", False)
 
 
-class Property(InterfaceView):
+@Gtk.Template(filename=f"{os.path.dirname(os.path.abspath(__file__))}/xml/dialogs/property.xml")
+class Property(Gtk.Box, GtkTemplateHelper):
+    __gtype_name__ = "PropertyWidget"
+    
+    property_name = Gtk.Template.Child()
+    property_value = Gtk.Template.Child()
+    property_recurse = Gtk.Template.Child()
+
+    callback = None
+
     def __init__(self, name="", value="", recurse=True):
-        InterfaceView.__init__(self, "dialogs/property", "Property")
+        Gtk.Box.__init__(self)
+        GtkTemplateHelper.__init__(self, "Property")
 
         self.save_name = name
         self.save_value = value
 
         self.name = rabbitvcs.ui.widget.ComboBox(
-            self.get_widget("property_name"),
+            self.property_name,
             [  # default svn properties
                 "svn:author",
                 "svn:autoversioned",
@@ -282,21 +292,23 @@ class Property(InterfaceView):
         self.name.set_child_text(name)
 
         self.value = rabbitvcs.ui.widget.TextView(
-            self.get_widget("property_value"), value
+            self.property_value, value
         )
 
-        self.recurse = self.get_widget("property_recurse")
+        self.recurse = self.property_recurse
         self.recurse.set_active(recurse)
 
-    def run(self):
-        self.dialog = self.get_widget("Property")
-        result = self.dialog.run()
+    def run(self, callback):
+        self.callback = callback
+        self.connect("response", self.on_response)
+        self.set_visible(True)
 
-        if result == Gtk.ResponseType.OK:
+    def on_response(self, dialog, response):
+        if response == Gtk.ResponseType.OK:
             self.save()
 
-        self.dialog.destroy()
-        return (self.save_name, self.save_value, self.recurse.get_active())
+        if self.callback:
+            self.callback (self.save_name, self.save_value, self.recurse.get_active())
 
     def save(self):
         self.save_name = self.name.get_active_text()

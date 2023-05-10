@@ -1,305 +1,185 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Generated with glade 3.22.1 -->
 <interface>
-  <requires lib="gtk+" version="3.0"/>
-  <object class="GtkImage" id="document-new">
-    <property name="visible">True</property>
-    <property name="can_focus">False</property>
-    <property name="icon_name">document-new</property>
-  </object>
-  <object class="GtkImage" id="document-save">
-    <property name="visible">True</property>
-    <property name="can_focus">False</property>
-    <property name="icon_name">document-save</property>
-  </object>
-  <object class="GtkImage" id="edit-delete">
-    <property name="visible">True</property>
-    <property name="can_focus">False</property>
-    <property name="icon_name">edit-delete</property>
-  </object>
-  <object class="GtkImage" id="rabbitvcs-cancel">
-    <property name="visible">True</property>
-    <property name="can_focus">False</property>
-    <property name="icon_name">rabbitvcs-cancel</property>
-  </object>
-  <object class="GtkImage" id="rabbitvcs-editprops">
-    <property name="visible">True</property>
-    <property name="can_focus">False</property>
-    <property name="icon_name">rabbitvcs-editprops</property>
-  </object>
-  <object class="GtkWindow" id="Properties">
-    <property name="width_request">600</property>
-    <property name="visible">True</property>
-    <property name="can_focus">False</property>
-    <property name="title" translatable="yes">Properties</property>
-    <property name="window_position">center</property>
-    <property name="icon_name">rabbitvcs-small</property>
-    <signal name="destroy" handler="on_destroy" swapped="no"/>
-    <signal name="key-press-event" handler="on_key_pressed" swapped="no"/>
+  <requires lib="gtk" version="4.0"/>
+  <template class="PropertiesWidget" parent="GtkGrid">
+    <property name="margin-start">12</property>
+    <property name="margin-end">12</property>
+    <property name="margin_top">12</property>
+    <property name="margin_bottom">12</property>
+    <property name="hexpand">1</property>
+    <property name="vexpand">1</property>
+    <property name="orientation">vertical</property>
+    <property name="row_spacing">18</property>
     <child>
       <object class="GtkGrid">
-        <property name="visible">True</property>
-        <property name="can_focus">False</property>
-        <property name="margin_left">12</property>
-        <property name="margin_right">12</property>
-        <property name="margin_top">12</property>
-        <property name="margin_bottom">12</property>
-        <property name="hexpand">True</property>
-        <property name="vexpand">True</property>
+        <property name="hexpand">1</property>
+        <property name="vexpand">1</property>
         <property name="orientation">vertical</property>
-        <property name="row_spacing">18</property>
-        <child>
-          <object class="GtkButtonBox" id="hbuttonbox8">
-            <property name="visible">True</property>
-            <property name="can_focus">False</property>
-            <property name="hexpand">True</property>
-            <property name="spacing">6</property>
-            <property name="layout_style">end</property>
-            <child>
-              <object class="GtkButton" id="cancel">
-                <property name="label" translatable="yes">_Cancel</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">True</property>
-                <property name="image">rabbitvcs-cancel</property>
-                <property name="use_underline">True</property>
-                <signal name="clicked" handler="on_cancel_clicked" swapped="no"/>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">False</property>
-                <property name="position">0</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkButton" id="ok">
-                <property name="label" translatable="yes">_Save</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">True</property>
-                <property name="image">document-save</property>
-                <property name="use_underline">True</property>
-                <signal name="clicked" handler="on_ok_clicked" swapped="no"/>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">False</property>
-                <property name="position">1</property>
-              </packing>
-            </child>
-          </object>
-          <packing>
-            <property name="left_attach">0</property>
-            <property name="top_attach">1</property>
-          </packing>
-        </child>
+        <property name="row_spacing">6</property>
         <child>
           <object class="GtkGrid">
-            <property name="visible">True</property>
-            <property name="can_focus">False</property>
-            <property name="hexpand">True</property>
-            <property name="vexpand">True</property>
+            <property name="margin-start">12</property>
+            <property name="hexpand">1</property>
+            <property name="vexpand">1</property>
             <property name="orientation">vertical</property>
             <property name="row_spacing">6</property>
             <child>
-              <object class="GtkGrid">
+              <object class="GtkBox" id="hbuttonbox9">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="margin_left">12</property>
+                <property name="margin_top">8</property>
                 <property name="hexpand">True</property>
-                <property name="vexpand">True</property>
-                <property name="orientation">vertical</property>
-                <property name="row_spacing">6</property>
+                <property name="spacing">3</property>
                 <child>
-                  <object class="GtkButtonBox" id="hbuttonbox9">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="margin_top">8</property>
-                    <property name="hexpand">True</property>
-                    <property name="spacing">3</property>
-                    <property name="layout_style">start</property>
+                  <object class="GtkButton" id="new">
+                    <property name="label" translatable="1">_New...</property>
+                    <property name="focusable">1</property>
+                    <property name="receives_default">1</property>
+                    <property name="use_underline">1</property>
                     <child>
-                      <object class="GtkButton" id="new">
-                        <property name="label" translatable="yes">_New...</property>
-                        <property name="visible">True</property>
-                        <property name="can_focus">True</property>
-                        <property name="receives_default">True</property>
-                        <property name="image">document-new</property>
-                        <property name="use_underline">True</property>
-                        <signal name="clicked" handler="on_new_clicked" swapped="no"/>
-                      </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">False</property>
-                        <property name="position">0</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkButton" id="edit">
-                        <property name="label" translatable="yes">_Edit...</property>
-                        <property name="visible">True</property>
-                        <property name="sensitive">False</property>
-                        <property name="can_focus">True</property>
-                        <property name="receives_default">True</property>
-                        <property name="image">rabbitvcs-editprops</property>
-                        <property name="use_underline">True</property>
-                        <signal name="clicked" handler="on_edit_clicked" swapped="no"/>
-                      </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">False</property>
-                        <property name="position">1</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkButton" id="delete">
-                        <property name="label" translatable="yes">_Delete</property>
-                        <property name="visible">True</property>
-                        <property name="sensitive">False</property>
-                        <property name="can_focus">True</property>
-                        <property name="receives_default">True</property>
-                        <property name="image">edit-delete</property>
-                        <property name="use_underline">True</property>
-                        <signal name="clicked" handler="on_delete_clicked" swapped="no"/>
-                      </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">False</property>
-                        <property name="position">2</property>
-                      </packing>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="left_attach">0</property>
-                    <property name="top_attach">4</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkCheckButton" id="delete_recurse">
-                    <property name="label" translatable="yes">Delete properties recursively</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">False</property>
-                    <property name="halign">start</property>
-                    <property name="hexpand">True</property>
-                    <property name="draw_indicator">True</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">0</property>
-                    <property name="top_attach">3</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel" id="recursive_label">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="halign">start</property>
-                    <property name="hexpand">True</property>
-                    <property name="label" translatable="yes">&lt;i&gt;Selected properties will be applied recursively.&lt;/i&gt;</property>
-                    <property name="use_markup">True</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">0</property>
-                    <property name="top_attach">2</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkScrolledWindow" id="scrolledwindow12">
-                    <property name="height_request">150</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="hexpand">True</property>
-                    <property name="vexpand">True</property>
-                    <property name="shadow_type">etched-in</property>
-                    <child>
-                      <object class="GtkTreeView" id="table">
-                        <property name="visible">True</property>
-                        <property name="can_focus">True</property>
-                        <property name="rubber_banding">True</property>
-                        <signal name="button-release-event" handler="on_table_button_released" swapped="no"/>
-                        <signal name="cursor-changed" handler="on_table_cursor_changed" swapped="no"/>
-                        <child internal-child="selection">
-                          <object class="GtkTreeSelection"/>
-                        </child>
+                      <object class="GtkImage">
+                        <property name="icon_name">document-new</property>
                       </object>
                     </child>
                   </object>
-                  <packing>
-                    <property name="left_attach">0</property>
-                    <property name="top_attach">1</property>
-                  </packing>
                 </child>
                 <child>
-                  <object class="GtkGrid">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="hexpand">True</property>
-                    <property name="column_spacing">6</property>
+                  <object class="GtkButton" id="edit">
+                    <property name="label" translatable="1">_Edit...</property>
+                    <property name="sensitive">0</property>
+                    <property name="focusable">1</property>
+                    <property name="receives_default">1</property>
+                    <property name="use_underline">1</property>
                     <child>
-                      <object class="GtkButton" id="refresh">
-                        <property name="visible">True</property>
-                        <property name="can_focus">True</property>
-                        <property name="receives_default">True</property>
-                        <signal name="clicked" handler="on_refresh_activate" swapped="no"/>
-                        <child>
-                          <object class="GtkImage" id="image1">
-                            <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <property name="icon_name">view-refresh</property>
-                          </object>
-                        </child>
-                        <accelerator key="r" signal="clicked" modifiers="GDK_MOD1_MASK"/>
+                      <object class="GtkImage">
+                        <property name="icon_name">rabbitvcs-editprops</property>
                       </object>
-                      <packing>
-                        <property name="left_attach">1</property>
-                        <property name="top_attach">0</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkEntry" id="path">
-                        <property name="visible">True</property>
-                        <property name="can_focus">True</property>
-                        <property name="tooltip_text">URL/Path</property>
-                        <property name="hexpand">True</property>
-                        <signal name="activate" handler="on_refresh_activate" swapped="no"/>
-                      </object>
-                      <packing>
-                        <property name="left_attach">0</property>
-                        <property name="top_attach">0</property>
-                      </packing>
                     </child>
                   </object>
-                  <packing>
-                    <property name="left_attach">0</property>
-                    <property name="top_attach">0</property>
-                  </packing>
                 </child>
+                <child>
+                  <object class="GtkButton" id="delete">
+                    <property name="label" translatable="1">_Delete</property>
+                    <property name="sensitive">0</property>
+                    <property name="focusable">1</property>
+                    <property name="receives_default">1</property>
+                    <property name="use_underline">1</property>
+                    <child>
+                      <object class="GtkImage">
+                        <property name="icon_name">edit-delete</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <layout>
+                  <property name="column">0</property>
+                  <property name="row">4</property>
+                </layout>
               </object>
-              <packing>
-                <property name="left_attach">0</property>
-                <property name="top_attach">1</property>
-              </packing>
             </child>
             <child>
-              <object class="GtkLabel" id="label1">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="label" translatable="yes">&lt;b&gt;Properties for:&lt;/b&gt;</property>
-                <property name="use_markup">True</property>
-                <property name="xalign">0</property>
+              <object class="GtkCheckButton" id="delete_recurse">
+                <property name="label" translatable="1">Delete properties recursively</property>
+                <property name="focusable">1</property>
+                <property name="halign">start</property>
+                <property name="hexpand">1</property>
+                <layout>
+                  <property name="column">0</property>
+                  <property name="row">3</property>
+                </layout>
               </object>
-              <packing>
-                <property name="left_attach">0</property>
-                <property name="top_attach">0</property>
-              </packing>
             </child>
+            <child>
+              <object class="GtkLabel" id="recursive_label">
+                <property name="halign">start</property>
+                <property name="hexpand">1</property>
+                <property name="label" translatable="1">&lt;i&gt;Selected properties will be applied recursively.&lt;/i&gt;</property>
+                <property name="use_markup">1</property>
+                <layout>
+                  <property name="column">0</property>
+                  <property name="row">2</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkScrolledWindow" id="scrolledwindow12">
+                <property name="height_request">150</property>
+                <property name="focusable">1</property>
+                <property name="hexpand">1</property>
+                <property name="vexpand">1</property>
+                <property name="child">
+                  <object class="GtkTreeView" id="table">
+                    <property name="focusable">1</property>
+                    <property name="rubber_banding">1</property>
+                    <child internal-child="selection">
+                      <object class="GtkTreeSelection"/>
+                    </child>
+                  </object>
+                </property>
+                <layout>
+                  <property name="column">0</property>
+                  <property name="row">1</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkGrid">
+                <property name="hexpand">1</property>
+                <property name="column_spacing">6</property>
+                <child>
+                  <object class="GtkButton" id="refresh">
+                    <property name="focusable">1</property>
+                    <property name="receives_default">1</property>
+                    <child>
+                      <object class="GtkImage" id="image1">
+                        <property name="icon_name">view-refresh</property>
+                      </object>
+                    </child>
+                    <layout>
+                      <property name="column">1</property>
+                      <property name="row">0</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkEntry" id="path">
+                    <property name="focusable">1</property>
+                    <property name="tooltip_text">URL/Path</property>
+                    <property name="hexpand">1</property>
+                    <layout>
+                      <property name="column">0</property>
+                      <property name="row">0</property>
+                    </layout>
+                  </object>
+                </child>
+                <layout>
+                  <property name="column">0</property>
+                  <property name="row">0</property>
+                </layout>
+              </object>
+            </child>
+            <layout>
+              <property name="column">0</property>
+              <property name="row">1</property>
+            </layout>
           </object>
-          <packing>
-            <property name="left_attach">0</property>
-            <property name="top_attach">0</property>
-          </packing>
         </child>
+        <child>
+          <object class="GtkLabel" id="label1">
+            <property name="label" translatable="1">&lt;b&gt;Properties for:&lt;/b&gt;</property>
+            <property name="use_markup">1</property>
+            <property name="xalign">0</property>
+            <layout>
+              <property name="column">0</property>
+              <property name="row">0</property>
+            </layout>
+          </object>
+        </child>
+        <layout>
+          <property name="column">0</property>
+          <property name="row">0</property>
+        </layout>
       </object>
     </child>
-  </object>
+  </template>
 </interface>
