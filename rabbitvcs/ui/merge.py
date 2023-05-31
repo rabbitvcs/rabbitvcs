@@ -44,30 +44,78 @@ sa.restore()
 _ = gettext.gettext
 
 
-class SVNMerge(GtkTemplateHelper):
+
+@Gtk.Template(filename=f"{os.path.dirname(os.path.abspath(__file__))}/xml/merge.xml")
+class SVNMerge(GtkTemplateHelper, Gtk.Assistant):
+    __gtype_name__ = "Merge"
+
+    mergetree_to_revision_number = Gtk.Template.Child()
+    mergetree_from_revision_number = Gtk.Template.Child()
+    mergetype_range_opt = Gtk.Template.Child()
+    mergerange_revisions = Gtk.Template.Child()
+    mergetype_tree_opt = Gtk.Template.Child()
+    mergetype_reintegrate_opt = Gtk.Template.Child()
+    mergeoptions_only_record = Gtk.Template.Child()
+    mergeoptions_recursive = Gtk.Template.Child()
+    mergeoptions_ignore_ancestry = Gtk.Template.Child()
+    mergetree_from_revision_number_opt = Gtk.Template.Child()
+    mergetree_to_revision_number_opt = Gtk.Template.Child()
+    mergerange_from_urls = Gtk.Template.Child()
+    mergerange_working_copy = Gtk.Template.Child()
+    mergerange_show_log1 = Gtk.Template.Child()
+    merge_reintegrate_working_copy = Gtk.Template.Child()
+    merge_reintegrate_repos = Gtk.Template.Child()
+    revision_container = Gtk.Template.Child()
+    mergetree_from_urls = Gtk.Template.Child()
+    mergetree_to_urls = Gtk.Template.Child()
+    mergetree_working_copy = Gtk.Template.Child()
+
+    mergetree_from_repos = None
+    mergerange_repos = None
+    _merge_reintegrate_repos = None
+    _merge_reintegrate_revision = None
+
     def __init__(self, path, revision_range=None):
-        GtkTemplateHelper.__init__(self, "merge", "Merge")
+        GtkTemplateHelper.__init__(self, "Merge")
+        Gtk.Assistant.__init__(self)
+
+        self.window = self
+        # forward signals
+        self.connect("prepare", self.on_prepare)
+
+        keycontroller = Gtk.EventControllerKey()
+        keycontroller.connect("key-pressed", self.on_key_pressed)
+        self.add_controller(keycontroller)
+
+        controller = Gtk.EventControllerFocus()
+        controller.connect("enter", self.on_mergetree_to_revision_number_focused)
+        self.mergetree_to_revision_number.add_controller(controller)
+
+        controller = Gtk.EventControllerFocus()
+        controller.connect("enter", self.on_mergetree_from_revision_number_focused)
+        self.mergetree_from_revision_number.add_controller(controller)
 
         self.revision_range = revision_range
 
-        self.assistant = self.get_widget("Merge")
+        self.assistant = self.window
 
         self.path = path
 
         self.page = self.assistant.get_nth_page(0)
+        self.set_current_page(0)
         self.last_page = None
 
         self.vcs = rabbitvcs.vcs.VCS()
         self.svn = self.vcs.svn()
 
         if not self.svn.has_merge2():
-            self.get_widget("mergetype_range_opt").set_sensitive(False)
-            self.get_widget("mergetype_tree_opt").set_active(True)
-            self.get_widget("mergetype_reintegrate_opt").set_active(False)
-            self.get_widget("mergeoptions_only_record").set_active(False)
+            self.mergetype_range_opt.set_sensitive(False)
+            self.mergetype_tree_opt.set_active(True)
+            self.mergetype_reintegrate_opt.set_active(False)
+            self.mergeoptions_only_record.set_active(False)
 
         if not self.svn.has_merge_reintegrate():
-            self.get_widget("mergetype_reintegrate_opt").set_sensitive(False)
+            self.mergetype_reintegrate_opt.set_sensitive(False)
 
         self.assistant.set_page_complete(self.page, True)
         self.assistant.set_forward_page_func(self.on_forward_clicked)
@@ -88,9 +136,15 @@ class SVNMerge(GtkTemplateHelper):
     # Assistant UI Signal Callbacks
     #
 
-    def on_apply_clicked(self, widget):
+    @Gtk.Template.Callback()
+    def on_ok_clicked(self, widget):
         self.merge()
 
+    @Gtk.Template.Callback()
+    def on_cancel_clicked(self, widget):
+        self.destroy()
+
+    @Gtk.Template.Callback()
     def on_test_clicked(self, widget):
         self.merge(test=True)
 
@@ -106,12 +160,12 @@ class SVNMerge(GtkTemplateHelper):
             endcmd = _("Completed Merge")
             self.hide()
 
-        recursive = self.get_widget("mergeoptions_recursive").get_active()
-        ignore_ancestry = self.get_widget("mergeoptions_ignore_ancestry").get_active()
+        recursive = self.mergeoptions_recursive.get_active()
+        ignore_ancestry = self.mergeoptions_ignore_ancestry.get_active()
 
         record_only = False
         if self.svn.has_merge2():
-            record_only = self.get_widget("mergeoptions_only_record").get_active()
+            record_only = self.mergeoptions_only_record.get_active()
 
         action = SVNAction(self.svn, register_gtk_quit=(not test))
         action.append(action.set_header, _("Merge"))
@@ -123,7 +177,7 @@ class SVNMerge(GtkTemplateHelper):
         if self.type == "range":
             url = self.mergerange_repos.get_active_text()
             head_revision = self.svn.get_head(self.path)
-            revisions = self.get_widget("mergerange_revisions").get_text()
+            revisions = self.mergerange_revisions.get_text()
             if revisions == "":
                 revisions = "head"
             revisions = revisions.lower().replace("head", str(head_revision))
@@ -179,8 +233,8 @@ class SVNMerge(GtkTemplateHelper):
                 kwargs["record_only"] = record_only
 
         elif self.type == "reintegrate":
-            url = self.merge_reintegrate_repos.get_active_text()
-            revision = self.merge_reintegrate_revision.get_revision_object()
+            url = self._merge_reintegrate_repos.get_active_text()
+            revision = self._merge_reintegrate_revision.get_revision_object()
 
             action.append(helper.save_repository_path, url)
 
@@ -192,20 +246,20 @@ class SVNMerge(GtkTemplateHelper):
         elif self.type == "tree":
             from_url = self.mergetree_from_repos.get_active_text()
             from_revision = self.svn.revision("head")
-            if self.get_widget("mergetree_from_revision_number_opt").get_active():
+            if self.mergetree_from_revision_number_opt.get_active():
                 from_revision = self.svn.revision(
                     "number",
                     number=int(
-                        self.get_widget("mergetree_from_revision_number").get_text()
+                        self.mergetree_from_revision_number.get_text()
                     ),
                 )
             to_url = self.mergetree_to_repos.get_active_text()
             to_revision = self.svn.revision("head")
-            if self.get_widget("mergetree_to_revision_number_opt").get_active():
+            if self.mergetree_to_revision_number_opt.get_active():
                 to_revision = self.svn.revision(
                     "number",
                     number=int(
-                        self.get_widget("mergetree_to_revision_number").get_text()
+                        self.mergetree_to_revision_number.get_text()
                     ),
                 )
 
@@ -249,17 +303,17 @@ class SVNMerge(GtkTemplateHelper):
     def on_forward_clicked(self, widget):
         current = self.assistant.get_current_page()
         if current == 0:
-            if self.get_widget("mergetype_range_opt").get_active():
+            if self.mergetype_range_opt.get_active():
                 next = 1
                 self.type = "range"
                 if self.revision_range:
-                    self.get_widget("mergerange_revisions").set_text(
+                    self.mergerange_revisions.set_text(
                         S(self.revision_range).display()
                     )
-            elif self.get_widget("mergetype_tree_opt").get_active():
+            elif self.mergetype_tree_opt.get_active():
                 next = 2
                 self.type = "tree"
-            elif self.get_widget("mergetype_reintegrate_opt").get_active():
+            elif self.mergetype_reintegrate_opt.get_active():
                 next = 3
                 self.type = "reintegrate"
         else:
@@ -272,33 +326,37 @@ class SVNMerge(GtkTemplateHelper):
     #
 
     def on_mergerange_prepare(self):
-        if not hasattr(self, "mergerange_repos"):
+        if not self.mergerange_repos:
             self.mergerange_repos = rabbitvcs.ui.widget.ComboBox(
-                self.get_widget("mergerange_from_urls"), self.repo_paths
+                self.mergerange_from_urls, self.repo_paths
             )
             self.mergerange_repos.set_child_text(self.root_url)
-            self.get_widget("mergerange_working_copy").set_text(S(self.path).display())
+            self.mergerange_working_copy.set_text(S(self.path).display())
 
         self.mergerange_check_ready()
 
+    @Gtk.Template.Callback()
     def on_mergerange_show_log1_clicked(self, widget):
         merge_candidate_revisions = self.svn.find_merge_candidate_revisions(
             self.mergerange_repos.get_active_text(), self.path
         )
-        SVNLogDialog(
+        log = SVNLogDialog(
             self.mergerange_repos.get_active_text(),
             ok_callback=self.on_mergerange_log1_closed,
             multiple=True,
             merge_candidate_revisions=merge_candidate_revisions,
         )
+        log.window.set_visible(True)
 
     def on_mergerange_log1_closed(self, data):
         if not data is None:
-            self.get_widget("mergerange_revisions").set_text(S(data).display())
+            self.mergerange_revisions.set_text(S(data).display())
 
+    @Gtk.Template.Callback()
     def on_mergerange_from_urls_changed(self, widget):
         self.mergerange_check_ready()
 
+    @Gtk.Template.Callback()
     def on_mergerange_revisions_changed(self, widget):
         self.mergerange_check_ready()
 
@@ -312,32 +370,33 @@ class SVNMerge(GtkTemplateHelper):
         allow_log = False
         if self.mergerange_repos.get_active_text():
             allow_log = True
-        self.get_widget("mergerange_show_log1").set_sensitive(allow_log)
+        self.mergerange_show_log1.set_sensitive(allow_log)
 
     #
     # Step 2b: Reintegrate a Branch
     #
 
     def on_merge_reintegrate_prepare(self):
-        if not hasattr(self, "merge_reintegrate_repos"):
-            self.merge_reintegrate_repos = rabbitvcs.ui.widget.ComboBox(
-                self.get_widget("merge_reintegrate_repos"), self.repo_paths
+        if not self._merge_reintegrate_repos:
+            self._merge_reintegrate_repos = rabbitvcs.ui.widget.ComboBox(
+                self.merge_reintegrate_repos, self.repo_paths
             )
-            self.merge_reintegrate_repos.cb.connect(
+            self._merge_reintegrate_repos.cb.connect(
                 "changed", self.on_merge_reintegrate_from_urls_changed
             )
-            self.get_widget("merge_reintegrate_working_copy").set_text(
+            self.merge_reintegrate_working_copy.set_text(
                 S(self.path).display()
             )
 
-        if not hasattr(self, "merge_reintegrate_revision"):
-            self.merge_reintegrate_revision = rabbitvcs.ui.widget.RevisionSelector(
-                self.get_widget("revision_container"),
+        if not self._merge_reintegrate_revision:
+            self._merge_reintegrate_revision = rabbitvcs.ui.widget.RevisionSelector(
+                self.revision_container,
                 self.svn,
-                url_combobox=self.merge_reintegrate_repos,
+                url_combobox=self._merge_reintegrate_repos,
                 expand=True,
             )
 
+    @Gtk.Template.Callback()
     def on_merge_reintegrate_browse_clicked(self, widget):
         from rabbitvcs.ui.browser import SVNBrowserDialog
 
@@ -347,6 +406,7 @@ class SVNMerge(GtkTemplateHelper):
         self.merge_reintegrate_repos.set_child_text(new_url)
         self.merge_reintegrate_check_ready()
 
+    @Gtk.Template.Callback()
     def on_merge_reintegrate_from_urls_changed(self, widget):
         self.merge_reintegrate_check_ready()
 
@@ -362,47 +422,53 @@ class SVNMerge(GtkTemplateHelper):
     #
 
     def on_mergetree_prepare(self):
-        if not hasattr(self, "mergetree_from_repos"):
+        if not self.mergetree_from_repos:
             self.mergetree_from_repos = rabbitvcs.ui.widget.ComboBox(
-                self.get_widget("mergetree_from_urls"), self.repo_paths
+                self.mergetree_from_urls, self.repo_paths
             )
             self.mergetree_to_repos = rabbitvcs.ui.widget.ComboBox(
-                self.get_widget("mergetree_to_urls"), self.repo_paths
+                self.mergetree_to_urls, self.repo_paths
             )
-            self.get_widget("mergetree_working_copy").set_text(S(self.path).display())
+            self.mergetree_working_copy.set_text(S(self.path).display())
 
+    @Gtk.Template.Callback()
     def on_mergetree_from_show_log_clicked(self, widget):
-        SVNLogDialog(
+        log = SVNLogDialog(
             self.path,
             ok_callback=self.on_mergetree_from_show_log_closed,
             multiple=False,
         )
+        log.window.set_visible(True)
 
     def on_mergetree_from_show_log_closed(self, data):
-        self.get_widget("mergetree_from_revision_number").set_text(S(data).display())
-        self.get_widget("mergetree_from_revision_number_opt").set_active(True)
+        self.mergetree_from_revision_number.set_text(S(data).display())
+        self.mergetree_from_revision_number_opt.set_active(True)
 
+    @Gtk.Template.Callback()
     def on_mergetree_to_show_log_clicked(self, widget):
-        SVNLogDialog(
+        log = SVNLogDialog(
             self.path, ok_callback=self.on_mergetree_to_show_log_closed, multiple=False
         )
+        log.window.set_visible(True)
 
     def on_mergetree_to_show_log_closed(self, data):
-        self.get_widget("mergetree_to_revision_number").set_text(S(data).display())
-        self.get_widget("mergetree_to_revision_number_opt").set_active(True)
+        self.mergetree_to_revision_number.set_text(S(data).display())
+        self.mergetree_to_revision_number_opt.set_active(True)
 
     def on_mergetree_working_copy_show_log_clicked(self, widget):
         SVNLogDialog(self.path)
 
-    def on_mergetree_from_revision_number_focused(self, widget, data):
-        self.get_widget("mergetree_from_revision_number_opt").set_active(True)
+    def on_mergetree_from_revision_number_focused(self, widget):
+        self.mergetree_from_revision_number_opt.set_active(True)
 
-    def on_mergetree_to_revision_number_focused(self, widget, data):
-        self.get_widget("mergetree_to_revision_number_opt").set_active(True)
+    def on_mergetree_to_revision_number_focused(self, widget):
+        self.mergetree_to_revision_number_opt.set_active(True)
 
+    @Gtk.Template.Callback()
     def on_mergetree_from_urls_changed(self, widget):
         self.mergetree_check_ready()
 
+    @Gtk.Template.Callback()
     def on_mergetree_to_urls_changed(self, widget):
         self.mergetree_check_ready()
 
@@ -421,13 +487,13 @@ class SVNMerge(GtkTemplateHelper):
 
     def on_mergeoptions_prepare(self):
         if self.last_page == 3:
-            self.get_widget("mergeoptions_recursive").hide()
-            self.get_widget("mergeoptions_ignore_ancestry").hide()
-            self.get_widget("mergeoptions_only_record").hide()
+            self.mergeoptions_recursive.hide()
+            self.mergeoptions_ignore_ancestry.hide()
+            self.mergeoptions_only_record.hide()
         else:
-            self.get_widget("mergeoptions_recursive").show()
-            self.get_widget("mergeoptions_ignore_ancestry").show()
-            self.get_widget("mergeoptions_only_record").show()
+            self.mergeoptions_recursive.show()
+            self.mergeoptions_ignore_ancestry.show()
+            self.mergeoptions_only_record.show()
 
         self.assistant.set_page_complete(self.page, True)
 
