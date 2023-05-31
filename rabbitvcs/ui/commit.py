@@ -67,6 +67,7 @@ class CommitWidget(Gtk.Box):
     toggle_show_unversioned = Gtk.Template.Child()
     toggle_show_all = Gtk.Template.Child()
     refresh = Gtk.Template.Child()
+    add_message_box = Gtk.Template.Child()
 
     def __init__(self):
         Gtk.Box.__init__(self)
