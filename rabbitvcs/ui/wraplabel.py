@@ -45,17 +45,15 @@ class WrapLabel(Gtk.Label):
         if str != None:
             self.set_text(S(str).display())
 
-        self.set_alignment(0.0, 0.0)
-
     def do_size_request(self, requisition):
         layout = self.get_layout()
         width, height = layout.get_pixel_size()
         requisition.width = 0
         requisition.height = height
 
-    def do_size_allocate(self, allocation):
-        Gtk.Label.do_size_allocate(self, allocation)
-        self.__set_wrap_width(allocation.width)
+    def do_size_allocate(self, width, height, baseline):
+        Gtk.Label.do_size_allocate(self, width, height, baseline)
+        self.__set_wrap_width(width)
 
     def set_text(self, str):
         Gtk.Label.set_text(self, S(str).display())

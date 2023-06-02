@@ -170,7 +170,7 @@ class GtkTemplateHelper(object):
         else:
             self.exec_dialog(self.window, notification, None, False)
 
-    def exec_dialog(self, parent, content, on_response_callback = None, show_cancel = True):
+    def exec_dialog(self, parent, content, on_response_callback = None, show_cancel = True, yes_no = False):
         if adwaita_available:
             dialog = Adw.MessageDialog(transient_for = parent)
             dialog.set_heading(self.gtktemplate_id)
@@ -178,9 +178,9 @@ class GtkTemplateHelper(object):
                 dialog.set_body(content)
             else:
                 dialog.set_extra_child(content)
-            dialog.add_response("ok", "Ok")
+            dialog.add_response("ok", "Yes" if yes_no else "Ok")
             if show_cancel:
-                dialog.add_response("cancel", "Cancel")
+                dialog.add_response("cancel", "No" if yes_no else "Cancel")
             dialog.connect("response", self.on_adw_dialog_response)
         else:
             dialog = Gtk.MessageDialog(transient_for = parent)

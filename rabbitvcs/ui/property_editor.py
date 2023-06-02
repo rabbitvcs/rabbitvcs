@@ -39,7 +39,7 @@ import rabbitvcs.ui.widget
 import rabbitvcs.util.contextmenuitems
 import rabbitvcs.ui.wraplabel
 from rabbitvcs.util.contextmenu import GtkContextMenu, GtkContextMenuCaller
-from rabbitvcs.ui import InterfaceView
+from rabbitvcs.ui import GtkTemplateHelper
 from gi.repository import Gtk, GObject, Gdk
 
 import os.path
@@ -67,8 +67,7 @@ undo changes using the context menu for each item.
 
 RECURSIVE_DELETE_MSG = _(
     """\
-Do you want to delete the selected properties from all files and subdirectories
-beneath this directory?"""
+Do you want to delete the selected properties from all files and subdirectories beneath this directory?"""
 )
 
 PROP_MENU_STRUCTURE = [
@@ -80,7 +79,21 @@ PROP_MENU_STRUCTURE = [
 ]
 
 
-class PropEditor(InterfaceView, GtkContextMenuCaller):
+@Gtk.Template(filename=f"{os.path.dirname(os.path.abspath(__file__))}/xml/property_editor.xml")
+class PropertyEditorWidget(Gtk.Grid):
+    __gtype_name__ = "PropertyEditorWidget"
+
+    note_box = Gtk.Template.Child()
+    wc_text = Gtk.Template.Child()
+    remote_uri_text = Gtk.Template.Child()
+    table = Gtk.Template.Child()
+    refresh = Gtk.Template.Child()
+    new = Gtk.Template.Child()
+
+    def __init__(self):
+        Gtk.Grid.__init__(self)
+
+class PropEditor(GtkTemplateHelper, GtkContextMenuCaller):
     """
     User interface for the property editor.
 
@@ -93,18 +106,27 @@ class PropEditor(InterfaceView, GtkContextMenuCaller):
         """
         Initialises the UI.
         """
-        InterfaceView.__init__(self, "property_editor", "PropertyEditor")
+        GtkTemplateHelper.__init__(self, "PropertyEditor")
+
+        self.widget = PropertyEditorWidget()
+        self.window = self.get_window(self.widget)
+        # add dialog buttons
+        self.cancel = self.add_dialog_button("Close", self.on_cancel_clicked, hideOnAdwaita=True)
+        # forward signals
+        self.widget.refresh.connect("clicked", self.on_refresh_clicked)
+        self.widget.new.connect("clicked", self.on_new_clicked)
+        # set window properties
+        self.window.set_default_size(600, 400)
 
         note = rabbitvcs.ui.wraplabel.WrapLabel(PROP_EDITOR_NOTE)
         note.set_hexpand(True)
         note.set_use_markup(True)
 
-        self.get_widget("note_box").add(note)
-        self.get_widget("note_box").show_all()
+        self.widget.note_box.attach(note, 0, 0, 1, 1)
 
         self.path = path
 
-        self.get_widget("wc_text").set_text(
+        self.widget.wc_text.set_text(
             S(self.get_local_path(os.path.realpath(path))).display()
         )
 
@@ -116,12 +138,12 @@ class PropEditor(InterfaceView, GtkContextMenuCaller):
             self.close()
             return
 
-        self.get_widget("remote_uri_text").set_text(
+        self.widget.remote_uri_text.set_text(
             S(self.svn.get_repo_url(path)).display()
         )
 
         self.table = rabbitvcs.ui.widget.Table(
-            self.get_widget("table"),
+            self.widget.table,
             [
                 GObject.TYPE_STRING,
                 rabbitvcs.ui.widget.TYPE_ELLIPSIZED,
@@ -181,28 +203,37 @@ class PropEditor(InterfaceView, GtkContextMenuCaller):
 
         value = self.svn.propget(self.path, name)
 
-        dialog = rabbitvcs.ui.dialog.Property(name, value)
+        self.property = rabbitvcs.ui.dialog.Property(name, value)
+        self.exec_dialog(self.window, self.property, self.on_new_response)
 
-        name, value, recurse = dialog.run()
-        if name:
-            success = self.svn.propset(
-                self.path, name, value, overwrite=True, recurse=False
-            )
-            if not success:
-                rabbitvcs.ui.dialog.MessageBox(
-                    _("Unable to set new value for property.")
+    def on_new_response(self, response):
+        if response == Gtk.ResponseType.OK:
+            name = self.property.property_name.get_active_text()
+            if name:
+                recurse = self.property.property_recurse.get_active()
+                value_buffer = self.property.property_value.get_buffer()
+                value = value_buffer.get_text(
+                    value_buffer.get_start_iter(), value_buffer.get_end_iter(), True)
+
+                success = self.svn.propset(
+                    self.path, name, value, overwrite=True, recurse=False
                 )
+                if not success:
+                    self.exec_dialog(
+                        self.window,
+                        _("Unable to set new value for property."),
+                        show_cancel=False
+                    )
 
-        self.refresh()
+            self.refresh()
 
-    def delete_properties(self, names):
-
-        recursive = False
-
+    def delete_properties(self):
         if os.path.isdir(self.path):
-            dialog = rabbitvcs.ui.dialog.Confirmation(RECURSIVE_DELETE_MSG)
-            recursive = dialog.run()
+            self.exec_dialog(self.window, RECURSIVE_DELETE_MSG, self.delete_properties_callback, yes_no=True)
 
+    def delete_properties_callback(self, response):
+        recursive = response == Gtk.ResponseType.ACCEPT
+        names = self.table.get_selected_row_items(0)
         for name in names:
             self.svn.propdel(self.path, name, recurse=recursive)
 
@@ -212,14 +243,14 @@ class PropEditor(InterfaceView, GtkContextMenuCaller):
         for name in self.table.get_selected_row_items(0):
             self.edit_property(name)
 
-    def on_table_key_event(self, treeview, event, *args):
-        if Gdk.keyval_name(event.keyval) == "Delete":
-            names = self.table.get_selected_row_items(0)
-            self.delete_properties(names)
+    def on_table_key_event(self, controller, keyval, keycode, state, pressed):
+        if Gdk.keyval_name(keyval) == "Delete":
+            self.delete_properties()
 
-    def on_table_mouse_event(self, treeview, event, *args):
-        if event.button == 3 and event.type == Gdk.EventType.BUTTON_RELEASE:
-            self.show_menu(event)
+    def on_table_mouse_event(self, gesture, n_press, x, y, pressed):
+        if gesture.get_current_button() == 3 and not pressed:
+            # self.show_menu(event)
+            pass # TODO
 
     def show_menu(self, event):
         # self.show_files_table_popup_menu(treeview, event)
@@ -299,12 +330,15 @@ class PropMenuConditions(object):
         return len(list(self.propdetails.keys())) == 1
 
 
-if __name__ == "__main__":
+def on_activate(app):
     # These are some dumb tests before I add any functionality.
     from rabbitvcs.ui import main
 
     (options, paths) = main(usage="Usage: rabbitvcs propedit [url_or_path]")
 
-    window = PropEditor(paths[0])
-    window.register_gtk_quit()
-    Gtk.main()
+    widget = PropEditor(paths[0])
+    app.add_window(widget.window)
+    widget.window.set_visible(True)
+
+if __name__ == "__main__":
+    GtkTemplateHelper.run_application(on_activate)
