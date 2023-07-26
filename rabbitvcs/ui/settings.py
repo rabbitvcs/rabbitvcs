@@ -65,6 +65,7 @@ class SettingsWidget(Gtk.Grid):
     show_debug = Gtk.Template.Child()
     enable_subversion = Gtk.Template.Child()
     enable_git = Gtk.Template.Child()
+    enable_mercurial = Gtk.Template.Child()
     datetime_format = Gtk.Template.Child()
     default_commit_message = Gtk.Template.Child()
     diff_tool = Gtk.Template.Child()
@@ -158,7 +159,7 @@ class Settings(GtkTemplateHelper):
         self.widget.enable_git.set_active(
             int(self.settings.get("HideItem", "git")) == 0
         )
-        self.get_widget("enable_mercurial").set_active(
+        self.widget.enable_mercurial.set_active(
             int(self.settings.get("HideItem", "hg")) == 0
         )
         dtfs = []
@@ -388,7 +389,7 @@ class Settings(GtkTemplateHelper):
             "HideItem", "git", not self.widget.enable_git.get_active()
         )
         self.settings.set(
-            "HideItem", "hg", not self.get_widget("enable_mercurial").get_active()
+            "HideItem", "hg", not self.widget.enable_mercurial.get_active()
         )
         self.settings.set_multiline(
             "general", "default_commit_message", self.default_commit_message.get_text()
