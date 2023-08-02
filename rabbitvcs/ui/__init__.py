@@ -211,6 +211,9 @@ class GtkTemplateHelper(object):
 
         dialog.destroy()
 
+    def run(self, parent, response):
+        self.exec_dialog(parent, self, response)
+
     def register_window(self):
         if adwaita_available:
             appl = Adw.Application.get_default()

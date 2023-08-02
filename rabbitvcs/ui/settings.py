@@ -427,7 +427,8 @@ class Settings(GtkTemplateHelper):
         rabbitvcs.ui.dialog.FileChooser(
             _("Select a program"),
             "/usr/bin",
-            callback=self.on_external_diff_tool_browse_callback)
+            callback=self.on_external_diff_tool_browse_callback,
+            parent=self.window)
 
     def on_external_diff_tool_browse_callback(self, path):
         path = path.replace("file://", "")

@@ -207,9 +207,6 @@ class Authentication(Gtk.Box, GtkTemplateHelper):
         self.auth_realm.set_label(realm)
         self.auth_save.set_sensitive(may_save)
 
-    def run(self, parent, response):
-        self.exec_dialog(parent, self, response)
-
     def get_values(self):
         login = self.auth_login.get_text()
         password = self.auth_password.get_text()
@@ -233,9 +230,6 @@ class CertAuthentication(Gtk.Box, GtkTemplateHelper):
         self.certauth_realm.set_label(realm)
         self.certauth_save.set_sensitive(may_save)
 
-    def run(self, parent, response):
-        self.exec_dialog(parent, self, response)
-
     def get_values(self):
         password = self.certauth_password.get_text()
         save = self.certauth_save.get_active()
@@ -243,39 +237,39 @@ class CertAuthentication(Gtk.Box, GtkTemplateHelper):
         return (password, save)
 
 
-class SSLClientCertPrompt(InterfaceView):
+@Gtk.Template(filename=f"{os.path.dirname(os.path.abspath(__file__))}/xml/dialogs/ssl_client_cert_prompt.xml")
+class SSLClientCertPrompt(Gtk.Box, GtkTemplateHelper):
+    __gtype_name__ = "SSLClientCertPrompt"
+
+    sslclientcert_realm = Gtk.Template.Child()
+    sslclientcert_save = Gtk.Template.Child()
+    sslclientcert_path = Gtk.Template.Child()
+
     def __init__(self, realm="", may_save=True):
-        InterfaceView.__init__(
-            self, "dialogs/ssl_client_cert_prompt", "SSLClientCertPrompt"
-        )
+        Gtk.Box.__init__(self)
+        GtkTemplateHelper.__init__(self, "SSLClientCertPrompt")
 
-        self.get_widget("sslclientcert_realm").set_label(realm)
-        self.get_widget("sslclientcert_save").set_sensitive(may_save)
+        self.sslclientcert_realm.set_label(realm)
+        self.sslclientcert_save.set_sensitive(may_save)
 
+    @Gtk.Template.Callback()
     def on_sslclientcert_browse_clicked(self, widget, data=None):
         filechooser = FileChooser()
         cert = filechooser.run()
         if cert is not None:
-            self.get_widget("sslclientcert_path").set_text(S(cert).display())
+            self.sslclientcert_path.set_text(S(cert).display())
 
-    def run(self):
-        self.dialog = self.get_widget("SSLClientCertPrompt")
-        result = self.dialog.run()
+    def get_values(self):
+        cert = self.sslclientcert_path.get_text()
+        save = self.sslclientcert_save.get_active()
 
-        cert = self.get_widget("sslclientcert_path").get_text()
-        save = self.get_widget("sslclientcert_save").get_active()
-        self.dialog.destroy()
-
-        if result == Gtk.ResponseType.OK:
-            return (True, cert, save)
-        else:
-            return (False, "", False)
+        return (cert, save)
 
 
 @Gtk.Template(filename=f"{os.path.dirname(os.path.abspath(__file__))}/xml/dialogs/property.xml")
 class Property(Gtk.Box, GtkTemplateHelper):
     __gtype_name__ = "PropertyWidget"
-    
+
     property_name = Gtk.Template.Child()
     property_value = Gtk.Template.Child()
     property_recurse = Gtk.Template.Child()
@@ -337,11 +331,11 @@ class Property(Gtk.Box, GtkTemplateHelper):
 class FileChooser(object):
     _callback = None
 
-    def __init__(self, title=_("Select a File"), folder=None, callback=None):
+    def __init__(self, title=_("Select a File"), folder=None, callback=None, parent=None):
         self._callback = callback
         self.dialog = Gtk.FileChooserNative.new(
             title=title,
-            parent=None, action=Gtk.FileChooserAction.OPEN)
+            parent=parent, action=Gtk.FileChooserAction.OPEN)
 
         if folder and len(folder) > 0 and os.path.exists(folder):
             self.dialog.set_current_folder(Gio.File.new_for_path(folder))
@@ -378,18 +372,16 @@ class FileSaveAs(object):
             self._callback(path)
 
 
-class Confirmation(InterfaceView):
+@Gtk.Template(filename=f"{os.path.dirname(os.path.abspath(__file__))}/xml/dialogs/confirmation.xml")
+class Confirmation(Gtk.Box, GtkTemplateHelper):
+    __gtype_name__ = "Confirmation"
+
+    confirm_message = Gtk.Template.Child()
+
     def __init__(self, message=_("Are you sure you want to continue?")):
-        InterfaceView.__init__(self, "dialogs/confirmation", "Confirmation")
-        self.get_widget("confirm_message").set_text(S(message).display())
-
-    def run(self):
-        dialog = self.get_widget("Confirmation")
-        result = dialog.run()
-
-        dialog.destroy()
-
-        return result
+        Gtk.Box.__init__(self)
+        GtkTemplateHelper.__init__(self, "Confirmation")
+        self.confirm_message.set_text(S(message).display())
 
 
 @Gtk.Template(filename=f"{os.path.dirname(os.path.abspath(__file__))}/xml/dialogs/message_box.xml")
@@ -398,10 +390,13 @@ class MessageBox(GtkTemplateHelper, Gtk.Dialog):
 
     messagebox_message = Gtk.Template.Child()
 
-    def __init__(self, message):
+    def __init__(self, message="default message"):
         Gtk.Dialog.__init__(self)
         GtkTemplateHelper.__init__(self, "MessageBox")
         self.messagebox_message.set_text(S(message).display())
+
+    def run(self, parent, response):
+        self.present()
 
     @Gtk.Template.Callback()
     def on_ok_clicked(self, widget):
@@ -668,6 +663,14 @@ def dialog_factory(paths, dialog_type, parent):
         dialog = Authentication()
     elif dialog_type.casefold() == "cert_authentication":
         dialog = CertAuthentication()
+    elif dialog_type.casefold() == "sslclientcertprompt":
+        dialog = SSLClientCertPrompt()
+    # elif dialog_type.casefold() == "property":
+    #     dialog = Property()
+    elif dialog_type.casefold() == "confirmation":
+        dialog = Confirmation()
+    elif dialog_type.casefold() == "messagebox":
+        dialog = MessageBox()
 
     elif dialog_type.casefold() == "loading":
         dialog = Loading()
