@@ -3,8 +3,13 @@ from rabbitvcs.util.strings import S
 import rabbitvcs.util.helper
 import rabbitvcs.ui.wraplabel
 import rabbitvcs.ui.widget
-from rabbitvcs.ui import InterfaceView, GtkTemplateHelper
+from rabbitvcs.ui import InterfaceView, GtkTemplateHelper, adwaita_available
 from gi.repository import Gtk, GObject, Gdk, Pango, Gio
+
+try:
+    from gi.repository import Adw
+except Exception as e:
+    pass
 
 #
 # This is an extension to the Nautilus file manager to allow better
@@ -136,11 +141,19 @@ class FolderChooser(object):
             self._callback(path)
 
 
-class Certificate(InterfaceView):
+@Gtk.Template(filename=f"{os.path.dirname(os.path.abspath(__file__))}/xml/dialogs/certificate.xml")
+class Certificate(Gtk.Box, GtkTemplateHelper):
     """
     Provides a dialog to accept/accept_once/deny an ssl certificate
 
     """
+    __gtype_name__ = "Certificate"
+
+    cert_realm = Gtk.Template.Child()
+    cert_host = Gtk.Template.Child()
+    cert_issuer = Gtk.Template.Child()
+    cert_valid = Gtk.Template.Child()
+    cert_fingerprint = Gtk.Template.Child()
 
     def __init__(
         self,
@@ -151,19 +164,21 @@ class Certificate(InterfaceView):
         valid_until="",
         fingerprint="",
     ):
+        Gtk.Box.__init__(self)
+        GtkTemplateHelper.__init__(self, "Certificate")
 
-        InterfaceView.__init__(self, "dialogs/certificate", "Certificate")
+        # "Check Certificate"
 
-        self.get_widget("cert_realm").set_label(realm)
-        self.get_widget("cert_host").set_label(host)
-        self.get_widget("cert_issuer").set_label(issuer)
+        self.cert_realm.set_label(realm)
+        self.cert_host.set_label(host)
+        self.cert_issuer.set_label(issuer)
         to_str = _("to")
-        self.get_widget("cert_valid").set_label(
+        self.cert_valid.set_label(
             "%s %s %s" % (valid_from, to_str, valid_until)
         )
-        self.get_widget("cert_fingerprint").set_label(fingerprint)
+        self.cert_fingerprint.set_label(fingerprint)
 
-    def run(self):
+    def run(self, parent):
         """
         Returns three possible values:
 
@@ -172,57 +187,60 @@ class Certificate(InterfaceView):
             - 2   Accept Forever
 
         """
-
-        self.dialog = self.get_widget("Certificate")
-        result = self.dialog.run()
-        self.dialog.destroy()
-        return result
+        # TODO add buttons and handle signals
+        self.exec_dialog(parent, self)
 
 
-class Authentication(InterfaceView):
+@Gtk.Template(filename=f"{os.path.dirname(os.path.abspath(__file__))}/xml/dialogs/authentication.xml")
+class Authentication(Gtk.Box, GtkTemplateHelper):
+    __gtype_name__ = "Authentication"
+
+    auth_realm = Gtk.Template.Child()
+    auth_save = Gtk.Template.Child()
+    auth_login = Gtk.Template.Child()
+    auth_password = Gtk.Template.Child()
+
     def __init__(self, realm="", may_save=True):
-        InterfaceView.__init__(self, "dialogs/authentication", "Authentication")
+        Gtk.Box.__init__(self)
+        GtkTemplateHelper.__init__(self, "Authentication")
 
-        self.get_widget("auth_realm").set_label(realm)
-        self.get_widget("auth_save").set_sensitive(may_save)
+        self.auth_realm.set_label(realm)
+        self.auth_save.set_sensitive(may_save)
 
-    def run(self):
-        returner = None
-        self.dialog = self.get_widget("Authentication")
-        result = self.dialog.run()
+    def run(self, parent, response):
+        self.exec_dialog(parent, self, response)
 
-        login = self.get_widget("auth_login").get_text()
-        password = self.get_widget("auth_password").get_text()
-        save = self.get_widget("auth_save").get_active()
-        self.dialog.destroy()
+    def get_values(self):
+        login = self.auth_login.get_text()
+        password = self.auth_password.get_text()
+        save = self.auth_save.get_active()
 
-        if result == Gtk.ResponseType.OK:
-            return (True, login, password, save)
-        else:
-            return (False, "", "", False)
+        return (login, password, save)
 
 
-class CertAuthentication(InterfaceView):
+@Gtk.Template(filename=f"{os.path.dirname(os.path.abspath(__file__))}/xml/dialogs/cert_authentication.xml")
+class CertAuthentication(Gtk.Box, GtkTemplateHelper):
+    __gtype_name__ = "CertAuthentication"
+
+    certauth_realm = Gtk.Template.Child()
+    certauth_save = Gtk.Template.Child()
+    certauth_password = Gtk.Template.Child()
+
     def __init__(self, realm="", may_save=True):
-        InterfaceView.__init__(
-            self, "dialogs/cert_authentication", "CertAuthentication"
-        )
+        Gtk.Box.__init__(self)
+        GtkTemplateHelper.__init__(self, "CertAuthentication")
 
-        self.get_widget("certauth_realm").set_label(realm)
-        self.get_widget("certauth_save").set_sensitive(may_save)
+        self.certauth_realm.set_label(realm)
+        self.certauth_save.set_sensitive(may_save)
 
-    def run(self):
-        self.dialog = self.get_widget("CertAuthentication")
-        result = self.dialog.run()
+    def run(self, parent, response):
+        self.exec_dialog(parent, self, response)
 
-        password = self.get_widget("certauth_password").get_text()
-        save = self.get_widget("certauth_save").get_active()
-        self.dialog.destroy()
+    def get_values(self):
+        password = self.certauth_password.get_text()
+        save = self.certauth_save.get_active()
 
-        if result == Gtk.ResponseType.OK:
-            return (True, password, save)
-        else:
-            return (False, "", False)
+        return (password, save)
 
 
 class SSLClientCertPrompt(InterfaceView):
@@ -633,3 +651,49 @@ class Loading(GtkTemplateHelper):
 
     def on_loading_cancel_clicked(self):
         self.close()
+
+app = None
+
+def dummy_response(response):
+    # just quit the application
+    app.quit()
+
+def dialog_factory(paths, dialog_type, parent):
+    guess = rabbitvcs.vcs.guess(paths[0])
+    dialog = None
+
+    if dialog_type.casefold() == "certificate":
+        dialog = Certificate()
+    elif dialog_type.casefold() == "authentication":
+        dialog = Authentication()
+    elif dialog_type.casefold() == "cert_authentication":
+        dialog = CertAuthentication()
+
+    elif dialog_type.casefold() == "loading":
+        dialog = Loading()
+    elif dialog_type.casefold() == "previousmessage":
+        dialog = PreviousMessages()
+    
+    return dialog
+
+def on_activate(app):
+    from rabbitvcs.ui import main, BASEDIR_OPT
+
+    (options, paths) = main(
+        [ (["-d", "--dialog"], {"default": "certificate"}) ],
+        usage="Usage: rabbitvcs dialog [dialog_name] [url_or_path]"
+    )
+
+    parent = Gtk.Window()
+    app.add_window(parent)
+
+    window = dialog_factory(paths, options.dialog, parent)
+
+    if window:
+        window.run(parent, dummy_response)
+
+if __name__ == "__main__":
+    app = Adw.Application() if adwaita_available else Gtk.Application()
+
+    app.connect('activate', on_activate)
+    app.run()
