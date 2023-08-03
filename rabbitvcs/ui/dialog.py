@@ -440,33 +440,35 @@ class OneLineTextChange(Gtk.Box, GtkTemplateHelper):
         return new_text
 
 
-class NewFolder(InterfaceView):
+@Gtk.Template(filename=f"{os.path.dirname(os.path.abspath(__file__))}/xml/dialogs/create_folder.xml")
+class NewFolder(Gtk.Box, GtkTemplateHelper):
+    __gtype_name__ = "CreateFolder"
+
+    folder_name = Gtk.Template.Child()
+    log_message = Gtk.Template.Child()
+
     def __init__(self):
-        InterfaceView.__init__(self, "dialogs/create_folder", "CreateFolder")
+        Gtk.Box.__init__(self)
+        GtkTemplateHelper.__init__(self, "Create Folder")
 
-        self.folder_name = self.get_widget("folder_name")
         self.textview = rabbitvcs.ui.widget.TextView(
-            self.get_widget("log_message"), _("Added a folder to the repository")
+            self.log_message, _("Added a folder to the repository")
         )
-        self.on_folder_name_changed(self.folder_name)
 
+    @Gtk.Template.Callback()
     def on_folder_name_changed(self, widget):
         complete = widget.get_text() != ""
-        self.get_widget("ok").set_sensitive(complete)
+        self.set_ok_sensitive(complete)
 
-    def run(self):
-        dialog = self.get_widget("CreateFolder")
-        dialog.set_default_response(Gtk.ResponseType.OK)
-        result = dialog.run()
+    def run(self, parent, response):
+        GtkTemplateHelper.run(self, parent, response)
 
+        self.on_folder_name_changed(self.folder_name)
+
+    def get_values(self):
         fields_text = (self.folder_name.get_text(), self.textview.get_text())
 
-        dialog.destroy()
-
-        if result == Gtk.ResponseType.OK:
-            return fields_text
-        else:
-            return None
+        return fields_text
 
 
 class ErrorNotification(InterfaceView):
@@ -619,6 +621,8 @@ def dialog_factory(paths, dialog_type, parent):
         dialog = TextChange()
     elif dialog_type.casefold() == "one_line_text_change":
         dialog = OneLineTextChange()
+    elif dialog_type.casefold() == "new_folder":
+        dialog = NewFolder()
 
     elif dialog_type.casefold() == "loading":
         dialog = Loading()
