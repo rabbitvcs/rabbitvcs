@@ -397,75 +397,47 @@ class DeleteConfirmation(GtkTemplateHelper):
 
 
 @Gtk.Template(filename=f"{os.path.dirname(os.path.abspath(__file__))}/xml/dialogs/text_change.xml")
-class TextChangeWidget(Gtk.Box):
-    __gtype_name__ = "TextChangeWidget"
+class TextChange(Gtk.Box, GtkTemplateHelper):
+    __gtype_name__ = "TextChange"
 
     textchange_message = Gtk.Template.Child()
 
-    def __init__(self):
-        Gtk.Box.__init__(self)
-
-class TextChange(GtkTemplateHelper):
     def __init__(self, title=None, message=""):
+        Gtk.Box.__init__(self)
         GtkTemplateHelper.__init__(self, "TextChange")
-        
-        self.widget = TextChangeWidget()
-        self.window = self.get_window(self.widget)
-        # add dialog buttons
-        self.ok = self.add_dialog_button("Ok", self.on_cancel_clicked, suggested=True) # todo ok callback
-        self.cancel = self.add_dialog_button("Cancel", self.on_cancel_clicked)
-        # set window properties
-        self.window.set_default_size(200, 200)
 
         if title:
             self.window.set_title(title)
 
         self.textview = rabbitvcs.ui.widget.TextView(
-            self.widget.textchange_message, message
+            self.textchange_message, message
         )
 
-    def run(self):
-        dialog = self.get_widget("TextChange")
-        result = dialog.run()
-
-        dialog.destroy()
-
-        return (result, self.textview.get_text())
+    def get_values(self):
+        return self.textview.get_text()
 
 
-class OneLineTextChange(InterfaceView):
-    def __init__(self, title=None, label=None, current_text=None):
-        InterfaceView.__init__(
-            self, "dialogs/one_line_text_change", "OneLineTextChange"
-        )
-        if title:
-            self.get_widget("OneLineTextChange").set_title(title)
+@Gtk.Template(filename=f"{os.path.dirname(os.path.abspath(__file__))}/xml/dialogs/one_line_text_change.xml")
+class OneLineTextChange(Gtk.Box, GtkTemplateHelper):
+    __gtype_name__ = "OneLineTextChange"
 
-        self.new_text = self.get_widget("new_text")
-        self.label = self.get_widget("label")
+    new_text = Gtk.Template.Child()
+    label = Gtk.Template.Child()
 
-        if label:
-            self.label.set_text(S(label).display())
+    def __init__(self, title="Text Change", label_value=None, current_text=None):
+        Gtk.Box.__init__(self)
+        GtkTemplateHelper.__init__(self, title)
+
+        if label_value:
+            self.label.set_text(S(label_value).display())
 
         if current_text:
             self.new_text.set_text(S(current_text).display())
 
-        self.dialog = self.get_widget("OneLineTextChange")
-
-    def on_key_release_event(self, widget, event, *args):
-        # The Gtk.Dialog.response() method emits the "response" signal,
-        # which tells Gtk.Dialog.run() asyncronously to stop.  This allows the
-        # user to press the "Return" button when done writing in the new text
-        if Gdk.keyval_name(event.keyval) == "Return":
-            self.dialog.response(Gtk.ResponseType.OK)
-
-    def run(self):
-        result = self.dialog.run()
+    def get_values(self):
         new_text = self.new_text.get_text()
 
-        self.dialog.destroy()
-
-        return (result, new_text)
+        return new_text
 
 
 class NewFolder(InterfaceView):
@@ -643,6 +615,10 @@ def dialog_factory(paths, dialog_type, parent):
         dialog = MessageBox(dummy_response, parent=parent)
     elif dialog_type.casefold() == "delete_confirmation":
         dialog = DeleteConfirmation(dummy_response, parent=parent)
+    elif dialog_type.casefold() == "text_change":
+        dialog = TextChange()
+    elif dialog_type.casefold() == "one_line_text_change":
+        dialog = OneLineTextChange()
 
     elif dialog_type.casefold() == "loading":
         dialog = Loading()

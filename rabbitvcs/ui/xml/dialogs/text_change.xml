@@ -1,25 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
   <requires lib="gtk" version="4.0"/>
-  <template class="TextChangeWidget" parent="GtkBox">
+  <template class="TextChange" parent="GtkBox">
     <child>
       <object class="GtkBox" id="dialog-vbox12">
         <property name="hexpand">1</property>
         <property name="vexpand">1</property>
         <property name="orientation">vertical</property>
-        <property name="spacing">18</property>
         <child>
           <object class="GtkScrolledWindow" id="textchange_scrollwin">
-            <property name="focusable">1</property>
-            <property name="margin-start">12</property>
-            <property name="margin-end">12</property>
-            <property name="margin_top">6</property>
             <property name="hexpand">1</property>
             <property name="vexpand">1</property>
-            <property name="has-frame">1</property>
             <property name="child">
               <object class="GtkTextView" id="textchange_message">
-                <property name="focusable">1</property>
                 <property name="hexpand">1</property>
                 <property name="vexpand">1</property>
                 <property name="wrap_mode">word</property>
