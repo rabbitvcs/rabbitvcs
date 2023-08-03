@@ -93,6 +93,7 @@ class GtkTemplateHelper(object):
     toast_overlay = None
     button_box = None
     suggested_button = None
+    message_dialog = None
 
     def __init__(self, gtktemplate_id = None):
         if gtktemplate_id:
@@ -187,15 +188,32 @@ class GtkTemplateHelper(object):
             dialog.set_title(self.gtktemplate_id)
             dialog.set_modal(True)
             if show_cancel:
-                dialog.add_buttons("_Cancel", Gtk.ResponseType.CANCEL, "_Ok", Gtk.ResponseType.OK)
+                dialog.add_buttons(
+                    "_No" if yes_no else "_Cancel",
+                    Gtk.ResponseType.CANCEL,
+                    "_Yes" if yes_no else "_Ok",
+                    Gtk.ResponseType.OK)
             dialog.connect("response", self.on_gtk_dialog_response)
-            content = dialog.get_content_area()
-            content.append(content)
+            area = dialog.get_content_area()
+            area.set_margin_top(12)
+            area.set_margin_end(12)
+            area.set_margin_bottom(12)
+            area.set_margin_start(12)
+            area.append(content)
 
         self.on_response_callback = on_response_callback
 
         dialog.set_size_request(550, 0)
         dialog.show()
+
+        self.message_dialog = dialog
+
+    def set_ok_sensitive(self, sensitive):
+        if self.message_dialog is not None:
+            if adwaita_available:
+                self.message_dialog.set_response_enabled("ok", sensitive)
+            else:
+                self.message_dialog.set_response_sensitive(Gtk.ResponseType.OK, sensitive)
         
     def on_adw_dialog_response(self, dialog, response):
         if self.on_response_callback != None:
