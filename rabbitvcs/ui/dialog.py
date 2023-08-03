@@ -372,58 +372,28 @@ class FileSaveAs(object):
             self._callback(path)
 
 
-@Gtk.Template(filename=f"{os.path.dirname(os.path.abspath(__file__))}/xml/dialogs/confirmation.xml")
-class Confirmation(Gtk.Box, GtkTemplateHelper):
-    __gtype_name__ = "Confirmation"
-
-    confirm_message = Gtk.Template.Child()
-
-    def __init__(self, message=_("Are you sure you want to continue?")):
-        Gtk.Box.__init__(self)
-        GtkTemplateHelper.__init__(self, "Confirmation")
-        self.confirm_message.set_text(S(message).display())
+class Confirmation(GtkTemplateHelper):
+    def __init__(self, response, title="Confirmation", message=_("Are you sure you want to continue?"), parent=None):
+        GtkTemplateHelper.__init__(self, title)
+        self.exec_dialog(parent, S(message).display(), response, yes_no=True)
 
 
-@Gtk.Template(filename=f"{os.path.dirname(os.path.abspath(__file__))}/xml/dialogs/message_box.xml")
-class MessageBox(GtkTemplateHelper, Gtk.Dialog):
-    __gtype_name__ = "MessageBox"
-
-    messagebox_message = Gtk.Template.Child()
-
-    def __init__(self, message="default message"):
-        Gtk.Dialog.__init__(self)
-        GtkTemplateHelper.__init__(self, "MessageBox")
-        self.messagebox_message.set_text(S(message).display())
-
-    def run(self, parent, response):
-        self.present()
-
-    @Gtk.Template.Callback()
-    def on_ok_clicked(self, widget):
-        self.close()
+class MessageBox(GtkTemplateHelper):
+    def __init__(self, response, title="MessageBox", message="default message", parent=None):
+        GtkTemplateHelper.__init__(self, title)
+        self.exec_dialog(parent, S(message).display(), response)
 
 
-class DeleteConfirmation(InterfaceView):
-    def __init__(self, path=None):
-        InterfaceView.__init__(
-            self, "dialogs/delete_confirmation", "DeleteConfirmation"
-        )
+class DeleteConfirmation(GtkTemplateHelper):
+    def __init__(self, response, path=None, parent=None):
+        GtkTemplateHelper.__init__(self, "Delete Confirmation")
 
         if path:
             path = '"%s"' % os.path.basename(path)
         else:
             path = _("the selected item(s)")
 
-        msg = self.get_widget("message").get_label().replace("%item%", path)
-        self.get_widget("message").set_label(msg)
-
-    def run(self):
-        dialog = self.get_widget("DeleteConfirmation")
-        result = dialog.run()
-
-        dialog.destroy()
-
-        return result
+        self.exec_dialog(parent, f"Are you sure you want to delete {path}?", response, yes_no=True)
 
 
 @Gtk.Template(filename=f"{os.path.dirname(os.path.abspath(__file__))}/xml/dialogs/text_change.xml")
@@ -668,9 +638,11 @@ def dialog_factory(paths, dialog_type, parent):
     # elif dialog_type.casefold() == "property":
     #     dialog = Property()
     elif dialog_type.casefold() == "confirmation":
-        dialog = Confirmation()
+        dialog = Confirmation(dummy_response, parent=parent)
     elif dialog_type.casefold() == "messagebox":
-        dialog = MessageBox()
+        dialog = MessageBox(dummy_response, parent=parent)
+    elif dialog_type.casefold() == "delete_confirmation":
+        dialog = DeleteConfirmation(dummy_response, parent=parent)
 
     elif dialog_type.casefold() == "loading":
         dialog = Loading()
@@ -692,7 +664,8 @@ def on_activate(app):
 
     window = dialog_factory(paths, options.dialog, parent)
 
-    if window:
+    do_not_run = [Confirmation, MessageBox, DeleteConfirmation]
+    if window and type(window) not in do_not_run:
         window.run(parent, dummy_response)
 
 if __name__ == "__main__":
