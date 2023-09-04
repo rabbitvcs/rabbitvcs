@@ -471,26 +471,31 @@ class NewFolder(Gtk.Box, GtkTemplateHelper):
         return fields_text
 
 
-class ErrorNotification(InterfaceView):
+@Gtk.Template(filename=f"{os.path.dirname(os.path.abspath(__file__))}/xml/dialogs/error_notification.xml")
+class ErrorNotification(Gtk.Box, GtkTemplateHelper):
+    __gtype_name__ = "ErrorNotification"
+
+    notice_box = Gtk.Template.Child()
+    error_text = Gtk.Template.Child()
+
     def __init__(self, text):
-        InterfaceView.__init__(self, "dialogs/error_notification", "ErrorNotification")
+        Gtk.Box.__init__(self)
+        GtkTemplateHelper.__init__(self, "Error")
 
         notice = rabbitvcs.ui.wraplabel.WrapLabel(ERROR_NOTICE)
         notice.set_use_markup(True)
 
-        notice_box = rabbitvcs.ui.widget.Box(self.get_widget("notice_box"))
+        notice_box = rabbitvcs.ui.widget.Box(self.notice_box)
         notice_box.pack_start(notice, True, True, 0)
-        notice_box.show_all()
 
         self.textview = rabbitvcs.ui.widget.TextView(
-            self.get_widget("error_text"), text, spellcheck=False
+            self.error_text, text, spellcheck=False
         )
 
-        self.textview.view.modify_font(Pango.FontDescription("monospace"))
+        self.textview.view.set_monospace(True)
 
-        dialog = self.get_widget("ErrorNotification")
-        dialog.run()
-        dialog.destroy()
+    def run(self, parent, on_response):
+        self.exec_dialog(parent, self, on_response_callback=on_response, show_cancel=False)
 
 
 class NameEmailPrompt(InterfaceView):
@@ -623,6 +628,8 @@ def dialog_factory(paths, dialog_type, parent):
         dialog = OneLineTextChange()
     elif dialog_type.casefold() == "new_folder":
         dialog = NewFolder()
+    elif dialog_type.casefold() == "error_notification":
+        dialog = ErrorNotification("dummy text")
 
     elif dialog_type.casefold() == "loading":
         dialog = Loading()
