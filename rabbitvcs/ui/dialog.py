@@ -498,29 +498,36 @@ class ErrorNotification(Gtk.Box, GtkTemplateHelper):
         self.exec_dialog(parent, self, on_response_callback=on_response, show_cancel=False)
 
 
-class NameEmailPrompt(InterfaceView):
+@Gtk.Template(filename=f"{os.path.dirname(os.path.abspath(__file__))}/xml/dialogs/name_email_prompt.xml")
+class NameEmailPrompt(Gtk.Box, GtkTemplateHelper):
+    __gtype_name__ = "NameEmailPrompt"
+
+    name = Gtk.Template.Child()
+    email = Gtk.Template.Child()
+
     def __init__(self):
-        InterfaceView.__init__(self, "dialogs/name_email_prompt", "NameEmailPrompt")
+        Gtk.Box.__init__(self)
+        GtkTemplateHelper.__init__(self, "Name and Email")
 
-        self.dialog = self.get_widget("NameEmailPrompt")
+        keycontroller = Gtk.EventControllerKey()
+        keycontroller.connect("key-released", self._on_key_release_event)
+        self.add_controller(keycontroller)
 
-    def on_key_release_event(self, widget, event, *args):
+    def _on_key_release_event(self, controller, keyval, keycode, state):
         # The Gtk.Dialog.response() method emits the "response" signal,
         # which tells Gtk.Dialog.run() asyncronously to stop.  This allows the
         # user to press the "Return" button when done writing in the new text
-        if Gdk.keyval_name(event.keyval) == "Return":
-            self.dialog.response(Gtk.ResponseType.OK)
+        if self.message_dialog is not None and keyval == Gdk.keyval_from_name("Escape"):
+            self.reject_message_dialog()
 
-    def run(self):
-        result = self.dialog.run()
-        name = self.get_widget("name").get_text()
-        email = self.get_widget("email").get_text()
-        self.dialog.destroy()
+    def run(self, parent, on_response):
+        self.exec_dialog(parent, self, on_response_callback=on_response)
 
-        if result == Gtk.ResponseType.OK:
-            return (name, email)
-        else:
-            return (None, None)
+    def get_values(self):
+        name = self.name.get_text()
+        email = self.email.get_text()
+
+        return (name, email)
 
 
 class MarkResolvedPrompt(InterfaceView):
@@ -630,6 +637,8 @@ def dialog_factory(paths, dialog_type, parent):
         dialog = NewFolder()
     elif dialog_type.casefold() == "error_notification":
         dialog = ErrorNotification("dummy text")
+    elif dialog_type.casefold() == "name_email_prompt":
+        dialog = NameEmailPrompt()
 
     elif dialog_type.casefold() == "loading":
         dialog = Loading()

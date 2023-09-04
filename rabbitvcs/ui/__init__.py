@@ -208,6 +208,20 @@ class GtkTemplateHelper(object):
 
         self.message_dialog = dialog
 
+    def accept_message_dialog(self):
+        if self.message_dialog is not None:
+            if adwaita_available:
+                self.message_dialog.response("ok")
+            else:
+                self.message_dialog.response(Gtk.ResponseType.OK)
+
+    def reject_message_dialog(self):
+        if self.message_dialog is not None:
+            if adwaita_available:
+                self.message_dialog.response("cancel")
+            else:
+                self.message_dialog.response(Gtk.ResponseType.CANCEL)
+
     def set_ok_sensitive(self, sensitive):
         if self.message_dialog is not None:
             if adwaita_available:
