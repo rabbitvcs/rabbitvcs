@@ -530,17 +530,16 @@ class NameEmailPrompt(Gtk.Box, GtkTemplateHelper):
         return (name, email)
 
 
-class MarkResolvedPrompt(InterfaceView):
-    def __init__(self):
-        InterfaceView.__init__(
-            self, "dialogs/mark_resolved_prompt", "MarkResolvedPrompt"
-        )
+@Gtk.Template(filename=f"{os.path.dirname(os.path.abspath(__file__))}/xml/dialogs/mark_resolved_prompt.xml")
+class MarkResolvedPrompt(Gtk.Box, GtkTemplateHelper):
+    __gtype_name__ = "MarkResolvedPrompt"
 
-    def run(self):
-        self.dialog = self.get_widget("MarkResolvedPrompt")
-        result = self.dialog.run()
-        self.dialog.destroy()
-        return result
+    def __init__(self):
+        Gtk.Box.__init__(self)
+        GtkTemplateHelper.__init__(self, "Mark Resolved")
+
+    def run(self, parent, on_response=None):
+        self.exec_dialog(parent, self, on_response_callback=on_response, yes_no=True)
 
 
 class ConflictDecision(InterfaceView):
@@ -639,6 +638,8 @@ def dialog_factory(paths, dialog_type, parent):
         dialog = ErrorNotification("dummy text")
     elif dialog_type.casefold() == "name_email_prompt":
         dialog = NameEmailPrompt()
+    elif dialog_type.casefold() == "mark_resolved":
+        dialog = MarkResolvedPrompt()
 
     elif dialog_type.casefold() == "loading":
         dialog = Loading()
