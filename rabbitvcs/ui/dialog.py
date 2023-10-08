@@ -90,7 +90,7 @@ class PreviousMessages(GtkTemplateHelper):
         if len(self.entries) > 0:
             self.message.set_text(S(self.entries[0][1]).display())
 
-    def run(self, on_response):
+    def run(self, parent=None, on_response=None):
 
         if self.entries is None:
             return None
@@ -178,7 +178,7 @@ class Certificate(Gtk.Box, GtkTemplateHelper):
         )
         self.cert_fingerprint.set_label(fingerprint)
 
-    def run(self, parent):
+    def run(self, parent, on_response):
         """
         Returns three possible values:
 
@@ -310,8 +310,8 @@ class Property(Gtk.Box, GtkTemplateHelper):
         self.recurse = self.property_recurse
         self.recurse.set_active(recurse)
 
-    def run(self, callback):
-        self.callback = callback
+    def run(self, on_response):
+        self.callback = on_response
         self.connect("response", self.on_response)
         self.set_visible(True)
 
@@ -460,8 +460,8 @@ class NewFolder(Gtk.Box, GtkTemplateHelper):
         complete = widget.get_text() != ""
         self.set_ok_sensitive(complete)
 
-    def run(self, parent, response):
-        GtkTemplateHelper.run(self, parent, response)
+    def run(self, parent, on_response):
+        GtkTemplateHelper.run(self, parent, on_response)
 
         self.on_folder_name_changed(self.folder_name)
 
@@ -522,6 +522,7 @@ class NameEmailPrompt(Gtk.Box, GtkTemplateHelper):
 
     def run(self, parent, on_response):
         self.exec_dialog(parent, self, on_response_callback=on_response)
+        self.message_dialog.set_focus(self.name)
 
     def get_values(self):
         name = self.name.get_text()
@@ -542,65 +543,92 @@ class MarkResolvedPrompt(Gtk.Box, GtkTemplateHelper):
         self.exec_dialog(parent, self, on_response_callback=on_response, yes_no=True)
 
 
-class ConflictDecision(InterfaceView):
+@Gtk.Template(filename=f"{os.path.dirname(os.path.abspath(__file__))}/xml/dialogs/conflict_decision.xml")
+class ConflictDecision(Gtk.Box, GtkTemplateHelper):
     """
     Provides a dialog to make conflict decisions with.  User can accept mine,
     accept theirs, or edit conflicts.
 
     """
+    __gtype_name__ = "ConflictDecision"
 
-    def __init__(self, filename=""):
+    filename = Gtk.Template.Child()
 
-        InterfaceView.__init__(self, "dialogs/conflict_decision", "ConflictDecision")
-        self.get_widget("filename").set_text(S(filename).display())
+    def __init__(self, filename="(unknown)"):
+        Gtk.Box.__init__(self)
+        GtkTemplateHelper.__init__(self, "Edit Conflicts")
+        self.filename.set_text(S(filename).display())
 
-    def run(self):
-        """
+    def exec_dialog(self, parent, content, on_response_callback = None):
+        if adwaita_available:
+            dialog = Adw.MessageDialog(transient_for = parent)
+            dialog.set_heading(self.gtktemplate_id)
+            dialog.set_extra_child(content)
+            dialog.add_response("mine", "Mine")
+            dialog.add_response("theirs", "Theirs")
+            dialog.add_response("edit", "Edit")
+            dialog.add_response("cancel", "Cancel")
+            dialog.connect("response", self.on_adw_dialog_response)
+        else:
+            dialog = Gtk.MessageDialog(transient_for = parent)
+            dialog.set_title(self.gtktemplate_id)
+            dialog.set_modal(True)
+            dialog.add_buttons(
+                "_Mine", 0,
+                "_Theirs", 1,
+                "_Edit", 2,
+                "_Cancel", Gtk.ResponseType.CANCEL)
+            dialog.connect("response", self.on_gtk_dialog_response)
+            area = dialog.get_content_area()
+            area.set_margin_top(12)
+            area.set_margin_end(12)
+            area.set_margin_bottom(12)
+            area.set_margin_start(12)
+            area.append(content)
 
-        The first has three possible values about how to resolve the conflict.
+        self.on_response_callback = on_response_callback
 
-            - -1  Cancel
-            - 0   Accept Mine
-            - 1   Accept Theirs
-            - 2   Merge Manually
+        dialog.set_size_request(550, 0)
+        dialog.show()
 
+        self.message_dialog = dialog
 
-        """
+    def on_adw_dialog_response(self, dialog, response):
+        if self.on_response_callback is not None:
+            response_id = Gtk.ResponseType.CANCEL
+            if response == "mine":
+                response_id = 0
+            elif response == "theirs":
+                response_id = 1
+            elif response == "edit":
+                response_id = 2
+            elif response == "cancel":
+                response_id = Gtk.ResponseType.CANCEL
+            if self.on_response_callback:
+                self.on_response_callback(response_id)
 
-        self.dialog = self.get_widget("ConflictDecision")
-        result = self.dialog.run()
-        self.dialog.destroy()
-        return result
+    def on_gtk_dialog_response(self, dialog, response_id):
+        if self.on_response_callback:
+            self.on_response_callback(response_id)
+
+        dialog.destroy()
 
 
 @Gtk.Template(filename=f"{os.path.dirname(os.path.abspath(__file__))}/xml/dialogs/loading.xml")
-class LoadingWidget(Gtk.Box):
-    __gtype_name__ = "LoadingWidget"
+class Loading(Gtk.Box, GtkTemplateHelper):
+    __gtype_name__ = "Loading"
 
     pbar = Gtk.Template.Child()
 
-    def __init__(self):
-        Gtk.Box.__init__(self)
-
-class Loading(GtkTemplateHelper):
-
     def __init__(self, parent=None):
+        Gtk.Box.__init__(self)
         GtkTemplateHelper.__init__(self, "Loading")
 
-        self.widget = LoadingWidget()
-        self.window = self.get_window(self.widget)
-        self.window.set_size_request(300, -1)
-        if parent:
-            self.window.set_transient_for(parent)
-        # add dialog buttons
-        self.loading_cancel = self.add_dialog_button("Cancel", self.on_loading_cancel_clicked, suggested=True)
-        self.loading_cancel.set_sensitive(False)
+        self._pbar = rabbitvcs.ui.widget.ProgressBar(self.pbar)
+        self._pbar.start_pulsate()
 
-        self.pbar = rabbitvcs.ui.widget.ProgressBar(self.widget.pbar)
-        self.pbar.start_pulsate()
-
-    def on_loading_cancel_clicked(self):
-        self.close()
+    def run(self, parent, response):
+        self.exec_dialog(parent, self, response, show_ok=False)
 
 app = None
 
@@ -612,7 +640,9 @@ def dialog_factory(paths, dialog_type, parent):
     guess = rabbitvcs.vcs.guess(paths[0])
     dialog = None
 
-    if dialog_type.casefold() == "certificate":
+    if dialog_type.casefold() == "previousmessage":
+        dialog = PreviousMessages(None)
+    elif dialog_type.casefold() == "certificate":
         dialog = Certificate()
     elif dialog_type.casefold() == "authentication":
         dialog = Authentication()
@@ -640,12 +670,11 @@ def dialog_factory(paths, dialog_type, parent):
         dialog = NameEmailPrompt()
     elif dialog_type.casefold() == "mark_resolved":
         dialog = MarkResolvedPrompt()
-
+    elif dialog_type.casefold() == "conflict_decision":
+        dialog = ConflictDecision()
     elif dialog_type.casefold() == "loading":
         dialog = Loading()
-    elif dialog_type.casefold() == "previousmessage":
-        dialog = PreviousMessages()
-    
+
     return dialog
 
 def on_activate(app):

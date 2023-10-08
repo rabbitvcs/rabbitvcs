@@ -171,7 +171,7 @@ class GtkTemplateHelper(object):
         else:
             self.exec_dialog(self.window, notification, None, False)
 
-    def exec_dialog(self, parent, content, on_response_callback = None, show_cancel = True, yes_no = False):
+    def exec_dialog(self, parent, content, on_response_callback = None, show_cancel = True, yes_no = False, show_ok=True):
         if adwaita_available:
             dialog = Adw.MessageDialog(transient_for = parent)
             dialog.set_heading(self.gtktemplate_id)
@@ -179,7 +179,9 @@ class GtkTemplateHelper(object):
                 dialog.set_body(content)
             else:
                 dialog.set_extra_child(content)
-            dialog.add_response("ok", "Yes" if yes_no else "Ok")
+
+            if show_ok:
+                dialog.add_response("ok", "Yes" if yes_no else "Ok")
             if show_cancel:
                 dialog.add_response("cancel", "No" if yes_no else "Cancel")
             dialog.connect("response", self.on_adw_dialog_response)
@@ -187,12 +189,15 @@ class GtkTemplateHelper(object):
             dialog = Gtk.MessageDialog(transient_for = parent)
             dialog.set_title(self.gtktemplate_id)
             dialog.set_modal(True)
+
+            if show_ok:
+                dialog.add_buttons(
+                    "_Yes" if yes_no else "_Ok",
+                    Gtk.ResponseType.OK)
             if show_cancel:
                 dialog.add_buttons(
                     "_No" if yes_no else "_Cancel",
-                    Gtk.ResponseType.CANCEL,
-                    "_Yes" if yes_no else "_Ok",
-                    Gtk.ResponseType.OK)
+                    Gtk.ResponseType.CANCEL)
             dialog.connect("response", self.on_gtk_dialog_response)
             area = dialog.get_content_area()
             area.set_margin_top(12)
