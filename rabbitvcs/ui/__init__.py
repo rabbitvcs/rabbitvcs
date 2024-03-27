@@ -36,11 +36,16 @@ from rabbitvcs.util import helper
 
 import gi
 
-try:
-    gi.require_version("Gtk", "3.0")
-except:
-    gi.require_version("Gtk", "4.0")
+gi.require_version("Gtk", "4.0")
 from gi.repository import Gtk, Gdk, GLib
+
+adwaita_available = True
+try:
+    gi.require_version("Adw", "1")
+    from gi.repository import Adw
+except Exception as e:
+    adwaita_available = False
+
 sa = helper.SanitizeArgv()
 sa.restore()
 
@@ -82,145 +87,231 @@ STATUS_EMBLEMS = {
 }
 
 
-class GtkBuilderWidgetWrapper(object):
-    def __init__(self, gtkbuilder_filename=None, gtkbuilder_id=None, claim_domain=True):
-        if gtkbuilder_filename:
-            self.gtkbuilder_filename = gtkbuilder_filename
+class GtkTemplateHelper(object):
+    gtktemplate_id = ""
+    header = None
+    toast_overlay = None
+    button_box = None
+    suggested_button = None
+    message_dialog = None
 
-        if gtkbuilder_id:
-            self.gtkbuilder_id = gtkbuilder_id
+    def __init__(self, gtktemplate_id = None):
+        if gtktemplate_id:
+            self.gtktemplate_id = gtktemplate_id
 
-        self.claim_domain = claim_domain
+    def get_window(self, widget):
+        if adwaita_available:
+            window = Adw.ApplicationWindow()
+            self.header = Adw.HeaderBar()
+            self.toast_overlay = Adw.ToastOverlay()
+            self.toast_overlay.set_child(widget)
+            box = Gtk.Box()
+            box.set_orientation(Gtk.Orientation.VERTICAL)
+            box.append(self.header)
+            box.append(self.toast_overlay)
+            window.set_content(box)
+        else:
+            window = Gtk.ApplicationWindow()
+            box = Gtk.Box()
+            box.set_orientation(Gtk.Orientation.VERTICAL)
+            box.append(widget)
+            window.set_child(box)
 
-        self.tree = self.get_tree()
-        self.tree.connect_signals(self)
+        keycontroller = Gtk.EventControllerKey()
+        keycontroller.connect("key-pressed", self.on_key_pressed)
+        window.add_controller(keycontroller)
 
-    def get_tree(self):
-        path = "%s/xml/%s.xml" % (
-            os.path.dirname(os.path.realpath(__file__)),
-            self.gtkbuilder_filename,
-        )
+        window.set_title(self.gtktemplate_id)
+        window.set_icon_name("rabbitvcs-small")
 
-        tree = Gtk.Builder()
-        tree.add_from_file(path)
+        return window
 
-        if self.claim_domain:
-            tree.set_translation_domain(APP_NAME)
+    def update_dialog_title(self, title):
+        old_title = self.suggested_button.get_label()
+        if not adwaita_available or old_title != title:
+            self.window.set_title(title)
 
-        return tree
+    def add_dialog_button(self, text, callback, suggested = False, hideOnAdwaita = False):
+        button = Gtk.Button()
+        button.set_label(text)
+        button.connect("clicked", callback)
+        if suggested:
+            self.suggested_button = button
+            button.add_css_class("suggested-action")
 
-    def get_widget(self, id=None):
-        if not id:
-            id = self.gtkbuilder_id
+        if adwaita_available:
+            self.header.pack_start(button)
+            # hide title if suggested button has the same text
+            if suggested and text == self.window.get_title():
+                self.window.set_title("")
+            if hideOnAdwaita:
+                button.set_visible(False)
+        else:
+            if self.button_box == None:
+                self.button_box = Gtk.Box()
+                self.button_box.set_margin_start(6)
+                self.button_box.set_margin_top(6)
+                self.button_box.set_margin_end(6)
+                self.button_box.set_margin_bottom(6)
+                self.button_box.set_spacing(6)
+                self.button_box.set_hexpand(True)
+                self.button_box.set_halign(Gtk.Align.END)
+                box = self.window.get_child()
+                box.append(self.button_box)
 
-        return self.tree.get_object(id)
+            self.button_box.append(button)
 
+        return button
+    
+    def exec_notification(self, notification):
+        if adwaita_available:
+            toast = Adw.Toast()
+            toast.set_title(notification)
+            self.toast_overlay.add_toast(toast)
+        else:
+            self.exec_dialog(self.window, notification, None, False)
 
-class InterfaceView(GtkBuilderWidgetWrapper):
-    """
-    Every ui window should inherit this class and send it the "self"
-    variable, the Gtkbuilder filename (without the extension), and the id of the
-    main window widget.
-
-    When calling from the __main__ area (i.e. a window is opened via CLI,
-    call the register_gtk_quit method to make sure the main app quits when
-    the app is destroyed or finished.
-
-    """
-
-    def __init__(self, *args, **kwargs):
-        GtkBuilderWidgetWrapper.__init__(self, *args, **kwargs)
-        self.do_gtk_quit = False
-
-        # On OSX, there is a glitch where GTK applications do not always come to the front
-        # when a launched (and methods like 'present()' don't appear to work correctly).
-        # So until GTK on OSX is fixed let's work around this issue...
-        import platform
-
-        if platform.system() == "Darwin":
-            try:
-                import subprocess
-
-                subprocess.Popen(
-                    'osascript -e "tell application \\"Python\\" to activate"',
-                    shell=True,
-                )
-            except:
-                pass
-
-    def hide(self):
-        window = self.get_widget(self.gtkbuilder_id)
-        if window:
-            window.set_property("visible", False)
-
-    def show(self):
-        window = self.get_widget(self.gtkbuilder_id)
-        if window:
-            window.set_property("visible", True)
-
-    def destroy(self):
-        self.close()
-
-    def close(self, threaded=False):
-        window = self.get_widget(self.gtkbuilder_id)
-        if window is not None:
-            if threaded:
-                helper.run_in_main_thread(window.destroy)
+    def exec_dialog(self, parent, content, on_response_callback = None, show_cancel = True, yes_no = False, show_ok=True):
+        if adwaita_available:
+            dialog = Adw.MessageDialog(transient_for = parent)
+            dialog.set_heading(self.gtktemplate_id)
+            if type(content) == str:
+                dialog.set_body(content)
             else:
-                window.destroy()
+                dialog.set_extra_child(content)
 
-        if self.do_gtk_quit:
-            Gtk.main_quit()
+            if show_ok:
+                dialog.add_response("ok", "Yes" if yes_no else "Ok")
+            if show_cancel:
+                dialog.add_response("cancel", "No" if yes_no else "Cancel")
+            dialog.connect("response", self.on_adw_dialog_response)
+        else:
+            dialog = Gtk.MessageDialog(transient_for = parent)
+            dialog.set_title(self.gtktemplate_id)
+            dialog.set_modal(True)
 
-    def register_gtk_quit(self):
-        window = self.get_widget(self.gtkbuilder_id)
-        self.do_gtk_quit = True
+            if show_ok:
+                dialog.add_buttons(
+                    "_Yes" if yes_no else "_Ok",
+                    Gtk.ResponseType.OK)
+            if show_cancel:
+                dialog.add_buttons(
+                    "_No" if yes_no else "_Cancel",
+                    Gtk.ResponseType.CANCEL)
+            dialog.connect("response", self.on_gtk_dialog_response)
+            area = dialog.get_content_area()
+            area.set_margin_top(12)
+            area.set_margin_end(12)
+            area.set_margin_bottom(12)
+            area.set_margin_start(12)
+            area.append(content)
 
-        # This means we've already been closed
-        if window is None:
-            GLib.idle_add(Gtk.main_quit)
+        self.on_response_callback = on_response_callback
 
-    def gtk_quit_is_set(self):
-        return self.do_gtk_quit
+        dialog.set_size_request(550, 0)
+        dialog.show()
 
-    def on_destroy(self, widget):
-        self.destroy()
+        self.message_dialog = dialog
+
+    def accept_message_dialog(self):
+        if self.message_dialog is not None:
+            if adwaita_available:
+                self.message_dialog.response("ok")
+            else:
+                self.message_dialog.response(Gtk.ResponseType.OK)
+
+    def reject_message_dialog(self):
+        if self.message_dialog is not None:
+            if adwaita_available:
+                self.message_dialog.response("cancel")
+            else:
+                self.message_dialog.response(Gtk.ResponseType.CANCEL)
+
+    def set_ok_sensitive(self, sensitive):
+        if self.message_dialog is not None:
+            if adwaita_available:
+                self.message_dialog.set_response_enabled("ok", sensitive)
+            else:
+                self.message_dialog.set_response_sensitive(Gtk.ResponseType.OK, sensitive)
+        
+    def on_adw_dialog_response(self, dialog, response):
+        if self.on_response_callback != None:
+            response_id = Gtk.ResponseType.CANCEL
+            if response == "ok":
+                response_id = Gtk.ResponseType.OK
+            if self.on_response_callback:
+                self.on_response_callback(response_id)
+    
+    def on_gtk_dialog_response(self, dialog, response_id):
+        if self.on_response_callback:
+            self.on_response_callback(response_id)
+
+        dialog.destroy()
+
+    def run(self, parent, response):
+        self.exec_dialog(parent, self, response)
+
+    def register_window(self):
+        if adwaita_available:
+            appl = Adw.Application.get_default()
+        else:
+            appl = Gtk.Application.get_default()
+        
+        appl.add_window(self.window)
+
+    @staticmethod
+    def run_application(on_activate):
+        if adwaita_available:
+            app = Adw.Application()
+        else:
+            app = Gtk.Application()
+
+        app.connect('activate', on_activate)
+        app.run()
 
     def on_cancel_clicked(self, widget):
-        self.close()
+        if self.window:
+            self.window.close()
 
     def on_close_clicked(self, widget):
-        self.close()
+        if self.window:
+            self.window.close()
 
-    def on_refresh_clicked(self, widget):
-        return True
+    def on_key_pressed(self, controller, keyval, keycode, state):
+        widget = controller.get_widget()
 
-    def on_key_pressed(self, widget, event, *args):
-        if event.keyval == Gdk.keyval_from_name("Escape"):
+        if keyval == Gdk.keyval_from_name("Escape"):
             self.on_cancel_clicked(widget)
             return True
 
         if (
-            event.state & Gdk.ModifierType.CONTROL_MASK
-            and Gdk.keyval_name(event.keyval).lower() == "w"
+            state & Gdk.ModifierType.CONTROL_MASK
+            and Gdk.keyval_name(keyval).lower() == "w"
         ):
             self.on_cancel_clicked(widget)
             return True
 
         if (
-            event.state & Gdk.ModifierType.CONTROL_MASK
-            and Gdk.keyval_name(event.keyval).lower() == "q"
+            state & Gdk.ModifierType.CONTROL_MASK
+            and Gdk.keyval_name(keyval).lower() == "q"
         ):
             self.on_cancel_clicked(widget)
             return True
 
         if (
-            event.state & Gdk.ModifierType.CONTROL_MASK
-            and Gdk.keyval_name(event.keyval).lower() == "r"
+            state & Gdk.ModifierType.CONTROL_MASK
+            and Gdk.keyval_name(keyval).lower() == "r"
         ):
             self.on_refresh_clicked(widget)
             return True
 
+
+class GtkBuilderWidgetWrapper(object):
+    pass # todo remove
+
+
+class InterfaceView(GtkBuilderWidgetWrapper):
+    # todo remove
     def change_button(self, id, label=None, icon=None):
         """
         Replace label and/or icon of the named button.
@@ -235,31 +326,7 @@ class InterfaceView(GtkBuilderWidgetWrapper):
 
 
 class InterfaceNonView(object):
-    """
-    Provides a way for an interface to handle quitting, etc without having
-    to have a visible interface.
-
-    """
-
-    def __init__(self):
-        self.do_gtk_quit = False
-
-    def close(self):
-        if self.do_gtk_quit:
-            if not Gtk.main_level():
-                GLib.idle_add(Gtk.main_quit)
-                self.do_gtk_quit = False
-            else:
-                try:
-                    Gtk.main_quit()
-                except RuntimeError:
-                    raise SystemExit()
-
-    def register_gtk_quit(self):
-        self.do_gtk_quit = True
-
-    def gtk_quit_is_set(self):
-        return self.do_gtk_quit
+    pass # todo remove
 
 
 class VCSNotSupportedError(Exception):

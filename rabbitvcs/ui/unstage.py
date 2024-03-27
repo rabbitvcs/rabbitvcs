@@ -8,7 +8,7 @@ import rabbitvcs.ui.dialog
 import rabbitvcs.ui.widget
 from rabbitvcs.ui.action import SVNAction
 from rabbitvcs.ui.add import Add
-from rabbitvcs.ui import InterfaceView
+from rabbitvcs.ui import GtkTemplateHelper
 from gi.repository import Gtk, GObject, Gdk
 
 #
@@ -39,7 +39,7 @@ from rabbitvcs.util import helper
 
 import gi
 
-gi.require_version("Gtk", "3.0")
+gi.require_version("Gtk", "4.0")
 sa = helper.SanitizeArgv()
 sa.restore()
 
@@ -65,12 +65,12 @@ class GitUnstage(Add):
     def on_ok_clicked(self, widget):
         items = self.files_table.get_activated_rows(1)
         if not items:
-            self.close()
+            self.window.close()
             return
-        self.hide()
+        self.window.set_visible(False)
 
         self.action = rabbitvcs.ui.action.GitAction(
-            self.git, register_gtk_quit=self.gtk_quit_is_set()
+            self.git
         )
 
         self.action.append(self.action.set_header, _("Unstage"))
@@ -80,6 +80,8 @@ class GitUnstage(Add):
         self.action.append(self.action.set_status, _("Completed Unstage"))
         self.action.append(self.action.finish)
         self.action.schedule()
+
+        self.window.close()
 
 
 class GitUnstageQuiet(object):
@@ -103,7 +105,7 @@ def unstage_factory(classes_map, paths, base_dir=None):
     return classes_map[guess["vcs"]](paths, base_dir)
 
 
-if __name__ == "__main__":
+def on_activate(app):
     from rabbitvcs.ui import main, BASEDIR_OPT, QUIET_OPT
 
     (options, paths) = main(
@@ -113,6 +115,9 @@ if __name__ == "__main__":
     if options.quiet:
         unstage_factory(quiet_classes_map, paths)
     else:
-        window = unstage_factory(classes_map, paths, options.base_dir)
-        window.register_gtk_quit()
-        Gtk.main()
+        widget = unstage_factory(classes_map, paths, options.base_dir)
+        app.add_window(widget.window)
+        widget.window.set_visible(True)
+
+if __name__ == "__main__":
+    GtkTemplateHelper.run_application(on_activate)

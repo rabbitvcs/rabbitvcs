@@ -6,7 +6,7 @@ from rabbitvcs.util.strings import S
 import rabbitvcs.ui.action
 import rabbitvcs.ui.dialog
 import rabbitvcs.ui.widget
-from rabbitvcs.ui import InterfaceView
+from rabbitvcs.ui import GtkTemplateHelper
 from gi.repository import Gtk, GObject, Gdk
 
 #
@@ -37,14 +37,31 @@ from rabbitvcs.util import helper
 
 import gi
 
-gi.require_version("Gtk", "3.0")
+gi.require_version("Gtk", "4.0")
 sa = helper.SanitizeArgv()
 sa.restore()
 
 _ = gettext.gettext
 
 
-class Checkout(InterfaceView):
+@Gtk.Template(filename=f"{os.path.dirname(os.path.abspath(__file__))}/xml/checkout.xml")
+class CheckoutWidget(Gtk.Grid):
+    __gtype_name__ = "CheckoutWidget"
+
+    repositories = Gtk.Template.Child()
+    destination = Gtk.Template.Child()
+    revision_container = Gtk.Template.Child()
+    options_box = Gtk.Template.Child()
+    revision_selector_box = Gtk.Template.Child()
+    omit_externals = Gtk.Template.Child()
+    recursive = Gtk.Template.Child()
+    file_chooser = Gtk.Template.Child()
+    repo_chooser = Gtk.Template.Child()
+
+    def __init__(self):
+        Gtk.Grid.__init__(self)
+
+class Checkout(GtkTemplateHelper):
     """
     Provides an interface to check out a working copy.
 
@@ -52,26 +69,44 @@ class Checkout(InterfaceView):
 
     """
 
+    chooser = None
+
     def __init__(self, path=None, url=None, revision=None):
-        InterfaceView.__init__(self, "checkout", "Checkout")
+        GtkTemplateHelper.__init__(self, "Checkout")
+
+        self.widget = CheckoutWidget()
+        self.window = self.get_window(self.widget)
+        # add dialog buttons
+        self.ok = self.add_dialog_button("Checkout", self.on_ok_clicked, suggested=True)
+        self.cancel = self.add_dialog_button("Cancel", self.on_cancel_clicked, hideOnAdwaita=True)
+        # forward signals
+        self.widget.destination.connect("changed", self.on_destination_changed)
+        self.widget.file_chooser.connect("clicked", self.on_file_chooser_clicked)
+        self.widget.repositories.connect("changed", self.on_repositories_changed)
+        self.widget.repo_chooser.connect("clicked", self.on_repo_chooser_clicked)
+        keycontroller = Gtk.EventControllerKey()
+        keycontroller.connect("key-released", self.on_destination_key_released)
+        self.widget.destination.add_controller(keycontroller)
+        # set window properties
+        self.window.set_default_size(550, -1)
 
         self.path = path
         self.vcs = rabbitvcs.vcs.VCS()
 
         self.repositories = rabbitvcs.ui.widget.ComboBox(
-            self.get_widget("repositories"), helper.get_repository_paths()
+            self.widget.repositories, helper.get_repository_paths()
         )
 
         # We must set a signal handler for the Gtk.Entry inside the combobox
         # Because glade will not retain that information
-        self.repositories.set_child_signal(
-            "key-release-event", self.on_repositories_key_released
-        )
+        keycontroller = Gtk.EventControllerKey()
+        keycontroller.connect("key-released", self.on_repositories_key_released)
+        self.repositories.cb.add_controller(keycontroller)
 
         self.destination = helper.get_user_path()
         if path is not None:
             self.destination = path
-            self.get_widget("destination").set_text(S(path).display())
+            self.widget.destination.set_text(S(path).display())
 
         if url is not None:
             self.repositories.set_child_text(url)
@@ -89,27 +124,32 @@ class Checkout(InterfaceView):
         return path
 
     def _get_path(self):
-        path = self._parse_path(self.get_widget("destination").get_text())
+        path = self._parse_path(self.widget.destination.get_text())
         return os.path.normpath(path)
 
     def on_file_chooser_clicked(self, widget, data=None):
-        chooser = rabbitvcs.ui.dialog.FolderChooser()
-        path = chooser.run()
-        if path is not None:
-            self.get_widget("destination").set_text(S(path).display())
+        if not self.chooser:
+            self.chooser = rabbitvcs.ui.dialog.FolderChooser(self.on_file_chooser_response, parent=self.window)
+        path = self.chooser.run()
 
-    def on_repositories_key_released(self, widget, event, *args):
-        if Gdk.keyval_name(event.keyval) == "Return":
+    def on_file_chooser_response(self, dialog, response):
+        if response == Gtk.ResponseType.ACCEPT:
+            path = dialog.get_file().get_path()
+            if path is not None:
+                self.widget.destination.set_text(S(path).display())
+
+    def on_repositories_key_released(self, controller, keyval, keycode, state):
+        if keyval == Gdk.KEY_Return:
             if self.complete:
-                self.on_ok_clicked(widget)
+                self.on_ok_clicked(None)
 
     def on_destination_changed(self, widget, data=None):
         self.check_form()
 
-    def on_destination_key_released(self, widget, event, *args):
-        if Gdk.keyval_name(event.keyval) == "Return":
+    def on_destination_key_released(self, controller, keyval, keycode, state):
+        if keyval == Gdk.KEY_Return:
             if self.complete:
-                self.on_ok_clicked(widget)
+                self.on_ok_clicked(None)
 
     def on_repo_chooser_clicked(self, widget, data=None):
         from rabbitvcs.ui.browser import SVNBrowserDialog
@@ -126,37 +166,37 @@ class Checkout(InterfaceView):
         self.complete = True
         if self.repositories.get_active_text() == "":
             self.complete = False
-        if self.get_widget("destination").get_text() == "":
+        if self.widget.destination.get_text() == "":
             self.complete = False
 
-        self.get_widget("ok").set_sensitive(self.complete)
+        self.ok.set_sensitive(self.complete)
 
 
 class SVNCheckout(Checkout):
     def __init__(self, path=None, url=None, revision=None):
         Checkout.__init__(self, path, url, revision)
-        self.get_widget("Checkout").set_title(_("Checkout - %s") % path)
+        self.window.set_title(_("Checkout - %s") % path)
 
         self.svn = self.vcs.svn()
 
         self.revision_selector = rabbitvcs.ui.widget.RevisionSelector(
-            self.get_widget("revision_container"),
+            self.widget.revision_container,
             self.svn,
             revision=revision,
             url_combobox=self.repositories,
             expand=True,
         )
 
-        self.get_widget("options_box").show()
-        self.get_widget("revision_selector_box").show()
+        self.widget.options_box.show()
+        self.widget.revision_selector_box.show()
 
         self.check_form()
 
     def on_ok_clicked(self, widget):
         url = self.repositories.get_active_text()
         path = self._get_path()
-        omit_externals = self.get_widget("omit_externals").get_active()
-        recursive = self.get_widget("recursive").get_active()
+        omit_externals = self.widget.omit_externals.get_active()
+        recursive = self.widget.recursive.get_active()
 
         if not url or not path:
             rabbitvcs.ui.dialog.MessageBox(
@@ -166,7 +206,7 @@ class SVNCheckout(Checkout):
 
         revision = self.revision_selector.get_revision_object()
 
-        self.hide()
+        self.window.hide()
         self.action = rabbitvcs.ui.action.SVNAction(
             self.svn, register_gtk_quit=self.gtk_quit_is_set()
         )
@@ -185,6 +225,8 @@ class SVNCheckout(Checkout):
         self.action.append(self.action.finish)
         self.action.schedule()
 
+        self.window.close()
+
     def on_repositories_changed(self, widget, data=None):
         # Do not use quoting for this bit
         url = self.repositories.get_active_text()
@@ -201,7 +243,7 @@ class SVNCheckout(Checkout):
                 append = ""
                 break
 
-        self.get_widget("destination").set_text(
+        self.widget.destination.set_text(
             S(os.path.join(self.destination, append)).display()
         )
 
@@ -211,8 +253,10 @@ class SVNCheckout(Checkout):
 class GitCheckout(GitUpdateToRevision):
     def __init__(self, path, url, revision):
         GitUpdateToRevision.__init__(self, path, revision)
-        self.get_widget("Update").set_title(_("Checkout - %s") % path)
-        self.get_widget("options_box").hide()
+        self.ok.set_label(_("Checkout"))
+        self.update_dialog_title(_("Checkout"))
+        self.widget.revision_label.set_text(path)
+        self.widget.options_box.set_visible(False)
 
 
 class GitCheckoutQuiet(object):
@@ -244,7 +288,7 @@ def checkout_factory(vcs, path=None, url=None, revision=None, quiet=False):
     return classes_map[vcs](path, url, revision)
 
 
-if __name__ == "__main__":
+def on_activate(app):
     from rabbitvcs.ui import main, REVISION_OPT, VCS_OPT, QUIET_OPT
 
     (options, args) = main(
@@ -269,7 +313,7 @@ if __name__ == "__main__":
             url = args[0]
 
     if options.quiet:
-        window = checkout_factory(
+        widget = checkout_factory(
             options.vcs,
             path=path,
             url=url,
@@ -277,12 +321,15 @@ if __name__ == "__main__":
             quiet=options.quiet,
         )
     else:
-        window = checkout_factory(
+        widget = checkout_factory(
             options.vcs,
             path=path,
             url=url,
             revision=options.revision,
             quiet=options.quiet,
         )
-        window.register_gtk_quit()
-        Gtk.main()
+        app.add_window(widget.window)
+        widget.window.set_visible(True)
+
+if __name__ == "__main__":
+    GtkTemplateHelper.run_application(on_activate)

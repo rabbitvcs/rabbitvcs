@@ -39,7 +39,7 @@ from rabbitvcs.util import helper
 
 import gi
 
-gi.require_version("Gtk", "3.0")
+gi.require_version("Gtk", "4.0")
 sa = helper.SanitizeArgv()
 sa.restore()
 
@@ -67,47 +67,45 @@ class SVNEditConflicts(InterfaceNonView):
         filename = os.path.basename(path)
 
         dialog = rabbitvcs.ui.dialog.ConflictDecision(filename)
-        action = dialog.run()
-        dialog.destroy()
+        dialog.run(None, self.on_response_decision)
 
-        if action == -1:
+    def on_response_decision(self, response):
+        if response == Gtk.ResponseType.CANCEL:
             # Cancel
             pass
 
-        elif action == 0:
+        elif response == 0:
             # Accept Mine
-            working = self.get_working_path(path)
-            shutil.copyfile(working, path)
-            self.svn.resolve(path)
+            working = self.get_working_path(self.path)
+            shutil.copyfile(working, self.path)
+            self.svn.resolve(self.path)
 
-        elif action == 1:
+        elif response == 1:
             # Accept Theirs
-            ancestor, theirs = self.get_revisioned_paths(path)
-            shutil.copyfile(theirs, path)
-            self.svn.resolve(path)
+            ancestor, theirs = self.get_revisioned_paths(self.path)
+            shutil.copyfile(theirs, self.path)
+            self.svn.resolve(self.path)
 
-        elif action == 2:
+        elif response == 2:
             # Merge Manually
 
-            working = self.get_working_path(path)
-            ancestor, theirs = self.get_revisioned_paths(path)
+            working = self.get_working_path(self.path)
+            ancestor, theirs = self.get_revisioned_paths(self.path)
 
             log.debug(
                 "launching merge tool with base: %s, mine: %s, theirs: %s, merged: %s"
-                % (ancestor, working, theirs, path)
+                % (ancestor, working, theirs, self.path)
             )
             helper.launch_merge_tool(
-                base=ancestor, mine=working, theirs=theirs, merged=path
+                base=ancestor, mine=working, theirs=theirs, merged=self.path
             )
 
             dialog = rabbitvcs.ui.dialog.MarkResolvedPrompt()
-            mark_resolved = dialog.run()
-            dialog.destroy()
+            dialog.run(None, self.on_response_resolve)
 
-            if mark_resolved == 1:
-                self.svn.resolve(path)
-
-        self.close()
+    def on_response_resolve(self, response):
+        if response == Gtk.ResponseType.OK:
+            self.svn.resolve(self.path)
 
     def get_working_path(self, path):
         paths = ["%s.mine" % path, "%s.working" % path]

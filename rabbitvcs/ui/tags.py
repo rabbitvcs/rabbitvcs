@@ -7,7 +7,7 @@ from rabbitvcs.ui.log import log_dialog_factory
 from rabbitvcs.ui.dialog import DeleteConfirmation
 import rabbitvcs.ui.widget
 from rabbitvcs.ui.action import GitAction
-from rabbitvcs.ui import InterfaceView
+from rabbitvcs.ui import GtkTemplateHelper
 from gi.repository import Gtk, GObject, Gdk, Pango
 
 #
@@ -37,10 +37,11 @@ from datetime import datetime
 import time
 
 from rabbitvcs.util import helper
+import branches
 
 import gi
 
-gi.require_version("Gtk", "3.0")
+gi.require_version("Gtk", "4.0")
 sa = helper.SanitizeArgv()
 sa.restore()
 
@@ -51,7 +52,7 @@ STATE_ADD = 0
 STATE_EDIT = 1
 
 
-class GitTagManager(InterfaceView):
+class GitTagManager(GtkTemplateHelper):
     """
     Provides a UI interface to manage items
 
@@ -60,17 +61,25 @@ class GitTagManager(InterfaceView):
     state = STATE_ADD
 
     def __init__(self, path, revision=None):
-        InterfaceView.__init__(self, "manager", "Manager")
+        GtkTemplateHelper.__init__(self, "Manager")
+
+        self.widget = branches.ManagerWidget()
+        self.window = self.get_window(self.widget)
+        # add dialog buttons
+        self.ok = self.add_dialog_button("Close", self.on_close_clicked, suggested=True, hideOnAdwaita=True)
+        # forward signals
+        self.widget.delete.connect("clicked", self.on_delete_clicked)
+        self.widget.add.connect("clicked", self.on_add_clicked)
+        # set window properties
+        self.window.set_default_size(695, -1)
 
         self.path = path
 
         sm = rabbitvcs.util.settings.SettingsManager()
         self.datetime_format = sm.get("general", "datetime_format")
 
-        self.get_widget("right_side").show()
-        self.get_widget("Manager").set_size_request(695, -1)
-        self.get_widget("Manager").set_title(_("Tag Manager"))
-        self.get_widget("items_label").set_markup(_("<b>Tags</b>"))
+        self.window.set_title(_("Tag Manager"))
+        self.widget.items_label.set_markup(_("<b>Tags</b>"))
 
         self.vcs = rabbitvcs.vcs.VCS()
         self.git = self.vcs.git(path)
@@ -79,7 +88,7 @@ class GitTagManager(InterfaceView):
 
         self.selected_tag = None
         self.items_treeview = rabbitvcs.ui.widget.Table(
-            self.get_widget("items_treeview"),
+            self.widget.items_treeview,
             [GObject.TYPE_STRING],
             [_("Tag")],
             callbacks={
@@ -92,7 +101,7 @@ class GitTagManager(InterfaceView):
         self.load(self.show_add)
 
     def initialize_detail(self):
-        self.detail_container = self.get_widget("detail_container")
+        self.detail_container = self.widget.detail_container
 
         self.detail_grid = Gtk.Grid()
         self.detail_grid.set_row_spacing(4)
@@ -120,9 +129,7 @@ class GitTagManager(InterfaceView):
             self.start_point_entry.set_text(S(self.revision_obj).display())
         self.log_dialog_button = Gtk.Button()
         self.log_dialog_button.connect("clicked", self.on_log_dialog_button_clicked)
-        image = Gtk.Image()
-        image.set_from_icon_name("rabbitvcs-show_log", Gtk.IconSize.SMALL_TOOLBAR)
-        self.log_dialog_button.set_image(image)
+        self.log_dialog_button.set_icon_name("rabbitvcs-show_log")
         self.detail_grid.attach(label, 0, row, 1, 1)
         self.detail_grid.attach(self.start_point_entry, 1, row, 1, 1)
         self.detail_grid.attach(self.log_dialog_button, 2, row, 1, 1)
@@ -137,11 +144,11 @@ class GitTagManager(InterfaceView):
         self.message_entry.view.set_hexpand(True)
         self.message_entry.view.set_vexpand(True)
         swin = Gtk.ScrolledWindow()
-        swin.set_shadow_type(Gtk.ShadowType.ETCHED_IN)
+        swin.set_has_frame(True)
         swin.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
         swin.set_hexpand(True)
         swin.set_vexpand(True)
-        swin.add(self.message_entry.view)
+        swin.set_child(self.message_entry.view)
         self.detail_grid.attach(label, 0, row, 1, 1)
         self.detail_grid.attach(swin, 1, row, 2, 1)
         message_entry_row = row
@@ -161,7 +168,7 @@ class GitTagManager(InterfaceView):
         self.tagger_label = Gtk.Label(label="")
         self.tagger_label.set_properties(xalign=0, yalign=0, selectable=True)
         self.tagger_label.set_hexpand(True)
-        self.tagger_label.set_line_wrap(True)
+        self.tagger_label.set_wrap(True)
         self.detail_grid.attach(label, 0, row, 1, 1)
         self.detail_grid.attach(self.tagger_label, 1, row, 2, 1)
         tagger_row = row
@@ -184,7 +191,7 @@ class GitTagManager(InterfaceView):
         self.revision_label = Gtk.Label(label="")
         self.revision_label.set_properties(xalign=0, selectable=True)
         self.revision_label.set_hexpand(True)
-        self.revision_label.set_line_wrap(True)
+        self.revision_label.set_wrap(True)
         self.detail_grid.attach(label, 0, row, 1, 1)
         self.detail_grid.attach(self.revision_label, 1, row, 2, 1)
         revision_row = row
@@ -197,19 +204,17 @@ class GitTagManager(InterfaceView):
         self.message_label.set_properties(xalign=0, yalign=0, selectable=True)
         self.message_label.set_hexpand(True)
         self.message_label.set_vexpand(True)
-        self.message_label.set_line_wrap(True)
+        self.message_label.set_wrap(True)
         vport = Gtk.Viewport()
-        vport.set_shadow_type(Gtk.ShadowType.NONE)
         vport.set_hexpand(True)
         vport.set_vexpand(True)
-        vport.add(self.message_label)
+        vport.set_child(self.message_label)
         swin = Gtk.ScrolledWindow()
-        swin.set_shadow_type(Gtk.ShadowType.NONE)
         swin.set_size_request(250, -1)
         swin.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
         swin.set_hexpand(True)
         swin.set_vexpand(True)
-        swin.add(vport)
+        swin.set_child(vport)
         self.detail_grid.attach(label, 0, row, 1, 1)
         self.detail_grid.attach(swin, 1, row, 2, 1)
         message_row = row
@@ -219,8 +224,7 @@ class GitTagManager(InterfaceView):
 
         self.view_rows = [tag_name_row, tagger_row, date_row, revision_row, message_row]
 
-        self.detail_grid.show()
-        self.detail_container.add(self.detail_grid)
+        self.detail_container.append(self.detail_grid)
 
     def load(self, callback, *args, **kwargs):
         self.items_treeview.clear()
@@ -238,13 +242,11 @@ class GitTagManager(InterfaceView):
 
     def on_delete_clicked(self, widget):
         selected = self.items_treeview.get_selected_row_items(0)
-
-        confirm = rabbitvcs.ui.dialog.Confirmation(
-            _("Are you sure you want to delete %s?" % ", ".join(selected))
-        )
-        result = confirm.run()
-
-        if result == Gtk.ResponseType.OK or result == True:
+        self.exec_dialog(self.window, _("Are you sure you want to delete %s?" % ", ".join(selected)), self.on_delete_callback)
+        
+    def on_delete_callback(self, reponse_id):
+        if reponse_id == Gtk.ResponseType.OK:
+            selected = self.items_treeview.get_selected_row_items(0)
             for tag in selected:
                 self.git.tag_delete(tag)
 
@@ -258,30 +260,33 @@ class GitTagManager(InterfaceView):
         self.git.tag(tag_name, tag_message, tag_revision)
         self.load(self.show_detail, tag_name)
 
-    def on_treeview_key_event(self, treeview, event, *args):
-        if Gdk.keyval_name(event.keyval) in ("Up", "Down", "Return"):
-            self.on_treeview_event(treeview, event)
+    def on_treeview_key_event(self, controller, keyval, keycode, state, pressed):
+        if Gdk.keyval_name(keyval) in ("Up", "Down", "Return"):
+            self.on_treeview_event()
 
-    def on_treeview_mouse_event(self, treeview, event, *args):
-        self.on_treeview_event(treeview, event)
+    def on_treeview_mouse_event(self, gesture, n_press, x, y, pressed):
+        self.on_treeview_event()
 
-    def on_treeview_event(self, treeview, event):
+    def on_treeview_event(self):
         selected = self.items_treeview.get_selected_row_items(0)
         if len(selected) > 0:
             if len(selected) == 1:
                 self.show_detail(selected[0])
-            self.get_widget("delete").set_sensitive(True)
+            self.widget.delete.set_sensitive(True)
         else:
             self.show_add()
 
     def show_rows(self, rows):
-        self.detail_grid.hide()
-        for w in self.detail_grid.get_children():
-            if self.detail_grid.child_get_property(w, "top-attach") in rows:
-                w.show_all()
+        self.detail_grid.set_visible(False)
+        child = self.detail_grid.get_first_child()
+        while child:
+            (c, r, w, h) = self.detail_grid.query_child(child)
+            if r in rows:
+                child.set_visible(True)
             else:
-                w.hide()
-        self.detail_grid.show()
+                child.set_visible(False)
+            child = child.get_next_sibling()
+        self.detail_grid.set_visible(True)
 
     def show_add(self):
         self.items_treeview.unselect_all()
@@ -289,7 +294,7 @@ class GitTagManager(InterfaceView):
         self.message_entry.set_text("")
         self.save_button.set_label(_("Add"))
         self.show_rows(self.add_rows)
-        self.get_widget("detail_label").set_markup(_("<b>Add Tag</b>"))
+        self.widget.detail_label.set_markup(_("<b>Add Tag</b>"))
 
     def show_detail(self, tag_name):
         self.selected_tag = None
@@ -314,7 +319,7 @@ class GitTagManager(InterfaceView):
             )
 
             self.show_rows(self.view_rows)
-            self.get_widget("detail_label").set_markup(_("<b>Tag Detail</b>"))
+            self.widget.detail_label.set_markup(_("<b>Tag Detail</b>"))
 
     def on_log_dialog_button_clicked(self, widget):
         log_dialog_factory(self.path, ok_callback=self.on_log_dialog_closed)
@@ -324,13 +329,17 @@ class GitTagManager(InterfaceView):
             self.start_point_entry.set_text(S(data).display())
 
 
-if __name__ == "__main__":
+def on_activate(app):
     from rabbitvcs.ui import main, REVISION_OPT, VCS_OPT
 
     (options, paths) = main(
         [REVISION_OPT, VCS_OPT], usage="Usage: rabbitvcs tag-manager path"
     )
 
-    window = GitTagManager(paths[0], options.revision)
-    window.register_gtk_quit()
-    Gtk.main()
+    widget = GitTagManager(paths[0], options.revision)
+
+    app.add_window(widget.window)
+    widget.window.set_visible(True)
+
+if __name__ == "__main__":
+    GtkTemplateHelper.run_application(on_activate)

@@ -1,10 +1,10 @@
 from __future__ import absolute_import, print_function
 from rabbitvcs import gettext
 import rabbitvcs.vcs
-from rabbitvcs.ui.dialog import DeleteConfirmation
 import rabbitvcs.ui.widget
 from rabbitvcs.ui.action import GitAction
-from rabbitvcs.ui import InterfaceView
+from rabbitvcs.ui import GtkTemplateHelper
+from rabbitvcs.ui.branches import ManagerWidget
 import time
 from datetime import datetime
 from gi.repository import Gtk, GObject, Gdk, Pango
@@ -37,7 +37,7 @@ from rabbitvcs.util import helper
 
 import gi
 
-gi.require_version("Gtk", "3.0")
+gi.require_version("Gtk", "4.0")
 sa = helper.SanitizeArgv()
 sa.restore()
 
@@ -48,7 +48,7 @@ STATE_ADD = 0
 STATE_EDIT = 1
 
 
-class GitRemotes(InterfaceView):
+class GitRemotes(GtkTemplateHelper):
     """
     Provides a UI interface to manage items
 
@@ -57,17 +57,28 @@ class GitRemotes(InterfaceView):
     state = STATE_ADD
 
     def __init__(self, path):
-        InterfaceView.__init__(self, "manager", "Manager")
+        GtkTemplateHelper.__init__(self, "Manager")
+
+        self.widget = ManagerWidget()
+        self.window = self.get_window(self.widget)
+        # add dialog buttons
+        self.ok = self.add_dialog_button("Close", self.on_close_clicked, suggested=True, hideOnAdwaita=True)
+        # forward signals
+        self.widget.delete.connect("clicked", self.on_delete_clicked)
+        self.widget.add.connect("clicked", self.on_add_clicked)
+        # set window properties
+        self.window.set_default_size(695, -1)
+
         self.vcs = rabbitvcs.vcs.VCS()
         self.git = self.vcs.git(path)
 
-        self.get_widget("right_side").hide()
-        self.get_widget("Manager").set_title(_("Remote Repository Manager"))
-        self.get_widget("items_label").set_markup(_("<b>Remote Repositories</b>"))
+        self.widget.right_side.set_visible(False)
+        self.window.set_title(_("Remote Repository Manager"))
+        self.widget.items_label.set_markup(_("<b>Remote Repositories</b>"))
 
         self.selected_branch = None
         self.items_treeview = rabbitvcs.ui.widget.Table(
-            self.get_widget("items_treeview"),
+            self.widget.items_treeview,
             [GObject.TYPE_STRING, GObject.TYPE_STRING],
             [_("Name"), _("Host")],
             callbacks={
@@ -120,34 +131,35 @@ class GitRemotes(InterfaceView):
     def on_delete_clicked(self, widget):
         selected = self.items_treeview.get_selected_row_items(0)
 
-        confirm = rabbitvcs.ui.dialog.Confirmation(
-            _("Are you sure you want to delete %s?" % ", ".join(selected))
-        )
-        result = confirm.run()
+        self.exec_dialog(
+            self.window, _("Are you sure you want to delete %s?" % ", ".join(selected)),
+            self.on_delete_callback)
 
-        if result == Gtk.ResponseType.OK or result == True:
+    def on_delete_callback(self, response):
+        if response == Gtk.ResponseType.OK:
+            selected = self.items_treeview.get_selected_row_items(0)
             for remote in selected:
                 self.git.remote_delete(remote)
 
             self.load()
 
-    def on_treeview_key_event(self, treeview, event, *args):
-        if Gdk.keyval_name(event.keyval) in ("Up", "Down", "Return"):
-            self.on_treeview_event(treeview, event)
+    def on_treeview_key_event(self, controller, keyval, keycode, state, pressed):
+        if Gdk.keyval_name(keyval) in ("Up", "Down", "Return"):
+            self.on_treeview_event()
 
-    def on_treeview_mouse_event(self, treeview, event, *args):
-        self.on_treeview_event(treeview, event)
+    def on_treeview_mouse_event(self, gesture, n_press, x, y, pressed):
+        self.on_treeview_event()
 
     def on_treeview_cell_edited_event(self, cell, row, data, column):
         self.items_treeview.set_row_item(row, column, data)
         self.save(row, column, data)
 
-    def on_treeview_event(self, treeview, event):
+    def on_treeview_event(self):
         selected = self.items_treeview.get_selected_row_items(0)
         if len(selected) > 0:
             if len(selected) == 1:
                 self.show_edit(selected[0])
-            self.get_widget("delete").set_sensitive(True)
+            self.widget.delete.set_sensitive(True)
 
     def show_add(self):
         self.state = STATE_ADD
@@ -160,11 +172,14 @@ class GitRemotes(InterfaceView):
         self.state = STATE_EDIT
 
 
-if __name__ == "__main__":
+def on_activate(app):
     from rabbitvcs.ui import main
 
     (options, paths) = main(usage="Usage: rabbitvcs branch-manager path")
 
-    window = GitRemotes(paths[0])
-    window.register_gtk_quit()
-    Gtk.main()
+    widget = GitRemotes(paths[0])
+    app.add_window(widget.window)
+    widget.window.set_visible(True)
+
+if __name__ == "__main__":
+    GtkTemplateHelper.run_application(on_activate)

@@ -1,268 +1,161 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Generated with glade 3.22.1 -->
 <interface>
-  <requires lib="gtk+" version="3.0"/>
-  <object class="GtkDialog" id="Certificate">
-    <property name="width_request">550</property>
-    <property name="can_focus">False</property>
-    <property name="border_width">5</property>
-    <property name="title" translatable="yes">Check Certificate</property>
-    <property name="window_position">center</property>
-    <property name="icon_name">rabbitvcs-small</property>
-    <property name="type_hint">dialog</property>
+  <requires lib="gtk" version="4.0"/>
+  <template class="Certificate" parent="GtkBox">
+    <property name="width_request">400</property>
+    <property name="orientation">vertical</property>
+    <property name="spacing">12</property>
     <child>
-      <placeholder/>
-    </child>
-    <child internal-child="vbox">
-      <object class="GtkBox" id="dialog-vbox3">
-        <property name="width_request">400</property>
-        <property name="visible">True</property>
-        <property name="can_focus">False</property>
+      <object class="GtkGrid">
+        <property name="valign">center</property>
+        <property name="hexpand">1</property>
         <property name="orientation">vertical</property>
-        <property name="spacing">12</property>
-        <child internal-child="action_area">
-          <object class="GtkButtonBox" id="dialog-action_area3">
-            <property name="visible">True</property>
-            <property name="can_focus">False</property>
-            <property name="halign">end</property>
-            <property name="valign">end</property>
-            <property name="hexpand">True</property>
-            <property name="vexpand">True</property>
-            <property name="layout_style">spread</property>
-            <child>
-              <object class="GtkButton" id="cert_accept_once">
-                <property name="label" translatable="yes">Accept Once</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">True</property>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">False</property>
-                <property name="position">0</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkButton" id="cert_accept_forever">
-                <property name="label" translatable="yes">Accept Forever</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">True</property>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">False</property>
-                <property name="position">1</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkButton" id="cert_deny">
-                <property name="label" translatable="yes">Deny</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">True</property>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">False</property>
-                <property name="position">2</property>
-              </packing>
-            </child>
-          </object>
-          <packing>
-            <property name="expand">False</property>
-            <property name="fill">False</property>
-            <property name="pack_type">end</property>
-            <property name="position">0</property>
-          </packing>
-        </child>
+        <property name="row_spacing">6</property>
         <child>
           <object class="GtkGrid">
-            <property name="visible">True</property>
-            <property name="can_focus">False</property>
-            <property name="hexpand">True</property>
+            <property name="margin-start">12</property>
+            <property name="hexpand">1</property>
             <property name="orientation">vertical</property>
             <property name="row_spacing">6</property>
+            <property name="column_spacing">6</property>
             <child>
-              <object class="GtkGrid">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="margin_left">12</property>
-                <property name="hexpand">True</property>
-                <property name="orientation">vertical</property>
-                <property name="row_spacing">6</property>
-                <property name="column_spacing">6</property>
-                <child>
-                  <object class="GtkLabel" id="cert_fingerprint">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="hexpand">True</property>
-                    <property name="wrap">True</property>
-                    <property name="xalign">0</property>
-                    <property name="yalign">0</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">1</property>
-                    <property name="top_attach">4</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel" id="label11">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="label" translatable="yes">Fingerprint:</property>
-                    <property name="ellipsize">start</property>
-                    <property name="xalign">0</property>
-                    <property name="yalign">0</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">0</property>
-                    <property name="top_attach">4</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel" id="cert_valid">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="hexpand">True</property>
-                    <property name="wrap">True</property>
-                    <property name="xalign">0</property>
-                    <property name="yalign">0</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">1</property>
-                    <property name="top_attach">3</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel" id="label10">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="label" translatable="yes">Valid:</property>
-                    <property name="ellipsize">start</property>
-                    <property name="xalign">0</property>
-                    <property name="yalign">0</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">0</property>
-                    <property name="top_attach">3</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel" id="cert_issuer">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="hexpand">True</property>
-                    <property name="wrap">True</property>
-                    <property name="xalign">0</property>
-                    <property name="yalign">0</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">1</property>
-                    <property name="top_attach">2</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel" id="label9">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="label" translatable="yes">Issuer:</property>
-                    <property name="ellipsize">start</property>
-                    <property name="xalign">0</property>
-                    <property name="yalign">0</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">0</property>
-                    <property name="top_attach">2</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel" id="cert_host">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="hexpand">True</property>
-                    <property name="wrap">True</property>
-                    <property name="xalign">0</property>
-                    <property name="yalign">0</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">1</property>
-                    <property name="top_attach">1</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel" id="label8">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="label" translatable="yes">Host:</property>
-                    <property name="ellipsize">start</property>
-                    <property name="xalign">0</property>
-                    <property name="yalign">0</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">0</property>
-                    <property name="top_attach">1</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel" id="cert_realm">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="hexpand">True</property>
-                    <property name="wrap">True</property>
-                    <property name="xalign">0</property>
-                    <property name="yalign">0</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">1</property>
-                    <property name="top_attach">0</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel" id="label7">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="label" translatable="yes">Realm:</property>
-                    <property name="ellipsize">start</property>
-                    <property name="xalign">0</property>
-                    <property name="yalign">0</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">0</property>
-                    <property name="top_attach">0</property>
-                  </packing>
-                </child>
-              </object>
-              <packing>
-                <property name="left_attach">0</property>
-                <property name="top_attach">1</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkLabel" id="label12">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="label" translatable="yes">&lt;b&gt;Certificate Details&lt;/b&gt;</property>
-                <property name="use_markup">True</property>
+              <object class="GtkLabel" id="cert_fingerprint">
+                <property name="hexpand">1</property>
+                <property name="wrap">1</property>
                 <property name="xalign">0</property>
+                <property name="yalign">0</property>
+                <layout>
+                  <property name="column">1</property>
+                  <property name="row">4</property>
+                </layout>
               </object>
-              <packing>
-                <property name="left_attach">0</property>
-                <property name="top_attach">0</property>
-              </packing>
             </child>
+            <child>
+              <object class="GtkLabel" id="label11">
+                <property name="label" translatable="1">Fingerprint:</property>
+                <property name="ellipsize">start</property>
+                <property name="xalign">0</property>
+                <property name="yalign">0</property>
+                <layout>
+                  <property name="column">0</property>
+                  <property name="row">4</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkLabel" id="cert_valid">
+                <property name="hexpand">1</property>
+                <property name="wrap">1</property>
+                <property name="xalign">0</property>
+                <property name="yalign">0</property>
+                <layout>
+                  <property name="column">1</property>
+                  <property name="row">3</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkLabel" id="label10">
+                <property name="label" translatable="1">Valid:</property>
+                <property name="ellipsize">start</property>
+                <property name="xalign">0</property>
+                <property name="yalign">0</property>
+                <layout>
+                  <property name="column">0</property>
+                  <property name="row">3</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkLabel" id="cert_issuer">
+                <property name="hexpand">1</property>
+                <property name="wrap">1</property>
+                <property name="xalign">0</property>
+                <property name="yalign">0</property>
+                <layout>
+                  <property name="column">1</property>
+                  <property name="row">2</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkLabel" id="label9">
+                <property name="label" translatable="1">Issuer:</property>
+                <property name="ellipsize">start</property>
+                <property name="xalign">0</property>
+                <property name="yalign">0</property>
+                <layout>
+                  <property name="column">0</property>
+                  <property name="row">2</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkLabel" id="cert_host">
+                <property name="hexpand">1</property>
+                <property name="wrap">1</property>
+                <property name="xalign">0</property>
+                <property name="yalign">0</property>
+                <layout>
+                  <property name="column">1</property>
+                  <property name="row">1</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkLabel" id="label8">
+                <property name="label" translatable="1">Host:</property>
+                <property name="ellipsize">start</property>
+                <property name="xalign">0</property>
+                <property name="yalign">0</property>
+                <layout>
+                  <property name="column">0</property>
+                  <property name="row">1</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkLabel" id="cert_realm">
+                <property name="hexpand">1</property>
+                <property name="wrap">1</property>
+                <property name="xalign">0</property>
+                <property name="yalign">0</property>
+                <layout>
+                  <property name="column">1</property>
+                  <property name="row">0</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkLabel" id="label7">
+                <property name="label" translatable="1">Realm:</property>
+                <property name="ellipsize">start</property>
+                <property name="xalign">0</property>
+                <property name="yalign">0</property>
+                <layout>
+                  <property name="column">0</property>
+                  <property name="row">0</property>
+                </layout>
+              </object>
+            </child>
+            <layout>
+              <property name="column">0</property>
+              <property name="row">1</property>
+            </layout>
           </object>
-          <packing>
-            <property name="expand">False</property>
-            <property name="fill">False</property>
-            <property name="position">1</property>
-          </packing>
+        </child>
+        <child>
+          <object class="GtkLabel" id="label12">
+            <property name="label" translatable="1">&lt;b&gt;Certificate Details&lt;/b&gt;</property>
+            <property name="use_markup">1</property>
+            <property name="xalign">0</property>
+            <layout>
+              <property name="column">0</property>
+              <property name="row">0</property>
+            </layout>
+          </object>
         </child>
       </object>
     </child>
-    <action-widgets>
-      <action-widget response="1">cert_accept_once</action-widget>
-      <action-widget response="2">cert_accept_forever</action-widget>
-    </action-widgets>
-  </object>
+  </template>
 </interface>

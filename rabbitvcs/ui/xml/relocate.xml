@@ -1,179 +1,87 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Generated with glade 3.22.1 -->
 <interface>
-  <requires lib="gtk+" version="3.0"/>
-  <object class="GtkImage" id="rabbitvcs-cancel">
-    <property name="visible">True</property>
-    <property name="can_focus">False</property>
-    <property name="icon_name">rabbitvcs-cancel</property>
-  </object>
-  <object class="GtkImage" id="rabbitvcs-ok">
-    <property name="visible">True</property>
-    <property name="can_focus">False</property>
-    <property name="icon_name">rabbitvcs-ok</property>
-  </object>
-  <object class="GtkWindow" id="Relocate">
-    <property name="width_request">640</property>
-    <property name="visible">True</property>
-    <property name="can_focus">False</property>
-    <property name="title" translatable="yes">Relocate</property>
-    <property name="window_position">center</property>
-    <property name="icon_name">rabbitvcs-small</property>
-    <signal name="destroy" handler="on_destroy" swapped="no"/>
-    <signal name="key-press-event" handler="on_key_pressed" swapped="no"/>
+  <requires lib="gtk" version="4.0"/>>
+  <template class="RelocateWidget" parent="GtkGrid">
+    <property name="margin-start">12</property>
+    <property name="margin-end">12</property>
+    <property name="margin_top">12</property>
+    <property name="margin_bottom">12</property>
+    <property name="hexpand">1</property>
+    <property name="vexpand">1</property>
+    <property name="orientation">vertical</property>
+    <property name="row_spacing">18</property>
     <child>
       <object class="GtkGrid">
-        <property name="visible">True</property>
-        <property name="can_focus">False</property>
-        <property name="margin_left">12</property>
-        <property name="margin_right">12</property>
-        <property name="margin_top">12</property>
-        <property name="margin_bottom">12</property>
-        <property name="hexpand">True</property>
-        <property name="vexpand">True</property>
+        <property name="hexpand">1</property>
         <property name="orientation">vertical</property>
-        <property name="row_spacing">18</property>
-        <child>
-          <object class="GtkButtonBox" id="hbuttonbox17">
-            <property name="visible">True</property>
-            <property name="can_focus">False</property>
-            <property name="valign">end</property>
-            <property name="hexpand">True</property>
-            <property name="vexpand">True</property>
-            <property name="spacing">6</property>
-            <property name="layout_style">end</property>
-            <child>
-              <object class="GtkButton" id="cancel">
-                <property name="label" translatable="yes">_Cancel</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">True</property>
-                <property name="image">rabbitvcs-cancel</property>
-                <property name="use_underline">True</property>
-                <signal name="clicked" handler="on_cancel_clicked" swapped="no"/>
-              </object>
-              <packing>
-                <property name="expand">True</property>
-                <property name="fill">True</property>
-                <property name="position">0</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkButton" id="ok">
-                <property name="label" translatable="yes">_OK</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">True</property>
-                <property name="image">rabbitvcs-ok</property>
-                <property name="use_underline">True</property>
-                <signal name="clicked" handler="on_ok_clicked" swapped="no"/>
-              </object>
-              <packing>
-                <property name="expand">True</property>
-                <property name="fill">True</property>
-                <property name="position">1</property>
-              </packing>
-            </child>
-          </object>
-          <packing>
-            <property name="left_attach">0</property>
-            <property name="top_attach">1</property>
-          </packing>
-        </child>
+        <property name="row_spacing">6</property>
         <child>
           <object class="GtkGrid">
-            <property name="visible">True</property>
-            <property name="can_focus">False</property>
-            <property name="hexpand">True</property>
-            <property name="orientation">vertical</property>
+            <property name="margin-start">12</property>
+            <property name="hexpand">1</property>
             <property name="row_spacing">6</property>
+            <property name="column_spacing">6</property>
             <child>
-              <object class="GtkGrid">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="margin_left">12</property>
-                <property name="hexpand">True</property>
-                <property name="row_spacing">6</property>
-                <property name="column_spacing">6</property>
-                <child>
-                  <object class="GtkLabel" id="label46">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="label" translatable="yes">To:</property>
-                    <property name="xalign">0</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">0</property>
-                    <property name="top_attach">1</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkComboBoxText" id="to_urls">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="has_entry">True</property>
-                    <child internal-child="entry">
-                      <object class="GtkEntry" id="to_url">
-                        <property name="visible">True</property>
-                        <property name="can_focus">True</property>
-                        <property name="hexpand">True</property>
-                      </object>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="left_attach">1</property>
-                    <property name="top_attach">1</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkEntry" id="from_url">
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="hexpand">True</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">1</property>
-                    <property name="top_attach">0</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel" id="label44">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="label" translatable="yes">From:</property>
-                    <property name="xalign">0</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">0</property>
-                    <property name="top_attach">0</property>
-                  </packing>
-                </child>
-              </object>
-              <packing>
-                <property name="left_attach">0</property>
-                <property name="top_attach">1</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkLabel" id="label1">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="label" translatable="yes">&lt;b&gt;Change the repository of your working copy&lt;/b&gt;</property>
-                <property name="use_markup">True</property>
+              <object class="GtkLabel" id="label46">
+                <property name="label" translatable="1">To:</property>
                 <property name="xalign">0</property>
+                <layout>
+                  <property name="column">0</property>
+                  <property name="row">1</property>
+                </layout>
               </object>
-              <packing>
-                <property name="left_attach">0</property>
-                <property name="top_attach">0</property>
-              </packing>
             </child>
+            <child>
+              <object class="GtkComboBoxText" id="to_url">
+                <property name="has_entry">1</property>
+                <layout>
+                  <property name="column">1</property>
+                  <property name="row">1</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkEntry" id="from_url">
+                <property name="focusable">1</property>
+                <property name="hexpand">1</property>
+                <layout>
+                  <property name="column">1</property>
+                  <property name="row">0</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkLabel" id="label44">
+                <property name="label" translatable="1">From:</property>
+                <property name="xalign">0</property>
+                <layout>
+                  <property name="column">0</property>
+                  <property name="row">0</property>
+                </layout>
+              </object>
+            </child>
+            <layout>
+              <property name="column">0</property>
+              <property name="row">1</property>
+            </layout>
           </object>
-          <packing>
-            <property name="left_attach">0</property>
-            <property name="top_attach">0</property>
-          </packing>
         </child>
+        <child>
+          <object class="GtkLabel" id="label1">
+            <property name="label" translatable="1">&lt;b&gt;Change the repository of your working copy&lt;/b&gt;</property>
+            <property name="use_markup">1</property>
+            <property name="xalign">0</property>
+            <layout>
+              <property name="column">0</property>
+              <property name="row">0</property>
+            </layout>
+          </object>
+        </child>
+        <layout>
+          <property name="column">0</property>
+          <property name="row">0</property>
+        </layout>
       </object>
     </child>
-  </object>
+  </template>
 </interface>

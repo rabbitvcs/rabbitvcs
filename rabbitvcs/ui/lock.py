@@ -7,7 +7,7 @@ import rabbitvcs.ui.dialog
 import rabbitvcs.ui.widget
 from rabbitvcs.util.contextmenu import GtkFilesContextMenu, GtkContextMenuCaller
 from rabbitvcs.ui.action import SVNAction
-from rabbitvcs.ui import InterfaceView
+from rabbitvcs.ui import GtkTemplateHelper
 from gi.repository import Gtk, GObject, Gdk
 
 #
@@ -39,7 +39,7 @@ from rabbitvcs.util import helper
 
 import gi
 
-gi.require_version("Gtk", "3.0")
+gi.require_version("Gtk", "4.0")
 sa = helper.SanitizeArgv()
 sa.restore()
 
@@ -51,7 +51,21 @@ _ = gettext.gettext
 helper.gobject_threads_init()
 
 
-class SVNLock(InterfaceView, GtkContextMenuCaller):
+@Gtk.Template(filename=f"{os.path.dirname(os.path.abspath(__file__))}/xml/lock.xml")
+class LockWidget(Gtk.Grid):
+    __gtype_name__ = "LockWidget"
+
+    files_table = Gtk.Template.Child()
+    message = Gtk.Template.Child()
+    previous_messages = Gtk.Template.Child()
+    status = Gtk.Template.Child()
+    steal_locks = Gtk.Template.Child()
+    select_all = Gtk.Template.Child()
+
+    def __init__(self):
+        Gtk.Grid.__init__(self)
+
+class SVNLock(GtkTemplateHelper, GtkContextMenuCaller):
     """
     Provides an interface to lock any number of files in a working copy.
 
@@ -64,7 +78,18 @@ class SVNLock(InterfaceView, GtkContextMenuCaller):
 
         """
 
-        InterfaceView.__init__(self, "lock", "Lock")
+        GtkTemplateHelper.__init__(self, "Lock")
+
+        self.widget = LockWidget()
+        self.window = self.get_window(self.widget)
+        # add dialog buttons
+        self.ok = self.add_dialog_button("Lock", self.on_ok_clicked, suggested=True)
+        self.cancel = self.add_dialog_button("Cancel", self.on_cancel_clicked, hideOnAdwaita=True)
+        # forward signals
+        self.widget.select_all.connect("toggled", self.on_select_all_toggled)
+        self.widget.previous_messages.connect("clicked", self.on_previous_messages_clicked)
+        # set window properties
+        self.window.set_default_size(600, -1)
 
         self.paths = paths
         self.base_dir = base_dir
@@ -72,7 +97,7 @@ class SVNLock(InterfaceView, GtkContextMenuCaller):
         self.svn = self.vcs.svn()
 
         self.files_table = rabbitvcs.ui.widget.Table(
-            self.get_widget("files_table"),
+            self.widget.files_table,
             [
                 GObject.TYPE_BOOLEAN,
                 rabbitvcs.ui.widget.TYPE_HIDDEN_OBJECT,
@@ -90,7 +115,7 @@ class SVNLock(InterfaceView, GtkContextMenuCaller):
             callbacks={"mouse-event": self.on_files_table_mouse_event},
         )
 
-        self.message = rabbitvcs.ui.widget.TextView(self.get_widget("message"))
+        self.message = rabbitvcs.ui.widget.TextView(self.widget.message)
 
         self.items = None
         self.initialize_items()
@@ -114,10 +139,10 @@ class SVNLock(InterfaceView, GtkContextMenuCaller):
             log.exception(e)
 
     def load(self):
-        self.get_widget("status").set_text(_("Loading..."))
+        self.widget.status.set_text(_("Loading..."))
         self.items = self.vcs.get_items(self.paths)
         self.populate_files_table()
-        self.get_widget("status").set_text(_("Found %d item(s)") % len(self.items))
+        self.widget.status.set_text(_("Found %d item(s)") % len(self.items))
 
     def populate_files_table(self):
         for item in self.items:
@@ -138,27 +163,27 @@ class SVNLock(InterfaceView, GtkContextMenuCaller):
                 ]
             )
 
-    def show_files_table_popup_menu(self, treeview, data):
+    def show_files_table_popup_menu(self):
         paths = self.files_table.get_selected_row_items(1)
-        GtkFilesContextMenu(self, data, self.base_dir, paths).show()
+        # TODO GtkFilesContextMenu(self, data, self.base_dir, paths).show()
 
     #
     # UI Signal Callbacks
     #
 
     def on_ok_clicked(self, widget, data=None):
-        steal_locks = self.get_widget("steal_locks").get_active()
+        steal_locks = self.widget.steal_locks.get_active()
         items = self.files_table.get_activated_rows(1)
         if not items:
-            self.close()
+            self.window.close()
             return
 
         message = self.message.get_text()
 
-        self.hide()
+        self.window.set_visible(False)
 
         self.action = rabbitvcs.ui.action.SVNAction(
-            self.svn, register_gtk_quit=self.gtk_quit_is_set()
+            self.svn
         )
 
         self.action.append(self.action.set_header, _("Get Lock"))
@@ -170,17 +195,21 @@ class SVNLock(InterfaceView, GtkContextMenuCaller):
         self.action.append(self.action.finish)
         self.action.schedule()
 
-    def on_files_table_mouse_event(self, treeview, event, *args):
-        if event.button == 3 and event.type == Gdk.EventType.BUTTON_RELEASE:
-            self.show_files_table_popup_menu(treeview, event)
+        self.window.close()
+
+    def on_files_table_mouse_event(self, gesture, n_press, x, y, pressed):
+        if gesture.get_current_button() == 3 and not pressed:
+            self.show_files_table_popup_menu()
 
     def on_select_all_toggled(self, widget, data=None):
         for row in self.files_table.get_items():
-            row[0] = self.get_widget("select_all").get_active()
+            row[0] = self.widget.select_all.get_active()
 
     def on_previous_messages_clicked(self, widget, data=None):
-        dialog = rabbitvcs.ui.dialog.PreviousMessages()
-        message = dialog.run()
+        dialog = rabbitvcs.ui.dialog.PreviousMessages(self.window)
+        dialog.run(self.on_previous_messages_response)
+
+    def on_previous_messages_response(self, message):
         if message is not None:
             self.message.set_text(S(message).display())
 
@@ -193,13 +222,16 @@ def lock_factory(paths, base_dir):
     return classes_map[guess["vcs"]](paths, base_dir)
 
 
-if __name__ == "__main__":
+def on_activate(app):
     from rabbitvcs.ui import main, BASEDIR_OPT
 
     (options, paths) = main(
         [BASEDIR_OPT], usage="Usage: rabbitvcs lock [path1] [path2] ..."
     )
 
-    window = lock_factory(paths, options.base_dir)
-    window.register_gtk_quit()
-    Gtk.main()
+    widget = lock_factory(paths, options.base_dir)
+    app.add_window(widget.window)
+    widget.window.set_visible(True)
+
+if __name__ == "__main__":
+    GtkTemplateHelper.run_application(on_activate)

@@ -6,7 +6,6 @@ from rabbitvcs.ui.action import SVNAction, GitAction
 from rabbitvcs.ui.dialog import MessageBox
 from rabbitvcs.ui.clone import GitClone
 from rabbitvcs.ui.checkout import SVNCheckout
-from rabbitvcs.ui import InterfaceView
 from gi.repository import Gtk, GObject, Gdk
 
 #
@@ -37,7 +36,7 @@ from rabbitvcs.util import helper
 
 import gi
 
-gi.require_version("Gtk", "3.0")
+gi.require_version("Gtk", "4.0")
 sa = helper.SanitizeArgv()
 sa.restore()
 

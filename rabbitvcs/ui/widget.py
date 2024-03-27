@@ -39,10 +39,7 @@ from locale import strxfrm
 
 import gi
 
-try:
-    gi.require_version("Gtk", "3.0")
-except:
-    gi.require_version("Gtk", "4.0")
+gi.require_version("Gtk", "4.0")
 
 HAS_GTKSPELL = False
 try:
@@ -199,12 +196,8 @@ def compare_items(model, iter1, iter2, user_data=None):
 
     colnum, coltype = user_data
 
-    real_model = model.get_model()
-    real_iter1 = model.convert_iter_to_child_iter(iter1)
-    real_iter2 = model.convert_iter_to_child_iter(iter2)
-
-    value1 = real_model.get_value(real_iter1, colnum)
-    value2 = real_model.get_value(real_iter2, colnum)
+    value1 = model.get_value(iter1, colnum)
+    value2 = model.get_value(iter2, colnum)
 
     if coltype in [GObject.TYPE_STRING, str]:
         value1 = strxfrm(value1)
@@ -416,7 +409,7 @@ class TableBase(object):
         # This runs through the columns, and sets the "compare_items" comparator
         # as needed. Note that the user data tells which column to sort on.
         if flags["sortable"]:
-            self.sorted = Gtk.TreeModelSort(self.filter)
+            self.sorted = Gtk.TreeModelSort.new_with_model(self.data)
 
             self.sorted.set_default_sort_func(compare_items, None)
 
@@ -441,9 +434,15 @@ class TableBase(object):
         # selctions
         self.treeview.connect("cursor-changed", self.__cursor_changed_event)
         self.treeview.connect("row-activated", self.__row_activated_event)
-        self.treeview.connect("button-press-event", self.__button_press_event)
-        self.treeview.connect("button-release-event", self.__button_release_event)
-        self.treeview.connect("key-press-event", self.__key_press_event)
+        gesture = Gtk.GestureClick()
+        gesture.set_button(0)
+        gesture.connect("pressed", self.__button_press_event)
+        gesture.connect("released", self.__button_release_event)
+        self.treeview.add_controller(gesture)
+        keycontroller = Gtk.EventControllerKey()
+        keycontroller.connect("key-pressed", self.__key_press_event)
+        keycontroller.connect("key-released", self.__key_release_event)
+        self.treeview.add_controller(keycontroller)
         self.treeview.connect("select-cursor-row", self.__row_selected)
         # Necessary for self.selected_rows to remain sane
         self.treeview.connect("select-all", self.__all_selected)
@@ -629,9 +628,10 @@ class TableBase(object):
         self.treeview.set_cursor((row,), treecol)
         self.treeview.grab_focus()
 
-    def __button_press_event(self, treeview, event, *args):
-        info = treeview.get_path_at_pos(int(event.x), int(event.y))
-        selection = treeview.get_selection()
+    def __button_press_event(self, gesture, n_press, x, y):
+        (x, y) = self.treeview.convert_widget_to_bin_window_coords(x, y)
+        info = self.treeview.get_path_at_pos(x, y)
+        selection = self.treeview.get_selection()
         result = False
 
         # If info is none, that means the user is clicking the empty space
@@ -639,7 +639,7 @@ class TableBase(object):
         if info is None:
             selection.unselect_all()
             self.update_selection()
-        elif event.button == 3:
+        elif gesture.get_current_button() == 3:
             # this allows us to retain multiple selections with a right-click
             (model, indexes) = selection.get_selected_rows()
 
@@ -647,7 +647,7 @@ class TableBase(object):
             # keep the selection, otherwise, use the new selection
             result = any(index == info[0] for index in indexes)
         if "mouse-event" in self.callbacks:
-            result = self.callbacks["mouse-event"](treeview, event, *args) or result
+            result = self.callbacks["mouse-event"](gesture, n_press, x, y, True) or result
         return result
 
     def __row_activated_event(self, treeview, data, col):
@@ -675,20 +675,24 @@ class TableBase(object):
         if "all-unselected" in self.callbacks:
             self.callbacks["all-unselected"](treeview)
 
-    def __key_press_event(self, treeview, event, *args):
+    def __key_press_event(self, controller, keyval, keycode, state):
         self.update_selection()
         if "key-event" in self.callbacks:
-            self.callbacks["key-event"](treeview, event, *args)
+            self.callbacks["key-event"](controller, keyval, keycode, state, True)
+
+    def __key_release_event(self, controller, keyval, keycode, state):
+        if "key-event" in self.callbacks:
+            self.callbacks["key-event"](controller, keyval, keycode, state, False)
 
     def __cursor_changed_event(self, treeview):
         self.update_selection()
         if "cursor-changed" in self.callbacks:
             self.callbacks["cursor-changed"](treeview)
 
-    def __button_release_event(self, treeview, event, *args):
+    def __button_release_event(self, gesture, n_press, x, y):
         self.update_selection()
         if "mouse-event" in self.callbacks:
-            return self.callbacks["mouse-event"](treeview, event, *args)
+            return self.callbacks["mouse-event"](gesture, n_press, x, y, False)
 
     def __cell_edited(self, cell, row, data, column):
         self.update_selection()
@@ -839,20 +843,18 @@ class Box(object):
             box.set_column_spacing(spacing)
         self.middle = 0
         # Determine pack start/end indexes.
-        ch = [
-            (
-                box.child_get_property(c, "left-attach"),
-                box.child_get_property(c, "width"),
-            )
-            for c in box.get_children()
-        ]
-        cv = [
-            (
-                box.child_get_property(c, "top-attach"),
-                box.child_get_property(c, "height"),
-            )
-            for c in box.get_children()
-        ]
+        ch = []
+        child = box.get_first_child()
+        while child:
+            (c, r, w, h) = box.query_child(child)
+            ch.append(c, w)
+            child = child.get_next_sibling()
+        cv = []
+        child = box.get_first_child()
+        while child:
+            (c, r, w, h) = box.query_child(child)
+            cv.append(r, h)
+            child = child.get_next_sibling()
         if ch:
             ch.sort(key=lambda x: x[0])
             cv.sort(key=lambda x: x[0])
@@ -970,8 +972,10 @@ class ComboBox(object):
     def set_sensitive(self, val):
         self.cb.set_sensitive(val)
 
-    def set_child_signal(self, signal, callback, userdata=None):
-        self.cb.get_child().connect(signal, callback, userdata)
+    def set_child_signal(self, signal, callback):
+        keycontroller = Gtk.EventControllerKey()
+        keycontroller.connect(signal, callback)
+        self.cb.get_child().add_controller(keycontroller)
 
 
 class TextView(object):
@@ -1058,68 +1062,52 @@ class Clickable(object):
     - long_click(clickable, widget, event, data)
     """
 
-    _BUTTON_PRESS = Gdk.EventType.BUTTON_PRESS
-    _2BUTTON_PRESS = Gdk.EventType._2BUTTON_PRESS
-    _3BUTTON_PRESS = Gdk.EventType._3BUTTON_PRESS
-
     def __init__(self, widget):
         self.widget = widget
         self._timer = None
-        self._signals = {
-            self._BUTTON_PRESS: self._signal_data(),
-            self._2BUTTON_PRESS: self._signal_data(),
-            self._3BUTTON_PRESS: self._signal_data(),
-            "long-click": self._signal_data(),
-            "button-press-event": self._signal_data(),
-            "button-release-event": self._signal_data(),
-            None: self._signal_data(),
-        }
         self._lastpress = None
-        widget.connect("button-press-event", self._on_button_pressed, None)
-        widget.connect("button-release-event", self._on_button_released, None)
-        widget.add_events(Gdk.EventMask.BUTTON_PRESS_MASK)
+        self._signals = {}
+        gesture = Gtk.GestureClick()
+        # gesture.set_button(0)
+        gesture.connect("pressed", self._on_button_pressed)
+        gesture.connect("released", self._on_button_released)
+        self.widget.add_controller(gesture)
 
-    def connect(self, signal, func, *args):
-        if signal == "single-click":
-            self._signals[self._BUTTON_PRESS] = self._signal_data(func, args)
-        elif signal == "double-click":
-            self._signals[self._2BUTTON_PRESS] = self._signal_data(func, args)
-        elif signal == "triple-click":
-            self._signals[self._3BUTTON_PRESS] = self._signal_data(func, args)
-        elif signal in ("long-click", "button-press-event", "button-release-event"):
-            self._signals[signal] = self._signal_data(func, args)
-        else:
-            self.widget.connect(signal, func, *args)
+    def connect(self, signal, func):
+        if signal in ("single-click", "double-click", "triple-click", "long-click", "button-press-event", "button-release-event"):
+            self._signals[signal] = func
 
-    def _on_button_pressed(self, widget, event, data):
+    def _on_button_pressed(self, gesture, n_press, x, y):
         self._cancel_timer()
-        if self._callback("button-press-event", widget, event):
+        if self._callback("button-press-event"):
             return True
-        if event.button == 1:
-            self._lastpress = event.type
-            if event.type == self._BUTTON_PRESS:
-                self._start_timer(1000, self._long_click, event.copy())
+        if gesture.get_current_button() == 1:
+            click_types = ["single-click", "double-click", "triple-click"]
+            self._lastpress = click_types[n_press - 1]
+            if n_press == 1:
+                self._start_timer(1000, self._long_click)
         return False
 
-    def _on_button_released(self, widget, event, data):
+    def _on_button_released(self, gesture, n_press, x, y):
         self._cancel_timer()
-        if self._callback("button-release-event", widget, event):
+        if self._callback("button-release-event"):
             return True
-        if event.button == 1:
-            self._callback(self._lastpress, widget, event)
+        if gesture.get_current_button() == 1:
+            self._callback(self._lastpress)
             self._lastpress = None
         return False
 
-    def _long_click(self, event, *args):
+    def _long_click(self):
         self._timer = None
         self._lastpress = None
-        self._callback("long-click", self.widget, event)
+        self._callback("long-click")
         return False
 
-    def _callback(self, signal, *args):
-        func, data = self._signals[signal]
-        args = list(args) + data
-        return func(self, *args)
+    def _callback(self, signal):
+        if signal in self._signals:
+            func = self._signals[signal]
+            return func()
+        return False
 
     @gtk_unsafe
     def _cancel_timer(self):
@@ -1222,10 +1210,7 @@ class RevisionSelector(object):
             self.branch_selector.hide()
 
         self.revision_browse = Gtk.Button()
-        revision_browse_image = Gtk.Image()
-        revision_browse_image.set_from_icon_name("edit-find", Gtk.IconSize.MENU)
-        revision_browse_image.show()
-        self.revision_browse.add(revision_browse_image)
+        self.revision_browse.set_icon_name("edit-find")
         self.revision_browse.connect("clicked", self.__revision_browse_clicked)
         hbox.pack_start(self.revision_browse, False, False, 0)
 
@@ -1239,15 +1224,18 @@ class RevisionSelector(object):
         self.revision_browse.show()
         hbox.show()
 
-        container.add(hbox.box)
+        container.attach(hbox.box, 0, 0, 1, 1)
 
     def __revision_browse_clicked(self, widget):
         from rabbitvcs.ui.log import SVNLogDialog, GitLogDialog
 
         if self.client.vcs == rabbitvcs.vcs.VCS_GIT:
-            GitLogDialog(self.get_url(), ok_callback=self.__log_closed)
+            log = GitLogDialog(self.get_url(), ok_callback=self.__log_closed)
         elif self.client.vcs == rabbitvcs.vcs.VCS_SVN:
-            SVNLogDialog(self.get_url(), ok_callback=self.__log_closed)
+            log = SVNLogDialog(self.get_url(), ok_callback=self.__log_closed)
+
+        if log:
+            log.window.set_visible(True)
 
     def __log_closed(self, data):
         if data is not None:
@@ -1490,8 +1478,7 @@ class GitRepositorySelector(object):
         grid.attach(label, 0, 2, 1, 1)
         grid.attach(self.host, 1, 2, 1, 1)
 
-        grid.show_all()
-        container.add(grid)
+        container.attach(grid, 0, 0, 1, 1)
 
         self.__update_host()
 
@@ -1543,7 +1530,6 @@ class GitBranchSelector(object):
         hbox.pack_start(self.branch_opt.cb, True, False, 0)
         self.vbox.pack_start(hbox, False, False, 0)
 
-        self.vbox.show_all()
         container.add(self.vbox.box)
 
     def append(self, widget):
@@ -1556,10 +1542,10 @@ class GitBranchSelector(object):
         pass
 
     def show(self):
-        self.vbox.show_all()
+        self.vbox.set_visible(True)
 
     def hide(self):
-        self.vbox.hide()
+        self.vbox.set_visible(False)
 
 
 class MultiFileTextEditor(object):
@@ -1598,36 +1584,36 @@ class MultiFileTextEditor(object):
         grid.set_vexpand(True)
 
         combo_label = Gtk.Label(label=label)
-        combo_label.set_alignment(0, 0.5)
+        combo_label.set_xalign(0)
+        combo_label.set_yalign(0.5)
         scrolled_window = Gtk.ScrolledWindow()
-        scrolled_window.set_shadow_type(Gtk.ShadowType.ETCHED_IN)
-        scrolled_window.add(self.textview.view)
+        scrolled_window.set_child(self.textview.view)
         scrolled_window.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
         scrolled_window.set_size_request(320, 150)
         scrolled_window.set_hexpand(True)
         scrolled_window.set_vexpand(True)
+        scrolled_window.set_has_frame(True)
 
         grid.attach(combo_label, 0, 0, 1, 1)
         grid.attach(self.combobox.cb, 1, 0, 2, 1)
 
         if show_add_line:
             add_label = Gtk.Label(label=_("Add line:"))
-            add_label.set_alignment(0, 0.5)
             self.add_entry = Gtk.Entry()
             self.add_entry.set_text(S(line_content).display())
             self.add_entry.set_hexpand(True)
-            add_button = Gtk.Button(_("Add"))
+            add_button = Gtk.Button()
+            add_button.set_label(_("Add"))
             add_button.connect("clicked", self.__add_button_clicked)
             grid.attach(add_label, 0, 1, 1, 1)
             grid.attach(self.add_entry, 1, 1, 1, 1)
             grid.attach(add_button, 2, 1, 1, 1)
 
         grid.attach(scrolled_window, 0, 2, 3, 1)
-        grid.show_all()
 
         self.combobox.set_active(0)
 
-        container.add(grid)
+        container.attach(grid, 0, 0, 1, 1)
 
     def __combobox_changed(self, widget):
         index = self.combobox.get_active()

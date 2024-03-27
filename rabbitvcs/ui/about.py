@@ -4,14 +4,20 @@ from rabbitvcs import gettext
 import configobj
 import pysvn
 import rabbitvcs.ui.widget
-from rabbitvcs.ui import InterfaceView
 import rabbitvcs
-from gi.repository import Gtk, GObject, GdkPixbuf
+from gi.repository import Gtk, GObject, GdkPixbuf, Gdk
 import gi
 from rabbitvcs.util import helper
 import re
 import string
 import os.path
+
+adwaita_available = True
+try:
+    gi.require_version("Adw", "1")
+    from gi.repository import Adw
+except Exception as e:
+    adwaita_available = False
 
 #
 # This is an extension to the Nautilus file manager to allow better
@@ -36,7 +42,7 @@ You should have received a copy of the GNU General Public License
 along with RabbitVCS;  If not, see <http://www.gnu.org/licenses/>.  """
 
 
-gi.require_version("Gtk", "3.0")
+gi.require_version("Gtk", "4.0")
 sa = helper.SanitizeArgv()
 sa.restore()
 
@@ -51,14 +57,6 @@ class About(object):
     """
 
     def __init__(self):
-        self.about = Gtk.AboutDialog()
-        self.about.set_name(rabbitvcs.APP_NAME)
-
-        self.about.set_program_name(rabbitvcs.APP_NAME)
-        self.about.set_version(rabbitvcs.version)
-        self.about.set_website("http://www.rabbitvcs.org")
-        self.about.set_website_label("http://www.rabbitvcs.org")
-
         doc_path_root = "/usr/share/doc"
         doc_path_regex = re.compile("rabbitvcs")
         authors_path = None
@@ -80,28 +78,46 @@ class About(object):
 
         authors = open(authors_path, "r").read()
 
-        self.about.set_authors(authors.split("\n"))
-
         pixbuf = GdkPixbuf.Pixbuf.new_from_file(
             rabbitvcs.get_icon_path() + "/scalable/apps/rabbitvcs.svg"
         )
-        self.about.set_logo(pixbuf)
+        paintable = Gdk.Texture.new_for_pixbuf(pixbuf)
 
         versions = []
         versions.append("Subversion - %s" % ".".join(list(map(str, pysvn.svn_version))))
         versions.append("Pysvn - %s" % ".".join(list(map(str, pysvn.version))))
         versions.append("ConfigObj - %s" % str(configobj.__version__))
 
+        if adwaita_available:
+            self.about = Adw.AboutWindow()
+            self.about.set_application_name(rabbitvcs.APP_NAME)
+            self.about.set_developers(authors.split("\n"))
+            self.about.set_application_icon(rabbitvcs.get_icon_path() + "/scalable/apps/rabbitvcs.svg")
+            self.about.set_license_type(Gtk.License.GPL_3_0)
+        else:
+            self.about = Gtk.AboutDialog()
+            self.about.set_program_name(rabbitvcs.APP_NAME)
+            self.about.set_website_label("http://www.rabbitvcs.org")
+            self.about.set_authors(authors.split("\n"))
+            self.about.set_logo(paintable)
+            self.about.set_license(license)
+
+        self.about.set_name(rabbitvcs.APP_NAME)
+
+        self.about.set_version(rabbitvcs.version)
+        self.about.set_website("http://www.rabbitvcs.org")
+
         self.about.set_comments("\n".join(versions))
 
-        self.about.set_license(license)
-
-    def run(self):
-        self.about.show_all()
-        self.about.run()
-        self.about.destroy()
-
+def on_activate(app):
+    about = About()
+    about.about.set_application(app)
+    about.about.present()
 
 if __name__ == "__main__":
-    window = About()
-    window.run()
+    if adwaita_available:
+        app = Adw.Application(application_id='org.google.code.rabbitvcs.about')
+    else:
+        app = Gtk.Application(application_id='org.google.code.rabbitvcs.about')
+    app.connect('activate', on_activate)
+    app.run(None)

@@ -1,228 +1,141 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Generated with glade 3.22.1 -->
 <interface>
-  <requires lib="gtk+" version="3.0"/>
-  <object class="GtkImage" id="document-new">
-    <property name="visible">True</property>
-    <property name="can_focus">False</property>
-    <property name="icon_name">document-new</property>
-  </object>
-  <object class="GtkImage" id="view-refresh">
-    <property name="visible">True</property>
-    <property name="can_focus">False</property>
-    <property name="icon_name">view-refresh</property>
-  </object>
-  <object class="GtkImage" id="window-close">
-    <property name="visible">True</property>
-    <property name="can_focus">False</property>
-    <property name="icon_name">window-close</property>
-  </object>
-  <object class="GtkWindow" id="PropertyEditor">
-    <property name="visible">True</property>
-    <property name="can_focus">False</property>
-    <property name="title" translatable="yes">Property Editor</property>
-    <property name="default_width">600</property>
-    <property name="default_height">400</property>
-    <property name="icon_name">rabbitvcs-small</property>
-    <signal name="destroy" handler="on_destroy" swapped="no"/>
+  <requires lib="gtk" version="4.0"/>
+  <template class="PropertyEditorWidget" parent="GtkGrid">
+    <property name="margin-start">12</property>
+    <property name="margin-end">12</property>
+    <property name="margin_top">12</property>
+    <property name="margin_bottom">12</property>
+    <property name="hexpand">1</property>
+    <property name="vexpand">1</property>
+    <property name="orientation">vertical</property>
+    <property name="row_spacing">12</property>
     <child>
-      <object class="GtkGrid">
-        <property name="visible">True</property>
-        <property name="can_focus">False</property>
-        <property name="margin_left">12</property>
-        <property name="margin_right">12</property>
-        <property name="margin_top">12</property>
-        <property name="margin_bottom">12</property>
-        <property name="hexpand">True</property>
-        <property name="vexpand">True</property>
-        <property name="orientation">vertical</property>
-        <property name="row_spacing">18</property>
-        <child>
-          <object class="GtkButtonBox" id="hbuttonbox1">
-            <property name="visible">True</property>
-            <property name="can_focus">False</property>
-            <property name="valign">end</property>
-            <property name="hexpand">True</property>
-            <property name="spacing">6</property>
-            <property name="homogeneous">True</property>
-            <property name="layout_style">end</property>
-            <child>
-              <object class="GtkButton" id="close">
-                <property name="label" translatable="yes">_Close</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">True</property>
-                <property name="tooltip_text" translatable="yes">Close this dialog.</property>
-                <property name="image">window-close</property>
-                <property name="use_underline">True</property>
-                <signal name="clicked" handler="on_close_clicked" swapped="no"/>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">False</property>
-                <property name="position">0</property>
-              </packing>
-            </child>
-          </object>
-          <packing>
-            <property name="left_attach">0</property>
-            <property name="top_attach">4</property>
-          </packing>
-        </child>
-        <child>
-          <object class="GtkGrid" id="note_box">
-            <property name="visible">True</property>
-            <property name="can_focus">False</property>
-            <property name="hexpand">True</property>
-            <child>
-              <placeholder/>
-            </child>
-          </object>
-          <packing>
-            <property name="left_attach">0</property>
-            <property name="top_attach">3</property>
-          </packing>
-        </child>
-        <child>
-          <object class="GtkButtonBox" id="hbuttonbox2">
-            <property name="visible">True</property>
-            <property name="can_focus">False</property>
-            <property name="hexpand">True</property>
-            <property name="spacing">6</property>
-            <property name="homogeneous">True</property>
-            <property name="layout_style">center</property>
-            <child>
-              <object class="GtkButton" id="refresh">
-                <property name="label" translatable="yes">_Refresh</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">True</property>
-                <property name="tooltip_text" translatable="yes">Refresh the list of properties.</property>
-                <property name="image">view-refresh</property>
-                <property name="use_underline">True</property>
-                <signal name="clicked" handler="on_refresh_clicked" swapped="no"/>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">False</property>
-                <property name="position">0</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkButton" id="new">
-                <property name="label" translatable="yes">_New</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">True</property>
-                <property name="tooltip_text" translatable="yes">Add a new property.</property>
-                <property name="image">document-new</property>
-                <property name="use_underline">True</property>
-                <signal name="clicked" handler="on_new_clicked" swapped="no"/>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">False</property>
-                <property name="position">1</property>
-              </packing>
-            </child>
-          </object>
-          <packing>
-            <property name="left_attach">0</property>
-            <property name="top_attach">2</property>
-          </packing>
-        </child>
-        <child>
-          <object class="GtkScrolledWindow" id="scrolledwindow1">
-            <property name="visible">True</property>
-            <property name="can_focus">True</property>
-            <property name="hexpand">True</property>
-            <property name="vexpand">True</property>
-            <property name="shadow_type">etched-in</property>
-            <child>
-              <object class="GtkTreeView" id="table">
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <child internal-child="selection">
-                  <object class="GtkTreeSelection"/>
-                </child>
-              </object>
-            </child>
-          </object>
-          <packing>
-            <property name="left_attach">0</property>
-            <property name="top_attach">1</property>
-          </packing>
-        </child>
-        <child>
-          <object class="GtkGrid">
-            <property name="visible">True</property>
-            <property name="can_focus">False</property>
-            <property name="orientation">vertical</property>
-            <property name="row_spacing">6</property>
-            <property name="column_spacing">20</property>
-            <child>
-              <object class="GtkLabel" id="remote_lbl">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="halign">start</property>
-                <property name="label" translatable="yes">&lt;b&gt;Remote URI:&lt;/b&gt;</property>
-                <property name="use_markup">True</property>
-                <property name="single_line_mode">True</property>
-              </object>
-              <packing>
-                <property name="left_attach">0</property>
-                <property name="top_attach">1</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkLabel" id="wc_text">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="halign">start</property>
-                <property name="hexpand">True</property>
-                <property name="ellipsize">middle</property>
-                <property name="xalign">0</property>
-              </object>
-              <packing>
-                <property name="left_attach">1</property>
-                <property name="top_attach">0</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkLabel" id="remote_uri_text">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="halign">start</property>
-                <property name="hexpand">True</property>
-                <property name="ellipsize">middle</property>
-                <property name="xalign">0</property>
-              </object>
-              <packing>
-                <property name="left_attach">1</property>
-                <property name="top_attach">1</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkLabel" id="wc_lbl">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="halign">start</property>
-                <property name="label" translatable="yes">&lt;b&gt;Working Copy:&lt;/b&gt;</property>
-                <property name="use_markup">True</property>
-                <property name="single_line_mode">True</property>
-              </object>
-              <packing>
-                <property name="left_attach">0</property>
-                <property name="top_attach">0</property>
-              </packing>
-            </child>
-          </object>
-          <packing>
-            <property name="left_attach">0</property>
-            <property name="top_attach">0</property>
-          </packing>
-        </child>
+      <object class="GtkGrid" id="note_box">
+        <property name="hexpand">1</property>
+        <layout>
+          <property name="column">0</property>
+          <property name="row">3</property>
+        </layout>
       </object>
     </child>
-  </object>
+    <child>
+      <object class="GtkBox" id="hbuttonbox2">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="hexpand">True</property>
+        <property name="spacing">6</property>
+        <child>
+          <object class="GtkButton" id="refresh">
+            <property name="label" translatable="1">_Refresh</property>
+            <property name="focusable">1</property>
+            <property name="receives_default">1</property>
+            <property name="tooltip_text" translatable="1">Refresh the list of properties.</property>
+            <property name="use_underline">1</property>
+            <child>
+              <object class="GtkImage">
+                <property name="icon_name">view-refresh</property>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="GtkButton" id="new">
+            <property name="label" translatable="1">_New</property>
+            <property name="focusable">1</property>
+            <property name="receives_default">1</property>
+            <property name="tooltip_text" translatable="1">Add a new property.</property>
+            <property name="use_underline">1</property>
+            <child>
+              <object class="GtkImage">
+                <property name="icon_name">document-new</property>
+              </object>
+            </child>
+          </object>
+        </child>
+        <layout>
+          <property name="column">0</property>
+          <property name="row">2</property>
+        </layout>
+      </object>
+    </child>
+    <child>
+      <object class="GtkScrolledWindow" id="scrolledwindow1">
+        <property name="focusable">1</property>
+        <property name="hexpand">1</property>
+        <property name="vexpand">1</property>
+        <property name="child">
+          <object class="GtkTreeView" id="table">
+            <property name="focusable">1</property>
+            <child internal-child="selection">
+              <object class="GtkTreeSelection"/>
+            </child>
+          </object>
+        </property>
+        <layout>
+          <property name="column">0</property>
+          <property name="row">1</property>
+        </layout>
+      </object>
+    </child>
+    <child>
+      <object class="GtkGrid">
+        <property name="orientation">vertical</property>
+        <property name="row_spacing">6</property>
+        <property name="column_spacing">20</property>
+        <child>
+          <object class="GtkLabel" id="remote_lbl">
+            <property name="halign">start</property>
+            <property name="label" translatable="1">&lt;b&gt;Remote URI:&lt;/b&gt;</property>
+            <property name="use_markup">1</property>
+            <property name="single_line_mode">1</property>
+            <layout>
+              <property name="column">0</property>
+              <property name="row">1</property>
+            </layout>
+          </object>
+        </child>
+        <child>
+          <object class="GtkLabel" id="wc_text">
+            <property name="halign">start</property>
+            <property name="hexpand">1</property>
+            <property name="ellipsize">middle</property>
+            <property name="xalign">0</property>
+            <layout>
+              <property name="column">1</property>
+              <property name="row">0</property>
+            </layout>
+          </object>
+        </child>
+        <child>
+          <object class="GtkLabel" id="remote_uri_text">
+            <property name="halign">start</property>
+            <property name="hexpand">1</property>
+            <property name="ellipsize">middle</property>
+            <property name="xalign">0</property>
+            <layout>
+              <property name="column">1</property>
+              <property name="row">1</property>
+            </layout>
+          </object>
+        </child>
+        <child>
+          <object class="GtkLabel" id="wc_lbl">
+            <property name="halign">start</property>
+            <property name="label" translatable="1">&lt;b&gt;Working Copy:&lt;/b&gt;</property>
+            <property name="use_markup">1</property>
+            <property name="single_line_mode">1</property>
+            <layout>
+              <property name="column">0</property>
+              <property name="row">0</property>
+            </layout>
+          </object>
+        </child>
+        <layout>
+          <property name="column">0</property>
+          <property name="row">0</property>
+        </layout>
+      </object>
+    </child>
+  </template>
 </interface>

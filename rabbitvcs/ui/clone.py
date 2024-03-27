@@ -5,8 +5,8 @@ from rabbitvcs.util.strings import S
 import rabbitvcs.ui.action
 import rabbitvcs.ui.dialog
 import rabbitvcs.ui.widget
+from rabbitvcs.ui import GtkTemplateHelper
 from rabbitvcs.ui.checkout import Checkout
-from rabbitvcs.ui import InterfaceView
 from gi.repository import Gtk, GObject, Gdk
 
 #
@@ -37,7 +37,7 @@ from rabbitvcs.util import helper
 
 import gi
 
-gi.require_version("Gtk", "3.0")
+gi.require_version("Gtk", "4.0")
 sa = helper.SanitizeArgv()
 sa.restore()
 
@@ -48,13 +48,15 @@ _ = gettext.gettext
 class GitClone(Checkout):
     def __init__(self, path=None, url=None):
         Checkout.__init__(self, path, url)
+        self.gtktemplate_id = "Clone"
 
         self.git = self.vcs.git()
 
-        self.get_widget("Checkout").set_title(_("Clone"))
-        self.get_widget("repo_chooser").hide()
-        self.get_widget("options_box").hide()
-        self.get_widget("revision_selector_box").hide()
+        self.ok.set_label(_("Clone"))
+        self.update_dialog_title(_("Clone"))
+        self.widget.repo_chooser.set_visible(False)
+        self.widget.options_box.set_visible(False)
+        self.widget.revision_selector_box.set_visible(False)
 
         self.default_text()
         self.check_form()
@@ -64,14 +66,16 @@ class GitClone(Checkout):
         path = self._get_path().strip()
 
         if not url or not path:
-            rabbitvcs.ui.dialog.MessageBox(
-                _("The repository URL and destination path are both required fields.")
+            self.exec_dialog(
+                self.window,
+                _("The repository URL and destination path are both required fields."),
+                show_cancel=False
             )
             return
 
-        self.hide()
+        self.window.set_visible(False)
         self.action = rabbitvcs.ui.action.GitAction(
-            self.git, register_gtk_quit=self.gtk_quit_is_set()
+            self.git
         )
         self.action.append(self.action.set_header, _("Clone"))
         self.action.append(self.action.set_status, _("Running Clone Command..."))
@@ -80,6 +84,8 @@ class GitClone(Checkout):
         self.action.append(self.action.set_status, _("Completed Clone"))
         self.action.append(self.action.finish)
         self.action.schedule()
+
+        self.window.close()
 
     def on_repositories_changed(self, widget, data=None):
         url = self.repositories.get_active_text()
@@ -91,15 +97,18 @@ class GitClone(Checkout):
             append = append[:-4]
 
         helper.run_in_main_thread(
-            self.get_widget("destination").set_text,
+            self.widget.destination.set_text,
             S(os.path.join(self.destination, append)).display(),
         )
         self.check_form()
 
     def default_text(self):
         # Use a repo url from the clipboard by default.
-        clipboard = Gtk.Clipboard.get(Gdk.Atom.intern("CLIPBOARD", False))
-        text = clipboard.wait_for_text()
+        clipboard = Gdk.Display().get_default().get_clipboard()
+        clipboard.read_text_async(cancellable=None, callback=self.read_clipboard)
+
+    def read_clipboard(self, clipboard, result):
+        text = clipboard.read_text_finish(result)
         if text and text.endswith((".git", ".git/")):
             self.repositories.set_child_text(text)
 
@@ -107,10 +116,10 @@ class GitClone(Checkout):
         self.complete = True
         if self.repositories.get_active_text() == "":
             self.complete = False
-        if self.get_widget("destination").get_text() == "":
+        if self.widget.destination.get_text() == "":
             self.complete = False
 
-        self.get_widget("ok").set_sensitive(self.complete)
+        self.ok.set_sensitive(self.complete)
 
 
 classes_map = {rabbitvcs.vcs.VCS_GIT: GitClone}
@@ -120,7 +129,7 @@ def clone_factory(classes_map, vcs, path=None, url=None):
     return classes_map[vcs](path, url)
 
 
-if __name__ == "__main__":
+def on_activate(app):
     from rabbitvcs.ui import main, VCS_OPT
 
     (options, args) = main(
@@ -148,6 +157,10 @@ if __name__ == "__main__":
         else:
             url = args[0]
 
-    window = clone_factory(classes_map, vcs, path=path, url=url)
-    window.register_gtk_quit()
-    Gtk.main()
+    widget = clone_factory(classes_map, vcs, path=path, url=url)
+    app.add_window(widget.window)
+    widget.window.set_visible(True)
+
+if __name__ == "__main__":
+    GtkTemplateHelper.run_application(on_activate)
+

@@ -7,8 +7,9 @@ import rabbitvcs.util
 import rabbitvcs.ui.dialog
 import rabbitvcs.ui.widget
 from rabbitvcs.ui.action import SVNAction, GitAction
-from rabbitvcs.ui import InterfaceView
-from gi.repository import Gtk, GObject, Gdk
+from rabbitvcs.ui import GtkTemplateHelper
+from gi.repository import Gtk, GObject, Gio
+from rabbitvcs.ui.commit import CommitWidget
 
 #
 # This is an extension to the Nautilus file manager to allow better
@@ -41,7 +42,7 @@ from rabbitvcs.util import helper
 
 import gi
 
-gi.require_version("Gtk", "3.0")
+gi.require_version("Gtk", "4.0")
 sa = helper.SanitizeArgv()
 sa.restore()
 
@@ -53,7 +54,7 @@ _ = gettext.gettext
 helper.gobject_threads_init()
 
 
-class CreatePatch(InterfaceView):
+class CreatePatch(GtkTemplateHelper):
     """
     Provides a user interface for the user to create a Patch file
 
@@ -67,14 +68,24 @@ class CreatePatch(InterfaceView):
 
         """
 
-        InterfaceView.__init__(self, "commit", "Commit")
+        GtkTemplateHelper.__init__(self, "Commit")
 
         # Modify the Commit window to what we need for Create Patch
-        window = self.get_widget("Commit")
-        window.set_title(_("Create Patch"))
-        window.resize(640, 400)
-        self.get_widget("commit_to_box").hide()
-        self.get_widget("add_message_box").hide()
+        self.widget = CommitWidget()
+        self.window = self.get_window(self.widget)
+        self.window.set_title(_("Create Patch"))
+        # add dialog buttons
+        self.ok = self.add_dialog_button("Create Patch", self.on_ok_clicked, suggested=True)
+        self.cancel = self.add_dialog_button("Cancel", self.on_cancel_clicked, hideOnAdwaita=True)
+        # forward signals
+        self.widget.toggle_show_unversioned.connect("toggled", self.on_toggle_show_unversioned_toggled)
+        self.widget.toggle_show_all.connect("toggled", self.on_toggle_show_all_toggled)
+        self.widget.refresh.connect("clicked", self.on_refresh_clicked)
+        # set window properties
+        self.window.set_default_size(640, 400)
+
+        self.widget.commit_to_box.set_visible(False)
+        self.widget.add_message_box.set_visible(False)
 
         self.paths = paths
         self.base_dir = base_dir
@@ -88,7 +99,7 @@ class CreatePatch(InterfaceView):
             raise SystemExit()
 
         self.files_table = rabbitvcs.ui.widget.Table(
-            self.get_widget("files_table"),
+            self.widget.files_table,
             [
                 GObject.TYPE_BOOLEAN,
                 rabbitvcs.ui.widget.TYPE_HIDDEN_OBJECT,
@@ -127,27 +138,16 @@ class CreatePatch(InterfaceView):
     # Helper functions
     #
 
-    def choose_patch_path(self):
-        path = ""
-
-        dialog = Gtk.FileChooserDialog(
+    def choose_patch_path(self, callback):
+        dialog = Gtk.FileChooserNative.new(
             title=_("Create Patch"), parent=None, action=Gtk.FileChooserAction.SAVE
         )
-        dialog.add_button(_("_Cancel"), Gtk.ResponseType.CANCEL)
-        dialog.add_button(_("_Create"), Gtk.ResponseType.OK)
-        dialog.set_do_overwrite_confirmation(True)
-        dialog.set_default_response(Gtk.ResponseType.OK)
-        dialog.set_current_folder_uri(
-            helper.get_common_directory(self.paths).replace("file://", "")
+        dir = helper.get_common_directory(self.paths).replace("file://", "")
+        dialog.set_current_folder(
+            Gio.File.new_for_path(dir)
         )
-        response = dialog.run()
-
-        if response == Gtk.ResponseType.OK:
-            path = dialog.get_filename()
-
-        dialog.destroy()
-
-        return path
+        dialog.connect("response", callback)
+        dialog.show()
 
 
 class SVNCreatePatch(CreatePatch, SVNCommit):
@@ -162,20 +162,27 @@ class SVNCreatePatch(CreatePatch, SVNCommit):
 
     def on_ok_clicked(self, widget, data=None):
         items = self.files_table.get_activated_rows(1)
-        self.hide()
+        self.window.set_visible(False)
 
         if len(items) == 0:
-            self.close()
+            self.window.close()
             return
 
-        path = self.choose_patch_path()
+        self.choose_patch_path(self.choose_patch_path_callback)
+
+    def choose_patch_path_callback(self, dialog, response):
+        if response != Gtk.ResponseType.ACCEPT:
+            return
+        
+        path = dialog.get_file().get_path()
         if not path:
-            self.close()
+            self.window.close()
             return
 
+        items = self.files_table.get_activated_rows(1)
         ticks = len(items) * 2
         self.action = rabbitvcs.ui.action.SVNAction(
-            self.svn, register_gtk_quit=self.gtk_quit_is_set()
+            self.svn
         )
         self.action.set_pbar_ticks(ticks)
         self.action.append(self.action.set_header, _("Create Patch"))
@@ -216,6 +223,8 @@ class SVNCreatePatch(CreatePatch, SVNCommit):
         # TODO: Open the diff file (meld is going to add support in a future version :()
         # helper.launch_diff_tool(path)
 
+        self.window.close()
+
 
 class GitCreatePatch(CreatePatch, GitCommit):
     def __init__(self, paths, base_dir=None):
@@ -229,20 +238,27 @@ class GitCreatePatch(CreatePatch, GitCommit):
 
     def on_ok_clicked(self, widget, data=None):
         items = self.files_table.get_activated_rows(1)
-        self.hide()
+        self.window.set_visible(False)
 
         if len(items) == 0:
-            self.close()
+            self.window.close()
             return
 
-        path = self.choose_patch_path()
+        self.choose_patch_path(self.choose_patch_path_callback)
+
+    def choose_patch_path_callback(self, dialog, response):
+        if response != Gtk.ResponseType.ACCEPT:
+            return
+
+        path = dialog.get_file().get_path()
         if not path:
-            self.close()
+            self.window.close()
             return
 
+        items = self.files_table.get_activated_rows(1)
         ticks = len(items) * 2
         self.action = rabbitvcs.ui.action.GitAction(
-            self.git, register_gtk_quit=self.gtk_quit_is_set()
+            self.git
         )
         self.action.set_pbar_ticks(ticks)
         self.action.append(self.action.set_header, _("Create Patch"))
@@ -279,6 +295,8 @@ class GitCreatePatch(CreatePatch, GitCommit):
         self.action.append(self.action.finish)
         self.action.schedule()
 
+        self.window.close()
+
 
 classes_map = {
     rabbitvcs.vcs.VCS_SVN: SVNCreatePatch,
@@ -291,13 +309,18 @@ def createpatch_factory(paths, base_dir):
     return classes_map[guess["vcs"]](paths, base_dir)
 
 
-if __name__ == "__main__":
+
+def on_activate(app):
     from rabbitvcs.ui import main, BASEDIR_OPT
 
     (options, paths) = main(
         [BASEDIR_OPT], usage="Usage: rabbitvcs createpatch [path1] [path2] ..."
     )
 
-    window = createpatch_factory(paths, options.base_dir)
-    window.register_gtk_quit()
-    Gtk.main()
+    widget = createpatch_factory(paths, options.base_dir)
+    app.add_window(widget.window)
+    widget.window.set_visible(True)
+
+if __name__ == "__main__":
+    GtkTemplateHelper.run_application(on_activate)
+

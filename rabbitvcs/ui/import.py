@@ -4,7 +4,7 @@ from rabbitvcs.util.strings import S
 import rabbitvcs.ui.dialog
 import rabbitvcs.ui.widget
 from rabbitvcs.ui.action import SVNAction
-from rabbitvcs.ui import InterfaceView
+from rabbitvcs.ui import GtkTemplateHelper
 from gi.repository import Gtk, GObject, Gdk
 
 #
@@ -31,9 +31,10 @@ from gi.repository import Gtk, GObject, Gdk
 
 from rabbitvcs.util import helper
 
+import os
 import gi
 
-gi.require_version("Gtk", "3.0")
+gi.require_version("Gtk", "4.0")
 sa = helper.SanitizeArgv()
 sa.restore()
 
@@ -41,37 +42,59 @@ sa.restore()
 _ = gettext.gettext
 
 
-class SVNImport(InterfaceView):
-    def __init__(self, path):
-        InterfaceView.__init__(self, "import", "Import")
+@Gtk.Template(filename=f"{os.path.dirname(os.path.abspath(__file__))}/xml/import.xml")
+class ImportWidget(Gtk.Grid):
+    __gtype_name__ = "ImportWidget"
 
-        self.get_widget("Import").set_title(_("Import - %s") % path)
+    repositories = Gtk.Template.Child()
+    include_ignored = Gtk.Template.Child()
+    message = Gtk.Template.Child()
+    previous_messages = Gtk.Template.Child()
+
+    def __init__(self):
+        Gtk.Grid.__init__(self)
+
+class SVNImport(GtkTemplateHelper):
+    def __init__(self, path):
+        GtkTemplateHelper.__init__(self, "Import")
+
+        self.widget = ImportWidget()
+        self.window = self.get_window(self.widget)
+        # add dialog buttons
+        self.cancel = self.add_dialog_button("Import", self.on_ok_clicked, suggested=True)
+        self.cancel = self.add_dialog_button("Close", self.on_cancel_clicked, hideOnAdwaita=True)
+        # forward signals
+        self.widget.previous_messages.connect("clicked", self.on_previous_messages_clicked)
+        # set window properties
+        self.window.set_default_size(550, -1)
+
+        self.window.set_title(_("Import - %s") % path)
 
         self.path = path
         self.vcs = rabbitvcs.vcs.VCS()
         self.svn = self.vcs.svn()
 
+        self.repositories = rabbitvcs.ui.widget.ComboBox(
+            self.widget.repositories, helper.get_repository_paths()
+        )
+
         if self.svn.is_in_a_or_a_working_copy(path):
-            self.get_widget("repository").set_text(
+            self.repositories.set_child_text(
                 S(self.svn.get_repo_url(path)).display()
             )
 
-        self.repositories = rabbitvcs.ui.widget.ComboBox(
-            self.get_widget("repositories"), helper.get_repository_paths()
-        )
-
-        self.message = rabbitvcs.ui.widget.TextView(self.get_widget("message"))
+        self.message = rabbitvcs.ui.widget.TextView(self.widget.message)
 
     def on_ok_clicked(self, widget):
 
-        url = self.get_widget("repository").get_text()
+        url = self.widget.repositories.get_active_text()
         if not url:
-            rabbitvcs.ui.dialog.MessageBox(_("The repository URL field is required."))
+            self.exec_dialog(self.window, _("The repository URL field is required."), show_cancel=False)
             return
 
-        ignore = not self.get_widget("include_ignored").get_active()
+        ignore = not self.widget.include_ignored.get_active()
 
-        self.hide()
+        self.window.set_visible(False)
 
         self.action = rabbitvcs.ui.action.SVNAction(
             self.svn, register_gtk_quit=self.gtk_quit_is_set()
@@ -86,9 +109,13 @@ class SVNImport(InterfaceView):
         self.action.append(self.action.finish)
         self.action.schedule()
 
+        self.window.close()
+
     def on_previous_messages_clicked(self, widget, data=None):
-        dialog = rabbitvcs.ui.dialog.PreviousMessages()
-        message = dialog.run()
+        dialog = rabbitvcs.ui.dialog.PreviousMessages(self.window)
+        dialog.run(self.on_response)
+
+    def on_response(self, message):
         if message is not None:
             self.message.set_text(S(message).display())
 
@@ -101,11 +128,14 @@ def import_factory(path):
     return classes_map[vcs](path)
 
 
-if __name__ == "__main__":
+def on_activate(app):
     from rabbitvcs.ui import main
 
     (options, paths) = main(usage="Usage: rabbitvcs import [path]")
 
-    window = import_factory(paths[0])
-    window.register_gtk_quit()
-    Gtk.main()
+    widget = import_factory(paths[0])
+    app.add_window(widget.window)
+    widget.window.set_visible(True)
+
+if __name__ == "__main__":
+    GtkTemplateHelper.run_application(on_activate)

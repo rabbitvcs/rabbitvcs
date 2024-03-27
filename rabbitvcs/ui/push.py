@@ -6,7 +6,7 @@ import rabbitvcs.util.settings
 import rabbitvcs.ui.action
 import rabbitvcs.ui.dialog
 import rabbitvcs.ui.widget
-from rabbitvcs.ui import InterfaceView
+from rabbitvcs.ui import GtkTemplateHelper
 from gi.repository import Gtk, GObject, Gdk
 
 #
@@ -39,7 +39,7 @@ from rabbitvcs.util import helper
 
 import gi
 
-gi.require_version("Gtk", "3.0")
+gi.require_version("Gtk", "4.0")
 sa = helper.SanitizeArgv()
 sa.restore()
 
@@ -49,57 +49,70 @@ _ = gettext.gettext
 helper.gobject_threads_init()
 
 
-class Push(InterfaceView):
+@Gtk.Template(filename=f"{os.path.dirname(os.path.abspath(__file__))}/xml/push.xml")
+class PushWidget(Gtk.Grid):
+    __gtype_name__ = "PushWidget"
+
+    repository_container = Gtk.Template.Child()
+    log = Gtk.Template.Child()
+    tags = Gtk.Template.Child()
+    force_with_lease = Gtk.Template.Child()
+    status = Gtk.Template.Child()
+
+    def __init__(self):
+        Gtk.Grid.__init__(self)
+
+    def set_status_text(self, text):
+        self.status.set_text(text)
+        self.status.set_visible(text != "")
+
+
+class GitPush(GtkTemplateHelper):
     def __init__(self, path):
-        InterfaceView.__init__(self, "push", "Push")
+        GtkTemplateHelper.__init__(self, "Push")
+
+        self.widget = PushWidget()
+        self.window = self.get_window(self.widget)
+        self.window.set_default_size(640, 520)
+        # add dialog buttons
+        self.ok = self.add_dialog_button("Push", self.on_ok_clicked, suggested=True)
+        self.cancel = self.add_dialog_button("Cancel", self.on_cancel_clicked, hideOnAdwaita=True)
 
         self.path = path
+
         self.vcs = rabbitvcs.vcs.VCS()
+        self.git = self.vcs.git(path)
 
         sm = rabbitvcs.util.settings.SettingsManager()
         self.datetime_format = sm.get("general", "datetime_format")
 
-    #
-    # Event handlers
-    #
-
-    def on_ok_clicked(self, widget, data=None):
-        pass
-
-
-class GitPush(Push):
-    def __init__(self, path):
-        Push.__init__(self, path)
-
-        self.git = self.vcs.git(path)
-
         self.repository_selector = rabbitvcs.ui.widget.GitRepositorySelector(
-            self.get_widget("repository_container"), self.git, self.on_branch_changed
+            self.widget.repository_container, self.git, self.on_branch_changed
         )
 
         self.log_table = rabbitvcs.ui.widget.Table(
-            self.get_widget("log"),
+            self.widget.log,
             [GObject.TYPE_STRING, GObject.TYPE_STRING],
             [_("Date"), _("Message")],
             flags={"sortable": True, "sort_on": 0},
         )
 
         # Set default for checkboxes.
-        self.get_widget("tags").set_active(True)
-        self.get_widget("force_with_lease").set_active(False)
+        self.widget.tags.set_active(True)
+        self.widget.force_with_lease.set_active(False)
 
         self.initialize_logs()
 
     def on_ok_clicked(self, widget, data=None):
-        self.hide()
+        self.window.set_visible(False)
 
         repository = self.repository_selector.repository_opt.get_active_text()
         branch = self.repository_selector.branch_opt.get_active_text()
-        tags = self.get_widget("tags").get_active()
-        force_with_lease = self.get_widget("force_with_lease").get_active()
+        tags = self.widget.tags.get_active()
+        force_with_lease = self.widget.force_with_lease.get_active()
 
         self.action = rabbitvcs.ui.action.GitAction(
-            self.git, register_gtk_quit=self.gtk_quit_is_set()
+            self.git
         )
         self.action.append(self.action.set_header, _("Push"))
         self.action.append(self.action.set_status, _("Running Push Command..."))
@@ -107,6 +120,8 @@ class GitPush(Push):
         self.action.append(self.action.set_status, _("Completed Push"))
         self.action.append(self.action.finish)
         self.action.schedule()
+
+        self.window.close()
 
     def initialize_logs(self):
         """
@@ -119,11 +134,11 @@ class GitPush(Push):
             log.exception(e)
 
     def load_logs_exit(self):
-        self.get_widget("status").set_text("")
+        self.widget.set_status_text("")
         self.update_widgets()
 
     def load_logs(self):
-        helper.run_in_main_thread(self.get_widget("status").set_text, _("Loading..."))
+        helper.run_in_main_thread(self.widget.set_status_text, _("Loading..."))
 
         self.load_push_log()
         helper.run_in_main_thread(self.load_logs_exit)
@@ -148,7 +163,7 @@ class GitPush(Push):
         branch = self.repository_selector.branch_opt.get_active_text()
 
         if not repository or not branch:
-            self.get_widget("ok").set_sensitive(False)
+            self.ok.set_sensitive(False)
             return
 
         has_commits = False
@@ -161,9 +176,9 @@ class GitPush(Push):
             )
             has_commits = True
 
-        self.get_widget("ok").set_sensitive(True)
+        self.ok.set_sensitive(True)
         if not has_commits:
-            self.get_widget("status").set_text(_("No commits found"))
+            self.widget.set_status_text(_("No commits found"))
 
 
 classes_map = {rabbitvcs.vcs.VCS_GIT: GitPush}
@@ -174,11 +189,14 @@ def push_factory(path):
     return classes_map[guess["vcs"]](path)
 
 
-if __name__ == "__main__":
+def on_activate(app):
     from rabbitvcs.ui import main
 
     (options, paths) = main(usage="Usage: rabbitvcs push [path]")
 
-    window = push_factory(paths[0])
-    window.register_gtk_quit()
-    Gtk.main()
+    widget = push_factory(paths[0])
+    app.add_window(widget.window)
+    widget.window.set_visible(True)
+
+if __name__ == "__main__":
+    GtkTemplateHelper.run_application(on_activate)

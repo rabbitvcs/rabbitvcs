@@ -1,156 +1,53 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Generated with glade 3.22.1 -->
 <interface>
-  <requires lib="gtk+" version="3.0"/>
-  <object class="GtkDialog" id="ConflictDecision">
-    <property name="can_focus">False</property>
-    <property name="border_width">5</property>
-    <property name="title" translatable="yes">Edit Conflicts</property>
-    <property name="type_hint">normal</property>
+  <requires lib="gtk" version="4.0"/>
+  <template class="ConflictDecision" parent="GtkBox">
+    <property name="hexpand">1</property>
+    <property name="vexpand">1</property>
+    <property name="orientation">vertical</property>
+    <property name="spacing">18</property>
     <child>
-      <placeholder/>
-    </child>
-    <child internal-child="vbox">
-      <object class="GtkBox" id="dialog-vbox16">
-        <property name="visible">True</property>
-        <property name="can_focus">False</property>
-        <property name="hexpand">True</property>
-        <property name="vexpand">True</property>
-        <property name="orientation">vertical</property>
-        <property name="spacing">18</property>
-        <child internal-child="action_area">
-          <object class="GtkButtonBox" id="dialog-action_area16">
-            <property name="visible">True</property>
-            <property name="can_focus">False</property>
-            <property name="valign">end</property>
-            <property name="hexpand">True</property>
-            <property name="vexpand">True</property>
-            <property name="layout_style">center</property>
-            <child>
-              <object class="GtkButton" id="cancel">
-                <property name="label" translatable="yes">Cancel</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">True</property>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">False</property>
-                <property name="position">0</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkButton" id="accept_mine">
-                <property name="label" translatable="yes">Accept Mine</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">True</property>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">False</property>
-                <property name="position">1</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkButton" id="accept_theirs">
-                <property name="label" translatable="yes">Accept Theirs</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">True</property>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">False</property>
-                <property name="position">2</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkButton" id="edit_conflicts">
-                <property name="label" translatable="yes">Edit Conflicts</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">True</property>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">False</property>
-                <property name="position">3</property>
-              </packing>
-            </child>
+      <object class="GtkGrid">
+        <property name="vexpand">1</property>
+        <property name="row_spacing">18</property>
+        <property name="column_spacing">6</property>
+        <child>
+          <object class="GtkLabel" id="label1">
+            <property name="margin_top">7</property>
+            <property name="hexpand">1</property>
+            <property name="label" translatable="1">&lt;b&gt;A conflict was found in the following file:&lt;/b&gt;</property>
+            <property name="use_markup">1</property>
+            <layout>
+              <property name="column">1</property>
+              <property name="row">0</property>
+            </layout>
           </object>
-          <packing>
-            <property name="expand">False</property>
-            <property name="fill">True</property>
-            <property name="pack_type">end</property>
-            <property name="position">0</property>
-          </packing>
         </child>
         <child>
-          <object class="GtkGrid">
-            <property name="visible">True</property>
-            <property name="can_focus">False</property>
-            <property name="row_spacing">18</property>
-            <property name="column_spacing">6</property>
-            <child>
-              <object class="GtkLabel" id="label1">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="margin_top">7</property>
-                <property name="hexpand">True</property>
-                <property name="label" translatable="yes">&lt;b&gt;A conflict was found in the following file:&lt;/b&gt;</property>
-                <property name="use_markup">True</property>
-                <property name="xalign">0</property>
-                <property name="yalign">0.10000000149011612</property>
-              </object>
-              <packing>
-                <property name="left_attach">1</property>
-                <property name="top_attach">0</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkLabel" id="filename">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="margin_left">12</property>
-                <property name="hexpand">True</property>
-                <property name="xalign">0</property>
-                <property name="yalign">0</property>
-              </object>
-              <packing>
-                <property name="left_attach">1</property>
-                <property name="top_attach">1</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkImage" id="image1">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="valign">start</property>
-                <property name="pixel_size">64</property>
-                <property name="icon_name">dialog-warning</property>
-                <property name="icon_size">6</property>
-              </object>
-              <packing>
-                <property name="left_attach">0</property>
-                <property name="top_attach">0</property>
-                <property name="height">2</property>
-              </packing>
-            </child>
+          <object class="GtkLabel" id="filename">
+            <property name="margin-start">12</property>
+            <property name="hexpand">1</property>
+            <property name="xalign">0</property>
+            <property name="yalign">0</property>
+            <layout>
+              <property name="column">1</property>
+              <property name="row">1</property>
+            </layout>
           </object>
-          <packing>
-            <property name="expand">True</property>
-            <property name="fill">True</property>
-            <property name="position">1</property>
-          </packing>
+        </child>
+        <child>
+          <object class="GtkImage" id="image1">
+            <property name="valign">start</property>
+            <property name="pixel_size">64</property>
+            <property name="icon_name">dialog-warning</property>
+            <layout>
+              <property name="column">0</property>
+              <property name="row">0</property>
+              <property name="row-span">2</property>
+            </layout>
+          </object>
         </child>
       </object>
     </child>
-    <action-widgets>
-      <action-widget response="-1">cancel</action-widget>
-      <action-widget response="0">accept_mine</action-widget>
-      <action-widget response="1">accept_theirs</action-widget>
-      <action-widget response="2">edit_conflicts</action-widget>
-    </action-widgets>
-  </object>
+  </template>
 </interface>

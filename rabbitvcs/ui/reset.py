@@ -4,7 +4,7 @@ import rabbitvcs.vcs
 from rabbitvcs.util.strings import S
 import rabbitvcs.ui.widget
 from rabbitvcs.ui.action import GitAction
-from rabbitvcs.ui import InterfaceView
+from rabbitvcs.ui import GtkTemplateHelper
 import time
 from datetime import datetime
 from gi.repository import Gtk, GObject, Gdk, Pango
@@ -37,7 +37,7 @@ from rabbitvcs.util import helper
 
 import gi
 
-gi.require_version("Gtk", "3.0")
+gi.require_version("Gtk", "4.0")
 sa = helper.SanitizeArgv()
 sa.restore()
 
@@ -45,14 +45,40 @@ sa.restore()
 _ = gettext.gettext
 
 
-class GitReset(InterfaceView):
+@Gtk.Template(filename=f"{os.path.dirname(os.path.abspath(__file__))}/xml/reset.xml")
+class ResetWidget(Gtk.Box):
+    __gtype_name__ = "ResetWidget"
+
+    path = Gtk.Template.Child()
+    browse = Gtk.Template.Child()
+    revision_container = Gtk.Template.Child()
+    none_opt = Gtk.Template.Child()
+    mixed_opt = Gtk.Template.Child()
+    soft_opt = Gtk.Template.Child()
+    hard_opt = Gtk.Template.Child()
+    merge_opt = Gtk.Template.Child()
+
+    def __init__(self):
+        Gtk.Box.__init__(self)
+
+class GitReset(GtkTemplateHelper):
     """
     Provides a UI to reset your repository to some specified state
 
     """
 
     def __init__(self, path, revision=None):
-        InterfaceView.__init__(self, "reset", "Reset")
+        GtkTemplateHelper.__init__(self, "Reset")
+
+        self.widget = ResetWidget()
+        self.window = self.get_window(self.widget)
+        # add dialog buttons
+        self.ok = self.add_dialog_button("Reset", self.on_ok_clicked, suggested=True)
+        self.cancel = self.add_dialog_button("Cancel", self.on_cancel_clicked, hideOnAdwaita=True)
+        # forward signals
+        self.widget.path.connect("changed", self.on_path_changed)
+        self.widget.browse.connect("clicked", self.on_browse_clicked)
+
         self.vcs = rabbitvcs.vcs.VCS()
         self.git = self.vcs.git(path)
         self.path = path
@@ -60,27 +86,27 @@ class GitReset(InterfaceView):
         if revision:
             self.revision_obj = self.git.revision(revision)
 
-        self.get_widget("path").set_text(S(path).display())
+        self.widget.path.set_text(S(path).display())
 
         self.revision_selector = rabbitvcs.ui.widget.RevisionSelector(
-            self.get_widget("revision_container"),
+            self.widget.revision_container,
             self.git,
             revision=self.revision_obj,
             url=self.path,
             expand=True,
         )
 
-        self.get_widget("none_opt").set_active(True)
+        self.widget.none_opt.set_active(True)
         self.check_path()
 
     def on_ok_clicked(self, widget):
-        path = self.get_widget("path").get_text()
+        path = self.widget.path.get_text()
 
-        mixed = self.get_widget("mixed_opt").get_active()
-        soft = self.get_widget("soft_opt").get_active()
-        hard = self.get_widget("hard_opt").get_active()
-        merge = self.get_widget("merge_opt").get_active()
-        none = self.get_widget("none_opt").get_active()
+        mixed = self.widget.mixed_opt.get_active()
+        soft = self.widget.soft_opt.get_active()
+        hard = self.widget.hard_opt.get_active()
+        merge = self.widget.merge_opt.get_active()
+        none = self.widget.none_opt.get_active()
 
         type = None
         if mixed:
@@ -94,9 +120,9 @@ class GitReset(InterfaceView):
 
         revision = self.revision_selector.get_revision_object()
 
-        self.hide()
+        self.window.hide()
         self.action = rabbitvcs.ui.action.GitAction(
-            self.git, register_gtk_quit=self.gtk_quit_is_set()
+            self.git
         )
         self.action.append(self.action.set_header, _("Reset"))
         self.action.append(self.action.set_status, _("Running Reset Command..."))
@@ -105,29 +131,35 @@ class GitReset(InterfaceView):
         self.action.append(self.action.finish)
         self.action.schedule()
 
+        self.window.close()
+
     def on_browse_clicked(self, widget, data=None):
-        chooser = rabbitvcs.ui.dialog.FolderChooser()
-        path = chooser.run()
+        chooser = rabbitvcs.ui.dialog.FolderChooser(parent=self.window, callback=self.on_browse_callback)
+
+    def on_browse_callback(self, path):
         if path is not None:
-            self.get_widget("path").set_text(S(path).display())
+            self.widget.path.set_text(S(path).display())
 
     def on_path_changed(self, widget, data=None):
         self.check_path()
 
     def check_path(self):
-        path = self.get_widget("path").get_text()
+        path = self.widget.path.get_text()
         root = self.git.find_repository_path(path)
         if root != path:
-            self.get_widget("none_opt").set_active(True)
+            self.widget.none_opt.set_active(True)
 
 
-if __name__ == "__main__":
+def on_activate(app):
     from rabbitvcs.ui import main, REVISION_OPT, VCS_OPT
 
     (options, paths) = main(
         [REVISION_OPT, VCS_OPT], usage="Usage: rabbitvcs reset [-r REVISION] path"
     )
 
-    window = GitReset(paths[0], options.revision)
-    window.register_gtk_quit()
-    Gtk.main()
+    widget = GitReset(paths[0], options.revision)
+    app.add_window(widget.window)
+    widget.window.set_visible(True)
+
+if __name__ == "__main__":
+    GtkTemplateHelper.run_application(on_activate)

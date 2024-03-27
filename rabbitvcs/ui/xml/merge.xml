@@ -1,1070 +1,804 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Generated with glade 3.22.1 -->
 <interface>
-  <requires lib="gtk+" version="3.0"/>
-  <object class="GtkAssistant" id="Merge">
+  <requires lib="gtk" version="4.0"/>
+  <template parent="GtkAssistant" class="Merge">
     <property name="width_request">600</property>
-    <property name="visible">True</property>
-    <property name="can_focus">False</property>
-    <property name="border_width">12</property>
-    <property name="title" translatable="yes">Merge Assistant</property>
-    <property name="window_position">center</property>
+    <property name="visible">1</property>
+    <!-- <property name="border_width">12</property> -->
+    <property name="title" translatable="1">Merge Assistant</property>
     <property name="icon_name">rabbitvcs-small</property>
-    <property name="gravity">center</property>
-    <signal name="apply" handler="on_apply_clicked" swapped="no"/>
+    <signal name="apply" handler="on_ok_clicked" swapped="no"/>
     <signal name="cancel" handler="on_cancel_clicked" swapped="no"/>
-    <signal name="close" handler="on_close_clicked" swapped="no"/>
-    <signal name="destroy" handler="on_destroy" swapped="no"/>
-    <signal name="key-press-event" handler="on_key_pressed" swapped="no"/>
-    <signal name="prepare" handler="on_prepare" swapped="no"/>
+    <!-- <signal name="key-press-event" handler="on_key_pressed" swapped="no"/> -->
     <child>
-      <placeholder/>
-    </child>
-    <child>
-      <object class="GtkGrid" id="page1">
-        <property name="visible">True</property>
-        <property name="can_focus">False</property>
-        <property name="margin_left">12</property>
-        <property name="margin_right">12</property>
-        <property name="margin_top">12</property>
-        <property name="margin_bottom">12</property>
-        <property name="orientation">vertical</property>
-        <property name="row_spacing">18</property>
-        <child>
-          <object class="GtkGrid">
-            <property name="visible">True</property>
-            <property name="can_focus">False</property>
-            <property name="hexpand">True</property>
-            <property name="orientation">vertical</property>
-            <child>
-              <object class="GtkLabel" id="label2">
-                <property name="width_request">475</property>
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="margin_left">30</property>
-                <property name="hexpand">True</property>
-                <property name="label" translatable="yes">Choose this method if you wish to reintegrate a branch into the trunk.</property>
-                <property name="wrap">True</property>
-                <property name="xalign">0</property>
-              </object>
-              <packing>
-                <property name="left_attach">0</property>
-                <property name="top_attach">1</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkRadioButton" id="mergetype_reintegrate_opt">
-                <property name="label" translatable="yes">Reintegrate a branch</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">False</property>
-                <property name="halign">start</property>
-                <property name="hexpand">True</property>
-                <property name="draw_indicator">True</property>
-                <property name="group">mergetype_range_opt</property>
-              </object>
-              <packing>
-                <property name="left_attach">0</property>
-                <property name="top_attach">0</property>
-              </packing>
-            </child>
-          </object>
-          <packing>
-            <property name="left_attach">0</property>
-            <property name="top_attach">2</property>
-          </packing>
-        </child>
-        <child>
-          <object class="GtkGrid">
-            <property name="visible">True</property>
-            <property name="can_focus">False</property>
-            <property name="hexpand">True</property>
-            <property name="orientation">vertical</property>
-            <child>
-              <object class="GtkLabel" id="label51">
-                <property name="width_request">475</property>
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="margin_left">30</property>
-                <property name="label" translatable="yes">Choose this method if you wish to merge two different branches into your working copy.</property>
-                <property name="wrap">True</property>
-                <property name="xalign">0</property>
-              </object>
-              <packing>
-                <property name="left_attach">0</property>
-                <property name="top_attach">1</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkRadioButton" id="mergetype_tree_opt">
-                <property name="label" translatable="yes">Merge two different trees</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">False</property>
-                <property name="halign">start</property>
-                <property name="hexpand">True</property>
-                <property name="active">True</property>
-                <property name="draw_indicator">True</property>
-                <property name="group">mergetype_range_opt</property>
-              </object>
-              <packing>
-                <property name="left_attach">0</property>
-                <property name="top_attach">0</property>
-              </packing>
-            </child>
-          </object>
-          <packing>
-            <property name="left_attach">0</property>
-            <property name="top_attach">1</property>
-          </packing>
-        </child>
-        <child>
-          <object class="GtkGrid">
-            <property name="visible">True</property>
-            <property name="can_focus">False</property>
-            <property name="hexpand">True</property>
-            <property name="orientation">vertical</property>
-            <child>
-              <object class="GtkLabel" id="label47">
-                <property name="width_request">475</property>
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="margin_left">30</property>
-                <property name="hexpand">True</property>
-                <property name="label" translatable="yes">Choose this method if you have made some changes to a branch and wish to merge your changes with another branch.</property>
-                <property name="wrap">True</property>
-                <property name="xalign">0</property>
-              </object>
-              <packing>
-                <property name="left_attach">0</property>
-                <property name="top_attach">1</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkRadioButton" id="mergetype_range_opt">
-                <property name="label" translatable="yes">Merge a range of revisions</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">False</property>
-                <property name="halign">start</property>
-                <property name="hexpand">True</property>
-                <property name="active">True</property>
-                <property name="draw_indicator">True</property>
-              </object>
-              <packing>
-                <property name="left_attach">0</property>
-                <property name="top_attach">0</property>
-              </packing>
-            </child>
-          </object>
-          <packing>
-            <property name="left_attach">0</property>
-            <property name="top_attach">0</property>
-          </packing>
-        </child>
-      </object>
-      <packing>
+      <object class="GtkAssistantPage">
         <property name="page_type">intro</property>
-        <property name="title" translatable="yes">Step 1: Merge Type</property>
-        <property name="has_padding">False</property>
-      </packing>
-    </child>
-    <child>
-      <object class="GtkGrid" id="page2a">
-        <property name="visible">True</property>
-        <property name="can_focus">False</property>
-        <property name="margin_left">12</property>
-        <property name="margin_right">12</property>
-        <property name="margin_top">12</property>
-        <property name="margin_bottom">12</property>
-        <property name="hexpand">True</property>
-        <property name="row_spacing">18</property>
-        <child>
-          <object class="GtkGrid">
-            <property name="visible">True</property>
-            <property name="can_focus">False</property>
-            <property name="hexpand">True</property>
+        <property name="title" translatable="1">Step 1: Merge Type</property>
+        <property name="child">
+          <object class="GtkGrid" id="page1">
+            <property name="margin-start">12</property>
+            <property name="margin-end">12</property>
+            <property name="margin_top">12</property>
+            <property name="margin_bottom">12</property>
             <property name="orientation">vertical</property>
-            <property name="row_spacing">6</property>
-            <child>
-              <object class="GtkLabel" id="mergerange_working_copy">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="margin_left">12</property>
-                <property name="hexpand">True</property>
-                <property name="xalign">0</property>
-              </object>
-              <packing>
-                <property name="left_attach">0</property>
-                <property name="top_attach">1</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkLabel" id="label5">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="halign">start</property>
-                <property name="hexpand">True</property>
-                <property name="label" translatable="yes">&lt;b&gt;Working Copy&lt;/b&gt;</property>
-                <property name="use_markup">True</property>
-                <property name="xalign">0</property>
-              </object>
-              <packing>
-                <property name="left_attach">0</property>
-                <property name="top_attach">0</property>
-              </packing>
-            </child>
-          </object>
-          <packing>
-            <property name="left_attach">0</property>
-            <property name="top_attach">2</property>
-          </packing>
-        </child>
-        <child>
-          <object class="GtkGrid">
-            <property name="visible">True</property>
-            <property name="can_focus">False</property>
-            <property name="orientation">vertical</property>
-            <property name="row_spacing">6</property>
+            <property name="row_spacing">18</property>
             <child>
               <object class="GtkGrid">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="margin_left">12</property>
-                <property name="hexpand">True</property>
+                <property name="hexpand">1</property>
+                <property name="orientation">vertical</property>
+                <child>
+                  <object class="GtkLabel" id="label2">
+                    <property name="width_request">475</property>
+                    <property name="margin-start">30</property>
+                    <property name="hexpand">1</property>
+                    <property name="label" translatable="1">Choose this method if you wish to reintegrate a branch into the trunk.</property>
+                    <property name="wrap">1</property>
+                    <property name="xalign">0</property>
+                    <layout>
+                      <property name="column">0</property>
+                      <property name="row">1</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkCheckButton" id="mergetype_reintegrate_opt">
+                    <property name="label" translatable="1">Reintegrate a branch</property>
+                    <property name="halign">start</property>
+                    <property name="hexpand">1</property>
+                    <property name="group">mergetype_range_opt</property>
+                    <layout>
+                      <property name="column">0</property>
+                      <property name="row">0</property>
+                    </layout>
+                  </object>
+                </child>
+                <layout>
+                  <property name="column">0</property>
+                  <property name="row">2</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkGrid">
+                <property name="hexpand">1</property>
+                <property name="orientation">vertical</property>
+                <child>
+                  <object class="GtkLabel" id="label51">
+                    <property name="width_request">475</property>
+                    <property name="margin-start">30</property>
+                    <property name="label" translatable="1">Choose this method if you wish to merge two different branches into your working copy.</property>
+                    <property name="wrap">1</property>
+                    <property name="xalign">0</property>
+                    <layout>
+                      <property name="column">0</property>
+                      <property name="row">1</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkCheckButton" id="mergetype_tree_opt">
+                    <property name="label" translatable="1">Merge two different trees</property>
+                    <property name="halign">start</property>
+                    <property name="hexpand">1</property>
+                    <property name="group">mergetype_range_opt</property>
+                    <layout>
+                      <property name="column">0</property>
+                      <property name="row">0</property>
+                    </layout>
+                  </object>
+                </child>
+                <layout>
+                  <property name="column">0</property>
+                  <property name="row">1</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkGrid">
+                <property name="hexpand">1</property>
+                <property name="orientation">vertical</property>
+                <child>
+                  <object class="GtkLabel" id="label47">
+                    <property name="width_request">475</property>
+                    <property name="margin-start">30</property>
+                    <property name="hexpand">1</property>
+                    <property name="label" translatable="1">Choose this method if you have made some changes to a branch and wish to merge your changes with another branch.</property>
+                    <property name="wrap">1</property>
+                    <property name="xalign">0</property>
+                    <layout>
+                      <property name="column">0</property>
+                      <property name="row">1</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkCheckButton" id="mergetype_range_opt">
+                    <property name="label" translatable="1">Merge a range of revisions</property>
+                    <property name="halign">start</property>
+                    <property name="hexpand">1</property>
+                    <property name="active">1</property>
+                    <layout>
+                      <property name="column">0</property>
+                      <property name="row">0</property>
+                    </layout>
+                  </object>
+                </child>
+                <layout>
+                  <property name="column">0</property>
+                  <property name="row">0</property>
+                </layout>
+              </object>
+            </child>
+          </object>
+        </property>
+      </object>
+    </child>
+    <child>
+      <object class="GtkAssistantPage">
+        <property name="title" translatable="1">Step 2: Merge a Range of Revisions</property>
+        <property name="child">
+          <object class="GtkGrid" id="page2a">
+            <property name="margin-start">12</property>
+            <property name="margin-end">12</property>
+            <property name="margin_top">12</property>
+            <property name="margin_bottom">12</property>
+            <property name="hexpand">1</property>
+            <property name="row_spacing">18</property>
+            <child>
+              <object class="GtkGrid">
+                <property name="hexpand">1</property>
                 <property name="orientation">vertical</property>
                 <property name="row_spacing">6</property>
-                <property name="column_spacing">6</property>
                 <child>
-                  <object class="GtkLabel" id="label56">
-                    <property name="width_request">500</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="margin_left">8</property>
-                    <property name="hexpand">True</property>
-                    <property name="label" translatable="yes">Use the log dialog to select the revisions that you wish to merge.  Or write out the revisions manually, each separated by a comma.  You can specify a revision range by a dash. 
+                  <object class="GtkLabel" id="mergerange_working_copy">
+                    <property name="margin-start">12</property>
+                    <property name="hexpand">1</property>
+                    <property name="xalign">0</property>
+                    <layout>
+                      <property name="column">0</property>
+                      <property name="row">1</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="label5">
+                    <property name="halign">start</property>
+                    <property name="hexpand">1</property>
+                    <property name="label" translatable="1">&lt;b&gt;Working Copy&lt;/b&gt;</property>
+                    <property name="use_markup">1</property>
+                    <property name="xalign">0</property>
+                    <layout>
+                      <property name="column">0</property>
+                      <property name="row">0</property>
+                    </layout>
+                  </object>
+                </child>
+                <layout>
+                  <property name="column">0</property>
+                  <property name="row">2</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkGrid">
+                <property name="orientation">vertical</property>
+                <property name="row_spacing">6</property>
+                <child>
+                  <object class="GtkGrid">
+                    <property name="margin-start">12</property>
+                    <property name="hexpand">1</property>
+                    <property name="orientation">vertical</property>
+                    <property name="row_spacing">6</property>
+                    <property name="column_spacing">6</property>
+                    <child>
+                      <object class="GtkLabel" id="label56">
+                        <property name="width_request">500</property>
+                        <property name="margin-start">8</property>
+                        <property name="hexpand">1</property>
+                        <property name="label" translatable="1">Use the log dialog to select the revisions that you wish to merge.  Or write out the revisions manually, each separated by a comma.  You can specify a revision range by a dash. 
 
 Example: 4-7,9,11,15-HEAD
 
 To merge all revisions, leave the box empty.</property>
-                    <property name="wrap">True</property>
-                    <property name="xalign">0</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">0</property>
-                    <property name="top_attach">1</property>
-                    <property name="width">2</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkButton" id="mergerange_show_log1">
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                    <property name="tooltip_text" translatable="yes">Show log</property>
-                    <signal name="clicked" handler="on_mergerange_show_log1_clicked" swapped="no"/>
-                    <child>
-                      <object class="GtkImage" id="image1">
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="pixel_size">24</property>
-                        <property name="icon_name">rabbitvcs-show_log</property>
+                        <property name="wrap">1</property>
+                        <property name="xalign">0</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="row">1</property>
+                          <property name="column-span">2</property>
+                        </layout>
                       </object>
                     </child>
-                    <accelerator key="r" signal="clicked" modifiers="GDK_MOD1_MASK"/>
+                    <child>
+                      <object class="GtkButton" id="mergerange_show_log1">
+                        <property name="focusable">1</property>
+                        <property name="receives_default">1</property>
+                        <property name="tooltip_text" translatable="1">Show log</property>
+                        <signal name="clicked" handler="on_mergerange_show_log1_clicked" swapped="no"/>
+                        <child>
+                          <object class="GtkImage" id="image1">
+                            <property name="pixel_size">24</property>
+                            <property name="icon_name">rabbitvcs-show_log</property>
+                          </object>
+                        </child>
+                        <layout>
+                          <property name="column">1</property>
+                          <property name="row">0</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkEntry" id="mergerange_revisions">
+                        <property name="focusable">1</property>
+                        <property name="hexpand">1</property>
+                        <signal name="changed" handler="on_mergerange_revisions_changed" swapped="no"/>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="row">0</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <layout>
+                      <property name="column">0</property>
+                      <property name="row">1</property>
+                    </layout>
                   </object>
-                  <packing>
-                    <property name="left_attach">1</property>
-                    <property name="top_attach">0</property>
-                  </packing>
                 </child>
                 <child>
-                  <object class="GtkEntry" id="mergerange_revisions">
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="hexpand">True</property>
-                    <signal name="changed" handler="on_mergerange_revisions_changed" swapped="no"/>
-                  </object>
-                  <packing>
-                    <property name="left_attach">0</property>
-                    <property name="top_attach">0</property>
-                  </packing>
-                </child>
-              </object>
-              <packing>
-                <property name="left_attach">0</property>
-                <property name="top_attach">1</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkLabel" id="label4">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="halign">start</property>
-                <property name="hexpand">True</property>
-                <property name="label" translatable="yes">&lt;b&gt;Revision Range&lt;/b&gt;</property>
-                <property name="use_markup">True</property>
-                <property name="xalign">0</property>
-              </object>
-              <packing>
-                <property name="left_attach">0</property>
-                <property name="top_attach">0</property>
-              </packing>
-            </child>
-          </object>
-          <packing>
-            <property name="left_attach">0</property>
-            <property name="top_attach">1</property>
-          </packing>
-        </child>
-        <child>
-          <object class="GtkGrid">
-            <property name="visible">True</property>
-            <property name="can_focus">False</property>
-            <property name="hexpand">True</property>
-            <property name="orientation">vertical</property>
-            <property name="row_spacing">6</property>
-            <child>
-              <object class="GtkComboBoxText" id="mergerange_from_urls">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="margin_left">12</property>
-                <property name="hexpand">True</property>
-                <property name="has_entry">True</property>
-                <signal name="changed" handler="on_mergerange_from_urls_changed" swapped="no"/>
-                <child internal-child="entry">
-                  <object class="GtkEntry">
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
+                  <object class="GtkLabel" id="label4">
+                    <property name="halign">start</property>
+                    <property name="hexpand">1</property>
+                    <property name="label" translatable="1">&lt;b&gt;Revision Range&lt;/b&gt;</property>
+                    <property name="use_markup">1</property>
+                    <property name="xalign">0</property>
+                    <layout>
+                      <property name="column">0</property>
+                      <property name="row">0</property>
+                    </layout>
                   </object>
                 </child>
+                <layout>
+                  <property name="column">0</property>
+                  <property name="row">1</property>
+                </layout>
               </object>
-              <packing>
-                <property name="left_attach">0</property>
-                <property name="top_attach">1</property>
-              </packing>
             </child>
-            <child>
-              <object class="GtkLabel" id="label3">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="halign">start</property>
-                <property name="hexpand">True</property>
-                <property name="label" translatable="yes">&lt;b&gt;URL to merge from&lt;/b&gt;</property>
-                <property name="use_markup">True</property>
-                <property name="xalign">0</property>
-              </object>
-              <packing>
-                <property name="left_attach">0</property>
-                <property name="top_attach">0</property>
-              </packing>
-            </child>
-          </object>
-          <packing>
-            <property name="left_attach">0</property>
-            <property name="top_attach">0</property>
-          </packing>
-        </child>
-      </object>
-      <packing>
-        <property name="title" translatable="yes">Step 2: Merge a Range of Revisions</property>
-        <property name="has_padding">False</property>
-      </packing>
-    </child>
-    <child>
-      <object class="GtkGrid" id="page2b">
-        <property name="visible">True</property>
-        <property name="can_focus">False</property>
-        <property name="margin_left">12</property>
-        <property name="margin_right">12</property>
-        <property name="margin_top">12</property>
-        <property name="margin_bottom">12</property>
-        <property name="hexpand">True</property>
-        <property name="orientation">vertical</property>
-        <property name="row_spacing">18</property>
-        <child>
-          <object class="GtkGrid">
-            <property name="visible">True</property>
-            <property name="can_focus">False</property>
-            <property name="hexpand">True</property>
-            <property name="row_spacing">6</property>
-            <child>
-              <object class="GtkLabel" id="mergetree_working_copy">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="margin_left">12</property>
-                <property name="hexpand">True</property>
-                <property name="xalign">0</property>
-              </object>
-              <packing>
-                <property name="left_attach">0</property>
-                <property name="top_attach">1</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkLabel" id="label10">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="label" translatable="yes">&lt;b&gt;Working Copy&lt;/b&gt;</property>
-                <property name="use_markup">True</property>
-                <property name="xalign">0</property>
-              </object>
-              <packing>
-                <property name="left_attach">0</property>
-                <property name="top_attach">0</property>
-              </packing>
-            </child>
-          </object>
-          <packing>
-            <property name="left_attach">0</property>
-            <property name="top_attach">2</property>
-          </packing>
-        </child>
-        <child>
-          <object class="GtkGrid">
-            <property name="visible">True</property>
-            <property name="can_focus">False</property>
-            <property name="hexpand">True</property>
-            <property name="row_spacing">6</property>
             <child>
               <object class="GtkGrid">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="margin_left">12</property>
-                <property name="hexpand">True</property>
+                <property name="hexpand">1</property>
                 <property name="orientation">vertical</property>
                 <property name="row_spacing">6</property>
-                <property name="column_spacing">6</property>
                 <child>
-                  <object class="GtkRadioButton" id="mergetree_to_revision_number_opt">
-                    <property name="label" translatable="yes">Revision</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">False</property>
+                  <object class="GtkComboBoxText" id="mergerange_from_urls">
+                    <property name="margin-start">12</property>
+                    <property name="hexpand">1</property>
+                    <property name="has_entry">1</property>
+                    <signal name="changed" handler="on_mergerange_from_urls_changed" swapped="no"/>
+                    <layout>
+                      <property name="column">0</property>
+                      <property name="row">1</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="label3">
                     <property name="halign">start</property>
-                    <property name="draw_indicator">True</property>
-                    <property name="group">mergetree_to_revision_head_opt</property>
+                    <property name="hexpand">1</property>
+                    <property name="label" translatable="1">&lt;b&gt;URL to merge from&lt;/b&gt;</property>
+                    <property name="use_markup">1</property>
+                    <property name="xalign">0</property>
+                    <layout>
+                      <property name="column">0</property>
+                      <property name="row">0</property>
+                    </layout>
                   </object>
-                  <packing>
-                    <property name="left_attach">0</property>
-                    <property name="top_attach">2</property>
-                  </packing>
                 </child>
-                <child>
-                  <object class="GtkEntry" id="mergetree_to_revision_number">
-                    <property name="width_request">75</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="hexpand">True</property>
-                    <signal name="focus-in-event" handler="on_mergetree_to_revision_number_focused" swapped="no"/>
-                  </object>
-                  <packing>
-                    <property name="left_attach">1</property>
-                    <property name="top_attach">2</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkButton" id="mergetree_to_show_log">
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                    <property name="tooltip_text" translatable="yes">Show log</property>
-                    <signal name="clicked" handler="on_mergetree_to_show_log_clicked" swapped="no"/>
-                    <child>
-                      <object class="GtkImage" id="image4">
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="pixel_size">24</property>
-                        <property name="icon_name">rabbitvcs-show_log</property>
-                      </object>
-                    </child>
-                    <accelerator key="t" signal="clicked" modifiers="GDK_MOD1_MASK"/>
-                  </object>
-                  <packing>
-                    <property name="left_attach">2</property>
-                    <property name="top_attach">2</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkRadioButton" id="mergetree_to_revision_head_opt">
-                    <property name="label" translatable="yes">HEAD</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">False</property>
-                    <property name="halign">start</property>
-                    <property name="hexpand">True</property>
-                    <property name="active">True</property>
-                    <property name="draw_indicator">True</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">0</property>
-                    <property name="top_attach">1</property>
-                    <property name="width">3</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkComboBoxText" id="mergetree_to_urls">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="has_entry">True</property>
-                    <signal name="changed" handler="on_mergetree_to_urls_changed" swapped="no"/>
-                    <child internal-child="entry">
-                      <object class="GtkEntry">
-                        <property name="visible">True</property>
-                        <property name="can_focus">True</property>
-                      </object>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="left_attach">0</property>
-                    <property name="top_attach">0</property>
-                    <property name="width">3</property>
-                  </packing>
-                </child>
+                <layout>
+                  <property name="column">0</property>
+                  <property name="row">0</property>
+                </layout>
               </object>
-              <packing>
-                <property name="left_attach">0</property>
-                <property name="top_attach">1</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkLabel" id="label9">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="hexpand">True</property>
-                <property name="label" translatable="yes">&lt;b&gt;To: (URL and revision to merge)&lt;/b&gt;</property>
-                <property name="use_markup">True</property>
-                <property name="xalign">0</property>
-              </object>
-              <packing>
-                <property name="left_attach">0</property>
-                <property name="top_attach">0</property>
-              </packing>
             </child>
           </object>
-          <packing>
-            <property name="left_attach">0</property>
-            <property name="top_attach">1</property>
-          </packing>
-        </child>
-        <child>
-          <object class="GtkGrid">
-            <property name="visible">True</property>
-            <property name="can_focus">False</property>
-            <property name="hexpand">True</property>
-            <property name="row_spacing">6</property>
-            <child>
-              <object class="GtkGrid">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="margin_left">12</property>
-                <property name="hexpand">True</property>
-                <property name="row_spacing">6</property>
-                <property name="column_spacing">6</property>
-                <child>
-                  <object class="GtkButton" id="mergetree_from_show_log">
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                    <property name="tooltip_text" translatable="yes">Show log</property>
-                    <signal name="clicked" handler="on_mergetree_from_show_log_clicked" swapped="no"/>
-                    <child>
-                      <object class="GtkImage" id="image3">
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="pixel_size">24</property>
-                        <property name="icon_name">rabbitvcs-show_log</property>
-                      </object>
-                    </child>
-                    <accelerator key="f" signal="clicked" modifiers="GDK_MOD1_MASK"/>
-                  </object>
-                  <packing>
-                    <property name="left_attach">2</property>
-                    <property name="top_attach">2</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkEntry" id="mergetree_from_revision_number">
-                    <property name="width_request">75</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="hexpand">True</property>
-                    <signal name="focus-in-event" handler="on_mergetree_from_revision_number_focused" swapped="no"/>
-                  </object>
-                  <packing>
-                    <property name="left_attach">1</property>
-                    <property name="top_attach">2</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkRadioButton" id="mergetree_from_revision_number_opt">
-                    <property name="label" translatable="yes">Revision</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">False</property>
-                    <property name="halign">start</property>
-                    <property name="draw_indicator">True</property>
-                    <property name="group">mergetree_from_revision_head_opt</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">0</property>
-                    <property name="top_attach">2</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkRadioButton" id="mergetree_from_revision_head_opt">
-                    <property name="label" translatable="yes">HEAD</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">False</property>
-                    <property name="halign">start</property>
-                    <property name="hexpand">True</property>
-                    <property name="active">True</property>
-                    <property name="draw_indicator">True</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">0</property>
-                    <property name="top_attach">1</property>
-                    <property name="width">3</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkComboBoxText" id="mergetree_from_urls">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="hexpand">True</property>
-                    <property name="has_entry">True</property>
-                    <signal name="changed" handler="on_mergetree_from_urls_changed" swapped="no"/>
-                    <child internal-child="entry">
-                      <object class="GtkEntry">
-                        <property name="visible">True</property>
-                        <property name="can_focus">True</property>
-                      </object>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="left_attach">0</property>
-                    <property name="top_attach">0</property>
-                    <property name="width">3</property>
-                  </packing>
-                </child>
-              </object>
-              <packing>
-                <property name="left_attach">0</property>
-                <property name="top_attach">1</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkLabel" id="label8">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="label" translatable="yes">&lt;b&gt;From: (URL and revision to merge)&lt;/b&gt;</property>
-                <property name="use_markup">True</property>
-                <property name="xalign">0</property>
-              </object>
-              <packing>
-                <property name="left_attach">0</property>
-                <property name="top_attach">0</property>
-              </packing>
-            </child>
-          </object>
-          <packing>
-            <property name="left_attach">0</property>
-            <property name="top_attach">0</property>
-          </packing>
-        </child>
+        </property>
       </object>
-      <packing>
-        <property name="title" translatable="yes">Step 2: Merge two different trees</property>
-        <property name="has_padding">False</property>
-      </packing>
     </child>
     <child>
-      <object class="GtkGrid" id="page2c">
-        <property name="visible">True</property>
-        <property name="can_focus">False</property>
-        <property name="margin_left">12</property>
-        <property name="margin_right">12</property>
-        <property name="margin_top">12</property>
-        <property name="margin_bottom">12</property>
-        <property name="hexpand">True</property>
-        <property name="vexpand">True</property>
-        <property name="orientation">vertical</property>
-        <property name="row_spacing">18</property>
-        <child>
-          <object class="GtkGrid">
-            <property name="visible">True</property>
-            <property name="can_focus">False</property>
-            <property name="hexpand">True</property>
+      <object class="GtkAssistantPage">
+        <property name="title" translatable="1">Step 2: Merge two different trees</property>
+        <property name="child">
+          <object class="GtkGrid" id="page2b">
+            <property name="margin-start">12</property>
+            <property name="margin-end">12</property>
+            <property name="margin_top">12</property>
+            <property name="margin_bottom">12</property>
+            <property name="hexpand">1</property>
             <property name="orientation">vertical</property>
-            <child>
-              <object class="GtkLabel" id="merge_reintegrate_working_copy">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="margin_left">12</property>
-                <property name="hexpand">True</property>
-                <property name="wrap">True</property>
-                <property name="xalign">0</property>
-              </object>
-              <packing>
-                <property name="left_attach">0</property>
-                <property name="top_attach">1</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkLabel" id="label7">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="hexpand">True</property>
-                <property name="label" translatable="yes">&lt;b&gt;Working Copy&lt;/b&gt;</property>
-                <property name="use_markup">True</property>
-                <property name="xalign">0</property>
-              </object>
-              <packing>
-                <property name="left_attach">0</property>
-                <property name="top_attach">0</property>
-              </packing>
-            </child>
-          </object>
-          <packing>
-            <property name="left_attach">0</property>
-            <property name="top_attach">1</property>
-          </packing>
-        </child>
-        <child>
-          <object class="GtkGrid">
-            <property name="visible">True</property>
-            <property name="can_focus">False</property>
-            <property name="hexpand">True</property>
-            <property name="orientation">vertical</property>
-            <property name="row_spacing">6</property>
+            <property name="row_spacing">18</property>
             <child>
               <object class="GtkGrid">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="margin_left">12</property>
-                <property name="hexpand">True</property>
+                <property name="hexpand">1</property>
                 <property name="row_spacing">6</property>
-                <property name="column_spacing">6</property>
                 <child>
-                  <object class="GtkButton" id="merge_reintegrate_browse">
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                    <property name="has_tooltip">True</property>
-                    <property name="tooltip_text" translatable="yes">Show log</property>
-                    <signal name="clicked" handler="on_merge_reintegrate_browse_clicked" swapped="no"/>
-                    <child>
-                      <object class="GtkImage" id="image2">
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="pixel_size">24</property>
-                        <property name="icon_name">drive-harddisk</property>
-                      </object>
-                    </child>
-                    <accelerator key="u" signal="clicked" modifiers="GDK_MOD1_MASK"/>
+                  <object class="GtkLabel" id="mergetree_working_copy">
+                    <property name="margin-start">12</property>
+                    <property name="hexpand">1</property>
+                    <property name="xalign">0</property>
+                    <layout>
+                      <property name="column">0</property>
+                      <property name="row">1</property>
+                    </layout>
                   </object>
-                  <packing>
-                    <property name="left_attach">1</property>
-                    <property name="top_attach">0</property>
-                  </packing>
                 </child>
                 <child>
-                  <object class="GtkComboBoxText" id="merge_reintegrate_repos">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="hexpand">True</property>
-                    <property name="has_entry">True</property>
-                    <signal name="changed" handler="on_merge_reintegrate_from_urls_changed" swapped="no"/>
-                    <child internal-child="entry">
-                      <object class="GtkEntry">
-                        <property name="visible">True</property>
-                        <property name="can_focus">True</property>
-                      </object>
-                    </child>
+                  <object class="GtkLabel" id="label10">
+                    <property name="label" translatable="1">&lt;b&gt;Working Copy&lt;/b&gt;</property>
+                    <property name="use_markup">1</property>
+                    <property name="xalign">0</property>
+                    <layout>
+                      <property name="column">0</property>
+                      <property name="row">0</property>
+                    </layout>
                   </object>
-                  <packing>
-                    <property name="left_attach">0</property>
-                    <property name="top_attach">0</property>
-                  </packing>
                 </child>
-                <child>
-                  <object class="GtkGrid" id="revision_container">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="hexpand">True</property>
-                    <property name="vexpand">True</property>
-                    <property name="orientation">vertical</property>
-                    <child>
-                      <placeholder/>
-                    </child>
-                    <child>
-                      <placeholder/>
-                    </child>
-                    <child>
-                      <placeholder/>
-                    </child>
-                    <child>
-                      <placeholder/>
-                    </child>
-                    <child>
-                      <placeholder/>
-                    </child>
-                    <child>
-                      <placeholder/>
-                    </child>
-                    <child>
-                      <placeholder/>
-                    </child>
-                    <child>
-                      <placeholder/>
-                    </child>
-                    <child>
-                      <placeholder/>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="left_attach">0</property>
-                    <property name="top_attach">1</property>
-                    <property name="width">2</property>
-                  </packing>
-                </child>
+                <layout>
+                  <property name="column">0</property>
+                  <property name="row">2</property>
+                </layout>
               </object>
-              <packing>
-                <property name="left_attach">0</property>
-                <property name="top_attach">1</property>
-              </packing>
             </child>
             <child>
-              <object class="GtkLabel" id="label6">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="label" translatable="yes">&lt;b&gt;From URL&lt;/b&gt;</property>
-                <property name="use_markup">True</property>
-                <property name="xalign">0</property>
-              </object>
-              <packing>
-                <property name="left_attach">0</property>
-                <property name="top_attach">0</property>
-              </packing>
-            </child>
-          </object>
-          <packing>
-            <property name="left_attach">0</property>
-            <property name="top_attach">0</property>
-          </packing>
-        </child>
-      </object>
-      <packing>
-        <property name="title" translatable="yes">Step 2: Reintegrate a Branch</property>
-        <property name="has_padding">False</property>
-      </packing>
-    </child>
-    <child>
-      <object class="GtkGrid" id="page3">
-        <property name="visible">True</property>
-        <property name="can_focus">False</property>
-        <property name="margin_left">12</property>
-        <property name="margin_right">12</property>
-        <property name="margin_top">12</property>
-        <property name="margin_bottom">12</property>
-        <property name="hexpand">True</property>
-        <property name="row_spacing">18</property>
-        <child>
-          <object class="GtkButtonBox" id="hbuttonbox24">
-            <property name="visible">True</property>
-            <property name="can_focus">False</property>
-            <property name="hexpand">True</property>
-            <property name="layout_style">end</property>
-            <child>
-              <object class="GtkButton" id="mergeoptions_test_merge">
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">True</property>
-                <signal name="clicked" handler="on_test_clicked" swapped="no"/>
+              <object class="GtkGrid">
+                <property name="hexpand">1</property>
+                <property name="row_spacing">6</property>
                 <child>
                   <object class="GtkGrid">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
+                    <property name="margin-start">12</property>
+                    <property name="hexpand">1</property>
+                    <property name="orientation">vertical</property>
+                    <property name="row_spacing">6</property>
+                    <property name="column_spacing">6</property>
                     <child>
-                      <object class="GtkLabel" id="label11">
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="label" translatable="yes">Test Merge</property>
+                      <object class="GtkCheckButton" id="mergetree_to_revision_number_opt">
+                        <property name="label" translatable="1">Revision</property>
+                        <property name="halign">start</property>
+                        <property name="group">mergetree_to_revision_head_opt</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="row">2</property>
+                        </layout>
                       </object>
-                      <packing>
-                        <property name="left_attach">1</property>
-                        <property name="top_attach">0</property>
-                      </packing>
                     </child>
                     <child>
-                      <object class="GtkImage" id="image5">
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="icon_name">system-run</property>
+                      <object class="GtkEntry" id="mergetree_to_revision_number">
+                        <property name="width_request">75</property>
+                        <property name="focusable">1</property>
+                        <property name="hexpand">1</property>
+                        <layout>
+                          <property name="column">1</property>
+                          <property name="row">2</property>
+                        </layout>
                       </object>
-                      <packing>
-                        <property name="left_attach">0</property>
-                        <property name="top_attach">0</property>
-                      </packing>
                     </child>
+                    <child>
+                      <object class="GtkButton" id="mergetree_to_show_log">
+                        <property name="focusable">1</property>
+                        <property name="receives_default">1</property>
+                        <property name="tooltip_text" translatable="1">Show log</property>
+                        <signal name="clicked" handler="on_mergetree_to_show_log_clicked" swapped="no"/>
+                        <child>
+                          <object class="GtkImage" id="image4">
+                            <property name="pixel_size">24</property>
+                            <property name="icon_name">rabbitvcs-show_log</property>
+                          </object>
+                        </child>
+                        <layout>
+                          <property name="column">2</property>
+                          <property name="row">2</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkCheckButton" id="mergetree_to_revision_head_opt">
+                        <property name="label" translatable="1">HEAD</property>
+                        <property name="halign">start</property>
+                        <property name="hexpand">1</property>
+                        <property name="active">1</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="row">1</property>
+                          <property name="column-span">3</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkComboBoxText" id="mergetree_to_urls">
+                        <property name="has_entry">1</property>
+                        <signal name="changed" handler="on_mergetree_to_urls_changed" swapped="no"/>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="row">0</property>
+                          <property name="column-span">3</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <layout>
+                      <property name="column">0</property>
+                      <property name="row">1</property>
+                    </layout>
                   </object>
                 </child>
-                <accelerator key="t" signal="clicked" modifiers="GDK_MOD1_MASK"/>
+                <child>
+                  <object class="GtkLabel" id="label9">
+                    <property name="hexpand">1</property>
+                    <property name="label" translatable="1">&lt;b&gt;To: (URL and revision to merge)&lt;/b&gt;</property>
+                    <property name="use_markup">1</property>
+                    <property name="xalign">0</property>
+                    <layout>
+                      <property name="column">0</property>
+                      <property name="row">0</property>
+                    </layout>
+                  </object>
+                </child>
+                <layout>
+                  <property name="column">0</property>
+                  <property name="row">1</property>
+                </layout>
               </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">False</property>
-                <property name="position">0</property>
-              </packing>
             </child>
-          </object>
-          <packing>
-            <property name="left_attach">0</property>
-            <property name="top_attach">1</property>
-          </packing>
-        </child>
-        <child>
-          <object class="GtkGrid">
-            <property name="visible">True</property>
-            <property name="can_focus">False</property>
-            <property name="hexpand">True</property>
-            <property name="orientation">vertical</property>
-            <property name="row_spacing">6</property>
             <child>
               <object class="GtkGrid">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="margin_left">12</property>
-                <property name="hexpand">True</property>
-                <property name="orientation">vertical</property>
+                <property name="hexpand">1</property>
+                <property name="row_spacing">6</property>
                 <child>
-                  <object class="GtkCheckButton" id="mergeoptions_only_record">
-                    <property name="label" translatable="yes">Only record the merge</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">False</property>
-                    <property name="halign">start</property>
-                    <property name="draw_indicator">True</property>
+                  <object class="GtkGrid">
+                    <property name="margin-start">12</property>
+                    <property name="hexpand">1</property>
+                    <property name="row_spacing">6</property>
+                    <property name="column_spacing">6</property>
+                    <child>
+                      <object class="GtkButton" id="mergetree_from_show_log">
+                        <property name="focusable">1</property>
+                        <property name="receives_default">1</property>
+                        <property name="tooltip_text" translatable="1">Show log</property>
+                        <signal name="clicked" handler="on_mergetree_from_show_log_clicked" swapped="no"/>
+                        <child>
+                          <object class="GtkImage" id="image3">
+                            <property name="pixel_size">24</property>
+                            <property name="icon_name">rabbitvcs-show_log</property>
+                          </object>
+                        </child>
+                        <layout>
+                          <property name="column">2</property>
+                          <property name="row">2</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkEntry" id="mergetree_from_revision_number">
+                        <property name="width_request">75</property>
+                        <property name="focusable">1</property>
+                        <property name="hexpand">1</property>
+                        <layout>
+                          <property name="column">1</property>
+                          <property name="row">2</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkCheckButton" id="mergetree_from_revision_number_opt">
+                        <property name="label" translatable="1">Revision</property>
+                        <property name="halign">start</property>
+                        <property name="group">mergetree_from_revision_head_opt</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="row">2</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkCheckButton" id="mergetree_from_revision_head_opt">
+                        <property name="label" translatable="1">HEAD</property>
+                        <property name="halign">start</property>
+                        <property name="hexpand">1</property>
+                        <property name="active">1</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="row">1</property>
+                          <property name="column-span">3</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkComboBoxText" id="mergetree_from_urls">
+                        <property name="hexpand">1</property>
+                        <property name="has_entry">1</property>
+                        <signal name="changed" handler="on_mergetree_from_urls_changed" swapped="no"/>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="row">0</property>
+                          <property name="column-span">3</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <layout>
+                      <property name="column">0</property>
+                      <property name="row">1</property>
+                    </layout>
                   </object>
-                  <packing>
-                    <property name="left_attach">0</property>
-                    <property name="top_attach">2</property>
-                  </packing>
                 </child>
                 <child>
-                  <object class="GtkCheckButton" id="mergeoptions_ignore_ancestry">
-                    <property name="label" translatable="yes">Ignore ancestry</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">False</property>
-                    <property name="halign">start</property>
-                    <property name="hexpand">True</property>
-                    <property name="draw_indicator">True</property>
+                  <object class="GtkLabel" id="label8">
+                    <property name="label" translatable="1">&lt;b&gt;From: (URL and revision to merge)&lt;/b&gt;</property>
+                    <property name="use_markup">1</property>
+                    <property name="xalign">0</property>
+                    <layout>
+                      <property name="column">0</property>
+                      <property name="row">0</property>
+                    </layout>
                   </object>
-                  <packing>
-                    <property name="left_attach">0</property>
-                    <property name="top_attach">1</property>
-                  </packing>
                 </child>
-                <child>
-                  <object class="GtkCheckButton" id="mergeoptions_recursive">
-                    <property name="label" translatable="yes">Recursive</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">False</property>
-                    <property name="halign">start</property>
-                    <property name="hexpand">True</property>
-                    <property name="active">True</property>
-                    <property name="draw_indicator">True</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">0</property>
-                    <property name="top_attach">0</property>
-                  </packing>
-                </child>
+                <layout>
+                  <property name="column">0</property>
+                  <property name="row">0</property>
+                </layout>
               </object>
-              <packing>
-                <property name="left_attach">0</property>
-                <property name="top_attach">1</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkLabel" id="label1">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="label" translatable="yes">&lt;b&gt;Options&lt;/b&gt;</property>
-                <property name="use_markup">True</property>
-                <property name="xalign">0</property>
-              </object>
-              <packing>
-                <property name="left_attach">0</property>
-                <property name="top_attach">0</property>
-              </packing>
             </child>
           </object>
-          <packing>
-            <property name="left_attach">0</property>
-            <property name="top_attach">0</property>
-          </packing>
-        </child>
+        </property>
       </object>
-      <packing>
+    </child>
+    <child>
+      <object class="GtkAssistantPage">
+        <property name="title" translatable="1">Step 2: Reintegrate a Branch</property>
+        <property name="child">
+          <object class="GtkGrid" id="page2c">
+            <property name="margin-start">12</property>
+            <property name="margin-end">12</property>
+            <property name="margin_top">12</property>
+            <property name="margin_bottom">12</property>
+            <property name="hexpand">1</property>
+            <property name="vexpand">1</property>
+            <property name="orientation">vertical</property>
+            <property name="row_spacing">18</property>
+            <child>
+              <object class="GtkGrid">
+                <property name="hexpand">1</property>
+                <property name="orientation">vertical</property>
+                <child>
+                  <object class="GtkLabel" id="merge_reintegrate_working_copy">
+                    <property name="margin-start">12</property>
+                    <property name="hexpand">1</property>
+                    <property name="wrap">1</property>
+                    <property name="xalign">0</property>
+                    <layout>
+                      <property name="column">0</property>
+                      <property name="row">1</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="label7">
+                    <property name="hexpand">1</property>
+                    <property name="label" translatable="1">&lt;b&gt;Working Copy&lt;/b&gt;</property>
+                    <property name="use_markup">1</property>
+                    <property name="xalign">0</property>
+                    <layout>
+                      <property name="column">0</property>
+                      <property name="row">0</property>
+                    </layout>
+                  </object>
+                </child>
+                <layout>
+                  <property name="column">0</property>
+                  <property name="row">1</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkGrid">
+                <property name="hexpand">1</property>
+                <property name="orientation">vertical</property>
+                <property name="row_spacing">6</property>
+                <child>
+                  <object class="GtkGrid">
+                    <property name="margin-start">12</property>
+                    <property name="hexpand">1</property>
+                    <property name="row_spacing">6</property>
+                    <property name="column_spacing">6</property>
+                    <child>
+                      <object class="GtkButton" id="merge_reintegrate_browse">
+                        <property name="focusable">1</property>
+                        <property name="receives_default">1</property>
+                        <property name="has_tooltip">1</property>
+                        <property name="tooltip_text" translatable="1">Show log</property>
+                        <signal name="clicked" handler="on_merge_reintegrate_browse_clicked" swapped="no"/>
+                        <child>
+                          <object class="GtkImage" id="image2">
+                            <property name="pixel_size">24</property>
+                            <property name="icon_name">drive-harddisk</property>
+                          </object>
+                        </child>
+                        <layout>
+                          <property name="column">1</property>
+                          <property name="row">0</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkComboBoxText" id="merge_reintegrate_repos">
+                        <property name="hexpand">1</property>
+                        <property name="has_entry">1</property>
+                        <signal name="changed" handler="on_merge_reintegrate_from_urls_changed" swapped="no"/>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="row">0</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkGrid" id="revision_container">
+                        <property name="hexpand">1</property>
+                        <property name="vexpand">1</property>
+                        <property name="orientation">vertical</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="row">1</property>
+                          <property name="column-span">2</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <layout>
+                      <property name="column">0</property>
+                      <property name="row">1</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="label6">
+                    <property name="label" translatable="1">&lt;b&gt;From URL&lt;/b&gt;</property>
+                    <property name="use_markup">1</property>
+                    <property name="xalign">0</property>
+                    <layout>
+                      <property name="column">0</property>
+                      <property name="row">0</property>
+                    </layout>
+                  </object>
+                </child>
+                <layout>
+                  <property name="column">0</property>
+                  <property name="row">0</property>
+                </layout>
+              </object>
+            </child>
+          </object>
+        </property>
+      </object>
+    </child>
+    <child>
+      <object class="GtkAssistantPage">
         <property name="page_type">confirm</property>
-        <property name="title" translatable="yes">Step 3: Final Options</property>
-        <property name="has_padding">False</property>
-      </packing>
+        <property name="title" translatable="1">Step 3: Final Options</property>
+        <property name="child">
+          <object class="GtkGrid" id="page3">
+            <property name="margin-start">12</property>
+            <property name="margin-end">12</property>
+            <property name="margin_top">12</property>
+            <property name="margin_bottom">12</property>
+            <property name="hexpand">1</property>
+            <property name="row_spacing">18</property>
+            <child>
+              <object class="GtkBox" id="hbuttonbox24">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="hexpand">True</property>
+                <child>
+                  <object class="GtkButton" id="mergeoptions_test_merge">
+                    <property name="focusable">1</property>
+                    <property name="receives_default">1</property>
+                    <signal name="clicked" handler="on_test_clicked" swapped="no"/>
+                    <child>
+                      <object class="GtkGrid">
+                        <child>
+                          <object class="GtkLabel" id="label11">
+                            <property name="label" translatable="1">Test Merge</property>
+                            <layout>
+                              <property name="column">1</property>
+                              <property name="row">0</property>
+                            </layout>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkImage" id="image5">
+                            <property name="icon_name">system-run</property>
+                            <layout>
+                              <property name="column">0</property>
+                              <property name="row">0</property>
+                            </layout>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <layout>
+                  <property name="column">0</property>
+                  <property name="row">1</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkGrid">
+                <property name="hexpand">1</property>
+                <property name="orientation">vertical</property>
+                <property name="row_spacing">6</property>
+                <child>
+                  <object class="GtkGrid">
+                    <property name="margin-start">12</property>
+                    <property name="hexpand">1</property>
+                    <property name="orientation">vertical</property>
+                    <child>
+                      <object class="GtkCheckButton" id="mergeoptions_only_record">
+                        <property name="label" translatable="1">Only record the merge</property>
+                        <property name="focusable">1</property>
+                        <property name="halign">start</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="row">2</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkCheckButton" id="mergeoptions_ignore_ancestry">
+                        <property name="label" translatable="1">Ignore ancestry</property>
+                        <property name="focusable">1</property>
+                        <property name="halign">start</property>
+                        <property name="hexpand">1</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="row">1</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkCheckButton" id="mergeoptions_recursive">
+                        <property name="label" translatable="1">Recursive</property>
+                        <property name="focusable">1</property>
+                        <property name="halign">start</property>
+                        <property name="hexpand">1</property>
+                        <property name="active">1</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="row">0</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <layout>
+                      <property name="column">0</property>
+                      <property name="row">1</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="label1">
+                    <property name="label" translatable="1">&lt;b&gt;Options&lt;/b&gt;</property>
+                    <property name="use_markup">1</property>
+                    <property name="xalign">0</property>
+                    <layout>
+                      <property name="column">0</property>
+                      <property name="row">0</property>
+                    </layout>
+                  </object>
+                </child>
+                <layout>
+                  <property name="column">0</property>
+                  <property name="row">0</property>
+                </layout>
+              </object>
+            </child>
+          </object>
+        </property>
+      </object>
     </child>
-    <child>
-      <placeholder/>
-    </child>
-    <child>
-      <placeholder/>
-    </child>
-    <child>
-      <placeholder/>
-    </child>
-    <child>
-      <placeholder/>
-    </child>
-    <child>
-      <placeholder/>
-    </child>
-    <child>
-      <placeholder/>
-    </child>
-    <child>
-      <placeholder/>
-    </child>
-    <child>
-      <placeholder/>
-    </child>
-    <child>
-      <placeholder/>
-    </child>
-    <child>
-      <placeholder/>
-    </child>
-    <child>
-      <placeholder/>
-    </child>
-    <child>
-      <placeholder/>
-    </child>
-    <child>
-      <placeholder/>
-    </child>
-    <child>
-      <placeholder/>
-    </child>
-    <child>
-      <placeholder/>
-    </child>
-    <child>
-      <placeholder/>
-    </child>
-    <child>
-      <placeholder/>
-    </child>
-  </object>
+  </template>
 </interface>

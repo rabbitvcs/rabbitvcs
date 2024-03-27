@@ -12,7 +12,7 @@ from rabbitvcs.util.contextmenu import (
     GtkFilesContextMenuConditions,
     GtkContextMenu,
 )
-from rabbitvcs.ui import InterfaceView
+from rabbitvcs.ui import GtkTemplateHelper
 from gi.repository import Gtk, GObject, Gdk
 
 #
@@ -42,9 +42,10 @@ import threading
 
 from rabbitvcs.util import helper
 
+import os
 import gi
 
-gi.require_version("Gtk", "3.0")
+gi.require_version("Gtk", "4.0")
 sa = helper.SanitizeArgv()
 sa.restore()
 
@@ -56,7 +57,18 @@ _ = gettext.gettext
 helper.gobject_threads_init()
 
 
-class SVNCheckForModifications(InterfaceView):
+@Gtk.Template(filename=f"{os.path.dirname(os.path.abspath(__file__))}/xml/checkmods.xml")
+class CheckModsWidget(Gtk.Grid):
+    __gtype_name__ = "CheckModsWidget"
+
+    notebook = Gtk.Template.Child()
+    local_files_table = Gtk.Template.Child()
+    remote_files_table = Gtk.Template.Child()
+
+    def __init__(self):
+        Gtk.Grid.__init__(self)
+
+class SVNCheckForModifications(GtkTemplateHelper):
     """
     Provides a way for the user to see what files have been changed on the
     repository.
@@ -64,13 +76,23 @@ class SVNCheckForModifications(InterfaceView):
     """
 
     def __init__(self, paths, base_dir=None):
-        InterfaceView.__init__(self, "checkmods", "CheckMods")
+        GtkTemplateHelper.__init__(self, "Check for Modifications")
+
+        self.widget = CheckModsWidget()
+        self.window = self.get_window(self.widget)
+        # add dialog buttons
+        self.cancel = self.add_dialog_button("Close", self.on_cancel_clicked, hideOnAdwaita=True)
+        self.refresh = self.add_dialog_button("Refresh", self.on_refresh_clicked)
+        self.refresh.set_icon_name("reload")
+        # forward signals
+        self.widget.notebook.connect("switch-page", self.on_notebook_switch_page)
+        # set window properties
+        self.window.set_default_size(400, 300)
 
         self.paths = paths
         self.base_dir = base_dir
         self.vcs = rabbitvcs.vcs.VCS()
         self.svn = self.vcs.svn()
-        self.notebook = self.get_widget("notebook")
 
         self.local_mods = SVNCheckLocalModifications(
             self, self.vcs, self.paths, self.base_dir
@@ -84,7 +106,7 @@ class SVNCheckForModifications(InterfaceView):
         self.load()
 
     def on_refresh_clicked(self, widget):
-        if self.notebook.get_current_page() == 0:
+        if self.widget.notebook.get_current_page() == 0:
             self.local_mods.refresh()
         else:
             self.remote_mods.refresh()
@@ -112,7 +134,7 @@ class SVNCheckLocalModifications(GtkContextMenuCaller):
         self.base_dir = base_dir
 
         self.files_table = rabbitvcs.ui.widget.Table(
-            self.caller.get_widget("local_files_table"),
+            self.caller.widget.local_files_table,
             [GObject.TYPE_STRING, GObject.TYPE_STRING, GObject.TYPE_STRING],
             [_("Path"), _("Status"), _("Extension")],
             filters=[
@@ -131,10 +153,10 @@ class SVNCheckLocalModifications(GtkContextMenuCaller):
         paths = self.files_table.get_selected_row_items(0)
         self.diff_local(paths[0])
 
-    def on_files_table_mouse_event(self, treeview, event, *args):
-        if event.button == 3 and event.type == Gdk.EventType.BUTTON_RELEASE:
+    def on_files_table_mouse_event(self, gesture, n_press, x, y, pressed):
+        if gesture.get_current_button() == 3 and not pressed:
             paths = self.files_table.get_selected_row_items(0)
-            GtkFilesContextMenu(self, event, self.base_dir, paths).show()
+            # GtkFilesContextMenu(self, event, self.base_dir, paths).show() TODO
 
     def refresh(self):
         self.action = rabbitvcs.ui.action.SVNAction(self.svn, notification=False)
@@ -172,7 +194,7 @@ class SVNCheckRemoteModifications(GtkContextMenuCaller):
         self.base_dir = base_dir
 
         self.files_table = rabbitvcs.ui.widget.Table(
-            self.caller.get_widget("remote_files_table"),
+            self.caller.widget.remote_files_table,
             [
                 GObject.TYPE_STRING,
                 GObject.TYPE_STRING,
@@ -205,12 +227,12 @@ class SVNCheckRemoteModifications(GtkContextMenuCaller):
         paths = self.files_table.get_selected_row_items(0)
         self.diff_remote(paths[0])
 
-    def on_files_table_mouse_event(self, treeview, event, *args):
-        if event.button == 3 and event.type == Gdk.EventType.BUTTON_RELEASE:
+    def on_files_table_mouse_event(self, gesture, n_press, x, y, pressed):
+        if gesture.get_current_button() == 3 and not pressed:
             paths = self.files_table.get_selected_row_items(0)
-            CheckRemoteModsContextMenu(
-                self, event, self.base_dir, self.vcs, paths
-            ).show()
+            # CheckRemoteModsContextMenu(
+            #     self, event, self.base_dir, self.vcs, paths
+            # ).show() TODO
 
     def refresh(self):
         self.action = rabbitvcs.ui.action.SVNAction(self.svn, notification=False)
@@ -347,13 +369,16 @@ def checkmods_factory(paths, base_dir):
     return classes_map[guess["vcs"]](paths, base_dir)
 
 
-if __name__ == "__main__":
+def on_activate(app):
     from rabbitvcs.ui import main, BASEDIR_OPT
 
     (options, paths) = main(
         [BASEDIR_OPT], usage="Usage: rabbitvcs checkmods [url_or_path]"
     )
 
-    window = checkmods_factory(paths, options.base_dir)
-    window.register_gtk_quit()
-    Gtk.main()
+    widget = checkmods_factory(paths, options.base_dir)
+    app.add_window(widget.window)
+    widget.window.set_visible(True)
+
+if __name__ == "__main__":
+    GtkTemplateHelper.run_application(on_activate)

@@ -3,8 +3,13 @@ from rabbitvcs.util.strings import S
 import rabbitvcs.util.helper
 import rabbitvcs.ui.wraplabel
 import rabbitvcs.ui.widget
-from rabbitvcs.ui import InterfaceView
-from gi.repository import Gtk, GObject, Gdk, Pango
+from rabbitvcs.ui import InterfaceView, GtkTemplateHelper, adwaita_available
+from gi.repository import Gtk, GObject, Gdk, Pango, Gio
+
+try:
+    from gi.repository import Adw
+except Exception as e:
+    pass
 
 #
 # This is an extension to the Nautilus file manager to allow better
@@ -32,7 +37,7 @@ from gettext import gettext as _
 import os.path
 import gi
 
-gi.require_version("Gtk", "3.0")
+gi.require_version("Gtk", "4.0")
 
 
 ERROR_NOTICE = _(
@@ -42,15 +47,26 @@ An error has occurred in the RabbitVCS Nautilus extension. Please contact the \
     % (rabbitvcs.WEBSITE)
 )
 
+@Gtk.Template(filename=f"{os.path.dirname(os.path.abspath(__file__))}/xml/dialogs/previous_messages.xml")
+class PreviousWidget(Gtk.Box):
+    __gtype_name__ = "PreviousWidget"
 
-class PreviousMessages(InterfaceView):
+    prevmes_message = Gtk.Template.Child()
+    prevmes_table = Gtk.Template.Child()
+
     def __init__(self):
-        InterfaceView.__init__(self, "dialogs/previous_messages", "PreviousMessages")
+        Gtk.Box.__init__(self)
 
-        self.message = rabbitvcs.ui.widget.TextView(self.get_widget("prevmes_message"))
+class PreviousMessages(GtkTemplateHelper):
+    def __init__(self, parent):
+        GtkTemplateHelper.__init__(self, "Previous Messages")
+
+        self.parent = parent
+        self.widget = PreviousWidget()
+        self.message = rabbitvcs.ui.widget.TextView(self.widget.prevmes_message)
 
         self.message_table = rabbitvcs.ui.widget.Table(
-            self.get_widget("prevmes_table"),
+            self.widget.prevmes_table,
             [GObject.TYPE_STRING, GObject.TYPE_STRING],
             [_("Date"), _("Message")],
             filters=[
@@ -74,20 +90,19 @@ class PreviousMessages(InterfaceView):
         if len(self.entries) > 0:
             self.message.set_text(S(self.entries[0][1]).display())
 
-    def run(self):
+    def run(self, parent=None, on_response=None):
 
         if self.entries is None:
             return None
 
-        returner = None
-        self.dialog = self.get_widget("PreviousMessages")
-        result = self.dialog.run()
-        if result == Gtk.ResponseType.OK:
-            returner = self.message.get_text()
+        self.on_response = on_response
+        self.exec_dialog(self.parent, self.widget, self.dialog_responded)
 
-        self.dialog.destroy()
-
-        return returner
+    def dialog_responded(self, response_id):
+        if response_id == Gtk.ResponseType.OK:
+            message = self.message.get_text()
+            if (self.on_response):
+                self.on_response(message)
 
     def on_prevmes_table_row_activated(self, treeview, data, col):
         self.update_message_table()
@@ -105,31 +120,40 @@ class PreviousMessages(InterfaceView):
 
 
 class FolderChooser(object):
-    def __init__(self):
-        self.dialog = Gtk.FileChooserDialog(
+    _callback = None
+
+    def __init__(self, callback, folder=None, parent=None):
+        self._callback = callback
+        self.open_dialog = Gtk.FileChooserNative.new(
             title=_("Select a Folder"),
-            parent=None,
-            action=Gtk.FileChooserAction.SELECT_FOLDER,
-        )
-        self.dialog.add_button(_("_Cancel"), Gtk.ResponseType.CANCEL)
-        self.dialog.add_button(_("_Select"), Gtk.ResponseType.OK)
-        self.dialog.set_default_response(Gtk.ResponseType.OK)
+            parent=parent, action=Gtk.FileChooserAction.SELECT_FOLDER)
 
-    def run(self):
-        returner = None
-        result = self.dialog.run()
-        if result == Gtk.ResponseType.OK:
-            # returner = self.dialog.get_uri()
-            returner = self.dialog.get_file().get_path()
-        self.dialog.destroy()
-        return returner
+        if folder and len(folder) > 0 and os.path.exists(folder):
+            self.open_dialog.set_current_folder(Gio.File.new_for_path(folder))
+
+        self.open_dialog.connect("response", self._file_chooser_callback)
+
+        self.open_dialog.show()
+
+    def _file_chooser_callback(self, dialog, response):
+        if response == Gtk.ResponseType.ACCEPT:
+            path = dialog.get_file().get_path()
+            self._callback(path)
 
 
-class Certificate(InterfaceView):
+@Gtk.Template(filename=f"{os.path.dirname(os.path.abspath(__file__))}/xml/dialogs/certificate.xml")
+class Certificate(Gtk.Box, GtkTemplateHelper):
     """
     Provides a dialog to accept/accept_once/deny an ssl certificate
 
     """
+    __gtype_name__ = "Certificate"
+
+    cert_realm = Gtk.Template.Child()
+    cert_host = Gtk.Template.Child()
+    cert_issuer = Gtk.Template.Child()
+    cert_valid = Gtk.Template.Child()
+    cert_fingerprint = Gtk.Template.Child()
 
     def __init__(
         self,
@@ -140,19 +164,21 @@ class Certificate(InterfaceView):
         valid_until="",
         fingerprint="",
     ):
+        Gtk.Box.__init__(self)
+        GtkTemplateHelper.__init__(self, "Certificate")
 
-        InterfaceView.__init__(self, "dialogs/certificate", "Certificate")
+        # "Check Certificate"
 
-        self.get_widget("cert_realm").set_label(realm)
-        self.get_widget("cert_host").set_label(host)
-        self.get_widget("cert_issuer").set_label(issuer)
+        self.cert_realm.set_label(realm)
+        self.cert_host.set_label(host)
+        self.cert_issuer.set_label(issuer)
         to_str = _("to")
-        self.get_widget("cert_valid").set_label(
+        self.cert_valid.set_label(
             "%s %s %s" % (valid_from, to_str, valid_until)
         )
-        self.get_widget("cert_fingerprint").set_label(fingerprint)
+        self.cert_fingerprint.set_label(fingerprint)
 
-    def run(self):
+    def run(self, parent, on_response):
         """
         Returns three possible values:
 
@@ -161,97 +187,104 @@ class Certificate(InterfaceView):
             - 2   Accept Forever
 
         """
-
-        self.dialog = self.get_widget("Certificate")
-        result = self.dialog.run()
-        self.dialog.destroy()
-        return result
+        # TODO add buttons and handle signals
+        self.exec_dialog(parent, self)
 
 
-class Authentication(InterfaceView):
+@Gtk.Template(filename=f"{os.path.dirname(os.path.abspath(__file__))}/xml/dialogs/authentication.xml")
+class Authentication(Gtk.Box, GtkTemplateHelper):
+    __gtype_name__ = "Authentication"
+
+    auth_realm = Gtk.Template.Child()
+    auth_save = Gtk.Template.Child()
+    auth_login = Gtk.Template.Child()
+    auth_password = Gtk.Template.Child()
+
     def __init__(self, realm="", may_save=True):
-        InterfaceView.__init__(self, "dialogs/authentication", "Authentication")
+        Gtk.Box.__init__(self)
+        GtkTemplateHelper.__init__(self, "Authentication")
 
-        self.get_widget("auth_realm").set_label(realm)
-        self.get_widget("auth_save").set_sensitive(may_save)
+        self.auth_realm.set_label(realm)
+        self.auth_save.set_sensitive(may_save)
 
-    def run(self):
-        returner = None
-        self.dialog = self.get_widget("Authentication")
-        result = self.dialog.run()
+    def get_values(self):
+        login = self.auth_login.get_text()
+        password = self.auth_password.get_text()
+        save = self.auth_save.get_active()
 
-        login = self.get_widget("auth_login").get_text()
-        password = self.get_widget("auth_password").get_text()
-        save = self.get_widget("auth_save").get_active()
-        self.dialog.destroy()
-
-        if result == Gtk.ResponseType.OK:
-            return (True, login, password, save)
-        else:
-            return (False, "", "", False)
+        return (login, password, save)
 
 
-class CertAuthentication(InterfaceView):
+@Gtk.Template(filename=f"{os.path.dirname(os.path.abspath(__file__))}/xml/dialogs/cert_authentication.xml")
+class CertAuthentication(Gtk.Box, GtkTemplateHelper):
+    __gtype_name__ = "CertAuthentication"
+
+    certauth_realm = Gtk.Template.Child()
+    certauth_save = Gtk.Template.Child()
+    certauth_password = Gtk.Template.Child()
+
     def __init__(self, realm="", may_save=True):
-        InterfaceView.__init__(
-            self, "dialogs/cert_authentication", "CertAuthentication"
-        )
+        Gtk.Box.__init__(self)
+        GtkTemplateHelper.__init__(self, "CertAuthentication")
 
-        self.get_widget("certauth_realm").set_label(realm)
-        self.get_widget("certauth_save").set_sensitive(may_save)
+        self.certauth_realm.set_label(realm)
+        self.certauth_save.set_sensitive(may_save)
 
-    def run(self):
-        self.dialog = self.get_widget("CertAuthentication")
-        result = self.dialog.run()
+    def get_values(self):
+        password = self.certauth_password.get_text()
+        save = self.certauth_save.get_active()
 
-        password = self.get_widget("certauth_password").get_text()
-        save = self.get_widget("certauth_save").get_active()
-        self.dialog.destroy()
-
-        if result == Gtk.ResponseType.OK:
-            return (True, password, save)
-        else:
-            return (False, "", False)
+        return (password, save)
 
 
-class SSLClientCertPrompt(InterfaceView):
+@Gtk.Template(filename=f"{os.path.dirname(os.path.abspath(__file__))}/xml/dialogs/ssl_client_cert_prompt.xml")
+class SSLClientCertPrompt(Gtk.Box, GtkTemplateHelper):
+    __gtype_name__ = "SSLClientCertPrompt"
+
+    sslclientcert_realm = Gtk.Template.Child()
+    sslclientcert_save = Gtk.Template.Child()
+    sslclientcert_path = Gtk.Template.Child()
+
     def __init__(self, realm="", may_save=True):
-        InterfaceView.__init__(
-            self, "dialogs/ssl_client_cert_prompt", "SSLClientCertPrompt"
-        )
+        Gtk.Box.__init__(self)
+        GtkTemplateHelper.__init__(self, "SSLClientCertPrompt")
 
-        self.get_widget("sslclientcert_realm").set_label(realm)
-        self.get_widget("sslclientcert_save").set_sensitive(may_save)
+        self.sslclientcert_realm.set_label(realm)
+        self.sslclientcert_save.set_sensitive(may_save)
 
+    @Gtk.Template.Callback()
     def on_sslclientcert_browse_clicked(self, widget, data=None):
         filechooser = FileChooser()
         cert = filechooser.run()
         if cert is not None:
-            self.get_widget("sslclientcert_path").set_text(S(cert).display())
+            self.sslclientcert_path.set_text(S(cert).display())
 
-    def run(self):
-        self.dialog = self.get_widget("SSLClientCertPrompt")
-        result = self.dialog.run()
+    def get_values(self):
+        cert = self.sslclientcert_path.get_text()
+        save = self.sslclientcert_save.get_active()
 
-        cert = self.get_widget("sslclientcert_path").get_text()
-        save = self.get_widget("sslclientcert_save").get_active()
-        self.dialog.destroy()
-
-        if result == Gtk.ResponseType.OK:
-            return (True, cert, save)
-        else:
-            return (False, "", False)
+        return (cert, save)
 
 
-class Property(InterfaceView):
+@Gtk.Template(filename=f"{os.path.dirname(os.path.abspath(__file__))}/xml/dialogs/property.xml")
+class Property(Gtk.Box, GtkTemplateHelper):
+    __gtype_name__ = "PropertyWidget"
+
+    property_name = Gtk.Template.Child()
+    property_value = Gtk.Template.Child()
+    property_recurse = Gtk.Template.Child()
+
+    callback = None
+
     def __init__(self, name="", value="", recurse=True):
-        InterfaceView.__init__(self, "dialogs/property", "Property")
+        Gtk.Box.__init__(self)
+        GtkTemplateHelper.__init__(self, "Property")
 
         self.save_name = name
         self.save_value = value
 
         self.name = rabbitvcs.ui.widget.ComboBox(
-            self.get_widget("property_name"),
+            self.property_name,
             [  # default svn properties
                 "svn:author",
                 "svn:autoversioned",
@@ -271,21 +304,23 @@ class Property(InterfaceView):
         self.name.set_child_text(name)
 
         self.value = rabbitvcs.ui.widget.TextView(
-            self.get_widget("property_value"), value
+            self.property_value, value
         )
 
-        self.recurse = self.get_widget("property_recurse")
+        self.recurse = self.property_recurse
         self.recurse.set_active(recurse)
 
-    def run(self):
-        self.dialog = self.get_widget("Property")
-        result = self.dialog.run()
+    def run(self, on_response):
+        self.callback = on_response
+        self.connect("response", self.on_response)
+        self.set_visible(True)
 
-        if result == Gtk.ResponseType.OK:
+    def on_response(self, dialog, response):
+        if response == Gtk.ResponseType.OK:
             self.save()
 
-        self.dialog.destroy()
-        return (self.save_name, self.save_value, self.recurse.get_active())
+        if self.callback:
+            self.callback (self.save_name, self.save_value, self.recurse.get_active())
 
     def save(self):
         self.save_name = self.name.get_active_text()
@@ -294,284 +329,373 @@ class Property(InterfaceView):
 
 
 class FileChooser(object):
-    def __init__(self, title=_("Select a File"), folder=None):
-        self.dialog = Gtk.FileChooserDialog(
-            title=title, parent=None, action=Gtk.FileChooserAction.OPEN
-        )
-        self.dialog.add_button(_("_Cancel"), Gtk.ResponseType.CANCEL)
-        self.dialog.add_button(_("_Open"), Gtk.ResponseType.OK)
-        if folder is not None:
-            self.dialog.set_current_folder(folder)
-        self.dialog.set_default_response(Gtk.ResponseType.OK)
+    _callback = None
 
-    def run(self):
-        returner = None
-        result = self.dialog.run()
-        if result == Gtk.ResponseType.OK:
-            returner = self.dialog.get_file().get_path()
-        self.dialog.destroy()
-        return returner
+    def __init__(self, title=_("Select a File"), folder=None, callback=None, parent=None):
+        self._callback = callback
+        self.dialog = Gtk.FileChooserNative.new(
+            title=title,
+            parent=parent, action=Gtk.FileChooserAction.OPEN)
+
+        if folder and len(folder) > 0 and os.path.exists(folder):
+            self.dialog.set_current_folder(Gio.File.new_for_path(folder))
+
+        self.dialog.connect("response", self._file_chooser_callback)
+
+        self.dialog.show()
+
+    def _file_chooser_callback(self, dialog, response):
+        if response == Gtk.ResponseType.ACCEPT:
+            path = dialog.get_file().get_path()
+            self._callback(path)
 
 
 class FileSaveAs(object):
-    def __init__(self, title=_("Save As..."), folder=None):
-        self.dialog = Gtk.FileChooserDialog(
-            title=title, parent=None, action=Gtk.FileChooserAction.SAVE
+    _callback = None
+
+    def __init__(self, title=_("Save As..."), folder=None, parent=None, callback=None):
+        self._callback = callback
+        self.save_dialog = Gtk.FileChooserNative.new(
+            title=title, parent=parent, action=Gtk.FileChooserAction.SAVE
         )
-        self.dialog.add_button(_("_Cancel"), Gtk.ResponseType.CANCEL)
-        self.dialog.add_button(_("_Save"), Gtk.ResponseType.OK)
-        if folder is not None:
-            self.dialog.set_current_folder(folder)
-        self.dialog.set_default_response(Gtk.ResponseType.OK)
 
-    def run(self):
-        returner = None
-        result = self.dialog.run()
-        if result == Gtk.ResponseType.OK:
-            returner = self.dialog.get_filename()
-        self.dialog.destroy()
-        return returner
+        if folder and len(folder) > 0 and os.path.exists(folder):
+            self.save_dialog.set_current_folder(Gio.File.new_for_path(folder))
 
+        self.save_dialog.connect("response", self._file_chooser_callback)
 
-class Confirmation(InterfaceView):
-    def __init__(self, message=_("Are you sure you want to continue?")):
-        InterfaceView.__init__(self, "dialogs/confirmation", "Confirmation")
-        self.get_widget("confirm_message").set_text(S(message).display())
+        self.save_dialog.show()
 
-    def run(self):
-        dialog = self.get_widget("Confirmation")
-        result = dialog.run()
-
-        dialog.destroy()
-
-        return result
+    def _file_chooser_callback(self, dialog, response):
+        if response == Gtk.ResponseType.ACCEPT:
+            path = dialog.get_file().get_path()
+            self._callback(path)
 
 
-class MessageBox(InterfaceView):
-    def __init__(self, message):
-        InterfaceView.__init__(self, "dialogs/message_box", "MessageBox")
-        self.get_widget("messagebox_message").set_text(S(message).display())
-
-        dialog = self.get_widget("MessageBox")
-        dialog.run()
-        dialog.destroy()
+class Confirmation(GtkTemplateHelper):
+    def __init__(self, response, title="Confirmation", message=_("Are you sure you want to continue?"), parent=None):
+        GtkTemplateHelper.__init__(self, title)
+        self.exec_dialog(parent, S(message).display(), response, yes_no=True)
 
 
-class DeleteConfirmation(InterfaceView):
-    def __init__(self, path=None):
-        InterfaceView.__init__(
-            self, "dialogs/delete_confirmation", "DeleteConfirmation"
-        )
+class MessageBox(GtkTemplateHelper):
+    def __init__(self, response, title="MessageBox", message="default message", parent=None):
+        GtkTemplateHelper.__init__(self, title)
+        self.exec_dialog(parent, S(message).display(), response)
+
+
+class DeleteConfirmation(GtkTemplateHelper):
+    def __init__(self, response, path=None, parent=None):
+        GtkTemplateHelper.__init__(self, "Delete Confirmation")
 
         if path:
             path = '"%s"' % os.path.basename(path)
         else:
             path = _("the selected item(s)")
 
-        msg = self.get_widget("message").get_label().replace("%item%", path)
-        self.get_widget("message").set_label(msg)
-
-    def run(self):
-        dialog = self.get_widget("DeleteConfirmation")
-        result = dialog.run()
-
-        dialog.destroy()
-
-        return result
+        self.exec_dialog(parent, f"Are you sure you want to delete {path}?", response, yes_no=True)
 
 
-class TextChange(InterfaceView):
+@Gtk.Template(filename=f"{os.path.dirname(os.path.abspath(__file__))}/xml/dialogs/text_change.xml")
+class TextChange(Gtk.Box, GtkTemplateHelper):
+    __gtype_name__ = "TextChange"
+
+    textchange_message = Gtk.Template.Child()
+
     def __init__(self, title=None, message=""):
-        InterfaceView.__init__(self, "dialogs/text_change", "TextChange")
+        Gtk.Box.__init__(self)
+        GtkTemplateHelper.__init__(self, "TextChange")
+
         if title:
-            self.get_widget("TextChange").set_title(title)
+            self.window.set_title(title)
 
         self.textview = rabbitvcs.ui.widget.TextView(
-            self.get_widget("textchange_message"), message
+            self.textchange_message, message
         )
 
-    def run(self):
-        dialog = self.get_widget("TextChange")
-        result = dialog.run()
-
-        dialog.destroy()
-
-        return (result, self.textview.get_text())
+    def get_values(self):
+        return self.textview.get_text()
 
 
-class OneLineTextChange(InterfaceView):
-    def __init__(self, title=None, label=None, current_text=None):
-        InterfaceView.__init__(
-            self, "dialogs/one_line_text_change", "OneLineTextChange"
-        )
-        if title:
-            self.get_widget("OneLineTextChange").set_title(title)
+@Gtk.Template(filename=f"{os.path.dirname(os.path.abspath(__file__))}/xml/dialogs/one_line_text_change.xml")
+class OneLineTextChange(Gtk.Box, GtkTemplateHelper):
+    __gtype_name__ = "OneLineTextChange"
 
-        self.new_text = self.get_widget("new_text")
-        self.label = self.get_widget("label")
+    new_text = Gtk.Template.Child()
+    label = Gtk.Template.Child()
 
-        if label:
-            self.label.set_text(S(label).display())
+    def __init__(self, title="Text Change", label_value=None, current_text=None):
+        Gtk.Box.__init__(self)
+        GtkTemplateHelper.__init__(self, title)
+
+        if label_value:
+            self.label.set_text(S(label_value).display())
 
         if current_text:
             self.new_text.set_text(S(current_text).display())
 
-        self.dialog = self.get_widget("OneLineTextChange")
-
-    def on_key_release_event(self, widget, event, *args):
-        # The Gtk.Dialog.response() method emits the "response" signal,
-        # which tells Gtk.Dialog.run() asyncronously to stop.  This allows the
-        # user to press the "Return" button when done writing in the new text
-        if Gdk.keyval_name(event.keyval) == "Return":
-            self.dialog.response(Gtk.ResponseType.OK)
-
-    def run(self):
-        result = self.dialog.run()
+    def get_values(self):
         new_text = self.new_text.get_text()
 
-        self.dialog.destroy()
-
-        return (result, new_text)
+        return new_text
 
 
-class NewFolder(InterfaceView):
+@Gtk.Template(filename=f"{os.path.dirname(os.path.abspath(__file__))}/xml/dialogs/create_folder.xml")
+class NewFolder(Gtk.Box, GtkTemplateHelper):
+    __gtype_name__ = "CreateFolder"
+
+    folder_name = Gtk.Template.Child()
+    log_message = Gtk.Template.Child()
+
     def __init__(self):
-        InterfaceView.__init__(self, "dialogs/create_folder", "CreateFolder")
+        Gtk.Box.__init__(self)
+        GtkTemplateHelper.__init__(self, "Create Folder")
 
-        self.folder_name = self.get_widget("folder_name")
         self.textview = rabbitvcs.ui.widget.TextView(
-            self.get_widget("log_message"), _("Added a folder to the repository")
+            self.log_message, _("Added a folder to the repository")
         )
-        self.on_folder_name_changed(self.folder_name)
 
+    @Gtk.Template.Callback()
     def on_folder_name_changed(self, widget):
         complete = widget.get_text() != ""
-        self.get_widget("ok").set_sensitive(complete)
+        self.set_ok_sensitive(complete)
 
-    def run(self):
-        dialog = self.get_widget("CreateFolder")
-        dialog.set_default_response(Gtk.ResponseType.OK)
-        result = dialog.run()
+    def run(self, parent, on_response):
+        GtkTemplateHelper.run(self, parent, on_response)
 
+        self.on_folder_name_changed(self.folder_name)
+
+    def get_values(self):
         fields_text = (self.folder_name.get_text(), self.textview.get_text())
 
-        dialog.destroy()
-
-        if result == Gtk.ResponseType.OK:
-            return fields_text
-        else:
-            return None
+        return fields_text
 
 
-class ErrorNotification(InterfaceView):
+@Gtk.Template(filename=f"{os.path.dirname(os.path.abspath(__file__))}/xml/dialogs/error_notification.xml")
+class ErrorNotification(Gtk.Box, GtkTemplateHelper):
+    __gtype_name__ = "ErrorNotification"
+
+    notice_box = Gtk.Template.Child()
+    error_text = Gtk.Template.Child()
+
     def __init__(self, text):
-        InterfaceView.__init__(self, "dialogs/error_notification", "ErrorNotification")
+        Gtk.Box.__init__(self)
+        GtkTemplateHelper.__init__(self, "Error")
 
         notice = rabbitvcs.ui.wraplabel.WrapLabel(ERROR_NOTICE)
         notice.set_use_markup(True)
 
-        notice_box = rabbitvcs.ui.widget.Box(self.get_widget("notice_box"))
+        notice_box = rabbitvcs.ui.widget.Box(self.notice_box)
         notice_box.pack_start(notice, True, True, 0)
-        notice_box.show_all()
 
         self.textview = rabbitvcs.ui.widget.TextView(
-            self.get_widget("error_text"), text, spellcheck=False
+            self.error_text, text, spellcheck=False
         )
 
-        self.textview.view.modify_font(Pango.FontDescription("monospace"))
+        self.textview.view.set_monospace(True)
 
-        dialog = self.get_widget("ErrorNotification")
-        dialog.run()
-        dialog.destroy()
+    def run(self, parent, on_response):
+        self.exec_dialog(parent, self, on_response_callback=on_response, show_cancel=False)
 
 
-class NameEmailPrompt(InterfaceView):
+@Gtk.Template(filename=f"{os.path.dirname(os.path.abspath(__file__))}/xml/dialogs/name_email_prompt.xml")
+class NameEmailPrompt(Gtk.Box, GtkTemplateHelper):
+    __gtype_name__ = "NameEmailPrompt"
+
+    name = Gtk.Template.Child()
+    email = Gtk.Template.Child()
+
     def __init__(self):
-        InterfaceView.__init__(self, "dialogs/name_email_prompt", "NameEmailPrompt")
+        Gtk.Box.__init__(self)
+        GtkTemplateHelper.__init__(self, "Name and Email")
 
-        self.dialog = self.get_widget("NameEmailPrompt")
+        keycontroller = Gtk.EventControllerKey()
+        keycontroller.connect("key-released", self._on_key_release_event)
+        self.add_controller(keycontroller)
 
-    def on_key_release_event(self, widget, event, *args):
+    def _on_key_release_event(self, controller, keyval, keycode, state):
         # The Gtk.Dialog.response() method emits the "response" signal,
         # which tells Gtk.Dialog.run() asyncronously to stop.  This allows the
         # user to press the "Return" button when done writing in the new text
-        if Gdk.keyval_name(event.keyval) == "Return":
-            self.dialog.response(Gtk.ResponseType.OK)
+        if self.message_dialog is not None and keyval == Gdk.keyval_from_name("Escape"):
+            self.reject_message_dialog()
 
-    def run(self):
-        result = self.dialog.run()
-        name = self.get_widget("name").get_text()
-        email = self.get_widget("email").get_text()
-        self.dialog.destroy()
+    def run(self, parent, on_response):
+        self.exec_dialog(parent, self, on_response_callback=on_response)
+        self.message_dialog.set_focus(self.name)
 
-        if result == Gtk.ResponseType.OK:
-            return (name, email)
-        else:
-            return (None, None)
+    def get_values(self):
+        name = self.name.get_text()
+        email = self.email.get_text()
+
+        return (name, email)
 
 
-class MarkResolvedPrompt(InterfaceView):
+@Gtk.Template(filename=f"{os.path.dirname(os.path.abspath(__file__))}/xml/dialogs/mark_resolved_prompt.xml")
+class MarkResolvedPrompt(Gtk.Box, GtkTemplateHelper):
+    __gtype_name__ = "MarkResolvedPrompt"
+
     def __init__(self):
-        InterfaceView.__init__(
-            self, "dialogs/mark_resolved_prompt", "MarkResolvedPrompt"
-        )
+        Gtk.Box.__init__(self)
+        GtkTemplateHelper.__init__(self, "Mark Resolved")
 
-    def run(self):
-        self.dialog = self.get_widget("MarkResolvedPrompt")
-        result = self.dialog.run()
-        self.dialog.destroy()
-        return result
+    def run(self, parent, on_response=None):
+        self.exec_dialog(parent, self, on_response_callback=on_response, yes_no=True)
 
 
-class ConflictDecision(InterfaceView):
+@Gtk.Template(filename=f"{os.path.dirname(os.path.abspath(__file__))}/xml/dialogs/conflict_decision.xml")
+class ConflictDecision(Gtk.Box, GtkTemplateHelper):
     """
     Provides a dialog to make conflict decisions with.  User can accept mine,
     accept theirs, or edit conflicts.
 
     """
+    __gtype_name__ = "ConflictDecision"
 
-    def __init__(self, filename=""):
+    filename = Gtk.Template.Child()
 
-        InterfaceView.__init__(self, "dialogs/conflict_decision", "ConflictDecision")
-        self.get_widget("filename").set_text(S(filename).display())
+    def __init__(self, filename="(unknown)"):
+        Gtk.Box.__init__(self)
+        GtkTemplateHelper.__init__(self, "Edit Conflicts")
+        self.filename.set_text(S(filename).display())
 
-    def run(self):
-        """
+    def exec_dialog(self, parent, content, on_response_callback = None):
+        if adwaita_available:
+            dialog = Adw.MessageDialog(transient_for = parent)
+            dialog.set_heading(self.gtktemplate_id)
+            dialog.set_extra_child(content)
+            dialog.add_response("mine", "Mine")
+            dialog.add_response("theirs", "Theirs")
+            dialog.add_response("edit", "Edit")
+            dialog.add_response("cancel", "Cancel")
+            dialog.connect("response", self.on_adw_dialog_response)
+        else:
+            dialog = Gtk.MessageDialog(transient_for = parent)
+            dialog.set_title(self.gtktemplate_id)
+            dialog.set_modal(True)
+            dialog.add_buttons(
+                "_Mine", 0,
+                "_Theirs", 1,
+                "_Edit", 2,
+                "_Cancel", Gtk.ResponseType.CANCEL)
+            dialog.connect("response", self.on_gtk_dialog_response)
+            area = dialog.get_content_area()
+            area.set_margin_top(12)
+            area.set_margin_end(12)
+            area.set_margin_bottom(12)
+            area.set_margin_start(12)
+            area.append(content)
 
-        The first has three possible values about how to resolve the conflict.
+        self.on_response_callback = on_response_callback
 
-            - -1  Cancel
-            - 0   Accept Mine
-            - 1   Accept Theirs
-            - 2   Merge Manually
+        dialog.set_size_request(550, 0)
+        dialog.show()
+
+        self.message_dialog = dialog
+
+    def on_adw_dialog_response(self, dialog, response):
+        if self.on_response_callback is not None:
+            response_id = Gtk.ResponseType.CANCEL
+            if response == "mine":
+                response_id = 0
+            elif response == "theirs":
+                response_id = 1
+            elif response == "edit":
+                response_id = 2
+            elif response == "cancel":
+                response_id = Gtk.ResponseType.CANCEL
+            if self.on_response_callback:
+                self.on_response_callback(response_id)
+
+    def on_gtk_dialog_response(self, dialog, response_id):
+        if self.on_response_callback:
+            self.on_response_callback(response_id)
+
+        dialog.destroy()
 
 
-        """
+@Gtk.Template(filename=f"{os.path.dirname(os.path.abspath(__file__))}/xml/dialogs/loading.xml")
+class Loading(Gtk.Box, GtkTemplateHelper):
+    __gtype_name__ = "Loading"
 
-        self.dialog = self.get_widget("ConflictDecision")
-        result = self.dialog.run()
-        self.dialog.destroy()
-        return result
+    pbar = Gtk.Template.Child()
 
+    def __init__(self, parent=None):
+        Gtk.Box.__init__(self)
+        GtkTemplateHelper.__init__(self, "Loading")
 
-class Loading(InterfaceView):
-    def __init__(self):
-        InterfaceView.__init__(self, "dialogs/loading", "Loading")
+        self._pbar = rabbitvcs.ui.widget.ProgressBar(self.pbar)
+        self._pbar.start_pulsate()
 
-        self.get_widget("loading_cancel").set_sensitive(False)
+    def run(self, parent, response):
+        self.exec_dialog(parent, self, response, show_ok=False)
 
-        self.pbar = rabbitvcs.ui.widget.ProgressBar(self.get_widget("pbar"))
-        self.pbar.start_pulsate()
+app = None
 
-    def on_destroy(self, widget):
-        self.close()
+def dummy_response(response):
+    # just quit the application
+    app.quit()
 
-    def on_loading_cancel_clicked(self, widget):
-        self.close()
+def dialog_factory(paths, dialog_type, parent):
+    guess = rabbitvcs.vcs.guess(paths[0])
+    dialog = None
 
-    def run(self):
-        self.dialog = self.get_widget("Loading")
-        self.dialog.run()
+    if dialog_type.casefold() == "previousmessage":
+        dialog = PreviousMessages(None)
+    elif dialog_type.casefold() == "certificate":
+        dialog = Certificate()
+    elif dialog_type.casefold() == "authentication":
+        dialog = Authentication()
+    elif dialog_type.casefold() == "cert_authentication":
+        dialog = CertAuthentication()
+    elif dialog_type.casefold() == "sslclientcertprompt":
+        dialog = SSLClientCertPrompt()
+    # elif dialog_type.casefold() == "property":
+    #     dialog = Property()
+    elif dialog_type.casefold() == "confirmation":
+        dialog = Confirmation(dummy_response, parent=parent)
+    elif dialog_type.casefold() == "messagebox":
+        dialog = MessageBox(dummy_response, parent=parent)
+    elif dialog_type.casefold() == "delete_confirmation":
+        dialog = DeleteConfirmation(dummy_response, parent=parent)
+    elif dialog_type.casefold() == "text_change":
+        dialog = TextChange()
+    elif dialog_type.casefold() == "one_line_text_change":
+        dialog = OneLineTextChange()
+    elif dialog_type.casefold() == "new_folder":
+        dialog = NewFolder()
+    elif dialog_type.casefold() == "error_notification":
+        dialog = ErrorNotification("dummy text")
+    elif dialog_type.casefold() == "name_email_prompt":
+        dialog = NameEmailPrompt()
+    elif dialog_type.casefold() == "mark_resolved":
+        dialog = MarkResolvedPrompt()
+    elif dialog_type.casefold() == "conflict_decision":
+        dialog = ConflictDecision()
+    elif dialog_type.casefold() == "loading":
+        dialog = Loading()
 
-    def destroy(self):
-        self.dialog.destroy()
+    return dialog
+
+def on_activate(app):
+    from rabbitvcs.ui import main, BASEDIR_OPT
+
+    (options, paths) = main(
+        [ (["-d", "--dialog"], {"default": "certificate"}) ],
+        usage="Usage: rabbitvcs dialog [dialog_name] [url_or_path]"
+    )
+
+    parent = Gtk.Window()
+    app.add_window(parent)
+
+    window = dialog_factory(paths, options.dialog, parent)
+
+    do_not_run = [Confirmation, MessageBox, DeleteConfirmation]
+    if window and type(window) not in do_not_run:
+        window.run(parent, dummy_response)
+
+if __name__ == "__main__":
+    app = Adw.Application() if adwaita_available else Gtk.Application()
+
+    app.connect('activate', on_activate)
+    app.run()

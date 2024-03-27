@@ -8,7 +8,7 @@ import rabbitvcs.ui.action
 import rabbitvcs.ui.dialog
 import rabbitvcs.ui.widget
 from rabbitvcs.util.contextmenu import GtkFilesContextMenu, GtkContextMenuCaller
-from rabbitvcs.ui import InterfaceView
+from rabbitvcs.ui import GtkTemplateHelper
 from gi.repository import Gtk, GObject, Gdk
 
 #
@@ -41,7 +41,7 @@ from rabbitvcs.util import helper
 
 import gi
 
-gi.require_version("Gtk", "3.0")
+gi.require_version("Gtk", "4.0")
 sa = helper.SanitizeArgv()
 sa.restore()
 
@@ -57,13 +57,34 @@ log = Log("rabbitvcs.ui.revert")
 
 _ = gettext.gettext
 
+@Gtk.Template(filename=f"{os.path.dirname(os.path.abspath(__file__))}/xml/revert.xml")
+class RevertWidget(Gtk.Box):
+    __gtype_name__ = "RevertWidget"
 
-class Revert(InterfaceView, GtkContextMenuCaller):
+    status = Gtk.Template.Child()
+    files_table = Gtk.Template.Child()
+    select_all = Gtk.Template.Child()
+
+    def __init__(self):
+        Gtk.Box.__init__(self)
+
+
+class Revert(GtkTemplateHelper, GtkContextMenuCaller):
 
     TOGGLE_ALL = True
 
     def __init__(self, paths, base_dir=None):
-        InterfaceView.__init__(self, "revert", "Revert")
+        GtkTemplateHelper.__init__(self, "Revert")
+
+        self.widget = RevertWidget()
+        self.window = self.get_window(self.widget)
+        # add dialog buttons
+        self.ok = self.add_dialog_button("Revert", self.on_ok_clicked, suggested=True)
+        self.cancel = self.add_dialog_button("Cancel", self.on_cancel_clicked, hideOnAdwaita=True)
+        # forward signals
+        self.widget.select_all.connect("toggled", self.on_select_all_toggled)
+        # set window properties
+        self.window.set_default_size(450, 300)
 
         self.paths = paths
         self.base_dir = base_dir
@@ -73,7 +94,7 @@ class Revert(InterfaceView, GtkContextMenuCaller):
 
         self.statuses = self.vcs.statuses_for_revert(paths)
         self.files_table = rabbitvcs.ui.widget.Table(
-            self.get_widget("files_table"),
+            self.widget.files_table,
             [
                 GObject.TYPE_BOOLEAN,
                 rabbitvcs.ui.widget.TYPE_HIDDEN_OBJECT,
@@ -100,11 +121,11 @@ class Revert(InterfaceView, GtkContextMenuCaller):
         return True
 
     def load(self):
-        self.get_widget("status").set_text(_("Loading..."))
+        self.widget.status.set_text(_("Loading..."))
         self.items = self.vcs.get_items(self.paths, self.statuses)
 
         self.populate_files_table()
-        self.get_widget("status").set_text(_("Found %d item(s)") % len(self.items))
+        self.widget.status.set_text(_("Found %d item(s)") % len(self.items))
 
     def populate_files_table(self):
         self.files_table.clear()
@@ -136,13 +157,14 @@ class Revert(InterfaceView, GtkContextMenuCaller):
         paths = self.files_table.get_selected_row_items(1)
         helper.launch_diff_tool(*paths)
 
-    def on_files_table_key_event(self, treeview, event, *args):
-        if Gdk.keyval_name(event.keyval) == "Delete":
-            self.delete_items(treeview, event)
+    def on_files_table_key_event(self, controller, keyval, keycode, state, pressed):
+        if Gdk.keyval_name(keyval) == "Delete":
+            self.delete_items()
 
-    def on_files_table_mouse_event(self, treeview, event, *args):
-        if event.button == 3 and event.type == Gdk.EventType.BUTTON_RELEASE:
-            self.show_files_table_popup_menu(treeview, event)
+    def on_files_table_mouse_event(self, gesture, n_press, x, y, pressed):
+        if gesture.get_current_button() == 3 and type == Gdk.EventType.BUTTON_RELEASE:
+            # self.show_files_table_popup_menu(treeview, event) todo
+            pass
 
     def show_files_table_popup_menu(self, treeview, event):
         paths = self.files_table.get_selected_row_items(1)
@@ -158,12 +180,12 @@ class SVNRevert(Revert):
     def on_ok_clicked(self, widget):
         items = self.files_table.get_activated_rows(1)
         if not items:
-            self.close()
+            self.window.close()
             return
-        self.hide()
+        self.window.hide()
 
         self.action = rabbitvcs.ui.action.SVNAction(
-            self.vcs.svn(), register_gtk_quit=self.gtk_quit_is_set()
+            self.vcs.svn()
         )
 
         self.action.append(self.action.set_header, _("Revert"))
@@ -172,6 +194,8 @@ class SVNRevert(Revert):
         self.action.append(self.action.set_status, _("Completed Revert"))
         self.action.append(self.action.finish)
         self.action.schedule()
+
+        self.window.close()
 
 
 class GitRevert(Revert):
@@ -190,12 +214,12 @@ class GitRevert(Revert):
     def on_ok_clicked(self, widget):
         items = self.files_table.get_activated_rows(1)
         if not items:
-            self.close()
+            self.window.close()
             return
-        self.hide()
+        self.window.set_visible(False)
 
         self.action = rabbitvcs.ui.action.GitAction(
-            self.git, register_gtk_quit=self.gtk_quit_is_set()
+            self.git
         )
 
         self.action.append(self.action.set_header, _("Revert"))
@@ -204,6 +228,8 @@ class GitRevert(Revert):
         self.action.append(self.action.set_status, _("Completed Revert"))
         self.action.append(self.action.finish)
         self.action.schedule()
+
+        self.window.close()
 
 
 class SVNRevertQuiet(object):
@@ -238,7 +264,7 @@ def revert_factory(classes_map, paths, base_dir=None):
     return classes_map[guess["vcs"]](paths, base_dir)
 
 
-if __name__ == "__main__":
+def on_activate(app):
     from rabbitvcs.ui import main, BASEDIR_OPT, QUIET_OPT
 
     (options, paths) = main(
@@ -248,6 +274,10 @@ if __name__ == "__main__":
     if options.quiet:
         revert_factory(quiet_classes_map, paths)
     else:
-        window = revert_factory(classes_map, paths, options.base_dir)
-        window.register_gtk_quit()
-        Gtk.main()
+        widget = revert_factory(classes_map, paths, options.base_dir)
+        app.add_window(widget.window)
+        widget.window.set_visible(True)
+
+if __name__ == "__main__":
+    GtkTemplateHelper.run_application(on_activate)
+

@@ -31,16 +31,17 @@ import rabbitvcs.vcs
 import rabbitvcs.util
 import rabbitvcs.ui.dialog
 import rabbitvcs.ui.widget
-from rabbitvcs.ui import InterfaceView
+from rabbitvcs.ui import GtkTemplateHelper
 from gi.repository import Gtk, GObject, Gdk
 import threading
 
+import os
 from os.path import basename
 
 import shutil
 import gi
 
-gi.require_version("Gtk", "3.0")
+gi.require_version("Gtk", "4.0")
 
 
 _ = gettext.gettext
@@ -50,17 +51,14 @@ helper.gobject_threads_init()
 log = Log("rabbitvcs.ui.action")
 
 
-class VCSNotifier(InterfaceView):
+class VCSNotifier(GtkTemplateHelper):
     """
     Provides a base class to handle threaded/gtk_unsafe calls to our vcs
 
     """
 
-    def __init__(self, callback_cancel=None, visible=True):
-        InterfaceView.__init__(self)
-
-        if visible:
-            self.show()
+    def __init__(self, callback_cancel=None):
+        GtkTemplateHelper.__init__(self)
 
         self.callback_cancel = callback_cancel
         self.was_canceled_by_user = False
@@ -80,6 +78,8 @@ class VCSNotifier(InterfaceView):
 
 
 class DummyNotifier(object):
+    window = None
+    
     def __init__(self):
         pass
 
@@ -95,14 +95,27 @@ class DummyNotifier(object):
         MessageBox(str(e))
 
 
+@Gtk.Template(filename=f"{os.path.dirname(os.path.abspath(__file__))}/xml/notification.xml")
+class MessageCallbackNotifierWidget(Gtk.Grid):
+    __gtype_name__ = "MessageCallbackNotifierWidget"
+
+    table = Gtk.Template.Child()
+    pbar = Gtk.Template.Child()
+    action = Gtk.Template.Child()
+    status = Gtk.Template.Child()
+
+    def __init__(self):
+        Gtk.Grid.__init__(self)
+
 class MessageCallbackNotifier(VCSNotifier):
     """
     Provides an interface to handle the Notification UI.
 
     """
 
-    gtkbuilder_filename = "notification"
-    gtkbuilder_id = "Notification"
+    gtktemplate_id = "Notification"
+    canceled = False
+    finished = False
 
     def __init__(self, callback_cancel=None, visible=True, client_in_same_thread=True):
         """
@@ -114,31 +127,44 @@ class MessageCallbackNotifier(VCSNotifier):
 
         """
 
-        VCSNotifier.__init__(self, callback_cancel, visible)
+        VCSNotifier.__init__(self, callback_cancel)
+
+        self.widget = MessageCallbackNotifierWidget()
+        self.window = self.get_window(self.widget)
+        self.window.set_size_request(740, -1)
+        self.window.set_visible(visible)
+        # add dialog buttons
+        self.ok = self.add_dialog_button("Ok", self.on_ok_clicked, suggested=True)
+        self.cancel = self.add_dialog_button("Cancel", self.on_cancel_clicked)
+        self.saveas = self.add_dialog_button("Save As", self.on_saveas_clicked)
+        self.saveas.set_icon_name("document-save-as")
+
+
+        self.register_window()
 
         self.client_in_same_thread = client_in_same_thread
 
         self.table = rabbitvcs.ui.widget.Table(
-            self.get_widget("table"),
+            self.widget.table,
             [GObject.TYPE_STRING, GObject.TYPE_STRING, GObject.TYPE_STRING],
             [_("Action"), _("Path"), _("Mime Type")],
         )
 
-        self.pbar = rabbitvcs.ui.widget.ProgressBar(self.get_widget("pbar"))
-        self.pbar.start_pulsate()
-        self.finished = False
+        self.widget.pbar = rabbitvcs.ui.widget.ProgressBar(self.widget.pbar)
+        self.widget.pbar.start_pulsate()
+        self.widget.finished = False
 
     def on_destroy(self, widget):
         if self.callback_cancel is not None:
             self.callback_cancel()
 
         self.canceled = True
-        self.close()
+        self.window.close()
 
     def on_cancel_clicked(self, widget):
 
         if self.canceled or self.finished:
-            self.close()
+            self.window.close()
 
         if self.callback_cancel is not None:
             self.callback_cancel()
@@ -146,59 +172,52 @@ class MessageCallbackNotifier(VCSNotifier):
         self.canceled = True
 
     def on_ok_clicked(self, widget):
-        self.close()
+        self.window.close()
 
     @gtk_unsafe
     def toggle_ok_button(self, sensitive):
         self.finished = True
-        self.get_widget("ok").set_sensitive(sensitive)
-        self.get_widget("saveas").set_sensitive(sensitive)
+        self.ok.set_sensitive(sensitive)
+        self.saveas.set_sensitive(sensitive)
 
     @gtk_unsafe
     def append(self, entry):
         self.table.append(entry)
         self.table.scroll_to_bottom()
 
-    def get_title(self):
-        return self.get_widget("Notification").get_title()
-
-    @gtk_unsafe
-    def set_title(self, title):
-        self.get_widget("Notification").set_title(title)
-
     @gtk_unsafe
     def set_header(self, header):
-        self.set_title(header)
+        self.window.set_title(header)
 
-        self.get_widget("action").set_markup(
+        self.widget.action.set_markup(
             '<span size="xx-large"><b>%s</b></span>' % header
         )
 
     @gtk_unsafe
     def focus_on_ok_button(self):
-        self.get_widget("ok").grab_focus()
+        self.ok.grab_focus()
 
     def exception_callback(self, e):
         self.append(["", str(e), ""])
 
     def on_saveas_clicked(self, widget):
-        self.saveas()
+        self.save_as()
 
     @gtk_unsafe
     def enable_saveas(self):
-        self.get_widget("saveas").set_sensitive(True)
+        self.saveas.set_sensitive(True)
 
     @gtk_unsafe
     def disable_saveas(self):
-        self.get_widget("saveas").set_sensitive(False)
+        self.saveas.set_sensitive(False)
 
-    def saveas(self, path=None):
+    def save_as(self, path=None):
         if path is None:
             from rabbitvcs.ui.dialog import FileSaveAs
 
-            dialog = FileSaveAs()
-            path = dialog.run()
+            dialog = FileSaveAs(parent=self.window, callback=self.save_callback)
 
+    def save_callback(self, path):
         if path is not None:
             fh = open(path, "w")
             fh.write(self.table.generate_string_from_data())
@@ -207,35 +226,32 @@ class MessageCallbackNotifier(VCSNotifier):
 
 class LoadingNotifier(VCSNotifier):
 
-    gtkbuilder_filename = "dialogs/loading"
-    gtkbuilder_id = "Loading"
+    gtktemplate_id = "Loading"
 
     def __init__(self, callback_cancel=None, visible=True):
 
-        VCSNotifier.__init__(self, callback_cancel, visible)
+        VCSNotifier.__init__(self, callback_cancel)
 
-        self.pbar = rabbitvcs.ui.widget.ProgressBar(self.get_widget("pbar"))
+
+        self.widget = rabbitvcs.ui.dialog.LoadingWidget()
+        self.window = self.get_window(self.widget)
+        self.window.set_size_request(300, -1)
+        self.window.set_visible(visible)
+        # add dialog buttons
+        self.loading_cancel = self.add_dialog_button("Cancel", self.on_loading_cancel_clicked, suggested=True)
+
+        self.pbar = rabbitvcs.ui.widget.ProgressBar(self.widget.pbar)
         self.pbar.start_pulsate()
-
-    def on_destroy(self, widget):
-        self.close()
 
     def on_loading_cancel_clicked(self, widget):
         self.set_canceled_by_user(True)
         if self.callback_cancel is not None:
             self.callback_cancel()
 
-        self.close()
-
-    def get_title(self):
-        return self.get_widget("Loading").get_title()
-
-    @gtk_unsafe
-    def set_title(self, title):
-        self.get_widget("Loading").set_title(title)
+        self.window.close()
 
     def set_header(self, header):
-        self.set_title(header)
+        self.window.set_title(header)
 
     @gtk_unsafe
     def exception_callback(self, e):
@@ -320,7 +336,7 @@ class VCSAction(threading.Thread):
         """
 
         if self.has_notifier:
-            self.notification.pbar.update(fraction)
+            self.notification.widget.pbar.update(fraction)
 
     def set_header(self, header):
         self.notification.set_header(header)
@@ -362,13 +378,18 @@ class VCSAction(threading.Thread):
         if self.has_notifier:
             self.notification.append(["", _("Finished"), ""])
             self.notification.focus_on_ok_button()
-            title = self.notification.get_title()
-            self.notification.set_title(_("%s - Finished") % title)
+            title = self.notification.window.get_title()
+            self.notification.window.set_title(_("%s - Finished") % title)
             self.set_status(message)
-            self.notification.pbar.stop_pulsate()
-            self.notification.pbar.update(1)
+            self.notification.widget.pbar.stop_pulsate()
+            self.notification.widget.pbar.update(1)
             self.notification.toggle_ok_button(True)
 
+    def show_text_change_dialog(self):
+        dial = rabbitvcs.ui.dialog.TextChange(_("Log Message"), "message")
+        dial.register_window()
+        dial.window.set_visible(True)
+        
     def get_log_message(self):
         """
         A callback method that retrieves a supplied log message.
@@ -390,10 +411,11 @@ class VCSAction(threading.Thread):
             settings = rabbitvcs.util.settings.SettingsManager()
             message = settings.get_multiline("general", "default_commit_message")
             result = helper.run_in_main_thread(
-                lambda: rabbitvcs.ui.dialog.TextChange(_("Log Message"), message).run()
+                lambda: self.show_text_change_dialog()
             )
-            should_continue = result[0] == Gtk.ResponseType.OK
-            message = result[1]
+
+            should_continue = False
+            message = ""
         if isinstance(message, bytes):
             message = message.decode()
         if not should_continue:
@@ -544,7 +566,7 @@ class VCSAction(threading.Thread):
         """
 
         if message is not None:
-            self.notification.get_widget("status").set_text(S(message).display())
+            self.notification.widget.status.set_text(S(message).display())
 
     def append(self, func, *args, **kwargs):
         """
@@ -582,8 +604,8 @@ class VCSAction(threading.Thread):
             self.stop()
 
     def stop(self):
-        if self.notification:
-            self.notification.close()
+        if self.notification and self.notification.window:
+            self.notification.window.close()
 
     def run(self):
         """
@@ -593,7 +615,7 @@ class VCSAction(threading.Thread):
         """
 
         if self.has_loader:
-            self.queue.append(self.notification.close, threaded=True)
+            self.queue.append(self.notification.window.close)
 
         self.queue.set_exception_callback(self.__queue_exception_callback)
         self.queue.start()
@@ -653,7 +675,7 @@ class SVNAction(VCSAction):
                 frac = self.pbar_ticks_current / self.pbar_ticks
                 if frac > 1:
                     frac = 1
-                self.notification.pbar.update(frac)
+                self.notification.widget.pbar.update(frac)
 
             is_known_action = False
             if data["action"] in self.client.NOTIFY_ACTIONS:
