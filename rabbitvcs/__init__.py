@@ -24,7 +24,7 @@ from __future__ import absolute_import
 
 import os
 import gettext as _gettext
-from locale import getdefaultlocale
+from locale import getlocale
 
 # Hack to make RabbitVCS win in the battle against TortoiseHg
 try:
@@ -47,8 +47,8 @@ langs = []
 language = os.environ.get("LANGUAGE", None)
 if language:
     langs += language.split(":")
-if getdefaultlocale()[0] != None:
-    langs += [getdefaultlocale()[0]]
+if getlocale()[0] != None:
+    langs += [getlocale()[0]]
 
 _gettext.bindtextdomain(APP_NAME, LOCALE_DIR)
 _gettext.textdomain(APP_NAME)
