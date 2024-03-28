@@ -614,7 +614,7 @@ class SVNLog(Log):
                     )
 
                     if subitem.copy_from_path or subitem.copy_from_revision:
-                        text += " (Copied from %s %s)" % (
+                        text += " " + _("(Copied from %s r%s)") % (
                             S(subitem.copy_from_path).display(),
                             S(subitem.copy_from_revision).display(),
                         )
