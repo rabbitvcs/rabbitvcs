@@ -225,7 +225,7 @@ class GtkContextMenu(MenuBuilder):
     def show(self, event):
         if self.menu.get_children():
             self.menu.show_all()
-            self.menu.popup(None, None, None, None, event.button, event.time)
+            self.menu.popup_at_pointer(event)
 
     def get_widget(self):
         return self.menu
