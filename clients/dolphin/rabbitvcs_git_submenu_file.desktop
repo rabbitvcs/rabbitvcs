@@ -1,6 +1,7 @@
 [Desktop Entry]
 Type=Service
 ServiceTypes=KonqPopupMenu/Plugin,application/octet-stream
+MimeType=application/octet-stream
 Actions=Checkout;Commit;_SEPARATOR_;Changes;Log;_SEPARATOR_;EditConflicts;Rename;Delete;Revert;Clean;Reset;_SEPARATOR_;Branches;Tags;Remotes;_SEPARATOR_;Export;Merge;_SEPARATOR_;Annotate;_SEPARATOR_;ApplyPatch;_SEPARATOR_;CreatePatch;Stage;Ignore;_SEPARATOR_;Settings;About;
 Icon=/usr/share/icons/hicolor/scalable/actions/rabbitvcs.svg
 
