@@ -155,8 +155,7 @@ codecs.register_error(SURROGATE_ESCAPE, rabbitvcs_surrogate_escape)
 
 class S(str):
     """
-    Stores a string in native form: unicode with surrogates in Python 3 and
-        utf-8 in Python 2.
+    Stores a string in native form: unicode with surrogates in Python 3
     Provides the following methods:
     encode: overloaded to use UTF8_ENCODING and SURROGATE_ESCAPE error handler.
     decode: overloaded to use UTF8_ENCODING and SURROGATE_ESCAPE error handler.
@@ -165,58 +164,26 @@ class S(str):
     display: get the string in native form, without surrogates.
     """
 
-    if str == bytes:
-        # Python 2.
-        def __new__(cls, value, encoding=UTF8_ENCODING, errors=SURROGATE_ESCAPE):
-            if isinstance(value, bytearray):
-                value = bytes(value)
-            if isinstance(value, str):
-                encoding, errors = S._codeargs(encoding, errors)
-                if encoding.lower() != UTF8_ENCODING:
-                    value = value.decode(encoding, errors)
-            if isinstance(value, str):
-                value = value.encode(UTF8_ENCODING, SURROGATE_ESCAPE)
-            elif not isinstance(value, str):
-                value = str(value)
-            return str.__new__(cls, value)
+    # Python 3.
+    def __new__(cls, value, encoding=UTF8_ENCODING, errors=SURROGATE_ESCAPE):
+        if isinstance(value, bytearray):
+            value = bytes(value)
+        if isinstance(value, bytes):
+            encoding, errors = S._codeargs(encoding, errors)
+            value = value.decode(encoding, errors)
+        elif not isinstance(value, str):
+            value = str(value)
+        return str.__new__(cls, value)
 
-        def encode(self, encoding=UTF8_ENCODING, errors=SURROGATE_ESCAPE):
-            encoding, errors = self._codeargs(encoding, errors)
-            if encoding.lower() == UTF8_ENCODING:
-                return str(self)
-            value = str.decode(self, UTF8_ENCODING, SURROGATE_ESCAPE)
-            return value.encode(encoding, errors)
+    def encode(self, encoding=UTF8_ENCODING, errors=SURROGATE_ESCAPE):
+        encoding, errors = self._codeargs(encoding, errors)
+        return str.encode(self, encoding, errors)
 
-        def decode(self, encoding=UTF8_ENCODING, errors=SURROGATE_ESCAPE):
-            encoding, errors = self._codeargs(encoding, errors)
-            return str.decode(self, encoding, errors)
+    def decode(self, encoding=UTF8_ENCODING, errors=SURROGATE_ESCAPE):
+        return str(self)
 
-        def display(self, encoding=None, errors="replace"):
-            encoding, errors = self._codeargs(encoding, errors)
-            value = str.decode(self, UTF8_ENCODING, errors)
-            return value.encode(encoding, errors)
-
-    else:
-        # Python 3.
-        def __new__(cls, value, encoding=UTF8_ENCODING, errors=SURROGATE_ESCAPE):
-            if isinstance(value, bytearray):
-                value = bytes(value)
-            if isinstance(value, bytes):
-                encoding, errors = S._codeargs(encoding, errors)
-                value = value.decode(encoding, errors)
-            elif not isinstance(value, str):
-                value = str(value)
-            return str.__new__(cls, value)
-
-        def encode(self, encoding=UTF8_ENCODING, errors=SURROGATE_ESCAPE):
-            encoding, errors = self._codeargs(encoding, errors)
-            return str.encode(self, encoding, errors)
-
-        def decode(self, encoding=UTF8_ENCODING, errors=SURROGATE_ESCAPE):
-            return str(self)
-
-        def display(self, encoding=None, errors="replace"):
-            return RE_SURROGATE.sub(chr(0xFFFD), self)
+    def display(self, encoding=None, errors="replace"):
+        return RE_SURROGATE.sub(chr(0xFFFD), self)
 
     def bytes(self, encoding=UTF8_ENCODING, errors=SURROGATE_ESCAPE):
         return self.encode(encoding, errors)
