@@ -33,6 +33,7 @@ from gi.repository import Gtk, GObject, Gdk
 #
 
 import os
+import _thread
 from time import sleep
 from rabbitvcs.util import helper
 

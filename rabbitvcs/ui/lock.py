@@ -32,6 +32,7 @@ from gi.repository import Gtk, GObject, Gdk
 #
 
 import os
+import _thread
 
 from rabbitvcs.util import helper
 

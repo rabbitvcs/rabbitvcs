@@ -33,6 +33,7 @@ from gi.repository import Gtk, GObject, Gdk
 
 from rabbitvcs.util import helper
 
+import _thread
 import gi
 
 gi.require_version("Gtk", "3.0")

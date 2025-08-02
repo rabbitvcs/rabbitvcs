@@ -30,6 +30,7 @@ from gi.repository import Gtk, GObject, Gdk
 #
 
 import os.path
+import _thread
 from datetime import datetime
 
 from rabbitvcs.util import helper
