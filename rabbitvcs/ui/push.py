@@ -1,4 +1,3 @@
-from __future__ import absolute_import
 import six
 from rabbitvcs import gettext
 import rabbitvcs.vcs
@@ -132,7 +131,7 @@ class GitPush(Push):
         repository = self.repository_selector.repository_opt.get_active_text()
         branch = self.repository_selector.branch_opt.get_active_text()
 
-        refspec = "refs/remotes/%s/%s" % (repository, branch)
+        refspec = "refs/remotes/{}/{}".format(repository, branch)
         self.push_log = self.git.log(
             revision=self.git.revision(refspec), showtype="push"
         )

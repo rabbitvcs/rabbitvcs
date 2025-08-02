@@ -1,5 +1,3 @@
-from __future__ import absolute_import
-
 #
 # This is an extension to the Nautilus file manager to allow better
 # integration with the Subversion source control system.
@@ -55,7 +53,7 @@ _gettext.textdomain(APP_NAME)
 current_translation = None
 
 
-class gettext(object):
+class gettext:
     @staticmethod
     def set_language(langs):
         global current_translation
@@ -102,7 +100,7 @@ def package_identifier():
     Return a package identifier suitable for use in a package file.
 
     """
-    return "%s-%s" % (package_name(), package_version())
+    return "{}-{}".format(package_name(), package_version())
 
 
 def package_prefix():

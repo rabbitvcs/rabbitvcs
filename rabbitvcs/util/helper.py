@@ -25,7 +25,6 @@
 All sorts of helper functions.
 
 """
-from __future__ import absolute_import
 
 from collections import deque
 import locale
@@ -44,8 +43,6 @@ import codecs
 from gi.repository import GLib
 
 import six
-from six.moves import filter
-from six.moves import range
 import six.moves.urllib.parse
 
 from rabbitvcs.util.settings import *
@@ -79,7 +76,7 @@ DT_FORMAT_THISWEEK = _("%a %I:%M%p")
 DT_FORMAT_THISYEAR = _("%b %d")
 DT_FORMAT_ALL = _("%b %d %Y")
 
-LINE_BREAK_CHAR = six.unichr(0x23CE)
+LINE_BREAK_CHAR = chr(0x23CE)
 
 
 def compare_version(version1, version2, length=None):
@@ -108,7 +105,7 @@ def to_bytes(s, encoding=UTF8_ENCODING):
     """
     Convert string (whatever type it is) to bytes in the given encoding.
     """
-    if isinstance(s, six.text_type):
+    if isinstance(s, str):
         return S(s).bytes(encoding)
     if isinstance(s, bytearray):
         if encoding.lower() == UTF8_ENCODING:
@@ -152,7 +149,7 @@ def get_tmp_path(filename):
     if not os.path.isdir(tmpdir):
         os.mkdir(tmpdir)
 
-    return "%s/%s" % (tmpdir, filename)
+    return "{}/{}".format(tmpdir, filename)
 
 
 def process_memory(pid):
@@ -192,13 +189,13 @@ def format_long_text(text, cols=None, line1only=False):
     line. If the param "cols" is given, the text
     beyond cols is replaced by "...".
     """
-    text = S(text.strip()).unicode().replace(six.u("\n"), LINE_BREAK_CHAR)
+    text = S(text.strip()).unicode().replace("\n", LINE_BREAK_CHAR)
     if line1only:
         i = text.find(LINE_BREAK_CHAR)
         if i >= 0:
             text = text[:i]
     if cols and len(text) > cols:
-        text = six.u("%s...") % text[0:cols]
+        text = "%s..." % text[0:cols]
 
     return text
 
@@ -287,7 +284,7 @@ def get_repository_paths():
     returner = []
     paths_file = get_repository_paths_path()
     if os.path.exists(paths_file):
-        returner = [x.strip() for x in open(paths_file, "r").readlines()]
+        returner = [x.strip() for x in open(paths_file).readlines()]
 
     return returner
 
@@ -317,7 +314,7 @@ def get_previous_messages():
     if not os.path.exists(path):
         return
 
-    lines = open(path, "r").readlines()
+    lines = open(path).readlines()
 
     cur_entry = ""
     returner = []
@@ -352,7 +349,7 @@ def get_exclude_paths():
     if not os.path.exists(path):
         return []
 
-    f = open(path, "r")
+    f = open(path)
     paths = []
     for l in f:
         paths.append(l.strip())
@@ -396,7 +393,7 @@ def encode_revisions(revision_array):
         if start == last:
             result = "%s" % start
         else:
-            result = "%s-%s" % (start, last)
+            result = "{}-{}".format(start, last)
 
         list.append(result)
 
@@ -503,7 +500,7 @@ def launch_diff_tool(path1, path2=None):
     else:
         tmp_path = get_tmp_path(os.path.split(path1)[-1])
         os.popen(
-            "svn export --force -r BASE '%s' '%s'" % (path1, os.path.dirname(tmp_path))
+            "svn export --force -r BASE '{}' '{}'".format(path1, os.path.dirname(tmp_path))
         )
         (lhs, rhs) = (tmp_path, path1)
 
@@ -582,7 +579,7 @@ def open_item(path):
 
     for o in openers:
         for p in set(os.environ["PATH"].split(":")):
-            if os.path.exists("%s/%s" % (p, o)):
+            if os.path.exists("{}/{}".format(p, o)):
                 command = [o]
                 if o == "gio":
                     command.append("open")
@@ -685,10 +682,10 @@ def save_log_message(message):
     s = ""
     for m in messages:
         s = """\
--- %s --
-%s
-%s
-""" % (
+-- {} --
+{}
+{}
+""".format(
             m[0],
             m[1],
             s,
@@ -1249,10 +1246,10 @@ indirectly.
 """
 
 
-class SanitizeArgv(object):
+class SanitizeArgv:
     def __init__(self):
         self.argmap = None
-        if len(sys.argv) and isinstance(sys.argv[0], six.text_type):
+        if len(sys.argv) and isinstance(sys.argv[0], str):
             argmap = []
             newargv = []
             for arg in sys.argv:

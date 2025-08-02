@@ -20,7 +20,6 @@
 # along with RabbitVCS;  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from __future__ import division, absolute_import
 from rabbitvcs.util.log import Log
 from rabbitvcs import gettext
 from rabbitvcs.util.decorators import gtk_unsafe
@@ -79,7 +78,7 @@ class VCSNotifier(InterfaceView):
         pass
 
 
-class DummyNotifier(object):
+class DummyNotifier:
     def __init__(self):
         pass
 

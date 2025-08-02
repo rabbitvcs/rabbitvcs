@@ -1,4 +1,3 @@
-from __future__ import absolute_import
 from pprint import pformat
 from rabbitvcs.ui import STATUS_EMBLEMS
 from rabbitvcs.util.log import Log
@@ -9,7 +8,6 @@ from rabbitvcs.util._locale import get_locale
 from rabbitvcs.util import helper
 from rabbitvcs.util.decorators import gtk_unsafe
 from gi.repository import Gtk, Gdk, GObject, Pango
-from six.moves import range
 
 #
 # This is an extension to the Nautilus file manager to allow better
@@ -218,7 +216,7 @@ def compare_items(model, iter1, iter2, user_data=None):
         return 1
 
 
-class TableBase(object):
+class TableBase:
     def __init__(
         self,
         treeview,
@@ -829,7 +827,7 @@ class Tree(TableBase):
                 self.populate(node[1], root)
 
 
-class Box(object):
+class Box:
     def __init__(self, box=None, vertical=False, spacing=-1):
         if not box:
             box = Gtk.Grid()
@@ -917,7 +915,7 @@ class Box(object):
         return getattr(self.box, name)
 
 
-class ComboBox(object):
+class ComboBox:
     def __init__(self, cb, items=None, columns=1, textcolumn=0):
 
         self.cb = cb
@@ -974,7 +972,7 @@ class ComboBox(object):
         self.cb.get_child().connect(signal, callback, userdata)
 
 
-class TextView(object):
+class TextView:
     def __init__(self, widget=None, value="", spellcheck=True):
         if widget is None:
             self.view = Gtk.TextView()
@@ -1010,7 +1008,7 @@ class TextView(object):
         self.buffer.set_text(S(self.get_text() + text).display())
 
 
-class ProgressBar(object):
+class ProgressBar:
     def __init__(self, pbar):
         if pbar is None:
             self.view = Gtk.ProgressBar()
@@ -1048,7 +1046,7 @@ class ProgressBar(object):
         self.view.set_text(S(text).display())
 
 
-class Clickable(object):
+class Clickable:
     """
     Handle mouse button events for any click on an event-sensitive widget.
     Supports the following additional signals:
@@ -1144,7 +1142,7 @@ class Clickable(object):
         return getattr(self.widget, name)
 
 
-class RevisionSelector(object):
+class RevisionSelector:
     """
     Provides a standard way to generate a revision object from the UI.
 
@@ -1390,7 +1388,7 @@ class KeyValueTable(Gtk.Grid):
                       tuple is the key/label, and the second element is the
                       information
         """
-        super(KeyValueTable, self).__init__()
+        super().__init__()
         if stuff and len(stuff):
             row = 0
 
@@ -1417,7 +1415,7 @@ class KeyValueTable(Gtk.Grid):
         self.set_row_spacing(self.default_row_spacing)
 
 
-class GitRepositorySelector(object):
+class GitRepositorySelector:
     def __init__(self, container, git, changed_callback=None):
         self.git = git
         self.changed_callback = changed_callback
@@ -1518,7 +1516,7 @@ class GitRepositorySelector(object):
             )
 
 
-class GitBranchSelector(object):
+class GitBranchSelector:
     def __init__(self, container, git, changed_callback=None):
         self.git = git
         self.changed_callback = changed_callback
@@ -1562,7 +1560,7 @@ class GitBranchSelector(object):
         self.vbox.hide()
 
 
-class MultiFileTextEditor(object):
+class MultiFileTextEditor:
     """
     Edit a set of text/config/ignore files
     """
@@ -1657,7 +1655,7 @@ class MultiFileTextEditor(object):
 
     def load_file(self, path):
         if os.path.exists(path):
-            fh = open(path, "r")
+            fh = open(path)
             self.textview.set_text(S(fh.read()).display())
             fh.close()
         else:

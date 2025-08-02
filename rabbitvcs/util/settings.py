@@ -25,8 +25,6 @@
 Everything related retrieving and storing configuration keys.
 
 """
-from __future__ import absolute_import
-from __future__ import print_function
 
 __all__ = ['get_home_folder', 'SettingsManager']
 
@@ -86,13 +84,13 @@ def find_configspec():
         if os.path.exists(path):
             return path
 
-    raise IOError("Cannot find a configspec.ini file")
+    raise OSError("Cannot find a configspec.ini file")
 
 
 SETTINGS_SPEC = find_configspec()
 
 
-class SettingsManager(object):
+class SettingsManager:
     """
     This class provides an shallow interface for the rest of the program to use
     to interact with our configuration file.
@@ -161,7 +159,7 @@ class SettingsManager(object):
         try:
             returner = self.settings[section][keyword]
         except KeyError:
-            print("Error: section %s:%s doesn't exist" % (section, keyword))
+            print("Error: section {}:{} doesn't exist".format(section, keyword))
 
         return returner
 
@@ -274,7 +272,7 @@ class SettingsManager(object):
         try:
             returner = DEFAULT_SETTINGS[section][keyword]
         except KeyError:
-            print("Error: section %s:%s doesn't exist" % (section, keyword))
+            print("Error: section {}:{} doesn't exist".format(section, keyword))
 
         return returner
 
@@ -305,7 +303,7 @@ class SettingsManager(object):
                 try:
                     os.rename(SETTINGS_FILE, new_name)
                     created = True
-                except IOError:
+                except OSError:
                     # Paranoid again?
                     print("Could not back up user configuration.")
 

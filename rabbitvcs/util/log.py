@@ -39,7 +39,6 @@ Usage:
     log.debug("a debug message")
 
 """
-from __future__ import absolute_import
 
 import os
 from os.path import expanduser
@@ -84,7 +83,7 @@ FILE_FORMAT = "%(asctime)s %(levelname)s\t%(name)s\t%(message)s"
 CONSOLE_FORMAT = "%(levelname)s\t%(name)s\t%(message)s"
 
 
-class BaseLog(object):
+class BaseLog:
     """
     Provides a wrapper around the logging module to simplify some logging tasks.
     This base class should generally not be called.

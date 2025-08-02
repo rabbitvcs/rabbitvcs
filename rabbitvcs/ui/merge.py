@@ -1,4 +1,3 @@
-from __future__ import absolute_import
 from rabbitvcs import gettext
 from rabbitvcs.util.strings import S
 import rabbitvcs.util.settings
@@ -130,11 +129,11 @@ class SVNMerge(InterfaceView):
             ranges = []
             for r in revisions.split(","):
                 if r.find("-") != -1:
-                    (low, high) = [int(i) for i in r.split("-")]
+                    (low, high) = (int(i) for i in r.split("-"))
                     if low < high:
                         low -= 1
                 elif r.find(":") != -1:
-                    (low, high) = [int(i) for i in r.split(":")]
+                    (low, high) = (int(i) for i in r.split(":"))
                     if low < high:
                         low -= 1
                 else:

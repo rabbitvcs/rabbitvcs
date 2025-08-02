@@ -1,4 +1,3 @@
-from __future__ import absolute_import
 from rabbitvcs import gettext
 import rabbitvcs.vcs
 from rabbitvcs.util.log import Log
@@ -82,7 +81,7 @@ class GitUnstage(Add):
         self.action.schedule()
 
 
-class GitUnstageQuiet(object):
+class GitUnstageQuiet:
     def __init__(self, paths, base_dir=None):
         self.vcs = rabbitvcs.vcs.VCS()
         self.git = self.vcs.git(paths[0])

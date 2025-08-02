@@ -1,4 +1,3 @@
-from __future__ import absolute_import
 from rabbitvcs.util.strings import S
 import rabbitvcs.util.helper
 import rabbitvcs.ui.wraplabel
@@ -104,7 +103,7 @@ class PreviousMessages(InterfaceView):
             self.message.set_text(S(selected_message).display())
 
 
-class FolderChooser(object):
+class FolderChooser:
     def __init__(self):
         self.dialog = Gtk.FileChooserDialog(
             title=_("Select a Folder"),
@@ -148,7 +147,7 @@ class Certificate(InterfaceView):
         self.get_widget("cert_issuer").set_label(issuer)
         to_str = _("to")
         self.get_widget("cert_valid").set_label(
-            "%s %s %s" % (valid_from, to_str, valid_until)
+            "{} {} {}".format(valid_from, to_str, valid_until)
         )
         self.get_widget("cert_fingerprint").set_label(fingerprint)
 
@@ -293,7 +292,7 @@ class Property(InterfaceView):
         self.save_recurse = self.recurse.get_active()
 
 
-class FileChooser(object):
+class FileChooser:
     def __init__(self, title=_("Select a File"), folder=None):
         self.dialog = Gtk.FileChooserDialog(
             title=title, parent=None, action=Gtk.FileChooserAction.OPEN
@@ -313,7 +312,7 @@ class FileChooser(object):
         return returner
 
 
-class FileSaveAs(object):
+class FileSaveAs:
     def __init__(self, title=_("Save As..."), folder=None):
         self.dialog = Gtk.FileChooserDialog(
             title=title, parent=None, action=Gtk.FileChooserAction.SAVE

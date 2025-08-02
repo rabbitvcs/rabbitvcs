@@ -1,4 +1,3 @@
-from __future__ import absolute_import
 from rabbitvcs import gettext
 import rabbitvcs.ui.dialog
 import rabbitvcs.ui.widget

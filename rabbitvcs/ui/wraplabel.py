@@ -1,4 +1,3 @@
-from __future__ import absolute_import
 from rabbitvcs.util.strings import S
 from gi.repository import Gtk, GObject, Pango
 

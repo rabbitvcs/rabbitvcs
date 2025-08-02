@@ -1,4 +1,3 @@
-from __future__ import absolute_import
 from rabbitvcs import gettext
 import rabbitvcs.vcs.status
 from rabbitvcs.util.decorators import gtk_unsafe

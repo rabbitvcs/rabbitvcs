@@ -1,4 +1,3 @@
-from __future__ import absolute_import
 from rabbitvcs import gettext
 from rabbitvcs.util.decorators import gtk_unsafe
 from rabbitvcs.util.log import Log
@@ -282,7 +281,7 @@ class CheckRemoteModsContextMenuConditions(GtkFilesContextMenuConditions):
         return self.path_dict["exists"] and self.path_dict["length"] == 1
 
 
-class CheckRemoteModsContextMenuCallbacks(object):
+class CheckRemoteModsContextMenuCallbacks:
     def __init__(self, caller, base_dir, vcs, paths=[]):
         self.caller = caller
         self.base_dir = base_dir
@@ -310,7 +309,7 @@ class CheckRemoteModsContextMenuCallbacks(object):
         self.action.schedule()
 
 
-class CheckRemoteModsContextMenu(object):
+class CheckRemoteModsContextMenu:
     def __init__(self, caller, event, base_dir, vcs, paths=[]):
 
         self.caller = caller

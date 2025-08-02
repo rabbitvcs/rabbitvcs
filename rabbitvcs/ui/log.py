@@ -20,8 +20,6 @@
 # along with RabbitVCS;  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from __future__ import division, absolute_import
-from six.moves import range
 from rabbitvcs import gettext
 import rabbitvcs.vcs
 import rabbitvcs.util.settings
@@ -371,8 +369,8 @@ class Log(InterfaceView):
             revision2 = revision1
 
         options = [
-            "%s@%s" % (url, revision2),
-            "%s@%s" % (url, revision1),
+            "{}@{}".format(url, revision2),
+            "{}@{}".format(url, revision1),
             "--vcs=%s" % self.get_vcs_name(),
         ]
 
@@ -602,13 +600,13 @@ class SVNLog(Log):
         for selected_row in self.revisions_table.get_selected_rows():
             item = self.display_items[selected_row]
 
-            text += "%s: %s\n" % (REVISION_LABEL, S(item.revision).display())
-            text += "%s: %s\n" % (AUTHOR_LABEL, S(item.author).display())
-            text += "%s: %s\n" % (DATE_LABEL, S(item.date).display())
+            text += "{}: {}\n".format(REVISION_LABEL, S(item.revision).display())
+            text += "{}: {}\n".format(AUTHOR_LABEL, S(item.author).display())
+            text += "{}: {}\n".format(DATE_LABEL, S(item.date).display())
             text += "%s\n\n" % S(item.message).display()
             if item.changed_paths is not None:
                 for subitem in item.changed_paths:
-                    text += "%s\t%s" % (
+                    text += "{}\t{}".format(
                         S(subitem.action).display(),
                         S(subitem.path).display(),
                     )
@@ -888,9 +886,9 @@ class GitLog(Log):
         for selected_row in self.revisions_table.get_selected_rows():
             item = self.display_items[selected_row]
 
-            text += "%s: %s\n" % (REVISION_LABEL, S(item.revision.short()).display())
-            text += "%s: %s\n" % (AUTHOR_LABEL, S(item.author).display())
-            text += "%s: %s\n" % (DATE_LABEL, S(item.date).display())
+            text += "{}: {}\n".format(REVISION_LABEL, S(item.revision.short()).display())
+            text += "{}: {}\n".format(AUTHOR_LABEL, S(item.author).display())
+            text += "{}: {}\n".format(DATE_LABEL, S(item.date).display())
             text += "%s\n\n" % S(item.message).display()
 
         self.revision_clipboard.set_text(text, -1)
@@ -908,7 +906,7 @@ class GitLog(Log):
             else:
                 indented_message = msg.replace("\n", "\n\t")
                 self.message.append_text(
-                    "%s %s:\n\t%s\n" % (REVISION_LABEL, item.revision.short(), msg)
+                    "{} {}:\n\t{}\n".format(REVISION_LABEL, item.revision.short(), msg)
                 )
 
             for subitem in item.changed_paths:
@@ -996,7 +994,7 @@ class GitLogDialog(GitLog):
                 self.ok_callback(self.get_selected_revision_number())
 
 
-class LogCache(object):
+class LogCache:
     def __init__(self, cache={}):
         self.cache = cache
 
@@ -1106,7 +1104,7 @@ class MenuSeparatorLast(MenuSeparator):
     identifier = "RabbitVCS::Separator_Last"
 
 
-class LogTopContextMenuConditions(object):
+class LogTopContextMenuConditions:
     def __init__(self, caller, vcs, path, revisions):
         self.caller = caller
         self.vcs = vcs
@@ -1194,7 +1192,7 @@ class LogTopContextMenuConditions(object):
         return self.vcs_name == rabbitvcs.vcs.VCS_GIT
 
 
-class LogTopContextMenuCallbacks(object):
+class LogTopContextMenuCallbacks:
     def __init__(self, caller, vcs, path, revisions):
         self.caller = caller
         self.vcs = vcs
@@ -1217,7 +1215,7 @@ class LogTopContextMenuCallbacks(object):
         helper.launch_ui_window(
             "diff",
             [
-                "%s@%s" % (self.path, S(self.revisions[0]["revision"])),
+                "{}@{}".format(self.path, S(self.revisions[0]["revision"])),
                 "--vcs=%s" % self.caller.get_vcs_name(),
             ],
         )
@@ -1231,8 +1229,8 @@ class LogTopContextMenuCallbacks(object):
         helper.launch_ui_window(
             "diff",
             [
-                "%s@%s" % (self.path, parent),
-                "%s@%s" % (self.path, S(self.revisions[0]["revision"])),
+                "{}@{}".format(self.path, parent),
+                "{}@{}".format(self.path, S(self.revisions[0]["revision"])),
                 "--vcs=%s" % self.caller.get_vcs_name(),
             ],
         )
@@ -1245,8 +1243,8 @@ class LogTopContextMenuCallbacks(object):
         helper.launch_ui_window(
             "diff",
             [
-                "%s@%s" % (path_older, self.revisions[1]["revision"].value),
-                "%s@%s" % (self.path, S(self.revisions[0]["revision"])),
+                "{}@{}".format(path_older, self.revisions[1]["revision"].value),
+                "{}@{}".format(self.path, S(self.revisions[0]["revision"])),
                 "--vcs=%s" % self.caller.get_vcs_name(),
             ],
         )
@@ -1260,7 +1258,7 @@ class LogTopContextMenuCallbacks(object):
             "diff",
             [
                 "-s",
-                "%s@%s" % (path_older, S(self.revisions[0]["revision"])),
+                "{}@{}".format(path_older, S(self.revisions[0]["revision"])),
                 "%s" % (self.path),
                 "--vcs=%s" % self.caller.get_vcs_name(),
             ],
@@ -1273,8 +1271,8 @@ class LogTopContextMenuCallbacks(object):
             "diff",
             [
                 "-s",
-                "%s@%s" % (self.path, parent),
-                "%s@%s" % (self.path, S(self.revisions[0]["revision"])),
+                "{}@{}".format(self.path, parent),
+                "{}@{}".format(self.path, S(self.revisions[0]["revision"])),
                 "--vcs=%s" % self.caller.get_vcs_name(),
             ],
         )
@@ -1288,8 +1286,8 @@ class LogTopContextMenuCallbacks(object):
             "diff",
             [
                 "-s",
-                "%s@%s" % (path_older, self.revisions[1]["revision"].value),
-                "%s@%s" % (self.path, S(self.revisions[0]["revision"])),
+                "{}@{}".format(path_older, self.revisions[1]["revision"].value),
+                "{}@{}".format(self.path, S(self.revisions[0]["revision"])),
                 "--vcs=%s" % self.caller.get_vcs_name(),
             ],
         )
@@ -1305,8 +1303,8 @@ class LogTopContextMenuCallbacks(object):
         helper.launch_ui_window(
             "changes",
             [
-                "%s@%s" % (path, parent),
-                "%s@%s" % (path, S(rev_first)),
+                "{}@{}".format(path, parent),
+                "{}@{}".format(path, S(rev_first)),
                 "--vcs=%s" % self.caller.get_vcs_name(),
             ],
         )
@@ -1322,8 +1320,8 @@ class LogTopContextMenuCallbacks(object):
         helper.launch_ui_window(
             "changes",
             [
-                "%s@%s" % (path, S(rev_first)),
-                "%s@%s" % (path, S(rev_last)),
+                "{}@{}".format(path, S(rev_first)),
+                "{}@{}".format(path, S(rev_last)),
                 "--vcs=%s" % self.caller.get_vcs_name(),
             ],
         )
@@ -1474,13 +1472,13 @@ class LogTopContextMenuCallbacks(object):
         helper.launch_ui_window(
             "revprops",
             [
-                "%s@%s" % (url, S(self.revisions[0]["revision"])),
+                "{}@{}".format(url, S(self.revisions[0]["revision"])),
                 "--vcs=%s" % self.caller.get_vcs_name(),
             ],
         )
 
 
-class LogTopContextMenu(object):
+class LogTopContextMenu:
     """
     Defines context menu items for a table with files
 
@@ -1553,7 +1551,7 @@ class LogTopContextMenu(object):
         context_menu.show(self.event)
 
 
-class LogBottomContextMenuConditions(object):
+class LogBottomContextMenuConditions:
     def __init__(self, caller, vcs, paths, revisions):
         self.caller = caller
         self.vcs = vcs
@@ -1597,7 +1595,7 @@ class LogBottomContextMenuConditions(object):
         return True
 
 
-class LogBottomContextMenuCallbacks(object):
+class LogBottomContextMenuCallbacks:
     def __init__(self, caller, vcs, paths, revisions):
         self.caller = caller
         self.vcs = vcs
@@ -1664,8 +1662,8 @@ class LogBottomContextMenuCallbacks(object):
         helper.launch_ui_window(
             "changes",
             [
-                six.u("%s@%s") % (url, parent),
-                six.u("%s@%s") % (url, rev_last),
+                "%s@%s" % (url, parent),
+                "%s@%s" % (url, rev_last),
                 "--vcs=%s" % self.caller.get_vcs_name(),
             ],
         )
@@ -1679,8 +1677,8 @@ class LogBottomContextMenuCallbacks(object):
         helper.launch_ui_window(
             "changes",
             [
-                six.u("%s@%s") % (url, rev_first),
-                six.u("%s@%s") % (url, rev_last),
+                "%s@%s" % (url, rev_first),
+                "%s@%s" % (url, rev_last),
                 "--vcs=%s" % self.caller.get_vcs_name(),
             ],
         )
@@ -1706,7 +1704,7 @@ class LogBottomContextMenuCallbacks(object):
         )
 
 
-class LogBottomContextMenu(object):
+class LogBottomContextMenu:
     """
     Defines context menu items for a table with files
 

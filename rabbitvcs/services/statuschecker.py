@@ -19,7 +19,6 @@
 Very simple status checking class. Useful when you can't get any of the others
 to work, or you need to prototype things.
 """
-from __future__ import absolute_import
 from rabbitvcs.util.log import Log
 
 import rabbitvcs.vcs
@@ -32,7 +31,7 @@ _ = gettext.gettext
 log = Log("rabbitvcs.services.statuschecker")
 
 
-class StatusChecker(object):
+class StatusChecker:
     """A class for performing status checks."""
 
     # All subclasses should override this! This is to be displayed in the

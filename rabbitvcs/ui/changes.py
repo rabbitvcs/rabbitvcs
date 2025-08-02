@@ -1,4 +1,3 @@
-from __future__ import absolute_import
 from rabbitvcs import gettext
 from rabbitvcs.ui.dialog import MessageBox
 import rabbitvcs.ui.action
@@ -215,8 +214,8 @@ class Changes(InterfaceView):
             helper.launch_ui_window(
                 "diff",
                 [
-                    "%s@%s" % (url1, S(rev1)),
-                    "%s@%s" % (url2, S(rev2)),
+                    "{}@{}".format(url1, S(rev1)),
+                    "{}@{}".format(url2, S(rev2)),
                     "%s" % (sidebyside and "-s" or ""),
                     "--vcs=%s" % self.get_vcs_name(),
                 ],
@@ -235,8 +234,8 @@ class Changes(InterfaceView):
         helper.launch_ui_window(
             "diff",
             [
-                "%s@%s" % (url1, S(rev1)),
-                "%s@%s" % (url2, S(rev2)),
+                "{}@{}".format(url1, S(rev1)),
+                "{}@{}".format(url2, S(rev2)),
                 "--vcs=%s" % self.get_vcs_name(),
             ],
         )
@@ -436,7 +435,7 @@ class MenuCompare(MenuItem):
     icon = "rabbitvcs-compare"
 
 
-class ChangesContextMenuConditions(object):
+class ChangesContextMenuConditions:
     def __init__(self, caller, vcs):
         self.caller = caller
         self.vcs = vcs
@@ -459,7 +458,7 @@ class ChangesContextMenuConditions(object):
         return len(self.caller.selected_rows) > 0
 
 
-class ChangesContextMenuCallbacks(object):
+class ChangesContextMenuCallbacks:
     def __init__(self, caller, vcs):
         self.caller = caller
         self.vcs = vcs
@@ -506,15 +505,15 @@ class ChangesContextMenuCallbacks(object):
             helper.launch_ui_window(
                 "diff",
                 [
-                    "%s@%s" % (url1, S(rev1)),
-                    "%s@%s" % (url2, S(rev2)),
+                    "{}@{}".format(url1, S(rev1)),
+                    "{}@{}".format(url2, S(rev2)),
                     "-s",
                     "--vcs=%s" % self.caller.get_vcs_name(),
                 ],
             )
 
 
-class ChangesContextMenu(object):
+class ChangesContextMenu:
     """
     Defines context menu items for a table with files
 

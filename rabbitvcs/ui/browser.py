@@ -1,4 +1,3 @@
-from __future__ import absolute_import
 from rabbitvcs import gettext
 from rabbitvcs.util.decorators import gtk_unsafe
 from rabbitvcs.util.log import Log
@@ -223,7 +222,7 @@ class SVNBrowser(InterfaceView, GtkContextMenuCaller):
         """
 
         filename = S(filename).unicode()
-        if filename == six.u(".."):
+        if filename == "..":
             return "dir"
 
         for item, locked in self.items:
@@ -430,7 +429,7 @@ class BrowserContextMenuConditions(GtkFilesContextMenuConditions):
         return revision.kind == "head" and not self.is_parent_selected()
 
 
-class BrowserContextMenuCallbacks(object):
+class BrowserContextMenuCallbacks:
     def __init__(self, caller, base_dir, vcs, paths=[]):
         self.caller = caller
         self.base_dir = base_dir
@@ -579,7 +578,7 @@ class BrowserContextMenuCallbacks(object):
         self.caller.action.schedule()
 
 
-class BrowserContextMenu(object):
+class BrowserContextMenu:
     def __init__(self, caller, event, base_dir, vcs, paths=[]):
 
         self.caller = caller

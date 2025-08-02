@@ -34,15 +34,15 @@ import locale
 
 __all__ = ["S", "IDENTITY_ENCODING", "UTF8_ENCODING", "SURROGATE_ESCAPE"]
 
-unicode_null_string = six.u("")
+unicode_null_string = ""
 non_alpha_num_re = re.compile("[^A-Za-z0-9]+")
 SURROGATE_BASE = 0xDC00
 RE_SURROGATE = re.compile(
-    six.u("[")
-    + six.unichr(SURROGATE_BASE + 0x80)
-    + six.u("-")
-    + six.unichr(SURROGATE_BASE + 0xFF)
-    + six.u("]")
+    "["
+    + chr(SURROGATE_BASE + 0x80)
+    + "-"
+    + chr(SURROGATE_BASE + 0xFF)
+    + "]"
 )
 RE_UTF8 = re.compile("^[Uu][Tt][Ff][ _-]?8$")
 
@@ -136,7 +136,7 @@ def rabbitvcs_surrogate_escape(e):
     input = e.object[e.start : e.end]
     if isinstance(e, UnicodeDecodeError):
         output = [
-            six.unichr(b) if b < 0x80 else six.unichr(SURROGATE_BASE + b)
+            chr(b) if b < 0x80 else chr(SURROGATE_BASE + b)
             for b in bytearray(input)
         ]
         return (unicode_null_string.join(output), e.end)
@@ -146,7 +146,7 @@ def rabbitvcs_surrogate_escape(e):
             b = ord(c) - SURROGATE_BASE
             if not 0x80 <= b <= 0xFF:
                 raise e
-            output += six.int2byte(b)
+            output += bytes((b,))
         return (output, e.end)
     raise e
 
@@ -175,7 +175,7 @@ class S(str):
                 encoding, errors = S._codeargs(encoding, errors)
                 if encoding.lower() != UTF8_ENCODING:
                     value = value.decode(encoding, errors)
-            if isinstance(value, six.text_type):
+            if isinstance(value, str):
                 value = value.encode(UTF8_ENCODING, SURROGATE_ESCAPE)
             elif not isinstance(value, str):
                 value = str(value)
@@ -217,7 +217,7 @@ class S(str):
             return str(self)
 
         def display(self, encoding=None, errors="replace"):
-            return RE_SURROGATE.sub(six.unichr(0xFFFD), self)
+            return RE_SURROGATE.sub(chr(0xFFFD), self)
 
     def bytes(self, encoding=UTF8_ENCODING, errors=SURROGATE_ESCAPE):
         return self.encode(encoding, errors)

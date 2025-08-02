@@ -131,7 +131,7 @@ else:
                     format_single(self, ttype, lines[0])
                     for line in lines[1:]:
                         flush(self)
-                        outfile.write(six.u("\n"))
+                        outfile.write("\n")
                         format_single(self, ttype, line)
 
             flush(self)

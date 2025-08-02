@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 #
 # This is an extension to the Nautilus file manager to allow better
 # integration with the Subversion source control system.
@@ -382,9 +380,9 @@ class OutFile:
         self.console.write(l)
 
     def seek(self, a):
-        raise IOError(29, "Illegal seek")
+        raise OSError(29, "Illegal seek")
 
     def tell(self):
-        raise IOError(29, "Illegal seek")
+        raise OSError(29, "Illegal seek")
 
     truncate = tell

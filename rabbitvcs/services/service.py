@@ -22,7 +22,6 @@
 This module contains helper functions for starting DBUS services. Usually they
 would be used from within a constructor.
 """
-from __future__ import absolute_import
 
 import sys
 import subprocess
