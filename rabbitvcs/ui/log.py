@@ -32,7 +32,6 @@ from rabbitvcs.ui.dialog import MessageBox
 from rabbitvcs.ui.action import SVNAction, GitAction, vcs_action_factory
 from rabbitvcs.ui import InterfaceView
 from gi.repository import Gtk, GObject, Gdk
-import six
 import threading
 from locale import strxfrm
 

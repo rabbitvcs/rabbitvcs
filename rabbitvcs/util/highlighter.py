@@ -24,7 +24,6 @@
 Syntax highlighter based on the pygments module.
 """
 
-import six
 from rabbitvcs.util.strings import S
 from rabbitvcs.util.helper import html_escape
 from rabbitvcs.util.settings import SettingsManager

@@ -29,7 +29,6 @@ Additional strings support.
 import sys
 import codecs
 import re
-import six
 import locale
 
 __all__ = ["S", "IDENTITY_ENCODING", "UTF8_ENCODING", "SURROGATE_ESCAPE"]

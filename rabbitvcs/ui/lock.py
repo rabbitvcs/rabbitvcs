@@ -31,7 +31,6 @@ from gi.repository import Gtk, GObject, Gdk
 # along with RabbitVCS;  If not, see <http://www.gnu.org/licenses/>.
 #
 
-import six.moves._thread
 import os
 
 from rabbitvcs.util import helper
@@ -108,7 +107,7 @@ class SVNLock(InterfaceView, GtkContextMenuCaller):
         """
 
         try:
-            six.moves._thread.start_new_thread(self.load, ())
+            _thread.start_new_thread(self.load, ())
         except Exception as e:
             log.exception(e)
 

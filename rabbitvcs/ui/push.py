@@ -1,4 +1,3 @@
-import six
 from rabbitvcs import gettext
 import rabbitvcs.vcs
 import rabbitvcs.util.settings
@@ -31,7 +30,6 @@ from gi.repository import Gtk, GObject, Gdk
 #
 
 import os.path
-import six.moves._thread
 from datetime import datetime
 
 from rabbitvcs.util import helper
@@ -113,7 +111,7 @@ class GitPush(Push):
         """
 
         try:
-            six.moves._thread.start_new_thread(self.load_logs, ())
+            _thread.start_new_thread(self.load_logs, ())
         except Exception as e:
             log.exception(e)
 

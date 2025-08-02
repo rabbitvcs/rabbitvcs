@@ -62,8 +62,6 @@ from os.path import isdir, isfile, realpath, basename
 import os.path
 import os
 
-from six.moves import range
-
 import signal
 
 signal.signal(signal.SIGINT, signal.SIG_DFL)

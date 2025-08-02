@@ -33,7 +33,6 @@ from gi.repository import Gtk, GObject, Gdk
 #
 
 import os
-import six.moves._thread
 from time import sleep
 
 from rabbitvcs.util import helper
@@ -122,7 +121,7 @@ class Revert(InterfaceView, GtkContextMenuCaller):
         """
 
         try:
-            six.moves._thread.start_new_thread(self.load, ())
+            _thread.start_new_thread(self.load, ())
         except Exception as e:
             log.exception(e)
 

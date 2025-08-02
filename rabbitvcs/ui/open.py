@@ -1,4 +1,3 @@
-import six
 from rabbitvcs import gettext
 from rabbitvcs.util.strings import S
 import rabbitvcs.vcs

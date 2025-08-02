@@ -57,7 +57,6 @@ import datetime
 from os.path import isdir, isfile, realpath, basename, dirname
 import os.path
 import os
-from six.moves import range
 from gi.repository import Gio
 
 

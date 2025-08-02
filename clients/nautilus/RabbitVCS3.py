@@ -57,7 +57,6 @@ import datetime
 from os.path import isdir, isfile, realpath, basename, dirname
 import os.path
 import os
-from six.moves import range
 
 
 def log_all_exceptions(type, value, tb):

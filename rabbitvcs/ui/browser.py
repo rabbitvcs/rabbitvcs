@@ -39,7 +39,6 @@ from gi.repository import Gtk, GObject, Gdk
 #
 
 import os.path
-import six
 import locale
 from datetime import datetime
 

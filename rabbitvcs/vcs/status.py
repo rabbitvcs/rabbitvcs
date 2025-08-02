@@ -22,7 +22,6 @@
 
 import os.path
 import unittest
-import six
 
 from datetime import datetime
 
