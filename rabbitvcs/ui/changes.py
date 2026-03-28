@@ -123,15 +123,9 @@ class Changes(InterfaceView):
             self.on_changes_table_event(treeview, event, *args)
 
     def on_changes_table_event(self, treeview, event, *args):
-        selection = treeview.get_selection()
-        (liststore, indexes) = selection.get_selected_rows()
-
-        self.selected_rows = []
-        for tup in indexes:
-            self.selected_rows.append(tup[0])
-
         if not event is None:
             if event.button == 3 and event.type == Gdk.EventType.BUTTON_RELEASE:
+                self.selected_rows = self.changes_table.get_selected_rows()
                 self.show_changes_table_popup_menu(treeview, event)
 
     def on_more_actions_changed(self, widget, data=None):
@@ -145,12 +139,7 @@ class Changes(InterfaceView):
             callback()
 
     def on_changes_table_row_doubleclicked(self, treeview, data=None, col=None):
-        selection = treeview.get_selection()
-        (liststore, indexes) = selection.get_selected_rows()
-
-        self.selected_rows = []
-        for tup in indexes:
-            self.selected_rows.append(tup[0])
+        self.selected_rows = self.changes_table.get_selected_rows()
 
         self.view_selected_diff(sidebyside=True)
 
