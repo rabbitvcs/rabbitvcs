@@ -393,6 +393,16 @@ class Git(object):
 
         return self.client.branch(name, revision.primitive(), track)
 
+    def amend(self, message):
+        """
+        Amend the last commit with a new message.
+
+        @type   message: string
+        @param  message: The new commit message
+
+        """
+        return self.client.amend(message)
+
     def branch_delete(self, name):
         """
         Delete a branch
@@ -495,6 +505,21 @@ class Git(object):
         """
 
         return self.client.checkout(paths, revision.primitive())
+
+    def revert(self, paths, revision=Revision("HEAD")):
+        """
+        Revert files to a given revision using 'git checkout REVISION -- paths'.
+        Discards both staged and working-tree changes without -m merge semantics.
+
+        @type   paths: list
+        @param  paths: A list of files to revert
+
+        @type   revision: git.Revision
+        @param  revision: The revision to restore from (default: HEAD)
+
+        """
+
+        return self.client.revert(paths, revision.primitive())
 
     def clone(self, host, path, bare=False, origin="origin"):
         """
