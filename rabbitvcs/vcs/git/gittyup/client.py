@@ -316,6 +316,18 @@ class GittyupClient(object):
     def _load_config(self):
         self.config = self.repo.get_config()
 
+    def _stage_paths(self, paths):
+        if hasattr(self.repo, "stage"):
+            self.repo.stage(paths)
+        else:
+            self.repo.get_worktree().stage(paths)
+
+    def _commit_changes(self, **kwargs):
+        if hasattr(self.repo, "do_commit"):
+            return self.repo.do_commit(**kwargs)
+
+        return self.repo.get_worktree().commit(**kwargs)
+
     def _config_normalize_section(self, section):
         # If some old code is using string sections, convert to a tuple
         if isinstance(section, six.string_types):
@@ -441,7 +453,8 @@ class GittyupClient(object):
                 }
             )
             to_stage.append(S(relative_path))
-        self.repo.stage(to_stage)
+
+        self._stage_paths(to_stage)
 
     def stage_all(self):
         """
@@ -947,7 +960,7 @@ class GittyupClient(object):
         if commit_timezone is None:
             commit_timezone = helper.utc_offset()
 
-        commit_id = self.repo.do_commit(
+        commit_id = self._commit_changes(
             **helper.to_bytes(
                 {
                     "message": message,
@@ -1008,7 +1021,7 @@ class GittyupClient(object):
             os.remove(absolute_path)
             to_stage.append(S(relative_path))
 
-        self.repo.stage(to_stage)
+        self._stage_paths(to_stage)
 
     def move(self, source, dest):
         """
