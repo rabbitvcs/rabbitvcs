@@ -40,7 +40,7 @@ import six
 
 ENCODING = "UTF-8"
 
-RE_STATUS = re.compile("^([\sA-Z\?]+)\s(?:\S+\s->\s)?(.*?)$")
+RE_STATUS = re.compile(r"^([\sA-Z\?]+)\s(?:\S+\s->\s)?(.*?)$")
 
 
 def callback_notify_null(val):
@@ -642,6 +642,24 @@ class GittyupClient(object):
         except GittyupCommandError as e:
             self.callback_notify(e)
 
+    def amend(self, message):
+        """
+        Amend the last commit with a new message.
+
+        @type   message: string
+        @param  message: The new commit message
+
+        """
+
+        cmd = ["git", "commit", "--amend", "-m", message]
+
+        try:
+            (status, stdout, stderr) = GittyupCommand(
+                cmd, cwd=self.repo.path, notify=self.notify, cancel=self.get_cancel()
+            ).execute()
+        except GittyupCommandError as e:
+            self.callback_notify(e)
+
     def branch_delete(self, name):
         """
         Delete a branch
@@ -797,6 +815,29 @@ class GittyupClient(object):
             )
 
         return branches
+
+    def revert(self, paths, revision="HEAD"):
+        """
+        Revert a list of files to a specific revision by restoring their content
+        from the given commit.  Uses 'git checkout REVISION -- paths' (no -m)
+        so that staged and working-tree changes are fully discarded.
+
+        @type   paths: list
+        @param  paths: A list of files to revert
+
+        @type   revision: string
+        @param  revision: The commit/ref to restore from (default: HEAD)
+
+        """
+
+        cmd = ["git", "checkout", revision, "--"] + list(paths)
+
+        try:
+            (status, stdout, stderr) = GittyupCommand(
+                cmd, cwd=self.repo.path, notify=self.notify, cancel=self.get_cancel()
+            ).execute()
+        except GittyupCommandError as e:
+            self.callback_notify(e)
 
     def checkout(self, paths=[], revision="HEAD"):
         """
@@ -1681,7 +1722,7 @@ class GittyupClient(object):
 
         untracked_directories = []
         for line in stdout:
-            components = re.match("^(Would remove)\s(.*?)$", line)
+            components = re.match(r"^(Would remove)\s(.*?)$", line)
             if components:
                 untracked_path = components.group(2)
                 if untracked_path[-1] == "/":
@@ -1697,7 +1738,7 @@ class GittyupClient(object):
             self.callback_notify(e)
         ignored_directories = []
         for line in stdout:
-            components = re.match("^(Would remove)\s(.*?)$", line)
+            components = re.match(r"^(Would remove)\s(.*?)$", line)
             if components:
                 ignored_path = components.group(2)
                 if ignored_path[-1] == "/":
@@ -1918,7 +1959,7 @@ class GittyupClient(object):
 
             if line[0:6] == "commit":
                 match = pattern_from.search(line)
-                commit_line = re.sub(" \(from.*\)", "", line).split(" ")
+                commit_line = re.sub(r" \(from.*\)", "", line).split(" ")
                 fromPath = ""
                 if match:
                     fromPath = match.group(1)
@@ -2272,7 +2313,7 @@ class GittyupClient(object):
             # Some messages have a strage tendancy to append a non-printable character,
             # followed by a right square brace and a capitol "K".  This tests for, and
             # strips these superfluous characters.
-            message_components = re.search("^(.+).\[K", message)
+            message_components = re.search(r"^(.+).\[K", message)
             if message_components != None:
                 returnData["path"] = message_components.group(1)
             else:
@@ -2336,7 +2377,7 @@ class GittyupClient(object):
             message_parsed = True
 
         # Look for "Branch" line (e.g. "* branch   master   -> FETCH_HEAD")
-        message_components = re.search("\* branch +([A-z0-9]+) +-> (.+)", data)
+        message_components = re.search(r"\* branch +([A-z0-9]+) +-> (.+)", data)
 
         if message_components != None:
             return_data["action"] = "Branch"
@@ -2346,7 +2387,7 @@ class GittyupClient(object):
             message_parsed = True
 
         # Look for a file line (e.g. "src/somefile.py       | 5 -++++")
-        message_components = re.search(" +(.+) +\| *([0-9]+) ([+-]+)", data)
+        message_components = re.search(r" +(.+) +\| *([0-9]+) ([+-]+)", data)
 
         if message_components != None:
             return_data["action"] = "Modified"
@@ -2392,7 +2433,7 @@ class GittyupClient(object):
 
         # Look for a "binary" line (e.g. "icons/file.png"    | Bin 0 -> 55555 bytes)
         message_components = re.search(
-            "^[ ](.+) +\| Bin ([0-9]+ -> [0-9]+ bytes)", data
+            r"^[ ](.+) +\| Bin ([0-9]+ -> [0-9]+ bytes)", data
         )
 
         if message_components != None:
@@ -2402,7 +2443,7 @@ class GittyupClient(object):
             message_parsed = True
 
         # Look for a "rename" line (e.g. "rename src/{foo.py => bar.py} (50%)")
-        message_components = re.search("rename (.+}) \([0-9]+%\)", data)
+        message_components = re.search(r"rename (.+}) \([0-9]+%\)", data)
 
         if message_components != None:
             return_data["action"] = "Rename"
@@ -2410,7 +2451,7 @@ class GittyupClient(object):
             message_parsed = True
 
         # Look for a "copy" line (e.g. "copy src/{foo.py => bar.py} (50%)")
-        message_components = re.search("copy (.+}) \([0-9]+%\)", data)
+        message_components = re.search(r"copy (.+}) \([0-9]+%\)", data)
 
         if message_components != None:
             return_data["action"] = "Copy"
@@ -2420,7 +2461,7 @@ class GittyupClient(object):
         # Prepend "Error" to conflict lines. e.g. :
         # CONFLICT (content): Merge conflict in file.py.
         # Automatic merge failed; fix conflicts and then commit the result.
-        message_components = re.search("^CONFLICT \(|Automatic merge failed", data)
+        message_components = re.search(r"^CONFLICT \(|Automatic merge failed", data)
 
         if message_components != None:
             return_data["action"] = "Error"
@@ -2447,7 +2488,7 @@ class GittyupClient(object):
             message_parsed = True
 
         # Look for "new branch" line. e.g. " * [new branch]   master -> master"
-        message_components = re.search("^ \* \[new branch\] +(.+) -> (.+)", data)
+        message_components = re.search(r"^ \* \[new branch\] +(.+) -> (.+)", data)
 
         if message_components != None:
             return_data["action"] = "New Branch"
@@ -2457,7 +2498,7 @@ class GittyupClient(object):
             message_parsed = True
 
         # Look for "rejected" line. e.g. " ![rejected]   master -> master (non-fast-forward)".
-        message_components = re.search("!\[rejected\] +(.+)", data)
+        message_components = re.search(r"!\[rejected\] +(.+)", data)
 
         if message_components != None:
             return_data["action"] = "Rejected"
