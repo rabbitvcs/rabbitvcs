@@ -1,5 +1,3 @@
-from __future__ import absolute_import
-import six
 from rabbitvcs import gettext
 import rabbitvcs.vcs
 import rabbitvcs.util.settings
@@ -32,7 +30,7 @@ from gi.repository import Gtk, GObject, Gdk
 #
 
 import os.path
-import six.moves._thread
+import _thread
 from datetime import datetime
 
 from rabbitvcs.util import helper
@@ -114,7 +112,7 @@ class GitPush(Push):
         """
 
         try:
-            six.moves._thread.start_new_thread(self.load_logs, ())
+            _thread.start_new_thread(self.load_logs, ())
         except Exception as e:
             log.exception(e)
 
@@ -132,7 +130,7 @@ class GitPush(Push):
         repository = self.repository_selector.repository_opt.get_active_text()
         branch = self.repository_selector.branch_opt.get_active_text()
 
-        refspec = "refs/remotes/%s/%s" % (repository, branch)
+        refspec = "refs/remotes/{}/{}".format(repository, branch)
         self.push_log = self.git.log(
             revision=self.git.revision(refspec), showtype="push"
         )

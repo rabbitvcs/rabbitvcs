@@ -1,4 +1,3 @@
-from __future__ import absolute_import
 from rabbitvcs import gettext, _gettext, APP_NAME, LOCALE_DIR
 from rabbitvcs.services.checkerservice import StatusCheckerStub
 import rabbitvcs.services.checkerservice
@@ -408,11 +407,11 @@ class Settings(InterfaceView):
                 "/.subversion/auth/svn.username",
             ]
             for subpath in subpaths:
-                path = "%s%s" % (home_dir, subpath)
+                path = "{}{}".format(home_dir, subpath)
                 if os.path.exists(path):
                     files = os.listdir(path)
                     for filename in files:
-                        filepath = "%s/%s" % (path, filename)
+                        filepath = "{}/{}".format(path, filename)
                         os.remove(filepath)
 
             rabbitvcs.ui.dialog.MessageBox(_("Authentication information cleared"))

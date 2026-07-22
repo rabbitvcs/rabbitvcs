@@ -1,4 +1,3 @@
-from __future__ import absolute_import
 from rabbitvcs import gettext
 from rabbitvcs.vcs.status import Status
 from rabbitvcs.util.log import Log
@@ -34,7 +33,7 @@ from gi.repository import Gtk, GObject, Gdk
 #
 
 import os
-import six.moves._thread
+import _thread
 from time import sleep
 from rabbitvcs.util import helper
 
@@ -165,7 +164,7 @@ class Add(InterfaceView, GtkContextMenuCaller):
         """
 
         try:
-            six.moves._thread.start_new_thread(self.load, ())
+            _thread.start_new_thread(self.load, ())
         except Exception as e:
             log.exception(e)
 
@@ -262,7 +261,7 @@ def add_factory(paths, base_dir):
     return classes_map[guess["vcs"]](paths, base_dir)
 
 
-class AddQuiet(object):
+class AddQuiet:
     def __init__(self, paths):
         self.vcs = rabbitvcs.vcs.VCS()
         self.svn = self.vcs.svn()

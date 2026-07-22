@@ -42,7 +42,6 @@ should be kept to a minimum. Use convenience methods to condense and summarise
 data wherever possible (this is the case in the actual status cache and checker
 code).
 """
-from __future__ import absolute_import
 from rabbitvcs import version as SERVICE_VERSION
 
 import os
@@ -237,7 +236,7 @@ class StatusCheckerService(dbus.service.Object):
         return self.PID()
 
 
-class StatusCheckerStub(object):
+class StatusCheckerStub:
     """StatusCheckerStub objects contain methods that call an actual status
     checker running in another process.
 
@@ -445,7 +444,7 @@ def Main():
     """
     global log
     log = Log("rabbitvcs.services.checkerservice:main")
-    log.debug("Checker: starting service: %s (%s)" % (OBJECT_PATH, os.getpid()))
+    log.debug("Checker: starting service: {} ({})".format(OBJECT_PATH, os.getpid()))
 
     # We need this to for the client to be able to do asynchronous calls
     dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
@@ -467,7 +466,7 @@ def Main():
 
     mainloop.run()
 
-    log.debug("Checker: ended service: %s (%s)" % (OBJECT_PATH, os.getpid()))
+    log.debug("Checker: ended service: {} ({})".format(OBJECT_PATH, os.getpid()))
 
 
 if __name__ == "__main__":

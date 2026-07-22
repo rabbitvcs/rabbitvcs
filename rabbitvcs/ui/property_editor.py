@@ -28,7 +28,6 @@ To this effect, changes are applied immediately... no saving lists of changes to
 apply later, no trying to keep track of what was done recursively and what
 wasn't; just do the work and make sure the UI is sensible.
 """
-from __future__ import absolute_import, print_function
 from rabbitvcs import gettext
 from rabbitvcs.util.log import Log
 from rabbitvcs.vcs.svn import Revision
@@ -237,7 +236,7 @@ class PropEditor(InterfaceView, GtkContextMenuCaller):
         GtkContextMenu(PROP_MENU_STRUCTURE, conditions, callbacks).show(event)
 
 
-class PropMenuCallbacks(object):
+class PropMenuCallbacks:
     def __init__(self, caller, path, propdetails, vcs):
         self.path = path
         self.caller = caller
@@ -267,7 +266,7 @@ class PropMenuCallbacks(object):
         pass
 
 
-class PropMenuConditions(object):
+class PropMenuConditions:
     def __init__(self, path, propdetails):
         self.path = path
         self.propdetails = propdetails

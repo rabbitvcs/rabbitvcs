@@ -1,5 +1,3 @@
-from __future__ import absolute_import
-
 #
 # This is an extension to the Nautilus file manager to allow better
 # integration with the Subversion source control system.
@@ -24,7 +22,7 @@ from __future__ import absolute_import
 
 import os
 import gettext as _gettext
-from locale import getdefaultlocale
+from locale import getlocale
 
 # Hack to make RabbitVCS win in the battle against TortoiseHg
 try:
@@ -47,15 +45,15 @@ langs = []
 language = os.environ.get("LANGUAGE", None)
 if language:
     langs += language.split(":")
-if getdefaultlocale()[0] != None:
-    langs += [getdefaultlocale()[0]]
+if getlocale()[0] != None:
+    langs += [getlocale()[0]]
 
 _gettext.bindtextdomain(APP_NAME, LOCALE_DIR)
 _gettext.textdomain(APP_NAME)
 current_translation = None
 
 
-class gettext(object):
+class gettext:
     @staticmethod
     def set_language(langs):
         global current_translation
@@ -102,7 +100,7 @@ def package_identifier():
     Return a package identifier suitable for use in a package file.
 
     """
-    return "%s-%s" % (package_name(), package_version())
+    return "{}-{}".format(package_name(), package_version())
 
 
 def package_prefix():

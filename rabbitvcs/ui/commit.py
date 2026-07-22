@@ -1,4 +1,3 @@
-from __future__ import absolute_import
 from rabbitvcs import gettext
 import rabbitvcs.vcs.status
 from rabbitvcs.util.decorators import gtk_unsafe
@@ -35,7 +34,6 @@ from gi.repository import Gtk, GObject, Gdk, GLib
 #
 
 import os
-import six.moves._thread
 from time import sleep
 
 from rabbitvcs.util import helper

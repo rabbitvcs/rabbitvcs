@@ -1,5 +1,3 @@
-from __future__ import absolute_import
-import six
 from rabbitvcs import gettext
 from rabbitvcs.util.strings import S
 import rabbitvcs.vcs
@@ -65,7 +63,7 @@ class SVNOpen(InterfaceNonView):
         self.vcs = rabbitvcs.vcs.VCS()
         self.svn = self.vcs.svn()
 
-        if revision and isinstance(revision, (str, six.text_type)):
+        if revision and isinstance(revision, (str, str)):
             revision_obj = self.svn.revision("number", number=revision)
         else:
             revision_obj = self.svn.revision("HEAD")
@@ -119,7 +117,7 @@ class GitOpen(InterfaceNonView):
         if path.startswith(repo_path):
             relative_path = path[len(repo_path) + 1 :]
 
-        dest_path = "%s/%s" % (dest_dir, relative_path)
+        dest_path = "{}/{}".format(dest_dir, relative_path)
 
         helper.open_item(dest_path)
 

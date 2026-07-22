@@ -1,4 +1,3 @@
-from __future__ import absolute_import
 from rabbitvcs import gettext
 import rabbitvcs.vcs
 from rabbitvcs.util.log import Log
@@ -32,8 +31,6 @@ from gi.repository import Gtk, GObject, Gdk
 # You should have received a copy of the GNU General Public License
 # along with RabbitVCS;  If not, see <http://www.gnu.org/licenses/>.
 #
-
-import six.moves._thread
 
 from rabbitvcs.util import helper
 
@@ -82,7 +79,7 @@ class GitStage(Add):
         self.action.schedule()
 
 
-class GitStageQuiet(object):
+class GitStageQuiet:
     def __init__(self, paths, base_dir=None):
         self.vcs = rabbitvcs.vcs.VCS()
         self.git = self.vcs.git(paths[0])

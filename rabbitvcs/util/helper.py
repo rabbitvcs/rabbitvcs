@@ -25,7 +25,6 @@
 All sorts of helper functions.
 
 """
-from __future__ import absolute_import
 
 from collections import deque
 import locale
@@ -43,12 +42,9 @@ import codecs
 
 from gi.repository import GLib
 
-import six
-from six.moves import filter
-from six.moves import range
-import six.moves.urllib.parse
+import urllib.parse
 
-import rabbitvcs.util.settings
+from rabbitvcs.util.settings import *
 from rabbitvcs.util.decorators import structure_map
 from rabbitvcs.util.strings import *
 
@@ -79,7 +75,7 @@ DT_FORMAT_THISWEEK = _("%a %I:%M%p")
 DT_FORMAT_THISYEAR = _("%b %d")
 DT_FORMAT_ALL = _("%b %d %Y")
 
-LINE_BREAK_CHAR = six.unichr(0x23CE)
+LINE_BREAK_CHAR = chr(0x23CE)
 
 
 def compare_version(version1, version2, length=None):
@@ -108,7 +104,7 @@ def to_bytes(s, encoding=UTF8_ENCODING):
     """
     Convert string (whatever type it is) to bytes in the given encoding.
     """
-    if isinstance(s, six.text_type):
+    if isinstance(s, str):
         return S(s).bytes(encoding)
     if isinstance(s, bytearray):
         if encoding.lower() == UTF8_ENCODING:
@@ -152,7 +148,7 @@ def get_tmp_path(filename):
     if not os.path.isdir(tmpdir):
         os.mkdir(tmpdir)
 
-    return "%s/%s" % (tmpdir, filename)
+    return "{}/{}".format(tmpdir, filename)
 
 
 def process_memory(pid):
@@ -192,13 +188,13 @@ def format_long_text(text, cols=None, line1only=False):
     line. If the param "cols" is given, the text
     beyond cols is replaced by "...".
     """
-    text = S(text.strip()).unicode().replace(six.u("\n"), LINE_BREAK_CHAR)
+    text = S(text.strip()).unicode().replace("\n", LINE_BREAK_CHAR)
     if line1only:
         i = text.find(LINE_BREAK_CHAR)
         if i >= 0:
             text = text[:i]
     if cols and len(text) > cols:
-        text = six.u("%s...") % text[0:cols]
+        text = "%s..." % text[0:cols]
 
     return text
 
@@ -251,33 +247,6 @@ def in_rich_compare(item, list):
     return in_list
 
 
-# FIXME: this function is duplicated in settings.py
-def get_home_folder():
-    """
-    Returns the location of the hidden folder we use in the home dir.
-    This is used for storing things like previous commit messages and
-    peviously used repositories.
-
-    @rtype:     string
-    @return:    The location of our main user storage folder.
-
-    """
-
-    # Make sure we adher to the freedesktop.org XDG Base Directory
-    # Specifications. $XDG_CONFIG_HOME if set, by default ~/.config
-    xdg_config_home = os.environ.get(
-        "XDG_CONFIG_HOME", os.path.join(os.path.expanduser("~"), ".config")
-    )
-    config_home = os.path.join(xdg_config_home, "rabbitvcs")
-
-    # Make sure the directories are there
-    if not os.path.isdir(config_home):
-        # FIXME: what if somebody places a file in there?
-        os.makedirs(config_home, 0o700)
-
-    return config_home
-
-
 def get_user_path():
     """
     Returns the location of the user's home directory.
@@ -314,7 +283,7 @@ def get_repository_paths():
     returner = []
     paths_file = get_repository_paths_path()
     if os.path.exists(paths_file):
-        returner = [x.strip() for x in open(paths_file, "r").readlines()]
+        returner = [x.strip() for x in open(paths_file).readlines()]
 
     return returner
 
@@ -344,7 +313,7 @@ def get_previous_messages():
     if not os.path.exists(path):
         return
 
-    lines = open(path, "r").readlines()
+    lines = open(path).readlines()
 
     cur_entry = ""
     returner = []
@@ -379,7 +348,7 @@ def get_exclude_paths():
     if not os.path.exists(path):
         return []
 
-    f = open(path, "r")
+    f = open(path)
     paths = []
     for l in f:
         paths.append(l.strip())
@@ -423,7 +392,7 @@ def encode_revisions(revision_array):
         if start == last:
             result = "%s" % start
         else:
-            result = "%s-%s" % (start, last)
+            result = "{}-{}".format(start, last)
 
         list.append(result)
 
@@ -482,7 +451,7 @@ def get_diff_tool():
     @return:    A dictionary with the diff tool path and swap boolean value.
     """
 
-    sm = rabbitvcs.util.settings.SettingsManager()
+    sm = SettingsManager()
     diff_tool = sm.get("external", "diff_tool")
     diff_tool_swap = sm.get("external", "diff_tool_swap")
 
@@ -497,7 +466,7 @@ def get_merge_tool():
     @return:    A string with the path and arguments to launch the merge tool.
     """
 
-    sm = rabbitvcs.util.settings.SettingsManager()
+    sm = SettingsManager()
     return sm.get("external", "merge_tool")
 
 
@@ -530,7 +499,7 @@ def launch_diff_tool(path1, path2=None):
     else:
         tmp_path = get_tmp_path(os.path.split(path1)[-1])
         os.popen(
-            "svn export --force -r BASE '%s' '%s'" % (path1, os.path.dirname(tmp_path))
+            "svn export --force -r BASE '{}' '{}'".format(path1, os.path.dirname(tmp_path))
         )
         (lhs, rhs) = (tmp_path, path1)
 
@@ -609,7 +578,7 @@ def open_item(path):
 
     for o in openers:
         for p in set(os.environ["PATH"].split(":")):
-            if os.path.exists("%s/%s" % (p, o)):
+            if os.path.exists("{}/{}".format(p, o)):
                 command = [o]
                 if o == "gio":
                     command.append("open")
@@ -712,10 +681,10 @@ def save_log_message(message):
     s = ""
     for m in messages:
         s = """\
--- %s --
-%s
-%s
-""" % (
+-- {} --
+{}
+{}
+""".format(
             m[0],
             m[1],
             s,
@@ -793,12 +762,12 @@ def launch_ui_window(filename, args=[], block=False):
 
 
 def get_log_messages_limit():
-    sm = rabbitvcs.util.settings.SettingsManager()
+    sm = SettingsManager()
     return int(sm.get("cache", "number_messages"))
 
 
 def get_repository_paths_limit():
-    sm = rabbitvcs.util.settings.SettingsManager()
+    sm = SettingsManager()
     return int(sm.get("cache", "number_repositories"))
 
 
@@ -914,7 +883,7 @@ def get_relative_path(from_path, to_path):
 
 
 def launch_repo_browser(uri):
-    sm = rabbitvcs.util.settings.SettingsManager()
+    sm = SettingsManager()
     repo_browser = sm.get("external", "repo_browser")
 
     if repo_browser is not None:
@@ -947,25 +916,25 @@ def url_join(path, *args):
 
 
 def _quote(text):
-    return six.moves.urllib.parse.quote(
+    return urllib.parse.quote(
         text, encoding=UTF8_ENCODING, errors=SURROGATE_ESCAPE
     )
 
 
 def _quote_plus(text):
-    return six.moves.urllib.parse.quote_plus(
+    return urllib.parse.quote_plus(
         text, encoding=UTF8_ENCODING, errors=SURROGATE_ESCAPE
     )
 
 
 def _unquote(text):
-    return six.moves.urllib.parse.unquote(
+    return urllib.parse.unquote(
         text, encoding=UTF8_ENCODING, errors=SURROGATE_ESCAPE
     )
 
 
 def _unquote_plus(text):
-    return six.moves.urllib.parse.unquote_plus(
+    return urllib.parse.unquote_plus(
         text, encoding=UTF8_ENCODING, errors=SURROGATE_ESCAPE
     )
 
@@ -978,14 +947,14 @@ unquote_plus = _unquote_plus
 try:
     unquote("")
 except TypeError:
-    quote = six.moves.urllib.parse.quote
-    quote_plus = six.moves.urllib.parse.quote_plus
-    unquote = six.moves.urllib.parse.unquote
-    unquote_plus = six.moves.urllib.parse.unquote_plus
+    quote = urllib.parse.quote
+    quote_plus = urllib.parse.quote_plus
+    unquote = urllib.parse.unquote
+    unquote_plus = urllib.parse.unquote_plus
 
 
 def quote_url(url_text):
-    (scheme, netloc, path, params, query, fragment) = six.moves.urllib.parse.urlparse(
+    (scheme, netloc, path, params, query, fragment) = urllib.parse.urlparse(
         url_text
     )
     # netloc_quoted = quote(netloc)
@@ -994,7 +963,7 @@ def quote_url(url_text):
     query_quoted = quote_plus(query)
     fragment_quoted = quote(fragment)
 
-    url_quoted = six.moves.urllib.parse.urlunparse(
+    url_quoted = urllib.parse.urlunparse(
         (scheme, netloc, path_quoted, params_quoted, query_quoted, fragment_quoted)
     )
 
@@ -1002,7 +971,7 @@ def quote_url(url_text):
 
 
 def unquote_url(url_text):
-    (scheme, netloc, path, params, query, fragment) = six.moves.urllib.parse.urlparse(
+    (scheme, netloc, path, params, query, fragment) = urllib.parse.urlparse(
         url_text
     )
     # netloc_unquoted = unquote(netloc)
@@ -1011,7 +980,7 @@ def unquote_url(url_text):
     query_unquoted = unquote_plus(query)
     fragment_unquoted = unquote(fragment)
 
-    url_unquoted = six.moves.urllib.parse.urlunparse(
+    url_unquoted = urllib.parse.urlunparse(
         (
             scheme,
             netloc,
@@ -1276,10 +1245,10 @@ indirectly.
 """
 
 
-class SanitizeArgv(object):
+class SanitizeArgv:
     def __init__(self):
         self.argmap = None
-        if len(sys.argv) and isinstance(sys.argv[0], six.text_type):
+        if len(sys.argv) and isinstance(sys.argv[0], str):
             argmap = []
             newargv = []
             for arg in sys.argv:

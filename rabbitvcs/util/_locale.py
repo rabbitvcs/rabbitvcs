@@ -1,4 +1,3 @@
-from __future__ import absolute_import
 import locale
 import os
 
@@ -35,7 +34,7 @@ def set_locale(language, encoding):
         # If the user's environment does not specify an encoding, Python will
         # pick a default which might not be available. It seems to pick
         # ISO8859-1 (latin1), but UTF8 is a better idea on GNU/Linux.
-        log.warning("Could not set locale (%s, %s)" % (loc, encoding))
+        log.warning("Could not set locale ({}, {})".format(loc, encoding))
 
         # We should only try this if we have a region to set as well.
         if language and encoding != "UTF-8":

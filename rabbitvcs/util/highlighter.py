@@ -24,7 +24,6 @@
 Syntax highlighter based on the pygments module.
 """
 
-import six
 from rabbitvcs.util.strings import S
 from rabbitvcs.util.helper import html_escape
 from rabbitvcs.util.settings import SettingsManager
@@ -131,7 +130,7 @@ else:
                     format_single(self, ttype, lines[0])
                     for line in lines[1:]:
                         flush(self)
-                        outfile.write(six.u("\n"))
+                        outfile.write("\n")
                         format_single(self, ttype, line)
 
             flush(self)

@@ -1,5 +1,3 @@
-from __future__ import absolute_import
-
 #
 # This is an extension to the Nautilus file manager to allow better
 # integration with the Subversion source control system.
@@ -25,7 +23,7 @@ from __future__ import absolute_import
 import rabbitvcs.vcs
 
 
-class LogChangedPath(object):
+class LogChangedPath:
     path = ""
     action = ""
     copy_from_path = ""
@@ -38,7 +36,7 @@ class LogChangedPath(object):
         self.copy_from_revision = copy_from_revision
 
 
-class Log(object):
+class Log:
     date = None
     revision = None
     author = None

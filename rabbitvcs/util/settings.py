@@ -25,8 +25,8 @@
 Everything related retrieving and storing configuration keys.
 
 """
-from __future__ import absolute_import
-from __future__ import print_function
+
+__all__ = ['get_home_folder', 'SettingsManager']
 
 import os
 from os.path import dirname
@@ -47,9 +47,6 @@ def get_home_folder():
     Returns the location of the hidden folder we use in the home dir.
     This is used for storing things like previous commit messages and
     previously used repositories.
-
-    FIXME: This is a copy of the helper module's function, because I can't
-    have a circular module reference (helper imports Settings right now).
 
     @rtype:     string
     @return:    The location of our main user storage folder.
@@ -87,13 +84,13 @@ def find_configspec():
         if os.path.exists(path):
             return path
 
-    raise IOError("Cannot find a configspec.ini file")
+    raise OSError("Cannot find a configspec.ini file")
 
 
 SETTINGS_SPEC = find_configspec()
 
 
-class SettingsManager(object):
+class SettingsManager:
     """
     This class provides an shallow interface for the rest of the program to use
     to interact with our configuration file.
@@ -162,7 +159,7 @@ class SettingsManager(object):
         try:
             returner = self.settings[section][keyword]
         except KeyError:
-            print("Error: section %s:%s doesn't exist" % (section, keyword))
+            print("Error: section {}:{} doesn't exist".format(section, keyword))
 
         return returner
 
@@ -275,7 +272,7 @@ class SettingsManager(object):
         try:
             returner = DEFAULT_SETTINGS[section][keyword]
         except KeyError:
-            print("Error: section %s:%s doesn't exist" % (section, keyword))
+            print("Error: section {}:{} doesn't exist".format(section, keyword))
 
         return returner
 
@@ -306,7 +303,7 @@ class SettingsManager(object):
                 try:
                     os.rename(SETTINGS_FILE, new_name)
                     created = True
-                except IOError:
+                except OSError:
                     # Paranoid again?
                     print("Could not back up user configuration.")
 

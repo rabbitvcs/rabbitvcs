@@ -40,9 +40,6 @@ from rabbitvcs.util import helper
 from rabbitvcs.util.log import Log
 from rabbitvcs.util.decorators import structure_map
 from rabbitvcs.util.strings import *
-import six
-from six.moves import map
-from six.moves import range
 
 log = Log("rabbitvcs.vcs.svn")
 
@@ -65,7 +62,7 @@ def pure_unicode(obj):
     This function is called each time there is a risk of passing string or
     unicode objects to the pysvn API.
     """
-    if isinstance(obj, (six.string_types, six.text_type)):
+    if isinstance(obj, str):
         obj = S(obj).unicode()
     return obj
 

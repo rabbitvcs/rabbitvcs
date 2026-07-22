@@ -1,4 +1,3 @@
-from __future__ import absolute_import
 from rabbitvcs import gettext
 from rabbitvcs.util.log import Log
 import rabbitvcs.ui.action
@@ -32,7 +31,6 @@ from gi.repository import Gtk, GObject, Gdk
 
 import os
 import os.path
-import six.moves._thread
 import shutil
 
 from rabbitvcs.util import helper
@@ -125,7 +123,7 @@ class SVNEditConflicts(InterfaceNonView):
         theirsPath = ""
         revisionPaths = []
         baseDir, baseName = os.path.split(path)
-        log.debug("baseDir: %s, baseName: %s" % (baseDir, baseName))
+        log.debug("baseDir: {}, baseName: {}".format(baseDir, baseName))
         for name in os.listdir(baseDir):
             if baseName in name:
                 extension = name.split(".")[-1]

@@ -1,4 +1,3 @@
-from __future__ import absolute_import
 from rabbitvcs import gettext
 from rabbitvcs.util.log import Log
 from rabbitvcs.util.strings import S
@@ -32,8 +31,8 @@ from gi.repository import Gtk, GObject, Gdk
 # along with RabbitVCS;  If not, see <http://www.gnu.org/licenses/>.
 #
 
-import six.moves._thread
 import os
+import _thread
 
 from rabbitvcs.util import helper
 
@@ -109,7 +108,7 @@ class SVNLock(InterfaceView, GtkContextMenuCaller):
         """
 
         try:
-            six.moves._thread.start_new_thread(self.load, ())
+            _thread.start_new_thread(self.load, ())
         except Exception as e:
             log.exception(e)
 

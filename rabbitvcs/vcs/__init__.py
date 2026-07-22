@@ -1,5 +1,3 @@
-from __future__ import absolute_import
-
 #
 # This is an extension to the Nautilus file manager to allow better
 # integration with the Subversion source control system.
@@ -75,7 +73,7 @@ def guess(path):
         return obj
 
 
-class VCS(object):
+class VCS:
     clients = {}
     exclude_paths = []
 

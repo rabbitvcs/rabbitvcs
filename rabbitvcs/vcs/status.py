@@ -1,5 +1,3 @@
-from __future__ import absolute_import
-
 #
 # This is an extension to the Nautilus file manager to allow better
 # integration with the Subversion source control system.
@@ -24,7 +22,6 @@ from __future__ import absolute_import
 
 import os.path
 import unittest
-import six
 
 from datetime import datetime
 
@@ -32,7 +29,6 @@ import rabbitvcs.vcs
 from rabbitvcs.util.strings import S
 
 from rabbitvcs.util.log import Log
-from six.moves import range
 
 log = Log("rabbitvcs.vcs.status")
 
@@ -67,7 +63,7 @@ MODIFIED_CHILD_STATUSES = [
 ]
 
 
-class StatusCache(object):
+class StatusCache:
     keys = [
         None,
         status_normal,
@@ -165,7 +161,7 @@ class StatusCache(object):
         return statuses
 
 
-class Status(object):
+class Status:
     @staticmethod
     def status_unknown(path):
         return Status(path, status_unknown, summary=status_unknown)
@@ -262,7 +258,7 @@ class Status(object):
         """Summarises statuses for directories."""
         summary = status_unknown
 
-        status_set = set([st.single for st in child_statuses])
+        status_set = {st.single for st in child_statuses}
 
         if not status_set:
             self.summary = self.single
@@ -292,7 +288,7 @@ class Status(object):
         return self.summary is not status_normal
 
     def __repr__(self):
-        return "<%s %s (%s) %s/%s>" % (
+        return "<{} {} ({}) {}/{}>".format(
             _("RabbitVCS status for"),
             self.path,
             self.vcs_type,
@@ -304,7 +300,7 @@ class Status(object):
         attrs = self.__dict__.copy()
         # Force strings to Unicode to avoid json implicit conversion.
         for key in attrs:
-            if isinstance(attrs[key], (six.string_types, six.text_type)):
+            if isinstance(attrs[key], ((str,), str)):
                 attrs[key] = S(attrs[key]).unicode()
         attrs["__type__"] = type(self).__name__
         attrs["__module__"] = type(self).__module__
@@ -315,7 +311,7 @@ class Status(object):
         del state_dict["__module__"]
         # Store strings in native str type.
         for key in state_dict:
-            if isinstance(state_dict[key], (six.string_types, six.text_type)):
+            if isinstance(state_dict[key], ((str,), str)):
                 state_dict[key] = str(S(state_dict[key]))
         self.__dict__ = state_dict
 
@@ -395,7 +391,7 @@ class GitStatus(Status):
     metadata_status_map = {"normal": status_normal, None: status_normal}
 
     def __init__(self, gittyup_status):
-        super(GitStatus, self).__init__(
+        super().__init__(
             gittyup_status.path, content=str(gittyup_status.identifier), metadata=None
         )
 
@@ -416,7 +412,7 @@ class MercurialStatus(Status):
     metadata_status_map = {"normal": status_normal, None: status_normal}
 
     def __init__(self, mercurial_status):
-        super(MercurialStatus, self).__init__(
+        super().__init__(
             mercurial_status["path"],
             content=str(mercurial_status["content"]),
             metadata=None,

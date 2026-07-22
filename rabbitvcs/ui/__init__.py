@@ -25,12 +25,10 @@
 UI layer.
 
 """
-from __future__ import absolute_import
 import rabbitvcs.vcs.status
 from rabbitvcs import APP_NAME, LOCALE_DIR, gettext
 
 import os
-from six.moves import range
 
 from rabbitvcs.util import helper
 
@@ -82,7 +80,7 @@ STATUS_EMBLEMS = {
 }
 
 
-class GtkBuilderWidgetWrapper(object):
+class GtkBuilderWidgetWrapper:
     def __init__(self, gtkbuilder_filename=None, gtkbuilder_id=None, claim_domain=True):
         if gtkbuilder_filename:
             self.gtkbuilder_filename = gtkbuilder_filename
@@ -96,7 +94,7 @@ class GtkBuilderWidgetWrapper(object):
         self.tree.connect_signals(self)
 
     def get_tree(self):
-        path = "%s/xml/%s.xml" % (
+        path = "{}/xml/{}.xml".format(
             os.path.dirname(os.path.realpath(__file__)),
             self.gtkbuilder_filename,
         )
@@ -234,7 +232,7 @@ class InterfaceView(GtkBuilderWidgetWrapper):
             button.set_image(image)
 
 
-class InterfaceNonView(object):
+class InterfaceNonView:
     """
     Provides a way for an interface to handle quitting, etc without having
     to have a visible interface.

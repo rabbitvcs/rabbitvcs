@@ -1,4 +1,3 @@
-from __future__ import absolute_import
 from rabbitvcs import gettext
 from xml.sax import saxutils
 import rabbitvcs.vcs

@@ -32,7 +32,6 @@ See:
   - http://wiki.python.org/moin/PythonDecoratorLibrary
 
 """
-from __future__ import absolute_import
 
 import os
 
@@ -103,7 +102,7 @@ def timeit(func):
         start_time = time.time()
         result = func(*args, **kwargs)
         duration = (time.time() - start_time) * 1000.0
-        log.info("%s() took %0.4f milliseconds" % (func.__name__, duration))
+        log.info("{}() took {:0.4f} milliseconds".format(func.__name__, duration))
         return result
 
     return update_func_meta(newfunc, func)

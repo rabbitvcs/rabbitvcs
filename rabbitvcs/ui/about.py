@@ -1,5 +1,3 @@
-from __future__ import absolute_import
-from six.moves import map
 from rabbitvcs import gettext
 import configobj
 import pysvn
@@ -44,7 +42,7 @@ sa.restore()
 _ = gettext.gettext
 
 
-class About(object):
+class About:
     """
     This class provides an interface to the About window.
 
@@ -78,7 +76,7 @@ class About(object):
             doc_path = "/".join(doc_path[:-2])
             authors_path = os.path.join(doc_path, "AUTHORS")
 
-        authors = open(authors_path, "r").read()
+        authors = open(authors_path).read()
 
         self.about.set_authors(authors.split("\n"))
 
