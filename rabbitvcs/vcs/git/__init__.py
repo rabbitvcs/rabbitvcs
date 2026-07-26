@@ -134,7 +134,21 @@ class Git(object):
         self.cache = rabbitvcs.vcs.status.StatusCache()
 
     def set_repository(self, path):
-        self.client.set_repository(path)
+        try:
+            current_path = self.client.get_repository()
+        except (AttributeError, TypeError):
+            current_path = None
+
+        if current_path is not None:
+            current_path = os.path.normcase(
+                os.path.realpath(os.fsdecode(current_path))
+            )
+        new_path = os.path.normcase(os.path.realpath(os.fsdecode(path)))
+
+        if current_path != new_path:
+            self.client.set_repository(path)
+            self.cache = rabbitvcs.vcs.status.StatusCache()
+
         self.config = self.client.config
 
     def config_get(self, key1, key2):
