@@ -631,8 +631,19 @@ class NautilusContextMenu(MenuBuilder):
 
     signal = "activate"
 
+    # Nautilus menu item names outlive one menu construction. MenuBuilder's
+    # local item index starts at zero for every menu, so include a monotonically
+    # increasing menu generation to avoid reusing an older callback.
+    _menu_generation = 0
+
+    def __init__(self, structure, conditions, callbacks):
+        type(self)._menu_generation += 1
+        self._menu_generation_id = type(self)._menu_generation
+        MenuBuilder.__init__(self, structure, conditions, callbacks)
+
     def make_menu_item(self, item, id_magic):
-        return item.make_nautilus_menu_item(id_magic)
+        unique_id_magic = "%s-%s" % (self._menu_generation_id, id_magic)
+        return item.make_nautilus_menu_item(unique_id_magic)
 
     def attach_submenu(self, menu_node, submenu_list):
         submenu = Nautilus.Menu()
