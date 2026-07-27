@@ -26,6 +26,7 @@ Concrete VCS implementation for Git functionality.
 from __future__ import absolute_import
 
 import os.path
+import time
 from datetime import datetime
 
 from .gittyup.client import GittyupClient
@@ -132,9 +133,28 @@ class Git(object):
             self.client = GittyupClient()
 
         self.cache = rabbitvcs.vcs.status.StatusCache()
+        # Nautilus sends many invalidating requests during one refresh. Treat
+        # requests for the same displayed directory as one short burst.
+        self._status_refresh_last_request = {}
+        self._status_refresh_gap = 0.5
 
     def set_repository(self, path):
-        self.client.set_repository(path)
+        try:
+            current_path = self.client.get_repository()
+        except (AttributeError, TypeError):
+            current_path = None
+
+        if current_path is not None:
+            current_path = os.path.normcase(
+                os.path.realpath(os.fsdecode(current_path))
+            )
+        new_path = os.path.normcase(os.path.realpath(os.fsdecode(path)))
+
+        if current_path != new_path:
+            self.client.set_repository(path)
+            self.cache = rabbitvcs.vcs.status.StatusCache()
+            self._status_refresh_last_request = {}
+
         self.config = self.client.config
 
     def config_get(self, key1, key2):
@@ -145,6 +165,56 @@ class Git(object):
 
     def find_repository_path(self, path):
         return self.client.find_repository_path(path)
+
+    def _status_refresh_directory(self, path):
+        path_text = os.fsdecode(path)
+        repository = os.path.normcase(
+            os.path.realpath(os.fsdecode(self.client.get_repository()))
+        )
+        normalized_path = os.path.normcase(os.path.realpath(path_text))
+
+        if normalized_path == repository:
+            return path_text
+
+        stripped_path = path_text.rstrip(os.sep)
+        if not stripped_path:
+            return os.sep
+        return os.path.dirname(stripped_path)
+
+    def _status_from_refresh_batch(self, path, summarize):
+        directory = self._status_refresh_directory(path)
+        directory_key = os.path.normcase(os.path.realpath(directory))
+        now = time.monotonic()
+        previous_request = self._status_refresh_last_request.get(directory_key)
+
+        # Nautilus requests status once per visible item, often with duplicate
+        # and out-of-order paths. Treat closely grouped requests for the same
+        # displayed directory as one refresh snapshot.
+        if (
+            previous_request is None
+            or now - previous_request > self._status_refresh_gap
+        ):
+            self.statuses(directory, recurse=False, invalidate=True)
+            now = time.monotonic()
+
+            cutoff = now - 60.0
+            for old_directory, timestamp in list(
+                self._status_refresh_last_request.items()
+            ):
+                if timestamp < cutoff:
+                    del self._status_refresh_last_request[old_directory]
+
+        self._status_refresh_last_request[directory_key] = now
+
+        if path in self.cache:
+            status = self.cache[path]
+            if summarize:
+                status.summary = status.single
+            return status
+
+        # Preserve the original exact-path handling for deleted paths,
+        # unusual symlinks and nested repositories absent from the snapshot.
+        return self.status(path, summarize=summarize, invalidate=False)
 
     #
     # Status Methods
@@ -191,14 +261,14 @@ class Git(object):
             return statuses
 
     def status(self, path, summarize=True, invalidate=False):
+        if invalidate:
+            return self._status_from_refresh_batch(path, summarize)
+
         if path in self.cache:
-            if invalidate:
-                del self.cache[path]
-            else:
-                st = self.cache[path]
-                if summarize:
-                    st.summary = st.single
-                return st
+            st = self.cache[path]
+            if summarize:
+                st.summary = st.single
+            return st
 
         all_statuses = self.statuses(path, invalidate=invalidate)
 
