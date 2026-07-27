@@ -1623,6 +1623,199 @@ class GittyupClient(object):
 
         return tags
 
+    # RABBITVCS_GROUPED_SPARSE_MENU_SNAPSHOT_V8G
+    def menu_statuses_batch(self, base_dir, paths):
+        # Return per-path status lists without recursively enumerating every
+        # normal file below base_dir.
+        requested = []
+        for absolute_path in paths:
+            relative_path = S(self.get_relative_path(absolute_path))
+            if relative_path == ".":
+                relative_path = ""
+            requested.append(
+                {
+                    "absolute": absolute_path,
+                    "relative": relative_path,
+                    "is_dir": os.path.isdir(absolute_path),
+                }
+            )
+
+        changed = {}
+        changed_order = []
+
+        cmd = [
+            "git",
+            "status",
+            "--porcelain",
+            "--untracked-files=all",
+            base_dir,
+        ]
+        try:
+            (_status, stdout, _stderr) = GittyupCommand(
+                cmd, cwd=self.repo.path, notify=self.notify
+            ).execute()
+        except GittyupCommandError as error:
+            self.callback_notify(error)
+            stdout = []
+
+        for line in stdout:
+            components = RE_STATUS.match(line)
+            if not components:
+                continue
+
+            raw_status = components.group(1)
+            strip_status = raw_status.strip()
+            relative_path = self.string_unescape(components.group(2))
+            if (
+                len(relative_path) >= 2
+                and relative_path[0] == '"'
+                and relative_path[-1] == '"'
+            ):
+                relative_path = relative_path[1:-1]
+
+            if raw_status == " D":
+                status_class = MissingStatus
+            elif any(code in strip_status for code in ["M", "R", "U"]):
+                status_class = ModifiedStatus
+            elif strip_status in ["A", "C"]:
+                status_class = AddedStatus
+            elif strip_status == "D":
+                status_class = RemovedStatus
+            elif strip_status == "??":
+                status_class = UntrackedStatus
+            else:
+                continue
+
+            changed[relative_path] = status_class
+            changed_order.append(relative_path)
+
+        untracked_directories = []
+        cmd = ["git", "clean", "-nd", self.repo.path]
+        try:
+            (_status, stdout, _stderr) = GittyupCommand(
+                cmd, cwd=self.repo.path, notify=self.notify
+            ).execute()
+        except GittyupCommandError as error:
+            self.callback_notify(error)
+            stdout = []
+
+        for line in stdout:
+            components = re.match("^(Would remove)\\s(.*?)$", line)
+            if components:
+                relative_path = components.group(2)
+                if relative_path.endswith("/"):
+                    untracked_directories.append(relative_path[:-1])
+
+        ignored_files = []
+        ignored_directories = []
+        cmd = ["git", "clean", "-ndX", self.repo.path]
+        try:
+            (_status, stdout, _stderr) = GittyupCommand(
+                cmd, cwd=self.repo.path, notify=self.notify
+            ).execute()
+        except GittyupCommandError as error:
+            self.callback_notify(error)
+            stdout = []
+
+        for line in stdout:
+            components = re.match("^(Would remove)\\s(.*?)$", line)
+            if not components:
+                continue
+            relative_path = components.group(2)
+            if relative_path.endswith("/"):
+                ignored_directories.append(relative_path[:-1])
+            else:
+                ignored_files.append(relative_path)
+
+        def under(path, directory):
+            if directory in ("", "."):
+                return True
+            prefix = directory.rstrip("/") + "/"
+            return path == directory or path.startswith(prefix)
+
+        def ignored_exact(relative_path):
+            if relative_path in ignored_files:
+                return True
+            return any(
+                under(relative_path, ignored_dir)
+                for ignored_dir in ignored_directories
+            )
+
+        result = {}
+
+        for item in requested:
+            relative_path = item["relative"]
+            is_dir = item["is_dir"]
+
+            exact_class = changed.get(relative_path)
+
+            if ignored_exact(relative_path):
+                exact_class = IgnoredStatus
+            elif is_dir:
+                descendants = [
+                    changed_path
+                    for changed_path in changed_order
+                    if under(changed_path, relative_path)
+                ]
+                if descendants:
+                    exact_class = ModifiedStatus
+                elif any(
+                    under(relative_path, untracked_dir)
+                    for untracked_dir in untracked_directories
+                ):
+                    # An untracked child directory does not make its tracked
+                    # parent unversioned. Only the untracked directory itself
+                    # and paths below it receive UntrackedStatus.
+                    exact_class = UntrackedStatus
+
+            if exact_class is None:
+                exact_class = NormalStatus
+
+            statuses = [exact_class(relative_path)]
+            seen = {relative_path}
+
+            if is_dir:
+                for changed_path in changed_order:
+                    if not under(changed_path, relative_path):
+                        continue
+                    if changed_path in seen:
+                        continue
+                    statuses.append(changed[changed_path](changed_path))
+                    seen.add(changed_path)
+
+            # Preserve the existing repository-wide ignored-file semantics.
+            for ignored_path in ignored_files:
+                if ignored_path in seen:
+                    continue
+                statuses.append(IgnoredStatus(ignored_path))
+                seen.add(ignored_path)
+
+            if is_dir:
+                # Preserve has_unversioned for empty/untracked child
+                # directories. They must be child statuses, not the exact
+                # status of a tracked parent directory.
+                for untracked_dir in untracked_directories:
+                    if not under(untracked_dir, relative_path):
+                        continue
+                    if untracked_dir in seen:
+                        continue
+                    statuses.append(UntrackedStatus(untracked_dir))
+                    seen.add(untracked_dir)
+
+                # Ignored directories below a selected directory make
+                # has_ignored true in the old recursive calculation.
+                for ignored_dir in ignored_directories:
+                    if not under(ignored_dir, relative_path):
+                        continue
+                    if ignored_dir in seen:
+                        continue
+                    statuses.append(IgnoredStatus(ignored_dir))
+                    seen.add(ignored_dir)
+
+            result[item["absolute"]] = statuses
+
+        return result
+
     def status_porcelain(self, path):
         if os.path.isdir(path):
             (files, directories) = self._read_directory_tree(path)

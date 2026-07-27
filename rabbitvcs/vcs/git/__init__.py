@@ -220,6 +220,26 @@ class Git(object):
     # Status Methods
     #
 
+    # RABBITVCS_GROUPED_SPARSE_MENU_SNAPSHOT_V8G
+    def menu_statuses_batch(self, base_dir, paths):
+        raw_batches = self.client.menu_statuses_batch(base_dir, paths)
+        result = {}
+
+        for requested_path, raw_statuses in raw_batches.items():
+            converted = []
+            for raw_status in raw_statuses:
+                raw_copy = type(raw_status)(raw_status.path)
+                raw_copy.path = self.client.get_absolute_path(raw_copy.path)
+                status = rabbitvcs.vcs.status.GitStatus(raw_copy)
+                converted.append(status)
+
+                if raw_copy.path == requested_path:
+                    self.cache[requested_path] = status
+
+            result[requested_path] = converted
+
+        return result
+
     def statuses(self, path, recurse=False, invalidate=False):
         """
         Generates a list of GittyupStatus objects for the specified file.

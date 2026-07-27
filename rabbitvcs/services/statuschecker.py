@@ -127,36 +127,121 @@ class StatusChecker(object):
         if not paths:
             return []
 
-        # Preserve the old behaviour for mixed directories containing paths
-        # from different repositories or VCS implementations.
-        if not self._menu_paths_share_repository(base_dir, paths):
-            return [
-                self.generate_menu_conditions([path])
-                for path in paths
-            ]
+        # RABBITVCS_GROUPED_SPARSE_MENU_SNAPSHOT_V8G
+        # One Nautilus/D-Bus batch can contain a nested repository. Group the
+        # paths by their actual VCS and repository instead of falling back to
+        # one old-style calculation per path.
+        groups = {}
+        group_order = []
 
-        # One recursive snapshot populates the VCS cache for every visible
-        # child. Each condition dictionary is derived from that snapshot.
-        all_statuses = self.vcs_client.statuses(
-            base_dir, recurse=True, invalidate=True
-        )
-
-        result = []
         for path in paths:
-            path_statuses = self._menu_statuses_for_path(
-                path, all_statuses
-            )
-            if path_statuses:
-                conditions = MainContextMenuConditions(
-                    self.vcs_client,
-                    [path],
-                    statuses=path_statuses,
-                )
-                result.append(conditions.path_dict)
-            else:
-                result.append(self.generate_menu_conditions([path]))
+            guess = self.vcs_client.guess(path)
+            key = (guess.get("vcs"), guess.get("repo_path"))
+            if key not in groups:
+                groups[key] = []
+                group_order.append(key)
+            groups[key].append(path)
 
-        return result
+        path_dicts = {}
+
+        for key in group_order:
+            vcs_type, repo_path = key
+            group_paths = groups[key]
+
+            if not vcs_type or not repo_path:
+                for path in group_paths:
+                    path_dicts[path] = self.generate_menu_conditions([path])
+                continue
+
+            try:
+                base_real = os.path.normcase(
+                    os.path.realpath(os.fsdecode(base_dir))
+                )
+                repo_real = os.path.normcase(
+                    os.path.realpath(os.fsdecode(repo_path))
+                )
+                if os.path.commonpath([base_real, repo_real]) == repo_real:
+                    group_base = base_dir
+                else:
+                    # A direct child can itself be a nested repository root.
+                    group_base = repo_path
+            except (OSError, TypeError, ValueError):
+                group_base = repo_path
+
+            vcs_backend = self.vcs_client.client(group_base)
+
+            if (
+                vcs_type == "git"
+                and hasattr(vcs_backend, "menu_statuses_batch")
+            ):
+                batches = vcs_backend.menu_statuses_batch(
+                    group_base, group_paths
+                )
+                for path in group_paths:
+                    path_statuses = batches.get(path, [])
+                    if path_statuses:
+                        conditions = MainContextMenuConditions(
+                            self.vcs_client,
+                            [path],
+                            statuses=path_statuses,
+                        )
+
+                        # RABBITVCS_GROUPED_SPARSE_MENU_SNAPSHOT_V8G
+                        # The batch already contains the exact status for this
+                        # path. Derive is_versioned from it instead of asking
+                        # the shared VCS facade again; that extra lookup can
+                        # observe a different repository/cache generation when
+                        # one Nautilus directory contains nested repositories.
+                        normalized_path = os.path.normcase(
+                            os.path.normpath(os.fsdecode(path))
+                        )
+                        exact_status = next(
+                            (
+                                status
+                                for status in path_statuses
+                                if os.path.normcase(
+                                    os.path.normpath(
+                                        os.fsdecode(status.path)
+                                    )
+                                )
+                                == normalized_path
+                            ),
+                            None,
+                        )
+                        if exact_status is not None:
+                            conditions.path_dict["is_versioned"] = (
+                                exact_status.is_versioned()
+                            )
+
+                        path_dicts[path] = conditions.path_dict
+                    else:
+                        path_dicts[path] = (
+                            self.generate_menu_conditions([path])
+                        )
+                continue
+
+            # Preserve V8b's recursive grouped behaviour for other VCS
+            # implementations.
+            all_statuses = self.vcs_client.statuses(
+                group_base, recurse=True, invalidate=True
+            )
+            for path in group_paths:
+                path_statuses = self._menu_statuses_for_path(
+                    path, all_statuses
+                )
+                if path_statuses:
+                    conditions = MainContextMenuConditions(
+                        self.vcs_client,
+                        [path],
+                        statuses=path_statuses,
+                    )
+                    path_dicts[path] = conditions.path_dict
+                else:
+                    path_dicts[path] = (
+                        self.generate_menu_conditions([path])
+                    )
+
+        return [path_dicts[path] for path in paths]
 
     def extra_info(self):
         return None
