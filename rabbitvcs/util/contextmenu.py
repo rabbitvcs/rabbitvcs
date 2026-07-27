@@ -1318,33 +1318,22 @@ class MainContextMenuConditions(ContextMenuConditions):
 
     """
 
-    def __init__(self, vcs_client, paths=[]):
-        """
-        @param  vcs_client: The vcs client to be used
-        @type   vcs_client: rabbitvcs.vcs.create_vcs_instance()
-
-        @param  paths: The selected paths
-        @type   paths: list
-
-        """
-
+    def __init__(self, vcs_client, paths=[], statuses=None):
         self.vcs_client = vcs_client
         self.paths = paths
         self.statuses = {}
 
-        self.generate_statuses(paths)
+        if statuses is None:
+            self.generate_statuses(paths)
+        else:
+            self._set_statuses(statuses)
         self.generate_path_dict(paths)
 
-    # FIXME: major bottleneck
-    def generate_statuses(self, paths):
+    # RABBITVCS_BATCHED_MENU_WARMUP_V8
+    def _set_statuses(self, statuses):
         self.statuses = {}
-        for path in paths:
-            if not path:
-                continue
-
-            statuses_tmp = self.vcs_client.statuses(path)
-            for status in statuses_tmp:
-                self.statuses[status.path] = status
+        for status in statuses:
+            self.statuses[status.path] = status
 
         self.text_statuses = [
             self.statuses[key].simple_content_status()
@@ -1354,6 +1343,15 @@ class MainContextMenuConditions(ContextMenuConditions):
             self.statuses[key].simple_metadata_status()
             for key in list(self.statuses.keys())
         ]
+
+    # FIXME: major bottleneck when called once for every visible path
+    def generate_statuses(self, paths):
+        statuses = []
+        for path in paths:
+            if not path:
+                continue
+            statuses.extend(self.vcs_client.statuses(path))
+        self._set_statuses(statuses)
 
 
 class MainContextMenu(object):
