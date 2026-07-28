@@ -37,8 +37,6 @@ from gi.repository import Gtk, GObject, Gdk
 # along with RabbitVCS;  If not, see <http://www.gnu.org/licenses/>.
 #
 
-import threading
-
 from rabbitvcs.util import helper
 
 import gi

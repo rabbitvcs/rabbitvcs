@@ -1,7 +1,6 @@
 from __future__ import absolute_import
 from rabbitvcs import gettext
 import rabbitvcs.vcs.status
-from rabbitvcs.util.decorators import gtk_unsafe
 from rabbitvcs.util.log import Log
 from rabbitvcs.util.strings import S
 import rabbitvcs.util

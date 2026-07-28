@@ -7,7 +7,6 @@ from rabbitvcs.services.checkerservice import StatusCheckerStub as StatusChecker
 import rabbitvcs.vcs
 import rabbitvcs.ui.widget
 import rabbitvcs.ui
-from collections import defaultdict
 from gi.repository import Gtk
 
 #

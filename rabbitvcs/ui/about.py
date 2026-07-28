@@ -9,7 +9,6 @@ from gi.repository import Gtk, GdkPixbuf
 import gi
 from rabbitvcs.util import helper
 import re
-import string
 import os.path
 
 #

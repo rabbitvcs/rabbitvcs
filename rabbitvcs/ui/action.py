@@ -35,9 +35,6 @@ from rabbitvcs.ui import InterfaceView
 from gi.repository import Gtk, GObject
 import threading
 
-from os.path import basename
-
-import shutil
 import gi
 
 gi.require_version("Gtk", "3.0")

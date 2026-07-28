@@ -17,11 +17,8 @@
 # You should have received a copy of the GNU General Public License
 # along with RabbitVCS;  If not, see <http://www.gnu.org/licenses/>.
 #
-import os
-import os.path
 from rabbitvcs import gettext
 from rabbitvcs.util.strings import S
-from rabbitvcs.ui import STATUS_EMBLEMS
 from rabbitvcs.services.checkerservice import StatusCheckerStub as StatusChecker
 import rabbitvcs.vcs
 

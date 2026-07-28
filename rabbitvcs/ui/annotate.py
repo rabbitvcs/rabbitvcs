@@ -4,7 +4,6 @@ from rabbitvcs import gettext
 import rabbitvcs.vcs
 from rabbitvcs.util.settings import SettingsManager
 from rabbitvcs.util.highlighter import highlight
-from rabbitvcs.util.decorators import gtk_unsafe
 from rabbitvcs.util.strings import S
 from rabbitvcs.util.contextmenuitems import *
 from rabbitvcs.util.contextmenu import GtkContextMenu
@@ -38,7 +37,7 @@ from gi.repository import Gtk, GObject, Gdk, GLib
 #
 
 import os
-from random import random, uniform
+from random import uniform
 
 from rabbitvcs.util import helper
 

@@ -1,6 +1,5 @@
 from __future__ import absolute_import
-from rabbitvcs import gettext, _gettext, APP_NAME, LOCALE_DIR
-from rabbitvcs.services.checkerservice import StatusCheckerStub
+from rabbitvcs import gettext
 import rabbitvcs.services.checkerservice
 from rabbitvcs.util.strings import S
 from rabbitvcs.util._locale import get_locale

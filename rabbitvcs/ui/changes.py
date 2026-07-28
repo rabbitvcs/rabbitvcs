@@ -1,6 +1,5 @@
 from __future__ import absolute_import
 from rabbitvcs import gettext
-from rabbitvcs.ui.dialog import MessageBox
 import rabbitvcs.ui.action
 from rabbitvcs.util.strings import S
 from rabbitvcs.util.contextmenuitems import *
@@ -30,8 +29,6 @@ from gi.repository import Gtk, GObject, Gdk
 # You should have received a copy of the GNU General Public License
 # along with RabbitVCS;  If not, see <http://www.gnu.org/licenses/>.
 #
-
-import os.path
 
 from rabbitvcs.util import helper
 
