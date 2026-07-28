@@ -3,9 +3,7 @@ from rabbitvcs import gettext
 import rabbitvcs.vcs
 import rabbitvcs.ui.widget
 from rabbitvcs.ui import InterfaceView
-import time
-from datetime import datetime
-from gi.repository import Gtk, GObject, Gdk, Pango
+from gi.repository import Gtk
 
 #
 # This is an extension to the Nautilus file manager to allow better

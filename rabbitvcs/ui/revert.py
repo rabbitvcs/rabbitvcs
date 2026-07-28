@@ -1,6 +1,5 @@
 from __future__ import absolute_import
 from rabbitvcs import gettext
-from rabbitvcs.vcs.status import Status
 from rabbitvcs.util.log import Log
 from rabbitvcs.util.strings import S
 import rabbitvcs.vcs
@@ -34,7 +33,6 @@ from gi.repository import Gtk, GObject, Gdk
 #
 
 import six.moves._thread
-from time import sleep
 
 from rabbitvcs.util import helper
 

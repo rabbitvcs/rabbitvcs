@@ -6,7 +6,7 @@ import rabbitvcs.ui.action
 import rabbitvcs.ui.dialog
 import rabbitvcs.ui.widget
 from rabbitvcs.ui.add import Add
-from gi.repository import Gtk, GObject, Gdk
+from gi.repository import Gtk, GObject
 
 #
 # This is an extension to the Nautilus file manager to allow better
@@ -29,8 +29,6 @@ from gi.repository import Gtk, GObject, Gdk
 # You should have received a copy of the GNU General Public License
 # along with RabbitVCS;  If not, see <http://www.gnu.org/licenses/>.
 #
-
-import six.moves._thread
 
 from rabbitvcs.util import helper
 

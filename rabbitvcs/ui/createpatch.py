@@ -2,12 +2,11 @@ from __future__ import absolute_import
 from rabbitvcs import gettext
 from rabbitvcs.ui.commit import SVNCommit, GitCommit
 from rabbitvcs.util.log import Log
-from rabbitvcs.util.strings import S
 import rabbitvcs.util
 import rabbitvcs.ui.dialog
 import rabbitvcs.ui.widget
 from rabbitvcs.ui import InterfaceView
-from gi.repository import Gtk, GObject, Gdk
+from gi.repository import Gtk, GObject
 
 #
 # This is an extension to the Nautilus file manager to allow better
@@ -34,7 +33,6 @@ from gi.repository import Gtk, GObject, Gdk
 import os
 import tempfile
 import shutil
-import six.moves._thread
 
 from rabbitvcs.util import helper
 

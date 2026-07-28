@@ -1,7 +1,6 @@
 from __future__ import absolute_import
 from rabbitvcs import gettext
 import rabbitvcs.vcs.status
-from rabbitvcs.util.decorators import gtk_unsafe
 from rabbitvcs.util.log import Log
 from rabbitvcs.util.strings import S
 import rabbitvcs.util
@@ -33,9 +32,6 @@ from gi.repository import Gtk, GObject, Gdk, GLib
 # You should have received a copy of the GNU General Public License
 # along with RabbitVCS;  If not, see <http://www.gnu.org/licenses/>.
 #
-
-import six.moves._thread
-from time import sleep
 
 from rabbitvcs.util import helper
 

@@ -4,7 +4,7 @@ import rabbitvcs.ui.dialog
 import rabbitvcs.ui.widget
 from rabbitvcs.ui.action import SVNAction, GitAction
 from rabbitvcs.ui import InterfaceNonView, InterfaceView
-from gi.repository import Gtk, GObject, Gdk
+from gi.repository import Gtk
 
 #
 # This is an extension to the Nautilus file manager to allow better

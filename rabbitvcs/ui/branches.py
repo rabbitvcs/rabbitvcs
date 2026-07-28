@@ -3,13 +3,10 @@ from rabbitvcs import gettext
 from xml.sax import saxutils
 import rabbitvcs.vcs
 from rabbitvcs.util.strings import S
-from rabbitvcs.ui.dialog import DeleteConfirmation
 import rabbitvcs.ui.widget
 from rabbitvcs.ui.log import log_dialog_factory
 from rabbitvcs.ui import InterfaceView
-import time
-from datetime import datetime
-from gi.repository import Gtk, GObject, Gdk, Pango
+from gi.repository import Gtk, Gdk
 
 #
 # This is an extension to the Nautilus file manager to allow better

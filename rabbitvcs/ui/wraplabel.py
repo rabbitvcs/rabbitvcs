@@ -1,6 +1,6 @@
 from __future__ import absolute_import
 from rabbitvcs.util.strings import S
-from gi.repository import Gtk, GObject, Pango
+from gi.repository import Gtk, Pango
 
 # This file was originally obtained from:
 # http://git.gnome.org/cgit/meld/tree/meld/ui/wraplabel.py

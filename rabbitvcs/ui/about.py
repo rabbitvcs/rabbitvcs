@@ -5,11 +5,10 @@ import configobj
 import pysvn
 import rabbitvcs.ui.widget
 import rabbitvcs
-from gi.repository import Gtk, GObject, GdkPixbuf
+from gi.repository import Gtk, GdkPixbuf
 import gi
 from rabbitvcs.util import helper
 import re
-import string
 import os.path
 
 #

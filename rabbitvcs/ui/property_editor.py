@@ -31,7 +31,6 @@ wasn't; just do the work and make sure the UI is sensible.
 from __future__ import absolute_import, print_function
 from rabbitvcs import gettext
 from rabbitvcs.util.log import Log
-from rabbitvcs.vcs.svn import Revision
 from rabbitvcs.util.strings import S
 import rabbitvcs.vcs
 import rabbitvcs.ui.dialog

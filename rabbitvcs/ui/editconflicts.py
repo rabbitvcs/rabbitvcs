@@ -5,7 +5,6 @@ import rabbitvcs.ui.action
 import rabbitvcs.ui.dialog
 import rabbitvcs.ui.widget
 from rabbitvcs.ui import InterfaceNonView
-from gi.repository import Gtk, GObject, Gdk
 
 #
 # This is an extension to the Nautilus file manager to allow better
@@ -31,7 +30,6 @@ from gi.repository import Gtk, GObject, Gdk
 
 import os
 import os.path
-import six.moves._thread
 import shutil
 
 from rabbitvcs.util import helper
