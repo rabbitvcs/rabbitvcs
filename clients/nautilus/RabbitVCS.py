@@ -413,13 +413,21 @@ class RabbitVCS(
             return ()
 
         # Schedule menu conditions computation for directory contents.
+        # RABBITVCS_BATCHED_MENU_WARMUP_V8
+        uncached_paths = []
         for file in os.listdir(path):
             subpath = os.path.join(path, file)
-            if not subpath in self.items_cache:
+            if subpath not in self.items_cache:
                 self.items_cache[subpath] = "in-progress"
-                self.status_checker.generate_menu_conditions_async(
-                    provider, path, [subpath], self.update_background_items
-                )
+                uncached_paths.append(subpath)
+
+        if uncached_paths:
+            self.status_checker.generate_menu_conditions_batch_async(
+                provider,
+                path,
+                uncached_paths,
+                self.update_background_items_batch,
+            )
 
         conditions_dict = None
         if path in self.items_cache:
@@ -438,6 +446,18 @@ class RabbitVCS(
             self.items_cache[path] = "in-progress"
 
         return ()
+
+    def update_background_items_batch(
+        self, provider, base_dir, paths, path_dicts
+    ):
+        for index, path in enumerate(paths):
+            if index < len(path_dicts):
+                self.items_cache[path] = path_dicts[index]
+            else:
+                self.items_cache[path] = {}
+
+        # One signal replaces one signal for every directory entry.
+        Nautilus.MenuProvider.emit_items_updated_signal(provider)
 
     def update_background_items(self, provider, base_dir, paths, conditions_dict):
         paths_str = "-".join(paths)
