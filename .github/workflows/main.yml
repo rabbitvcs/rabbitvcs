@@ -29,8 +29,9 @@ jobs:
           python-version: '3.12' # Version range or exact version of a Python version to use, using SemVer's version range syntax
       - name: Install dependencies
         run: |
+          apt-get update && apt install libcairo2-dev
           python -m pip install --upgrade pip
-          pip install flake8 pytest configobj setuptools pycairo
+          pip install flake8 pytest configobj setuptools
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
       # Runs a single command using the runners shell
       - run: pytest
