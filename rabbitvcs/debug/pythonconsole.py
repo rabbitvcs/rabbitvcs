@@ -30,7 +30,6 @@
 
 from rabbitvcs.util.strings import S
 from gi.repository import GLib, Gtk, Gdk, Pango
-import string
 import sys
 import re
 import traceback
