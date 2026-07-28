@@ -6,7 +6,7 @@ import rabbitvcs.ui.action
 import rabbitvcs.ui.dialog
 import rabbitvcs.ui.widget
 from rabbitvcs.ui.add import Add
-from rabbitvcs.ui import InterfaceView, InterfaceNonView
+from rabbitvcs.ui import InterfaceNonView
 from gi.repository import Gtk, GObject, Gdk
 
 #

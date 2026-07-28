@@ -6,7 +6,6 @@ import rabbitvcs.ui.action
 import rabbitvcs.ui.dialog
 import rabbitvcs.ui.widget
 from rabbitvcs.ui.checkout import Checkout
-from rabbitvcs.ui import InterfaceView
 from gi.repository import Gtk, GObject, Gdk
 
 #
