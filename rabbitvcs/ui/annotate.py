@@ -38,7 +38,6 @@ from gi.repository import Gtk, GObject, Gdk, GLib
 #
 
 import os
-import time
 from random import random, uniform
 
 from rabbitvcs.util import helper

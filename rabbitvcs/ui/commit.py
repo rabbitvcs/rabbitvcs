@@ -35,7 +35,6 @@ from gi.repository import Gtk, GObject, Gdk, GLib
 #
 
 import six.moves._thread
-from time import sleep
 
 from rabbitvcs.util import helper
 

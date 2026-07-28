@@ -4,7 +4,6 @@ import rabbitvcs.vcs
 from rabbitvcs.ui.dialog import DeleteConfirmation
 import rabbitvcs.ui.widget
 from rabbitvcs.ui import InterfaceView
-import time
 from gi.repository import Gtk, GObject, Gdk
 
 #

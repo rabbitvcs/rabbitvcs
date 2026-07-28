@@ -3,7 +3,6 @@ from rabbitvcs import gettext
 import rabbitvcs.vcs
 import rabbitvcs.ui.widget
 from rabbitvcs.ui import InterfaceView
-import time
 from gi.repository import Gtk
 
 #

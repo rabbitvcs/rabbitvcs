@@ -32,7 +32,6 @@ from gi.repository import Gtk, GObject, Gdk
 #
 
 from datetime import datetime
-import time
 
 from rabbitvcs.util import helper
 
