@@ -216,12 +216,12 @@ class SVNRevertQuiet(object):
 
 
 class GitRevertQuiet(object):
-    def __init__(self, paths, base_dir=None):
+    def __init__(self, paths, base_dir=None, revision="HEAD"):
         self.vcs = rabbitvcs.vcs.VCS()
         self.git = self.vcs.git(paths[0])
         self.action = rabbitvcs.ui.action.GitAction(self.git, run_in_thread=False)
 
-        self.action.append(self.git.checkout, paths)
+        self.action.append(self.git.revert, paths, self.git.revision(revision))
         self.action.schedule()
 
 
@@ -242,11 +242,26 @@ if __name__ == "__main__":
     from rabbitvcs.ui import main, BASEDIR_OPT, QUIET_OPT
 
     (options, paths) = main(
-        [BASEDIR_OPT, QUIET_OPT], usage="Usage: rabbitvcs revert [path1] [path2] ..."
+        [
+            BASEDIR_OPT,
+            QUIET_OPT,
+            (
+                ["--revision"],
+                {
+                    "help": "revision to revert to (git only, default: HEAD)",
+                    "default": "HEAD",
+                },
+            ),
+        ],
+        usage="Usage: rabbitvcs revert [path1] [path2] ...",
     )
 
     if options.quiet:
-        revert_factory(quiet_classes_map, paths)
+        guess = rabbitvcs.vcs.guess(paths[0])
+        if guess["vcs"] == rabbitvcs.vcs.VCS_GIT:
+            GitRevertQuiet(paths, options.base_dir, revision=options.revision)
+        else:
+            revert_factory(quiet_classes_map, paths, options.base_dir)
     else:
         window = revert_factory(classes_map, paths, options.base_dir)
         window.register_gtk_quit()

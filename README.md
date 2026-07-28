@@ -93,6 +93,11 @@ to the rabbitvcs lib folder. Most likely it is located at
 is will be `/usr/lib/python2.7/dist-packages/rabbitvcs`.
 For Fedora-based distros on 64-bit make sure to check `/usr/lib64`.
 
+On Ubuntu (Python 3), use `rsync` to deploy directly to the system package directory:
+```
+# rsync -a rabbitvcs/ /usr/lib/python3/dist-packages/rabbitvcs/
+```
+
 
 References
 ----------

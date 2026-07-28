@@ -5,3 +5,4 @@ build/
 dist/
 rabbitvcs.egg-info/
 .vscode
+tortoisegit/
