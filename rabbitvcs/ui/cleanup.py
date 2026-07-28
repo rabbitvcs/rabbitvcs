@@ -3,7 +3,7 @@ from rabbitvcs import gettext
 import rabbitvcs.vcs
 from rabbitvcs.ui.action import SVNAction
 from rabbitvcs.ui import InterfaceNonView
-from gi.repository import Gtk, GObject
+from gi.repository import Gtk
 
 #
 # This is an extension to the Nautilus file manager to allow better

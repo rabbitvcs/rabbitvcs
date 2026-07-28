@@ -5,7 +5,6 @@ import rabbitvcs.ui.action
 import rabbitvcs.ui.dialog
 import rabbitvcs.ui.widget
 from rabbitvcs.ui import InterfaceNonView
-from gi.repository import GObject
 
 #
 # This is an extension to the Nautilus file manager to allow better
