@@ -1,4 +1,3 @@
-from __future__ import absolute_import
 from rabbitvcs.util.log import Log
 from rabbitvcs import gettext
 import rabbitvcs.vcs

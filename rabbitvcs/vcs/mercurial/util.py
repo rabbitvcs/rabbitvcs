@@ -1,4 +1,3 @@
-from __future__ import absolute_import
 
 #
 # This is an extension to the Nautilus file manager to allow better

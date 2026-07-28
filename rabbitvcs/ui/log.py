@@ -20,7 +20,7 @@
 # along with RabbitVCS;  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from __future__ import division, absolute_import
+from __future__ import division
 from six.moves import range
 from rabbitvcs import gettext
 import rabbitvcs.vcs

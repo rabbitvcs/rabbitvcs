@@ -39,7 +39,6 @@ Usage:
     log.debug("a debug message")
 
 """
-from __future__ import absolute_import
 
 import os
 import logging

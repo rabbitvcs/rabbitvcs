@@ -1,4 +1,3 @@
-from __future__ import absolute_import
 from rabbitvcs import gettext
 from rabbitvcs.ui.action import SVNAction
 from rabbitvcs.util.log import Log

@@ -25,7 +25,6 @@
 UI layer.
 
 """
-from __future__ import absolute_import
 import rabbitvcs.vcs.status
 from rabbitvcs import APP_NAME, LOCALE_DIR, gettext
 

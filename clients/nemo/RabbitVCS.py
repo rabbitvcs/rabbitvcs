@@ -28,7 +28,6 @@ Our module for everything related to the Nemo extension.
 
 
 from __future__ import with_statement
-from __future__ import absolute_import
 from rabbitvcs.util.contextmenuitems import *
 from rabbitvcs.services.checkerservice import StatusCheckerStub as StatusChecker
 import rabbitvcs.services.service

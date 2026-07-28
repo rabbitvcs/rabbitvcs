@@ -42,7 +42,6 @@ should be kept to a minimum. Use convenience methods to condense and summarise
 data wherever possible (this is the case in the actual status cache and checker
 code).
 """
-from __future__ import absolute_import
 from rabbitvcs import version as SERVICE_VERSION
 
 import os

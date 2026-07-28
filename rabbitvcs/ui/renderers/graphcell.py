@@ -8,7 +8,6 @@ Because we're shiny, we use Cairo to do this, and because we're naughty
 we cheat and draw over the bits of the TreeViewColumn that are supposed to
 just be for the background.
 """
-from __future__ import absolute_import
 
 __copyright__ = "Copyright 2005 Canonical Ltd."
 __author__ = "Scott James Remnant <scott@ubuntu.com>"

@@ -1,4 +1,3 @@
-from __future__ import absolute_import
 from rabbitvcs.util.strings import S
 import rabbitvcs.util.helper
 import rabbitvcs.ui.wraplabel

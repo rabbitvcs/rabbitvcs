@@ -1,4 +1,3 @@
-from __future__ import absolute_import
 from rabbitvcs.util.contextmenuitems import *
 from rabbitvcs.util.contextmenu import (
     GtkFilesContextMenuConditions,
