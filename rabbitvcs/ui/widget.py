@@ -1,4 +1,3 @@
-from __future__ import absolute_import
 from rabbitvcs.ui import STATUS_EMBLEMS
 from rabbitvcs.util.log import Log
 from rabbitvcs import gettext

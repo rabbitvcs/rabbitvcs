@@ -23,7 +23,6 @@
 """
 Concrete VCS implementation for Subversion functionality.
 """
-from __future__ import absolute_import
 import subprocess
 import os
 import shutil

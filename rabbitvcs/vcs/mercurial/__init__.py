@@ -23,7 +23,6 @@
 """
 Concrete VCS implementation for Mercurial functionality.
 """
-from __future__ import absolute_import
 
 import os.path
 from datetime import datetime

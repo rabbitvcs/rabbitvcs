@@ -1,4 +1,3 @@
-from __future__ import absolute_import
 import six
 from rabbitvcs import gettext
 from rabbitvcs.util.strings import S

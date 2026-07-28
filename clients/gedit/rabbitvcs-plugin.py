@@ -1,4 +1,3 @@
-from __future__ import absolute_import
 
 #
 # This is a Gedit plugin to allow for RabbitVCS integration in the Gedit

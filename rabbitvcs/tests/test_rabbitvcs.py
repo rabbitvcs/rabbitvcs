@@ -24,7 +24,6 @@
 Unit tests for the top-level rabbitvcs package.
 
 """
-from __future__ import absolute_import
 from os.path import normpath, join, dirname, abspath
 import sys
 

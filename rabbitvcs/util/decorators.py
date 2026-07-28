@@ -32,7 +32,6 @@ See:
   - http://wiki.python.org/moin/PythonDecoratorLibrary
 
 """
-from __future__ import absolute_import
 
 import time
 import warnings

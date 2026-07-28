@@ -1,4 +1,3 @@
-from __future__ import absolute_import
 from rabbitvcs import gettext
 import rabbitvcs.services.checkerservice
 from rabbitvcs.util.strings import S

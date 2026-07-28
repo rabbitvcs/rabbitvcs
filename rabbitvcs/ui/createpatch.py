@@ -1,4 +1,3 @@
-from __future__ import absolute_import
 from rabbitvcs import gettext
 from rabbitvcs.ui.commit import SVNCommit, GitCommit
 from rabbitvcs.util.log import Log
