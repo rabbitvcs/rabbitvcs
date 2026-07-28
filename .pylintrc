@@ -545,8 +545,7 @@ disable=raw-checker-failed,
         use-dict-literal,
         use-list-literal,
         use-maxsplit-arg,
-        used-before-assignment,
-        useless-return
+        used-before-assignment
 
 
 
