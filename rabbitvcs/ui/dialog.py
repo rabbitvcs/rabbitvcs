@@ -2,7 +2,6 @@ from __future__ import absolute_import
 from rabbitvcs.util.strings import S
 import rabbitvcs.util.helper
 import rabbitvcs.ui.wraplabel
-import rabbitvcs.ui.widget
 from rabbitvcs.ui import InterfaceView
 from gi.repository import Gtk, GObject, Gdk, Pango
 
@@ -45,17 +44,18 @@ An error has occurred in the RabbitVCS Nautilus extension. Please contact the \
 
 class PreviousMessages(InterfaceView):
     def __init__(self):
+        from rabbitvcs.ui import widget
         InterfaceView.__init__(self, "dialogs/previous_messages", "PreviousMessages")
 
-        self.message = rabbitvcs.ui.widget.TextView(self.get_widget("prevmes_message"))
+        self.message = widget.TextView(self.get_widget("prevmes_message"))
 
-        self.message_table = rabbitvcs.ui.widget.Table(
+        self.message_table = widget.Table(
             self.get_widget("prevmes_table"),
             [GObject.TYPE_STRING, GObject.TYPE_STRING],
             [_("Date"), _("Message")],
             filters=[
                 {
-                    "callback": rabbitvcs.ui.widget.long_text_filter,
+                    "callback": widget.long_text_filter,
                     "user_data": {"column": 1, "cols": 80},
                 }
             ],
@@ -245,12 +245,13 @@ class SSLClientCertPrompt(InterfaceView):
 
 class Property(InterfaceView):
     def __init__(self, name="", value="", recurse=True):
+        from rabbitvcs.ui import widget
         InterfaceView.__init__(self, "dialogs/property", "Property")
 
         self.save_name = name
         self.save_value = value
 
-        self.name = rabbitvcs.ui.widget.ComboBox(
+        self.name = widget.ComboBox(
             self.get_widget("property_name"),
             [  # default svn properties
                 "svn:author",
@@ -270,7 +271,7 @@ class Property(InterfaceView):
         )
         self.name.set_child_text(name)
 
-        self.value = rabbitvcs.ui.widget.TextView(
+        self.value = widget.TextView(
             self.get_widget("property_value"), value
         )
 
@@ -382,11 +383,12 @@ class DeleteConfirmation(InterfaceView):
 
 class TextChange(InterfaceView):
     def __init__(self, title=None, message=""):
+        from rabbitvcs.ui import widget
         InterfaceView.__init__(self, "dialogs/text_change", "TextChange")
         if title:
             self.get_widget("TextChange").set_title(title)
 
-        self.textview = rabbitvcs.ui.widget.TextView(
+        self.textview = widget.TextView(
             self.get_widget("textchange_message"), message
         )
 
@@ -436,10 +438,11 @@ class OneLineTextChange(InterfaceView):
 
 class NewFolder(InterfaceView):
     def __init__(self):
+        from rabbitvcs.ui import widget
         InterfaceView.__init__(self, "dialogs/create_folder", "CreateFolder")
 
         self.folder_name = self.get_widget("folder_name")
-        self.textview = rabbitvcs.ui.widget.TextView(
+        self.textview = widget.TextView(
             self.get_widget("log_message"), _("Added a folder to the repository")
         )
         self.on_folder_name_changed(self.folder_name)
@@ -465,16 +468,17 @@ class NewFolder(InterfaceView):
 
 class ErrorNotification(InterfaceView):
     def __init__(self, text):
+        from rabbitvcs.ui import widget
         InterfaceView.__init__(self, "dialogs/error_notification", "ErrorNotification")
 
         notice = rabbitvcs.ui.wraplabel.WrapLabel(ERROR_NOTICE)
         notice.set_use_markup(True)
 
-        notice_box = rabbitvcs.ui.widget.Box(self.get_widget("notice_box"))
+        notice_box = widget.Box(self.get_widget("notice_box"))
         notice_box.pack_start(notice, True, True, 0)
         notice_box.show_all()
 
-        self.textview = rabbitvcs.ui.widget.TextView(
+        self.textview = widget.TextView(
             self.get_widget("error_text"), text, spellcheck=False
         )
 
@@ -556,11 +560,12 @@ class ConflictDecision(InterfaceView):
 
 class Loading(InterfaceView):
     def __init__(self):
+        from rabbitvcs.ui import widget
         InterfaceView.__init__(self, "dialogs/loading", "Loading")
 
         self.get_widget("loading_cancel").set_sensitive(False)
 
-        self.pbar = rabbitvcs.ui.widget.ProgressBar(self.get_widget("pbar"))
+        self.pbar = widget.ProgressBar(self.get_widget("pbar"))
         self.pbar.start_pulsate()
 
     def on_destroy(self, widget):

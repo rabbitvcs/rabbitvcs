@@ -25,7 +25,6 @@ Concrete VCS dummy implementation.
 """
 from __future__ import absolute_import
 
-import rabbitvcs.vcs
 import rabbitvcs.vcs.status
 
 

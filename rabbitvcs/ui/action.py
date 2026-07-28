@@ -24,13 +24,10 @@ from __future__ import division, absolute_import
 from rabbitvcs.util.log import Log
 from rabbitvcs import gettext
 from rabbitvcs.util.decorators import gtk_unsafe
-from rabbitvcs.ui.dialog import MessageBox
 from rabbitvcs.util.strings import S
 from rabbitvcs.util import helper
 import rabbitvcs.vcs
 import rabbitvcs.util
-import rabbitvcs.ui.dialog
-import rabbitvcs.ui.widget
 from rabbitvcs.ui import InterfaceView
 from gi.repository import Gtk, GObject
 import threading
@@ -88,6 +85,7 @@ class DummyNotifier(object):
 
     @gtk_unsafe
     def exception_callback(self, e):
+        from rabbitvcs.ui.dialog import MessageBox
         log.exception(e)
         MessageBox(str(e))
 
@@ -110,6 +108,7 @@ class MessageCallbackNotifier(VCSNotifier):
         @param  visible: Show the notification window.  Defaults to True.
 
         """
+        import rabbitvcs.ui.widget
 
         VCSNotifier.__init__(self, callback_cancel, visible)
 
@@ -208,6 +207,7 @@ class LoadingNotifier(VCSNotifier):
     gtkbuilder_id = "Loading"
 
     def __init__(self, callback_cancel=None, visible=True):
+        import rabbitvcs.ui.widget
 
         VCSNotifier.__init__(self, callback_cancel, visible)
 
@@ -237,6 +237,7 @@ class LoadingNotifier(VCSNotifier):
     @gtk_unsafe
     def exception_callback(self, e):
         if not self.was_canceled_by_user:
+            from rabbitvcs.ui.dialog import MessageBox
             log.exception(e)
             MessageBox(str(e))
 
@@ -384,10 +385,11 @@ class VCSAction(threading.Thread):
         should_continue = True
         message = self.message
         if message is None:
+            from rabbitvcs.ui import dialog
             settings = rabbitvcs.util.settings.SettingsManager()
             message = settings.get_multiline("general", "default_commit_message")
             result = helper.run_in_main_thread(
-                lambda: rabbitvcs.ui.dialog.TextChange(_("Log Message"), message).run()
+                lambda: dialog.TextChange(_("Log Message"), message).run()
             )
             should_continue = result[0] == Gtk.ResponseType.OK
             message = result[1]
@@ -425,8 +427,9 @@ class VCSAction(threading.Thread):
         if self.login_tries >= 3:
             return (False, "", "", False)
 
+        from rabbitvcs.ui import dialog
         result = helper.run_in_main_thread(
-            lambda: rabbitvcs.ui.dialog.Authentication(realm, may_save).run()
+            lambda: dialog.Authentication(realm, may_save).run()
         )
 
         if result is not None:
@@ -453,8 +456,9 @@ class VCSAction(threading.Thread):
 
         result = 0
         if data:
+            from rabbitvcs.ui import dialog
             result = helper.run_in_main_thread(
-                lambda: rabbitvcs.ui.dialog.Certificate(
+                lambda: dialog.Certificate(
                     data["realm"],
                     data["hostname"],
                     data["issuer_dname"],
@@ -490,9 +494,10 @@ class VCSAction(threading.Thread):
         @rtype:             (boolean, string, boolean)
         @return:            (True=continue/False=cancel, password, may save)
         """
+        from rabbitvcs.ui import dialog
 
         return helper.run_in_main_thread(
-            lambda: rabbitvcs.ui.dialog.CertAuthentication(realm, may_save).run()
+            lambda: dialog.CertAuthentication(realm, may_save).run()
         )
 
     def get_client_cert(self, realm, may_save):
@@ -511,9 +516,10 @@ class VCSAction(threading.Thread):
         @rtype:             (boolean, string, boolean)
         @return:            (True=continue/False=cancel, password, may save)
         """
+        from rabbitvcs.ui import dialog
 
         return helper.run_in_main_thread(
-            lambda: rabbitvcs.ui.dialog.SSLClientCertPrompt(realm, may_save).run()
+            lambda: dialog.SSLClientCertPrompt(realm, may_save).run()
         )
 
     def set_log_message(self, message):
@@ -715,8 +721,9 @@ class GitAction(VCSAction):
                     self.notification.append(["", data, ""])
 
     def get_user(self):
+        from rabbitvcs.ui import dialog
         return helper.run_in_main_thread(
-            lambda: rabbitvcs.ui.dialog.NameEmailPrompt().run()
+            lambda: dialog.NameEmailPrompt().run()
         )
 
     def conflict_filter(self, data):
@@ -751,8 +758,9 @@ class MercurialAction(VCSAction):
                     self.notification.append(["", data, ""])
 
     def get_user(self):
+        from rabbitvcs.ui import dialog
         return helper.run_in_main_thread(
-            lambda: rabbitvcs.ui.dialog.NameEmailPrompt().run()
+            lambda: dialog.NameEmailPrompt().run()
         )
 
     def conflict_filter(self, data):

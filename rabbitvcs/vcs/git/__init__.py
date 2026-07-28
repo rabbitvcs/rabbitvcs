@@ -35,7 +35,6 @@ from .gittyup import objects
 from rabbitvcs.util import helper
 from rabbitvcs.util.strings import S
 
-import rabbitvcs.vcs
 import rabbitvcs.vcs.status
 import rabbitvcs.vcs.log
 from rabbitvcs.vcs.branch import BranchEntry, LocalBranchEntry
@@ -125,7 +124,7 @@ class Git(object):
     STATUSES_FOR_UNSTAGE = ["added"]
 
     def __init__(self, repo=None):
-        self.vcs = rabbitvcs.vcs.VCS_GIT
+        self.vcs = "git"
         self.interface = "gittyup"
         if repo:
             self.client = GittyupClient(repo)

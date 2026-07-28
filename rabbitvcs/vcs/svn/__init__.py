@@ -33,12 +33,11 @@ from datetime import datetime
 
 import pysvn
 
-import rabbitvcs.vcs
 import rabbitvcs.vcs.status
 import rabbitvcs.vcs.log
 from rabbitvcs.util import helper
 from rabbitvcs.util.log import Log
-from rabbitvcs.util.decorators import structure_map
+from rabbitvcs.util.helper import structure_map
 from rabbitvcs.util.strings import *
 import six
 from six.moves import map
@@ -264,7 +263,7 @@ class SVN(object):
     def __init__(self):
         self.client = pysvn.Client()
         self.interface = "pysvn"
-        self.vcs = rabbitvcs.vcs.VCS_SVN
+        self.vcs = "svn"
         self.cache = rabbitvcs.vcs.status.StatusCache()
 
     def statuses(self, path, recurse=True, update=False, invalidate=False):

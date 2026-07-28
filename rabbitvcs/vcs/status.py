@@ -26,7 +26,6 @@ import os.path
 import unittest
 import six
 
-import rabbitvcs.vcs
 from rabbitvcs.util.strings import S
 
 from rabbitvcs.util.log import Log
@@ -176,7 +175,7 @@ class Status(object):
     def status_calc(path):
         return Status(path, status_calculating, summary=status_calculating)
 
-    vcs_type = rabbitvcs.vcs.VCS_DUMMY
+    vcs_type = "unknown"
 
     clean_statuses = ["unchanged"]
 
@@ -320,7 +319,7 @@ class Status(object):
 
 class SVNStatus(Status):
 
-    vcs_type = rabbitvcs.vcs.VCS_SVN
+    vcs_type = "svn"
 
     content_status_map = {
         "normal": status_normal,
