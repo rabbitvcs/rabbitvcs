@@ -33,7 +33,6 @@ from gi.repository import Gtk, GObject
 
 import os.path
 import six.moves._thread
-from datetime import datetime
 
 from rabbitvcs.util import helper
 

@@ -38,7 +38,6 @@ from gi.repository import Gtk, GObject, Gdk, GLib
 #
 
 import os
-from datetime import datetime
 import time
 from random import random, uniform
 
