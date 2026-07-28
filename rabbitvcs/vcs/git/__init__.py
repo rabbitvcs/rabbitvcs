@@ -214,7 +214,7 @@ class Git(object):
 
         # Preserve the original exact-path handling for deleted paths,
         # unusual symlinks and nested repositories absent from the snapshot.
-        return self.status(path, summarize=summarize, invalidate=False)
+        return self._status_exact(path, summarize)
 
     #
     # Status Methods
@@ -260,33 +260,32 @@ class Git(object):
 
             return statuses
 
+    def _status_exact(self, path, summarize):
+        """Return one exact-path status without starting another batch."""
+        if path in self.cache:
+            status = self.cache[path]
+            if summarize:
+                status.summary = status.single
+            return status
+
+        all_statuses = self.statuses(path, invalidate=False)
+        if not summarize:
+            return all_statuses[0]
+
+        for status in all_statuses:
+            if status.path == path:
+                status.summary = status.single
+                return status
+
+        return rabbitvcs.vcs.status.Status.status_unknown(path)
+
     def status(self, path, summarize=True, invalidate=False):
-        if invalidate:
+        # Initial Nautilus population uses invalidate=False. A cache miss is
+        # therefore also the beginning of a per-directory request burst.
+        if invalidate or path not in self.cache:
             return self._status_from_refresh_batch(path, summarize)
 
-        if path in self.cache:
-            st = self.cache[path]
-            if summarize:
-                st.summary = st.single
-            return st
-
-        all_statuses = self.statuses(path, invalidate=invalidate)
-
-        if summarize:
-            path_status = None
-            for st in all_statuses:
-                if st.path == path:
-                    path_status = st
-                    break
-
-            if path_status:
-                path_status.summary = path_status.single
-            else:
-                path_status = rabbitvcs.vcs.status.Status.status_unknown(path)
-        else:
-            path_status = all_statuses[0]
-
-        return path_status
+        return self._status_exact(path, summarize)
 
     def is_working_copy(self, path):
         if os.path.isdir(path) and os.path.isdir(os.path.join(path, ".git")):
