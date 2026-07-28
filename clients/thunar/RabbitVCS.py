@@ -144,7 +144,7 @@ class RabbitVCS(GObject.GObject, Thunarx.MenuProvider, Thunarx.PropertyPageProvi
     )
 
     def __init__(self):
-        threading.currentThread().setName("RabbitVCS extension thread")
+        threading.current_thread().name = "RabbitVCS extension thread"
 
         self.status_checker = StatusChecker()
 
