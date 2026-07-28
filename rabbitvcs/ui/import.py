@@ -3,7 +3,6 @@ from rabbitvcs import gettext
 from rabbitvcs.util.strings import S
 import rabbitvcs.ui.dialog
 import rabbitvcs.ui.widget
-from rabbitvcs.ui.action import SVNAction
 from rabbitvcs.ui import InterfaceView
 from gi.repository import Gtk, GObject, Gdk
 

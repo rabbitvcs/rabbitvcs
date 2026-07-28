@@ -1,7 +1,7 @@
 from __future__ import absolute_import
 from rabbitvcs import gettext
 import rabbitvcs.vcs
-from rabbitvcs.ui.action import SVNAction, GitAction
+from rabbitvcs.ui.action import GitAction
 from rabbitvcs.ui import InterfaceNonView, InterfaceView
 from gi.repository import Gtk, GObject, Gdk
 
