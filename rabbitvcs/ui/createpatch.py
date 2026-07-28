@@ -34,7 +34,6 @@ from gi.repository import Gtk, GObject
 import os
 import tempfile
 import shutil
-import six.moves._thread
 
 from rabbitvcs.util import helper
 

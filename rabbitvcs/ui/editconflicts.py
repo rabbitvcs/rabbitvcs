@@ -30,7 +30,6 @@ from rabbitvcs.ui import InterfaceNonView
 
 import os
 import os.path
-import six.moves._thread
 import shutil
 
 from rabbitvcs.util import helper
