@@ -700,13 +700,6 @@ class ContextMenuConditions(object):
 
         return False
 
-    def update(self, data=None):
-        return (
-            self.path_dict["is_in_a_or_a_working_copy"]
-            and self.path_dict["is_versioned"]
-            and not self.path_dict["is_added"]
-        )
-
     def commit(self, data=None):
         if (
             self.path_dict["is_svn"]
