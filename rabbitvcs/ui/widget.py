@@ -1241,7 +1241,10 @@ class RevisionSelector(object):
         container.add(hbox.box)
 
     def __revision_browse_clicked(self, widget):
-        from rabbitvcs.ui.log import SVNLogDialog, GitLogDialog
+        import importlib
+        log_module = importlib.import_module("rabbitvcs.ui.log")
+        SVNLogDialog = log_module.SVNLogDialog
+        GitLogDialog = log_module.GitLogDialog
 
         if self.client.vcs == rabbitvcs.vcs.VCS_GIT:
             GitLogDialog(self.get_url(), ok_callback=self.__log_closed)
