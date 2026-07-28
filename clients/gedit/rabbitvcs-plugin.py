@@ -27,7 +27,6 @@ import os
 from gi.repository import Gedit, GObject
 from gi.repository import Gtk as gtk
 
-import rabbitvcs.util.helper
 from rabbitvcs.vcs import create_vcs_instance
 from rabbitvcs.util.contextmenu import (
     GtkFilesContextMenuConditions,
