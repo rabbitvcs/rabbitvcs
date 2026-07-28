@@ -6,7 +6,7 @@ from rabbitvcs.ui.action import SVNAction, GitAction
 import rabbitvcs.vcs
 from rabbitvcs.ui import InterfaceNonView
 from rabbitvcs import TEMP_DIR_PREFIX
-from gi.repository import Gtk, GLib
+from gi.repository import GLib
 
 #
 # This is an extension to the Nautilus file manager to allow better

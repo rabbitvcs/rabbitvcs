@@ -19,7 +19,6 @@
 #
 import os
 import os.path
-from gi.repository import Gtk
 from rabbitvcs import gettext
 from rabbitvcs.util.strings import S
 from rabbitvcs.ui import STATUS_EMBLEMS
