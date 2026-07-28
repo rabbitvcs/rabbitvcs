@@ -2386,7 +2386,6 @@ class GittyupClient(object):
             ).execute()
         except GittyupCommandError as e:
             self.callback_notify(e)
-            return
 
     def reset(self, path, revision, type=None):
         relative_path = self.get_relative_path(path)
@@ -2405,7 +2404,6 @@ class GittyupClient(object):
             ).execute()
         except GittyupCommandError as e:
             self.callback_notify(e)
-            return
 
     def set_callback_notify(self, func):
         self.callback_notify = func

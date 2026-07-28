@@ -1209,7 +1209,6 @@ def parse_patch_output(patch_file, base_dir, strip=0):
             # else: we have an unknown error
 
     patch_proc.wait()  # Don't leave process running...
-    return
 
 
 def HSLtoRGB(h, s, l):
