@@ -5,7 +5,8 @@ from __future__ import print_function
 # client.py
 #
 
-import os, errno
+import os
+import errno
 import os.path
 import re
 import shutil
