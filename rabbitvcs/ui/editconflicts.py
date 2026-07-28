@@ -4,7 +4,6 @@ from rabbitvcs.util.log import Log
 import rabbitvcs.ui.action
 import rabbitvcs.ui.dialog
 import rabbitvcs.ui.widget
-from rabbitvcs.ui.action import GitAction
 from rabbitvcs.ui import InterfaceNonView
 from gi.repository import Gtk, GObject, Gdk
 

@@ -3,7 +3,6 @@ from rabbitvcs import gettext
 import rabbitvcs.vcs
 from rabbitvcs.ui.dialog import DeleteConfirmation
 import rabbitvcs.ui.widget
-from rabbitvcs.ui.action import GitAction
 from rabbitvcs.ui import InterfaceView
 import time
 from datetime import datetime

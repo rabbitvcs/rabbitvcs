@@ -3,7 +3,6 @@ import six
 from rabbitvcs import gettext
 from rabbitvcs.util.strings import S
 import rabbitvcs.vcs
-from rabbitvcs.ui.action import GitAction
 from rabbitvcs.ui import InterfaceNonView
 from gi.repository import Gtk, GObject, Gdk
 

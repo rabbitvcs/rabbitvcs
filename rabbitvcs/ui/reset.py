@@ -3,7 +3,6 @@ from rabbitvcs import gettext
 import rabbitvcs.vcs
 from rabbitvcs.util.strings import S
 import rabbitvcs.ui.widget
-from rabbitvcs.ui.action import GitAction
 from rabbitvcs.ui import InterfaceView
 import time
 from datetime import datetime
