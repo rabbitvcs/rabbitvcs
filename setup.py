@@ -1,7 +1,5 @@
 #!/usr/bin/env python
 
-from __future__ import print_function
-
 # If you didn't know already, this is a Python setuptools script. It borrows
 # heavily from Phatch's (see: http://photobatch.stani.be/).
 #
