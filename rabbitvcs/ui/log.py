@@ -30,12 +30,10 @@ from rabbitvcs.util.decorators import gtk_unsafe
 from rabbitvcs.util.contextmenuitems import *
 from rabbitvcs.util.contextmenu import GtkContextMenu
 import rabbitvcs.ui.widget
-from rabbitvcs.ui.dialog import MessageBox
-from rabbitvcs.ui.action import SVNAction, GitAction, vcs_action_factory
+from rabbitvcs.ui.action import SVNAction, GitAction
 from rabbitvcs.ui import InterfaceView
 from gi.repository import Gtk, GObject, Gdk
 import six
-import threading
 from locale import strxfrm
 
 import os
