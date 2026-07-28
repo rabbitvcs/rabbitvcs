@@ -34,10 +34,6 @@ See:
 """
 from __future__ import absolute_import
 
-import os
-
-from gi.repository import GLib
-
 import time
 import warnings
 import threading

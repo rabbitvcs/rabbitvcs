@@ -30,31 +30,25 @@ from __future__ import absolute_import
 from rabbitvcs.util.contextmenu4 import (
     MenuBuilder,
     MainContextMenu,
-    SEPARATOR,
     ContextMenuConditions,
 )
-import copy
 from rabbitvcs.services.checkerservice import StatusCheckerStub as StatusChecker
 import rabbitvcs.services.service
 from rabbitvcs.util.settings import SettingsManager
 from rabbitvcs import version as EXT_VERSION
-from rabbitvcs import gettext, get_icon_path
+from rabbitvcs import gettext
 from rabbitvcs.util.log import Log, reload_log_settings
 from rabbitvcs.ui.property_page4 import FileInfo
 import rabbitvcs.ui
 from rabbitvcs.util.strings import S
 
-from rabbitvcs.util.decorators import timeit, disable
 from rabbitvcs.util.helper import pretty_timedelta
-from rabbitvcs.util.helper import get_file_extension, get_common_directory
-from rabbitvcs.util.helper import launch_ui_window, launch_diff_tool
 import rabbitvcs.vcs.status
 from rabbitvcs.vcs import VCS
-import pysvn
-from gi.repository import Nautilus, GObject, Gtk, GdkPixbuf
+from gi.repository import Nautilus, GObject
 from rabbitvcs.util import helper
 import datetime
-from os.path import isdir, isfile, realpath, basename, dirname
+from os.path import dirname
 import os.path
 import os
 from six.moves import range

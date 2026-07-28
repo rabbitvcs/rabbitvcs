@@ -25,8 +25,6 @@ from __future__ import print_function
 
 import os
 import os.path
-from time import sleep
-from collections import deque
 from six.moves import range
 
 # Yes, * imports are bad. You write it out then.
@@ -49,7 +47,6 @@ from rabbitvcs.vcs import (
     create_vcs_instance,
     VCS_SVN,
     VCS_GIT,
-    VCS_DUMMY,
     VCS_MERCURIAL,
 )
 from rabbitvcs.util.log import Log

@@ -28,7 +28,6 @@ All sorts of helper functions.
 from __future__ import absolute_import
 
 from collections import deque
-import locale
 import os
 import os.path
 import sys
@@ -44,7 +43,6 @@ import codecs
 from gi.repository import GLib
 
 import six
-from six.moves import filter
 from six.moves import range
 import six.moves.urllib.parse
 
@@ -60,12 +58,6 @@ from rabbitvcs import gettext
 
 ngettext = gettext.ngettext
 
-try:
-    from html import escape as html_escape
-except ImportError:
-    from cgi import escape as html_escape
-
-import gi
 from gi.repository import GObject
 
 from rabbitvcs import gettext

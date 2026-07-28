@@ -50,7 +50,6 @@ import os.path
 import sys
 import json
 
-from gi.repository import GObject
 from gi.repository import GLib
 
 import dbus

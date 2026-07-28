@@ -11,7 +11,6 @@ import re
 import shutil
 import fnmatch
 import time
-import struct
 from datetime import datetime
 from mimetypes import guess_type
 import time

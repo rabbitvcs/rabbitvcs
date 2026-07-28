@@ -1,10 +1,7 @@
 from __future__ import absolute_import
 import locale
-import os
 
 from rabbitvcs.util.log import Log
-import rabbitvcs.util.settings
-import rabbitvcs.util.helper
 from rabbitvcs import gettext
 
 log = Log("rabbitvcs.util.locale")
