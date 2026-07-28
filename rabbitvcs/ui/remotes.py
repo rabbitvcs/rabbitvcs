@@ -1,7 +1,6 @@
 from __future__ import absolute_import, print_function
 from rabbitvcs import gettext
 import rabbitvcs.vcs
-from rabbitvcs.ui.dialog import DeleteConfirmation
 import rabbitvcs.ui.widget
 from rabbitvcs.ui import InterfaceView
 from gi.repository import Gtk, GObject, Gdk

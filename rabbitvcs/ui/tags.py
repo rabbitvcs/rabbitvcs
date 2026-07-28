@@ -4,7 +4,6 @@ import rabbitvcs.vcs
 import rabbitvcs.util.settings
 from rabbitvcs.util.strings import S
 from rabbitvcs.ui.log import log_dialog_factory
-from rabbitvcs.ui.dialog import DeleteConfirmation
 import rabbitvcs.ui.widget
 from rabbitvcs.ui import InterfaceView
 from gi.repository import Gtk, GObject, Gdk

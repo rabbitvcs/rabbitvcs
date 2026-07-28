@@ -3,7 +3,6 @@ from rabbitvcs import gettext
 from xml.sax import saxutils
 import rabbitvcs.vcs
 from rabbitvcs.util.strings import S
-from rabbitvcs.ui.dialog import DeleteConfirmation
 import rabbitvcs.ui.widget
 from rabbitvcs.ui.log import log_dialog_factory
 from rabbitvcs.ui import InterfaceView
