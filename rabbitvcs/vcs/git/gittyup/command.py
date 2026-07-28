@@ -5,12 +5,8 @@ from __future__ import absolute_import
 #
 
 import subprocess
-import fcntl
-import select
 import codecs
 import os
-
-from .exceptions import GittyupCommandError
 
 from rabbitvcs.util.strings import *
 

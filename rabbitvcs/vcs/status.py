@@ -26,8 +26,6 @@ import os.path
 import unittest
 import six
 
-from datetime import datetime
-
 import rabbitvcs.vcs
 from rabbitvcs.util.strings import S
 
