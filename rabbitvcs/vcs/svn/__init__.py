@@ -1186,17 +1186,6 @@ class SVN(object):
 
         return self.client.cleanup(pure_unicode(path))
 
-    def revert(self, paths):
-        """
-        Revert files or directories so they are unversioned
-
-        @type   paths: list
-        @param  paths: A list of files/directories.
-
-        """
-
-        return self.client.revert(pure_unicode(paths))
-
     def commit(self, paths, log_message="", recurse=False, keep_locks=False):
         """
         Commit a list of files to the repository.

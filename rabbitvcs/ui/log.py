@@ -27,7 +27,19 @@ import rabbitvcs.vcs
 import rabbitvcs.util.settings
 from rabbitvcs.util.strings import S
 from rabbitvcs.util.decorators import gtk_unsafe
-from rabbitvcs.util.contextmenuitems import *
+from rabbitvcs.util.contextmenuitems import (
+    MenuItem,
+    MenuSeparator,
+    MenuCheckout,
+    MenuBranches,
+    MenuTags,
+    MenuBranchTag,
+    MenuExport,
+    MenuMerge,
+    MenuReset,
+    MenuOpen,
+    MenuAnnotate,
+)
 from rabbitvcs.util.contextmenu import GtkContextMenu
 import rabbitvcs.ui.widget
 from rabbitvcs.ui.action import SVNAction, GitAction
