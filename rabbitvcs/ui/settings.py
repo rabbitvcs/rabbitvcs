@@ -8,7 +8,7 @@ import rabbitvcs.util.settings
 import rabbitvcs.ui.dialog
 import rabbitvcs.ui.widget
 from rabbitvcs.ui import InterfaceView
-from gi.repository import Gtk, GObject, Gdk, Pango
+from gi.repository import Gtk, GObject, Pango
 
 #
 # This is an extension to the Nautilus file manager to allow better

@@ -2,7 +2,7 @@ from __future__ import absolute_import
 from rabbitvcs import gettext
 from rabbitvcs.ui.action import GitAction
 import rabbitvcs.ui.dialog
-from gi.repository import Gtk, GObject, Gdk
+from gi.repository import Gtk, GObject
 
 #
 # This is an extension to the Nautilus file manager to allow better

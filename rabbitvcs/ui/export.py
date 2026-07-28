@@ -6,7 +6,7 @@ from rabbitvcs.ui.action import SVNAction, GitAction
 from rabbitvcs.ui.dialog import MessageBox
 from rabbitvcs.ui.clone import GitClone
 from rabbitvcs.ui.checkout import SVNCheckout
-from gi.repository import Gtk, GObject, Gdk
+from gi.repository import Gtk, GObject
 
 #
 # This is an extension to the Nautilus file manager to allow better
