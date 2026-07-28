@@ -28,7 +28,6 @@ from gi.repository import Gtk, GObject, Gdk
 # along with RabbitVCS;  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from os import getcwd
 import os.path
 
 from rabbitvcs.util import helper

@@ -34,7 +34,6 @@ from gi.repository import Gtk, GObject, Gdk, GLib
 # along with RabbitVCS;  If not, see <http://www.gnu.org/licenses/>.
 #
 
-import os
 import six.moves._thread
 from time import sleep
 
