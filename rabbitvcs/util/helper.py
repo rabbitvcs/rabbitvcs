@@ -58,11 +58,6 @@ from rabbitvcs import gettext
 
 ngettext = gettext.ngettext
 
-try:
-    from html import escape as html_escape
-except ImportError:
-    from cgi import escape as html_escape
-
 from gi.repository import GObject
 
 from rabbitvcs import gettext
