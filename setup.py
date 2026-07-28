@@ -59,7 +59,7 @@ if not installing:
 # This will eventually be passed to the setup function, but we already need them
 # for doing some other stuff so we have to declare them here.
 name = "rabbitvcs"
-version = "0.19"
+version = "0.19.0" # x-release-please-version
 description = "Easy version control"
 long_description = """RabbitVCS is a set of graphical tools written to provide simple and straightforward access to the version control systems you use."""
 author = "Adam Plumb"
