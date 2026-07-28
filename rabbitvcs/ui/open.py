@@ -3,7 +3,6 @@ import six
 from rabbitvcs import gettext
 from rabbitvcs.util.strings import S
 import rabbitvcs.vcs
-from rabbitvcs.ui.action import SVNAction, GitAction
 from rabbitvcs.ui import InterfaceNonView
 from gi.repository import Gtk, GObject, Gdk
 
@@ -29,7 +28,6 @@ from gi.repository import Gtk, GObject, Gdk
 # along with RabbitVCS;  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from os import getcwd
 import os.path
 
 from rabbitvcs.util import helper

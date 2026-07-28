@@ -2,7 +2,6 @@ from __future__ import absolute_import
 from rabbitvcs import gettext
 import rabbitvcs.vcs
 from rabbitvcs.ui.dialog import MessageBox, OneLineTextChange
-from rabbitvcs.ui.action import SVNAction
 from rabbitvcs.ui import InterfaceNonView
 from gi.repository import Gtk, GObject, Gdk
 

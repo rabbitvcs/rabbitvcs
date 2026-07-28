@@ -3,7 +3,6 @@ from rabbitvcs import gettext
 import rabbitvcs.vcs
 from rabbitvcs.ui.dialog import DeleteConfirmation
 import rabbitvcs.ui.widget
-from rabbitvcs.ui.action import GitAction
 from rabbitvcs.ui import InterfaceView
 import time
 from datetime import datetime
@@ -30,8 +29,6 @@ from gi.repository import Gtk, GObject, Gdk, Pango
 # You should have received a copy of the GNU General Public License
 # along with RabbitVCS;  If not, see <http://www.gnu.org/licenses/>.
 #
-
-import os
 
 from rabbitvcs.util import helper
 

@@ -6,7 +6,6 @@ from rabbitvcs.util.strings import S
 from rabbitvcs.ui.log import log_dialog_factory
 from rabbitvcs.ui.dialog import DeleteConfirmation
 import rabbitvcs.ui.widget
-from rabbitvcs.ui.action import GitAction
 from rabbitvcs.ui import InterfaceView
 from gi.repository import Gtk, GObject, Gdk, Pango
 
@@ -32,7 +31,6 @@ from gi.repository import Gtk, GObject, Gdk, Pango
 # along with RabbitVCS;  If not, see <http://www.gnu.org/licenses/>.
 #
 
-import os
 from datetime import datetime
 import time
 

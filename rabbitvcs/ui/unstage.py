@@ -6,9 +6,7 @@ from rabbitvcs.util.strings import S
 import rabbitvcs.ui.action
 import rabbitvcs.ui.dialog
 import rabbitvcs.ui.widget
-from rabbitvcs.ui.action import SVNAction
 from rabbitvcs.ui.add import Add
-from rabbitvcs.ui import InterfaceView
 from gi.repository import Gtk, GObject, Gdk
 
 #

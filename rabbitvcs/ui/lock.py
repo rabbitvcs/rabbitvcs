@@ -6,7 +6,6 @@ import rabbitvcs.vcs
 import rabbitvcs.ui.dialog
 import rabbitvcs.ui.widget
 from rabbitvcs.util.contextmenu import GtkFilesContextMenu, GtkContextMenuCaller
-from rabbitvcs.ui.action import SVNAction
 from rabbitvcs.ui import InterfaceView
 from gi.repository import Gtk, GObject, Gdk
 
@@ -33,7 +32,6 @@ from gi.repository import Gtk, GObject, Gdk
 #
 
 import six.moves._thread
-import os
 
 from rabbitvcs.util import helper
 

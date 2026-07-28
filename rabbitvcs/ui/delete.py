@@ -2,7 +2,6 @@ from __future__ import absolute_import
 from rabbitvcs import gettext
 from rabbitvcs.util.log import Log
 import rabbitvcs.vcs
-from rabbitvcs.ui.action import SVNAction
 from rabbitvcs.ui import InterfaceNonView
 from gi.repository import Gtk, GObject
 
