@@ -31,9 +31,8 @@ from .command import GittyupCommand
 from rabbitvcs.util import helper
 from rabbitvcs.util.strings import *
 
-import six.moves.tkinter
-import six.moves.tkinter_messagebox
-import six
+import tkinter
+import tkinter.messagebox
 
 ENCODING = "UTF-8"
 
@@ -327,7 +326,7 @@ class GittyupClient(object):
 
     def _config_normalize_section(self, section):
         # If some old code is using string sections, convert to a tuple
-        if isinstance(section, six.string_types):
+        if isinstance(section, str):
             parts = section.split(" ")
             s1 = parts.pop(0)
             s2 = " ".join(parts).replace('"', "")
@@ -362,7 +361,7 @@ class GittyupClient(object):
 
     def string_unescape(self, s):
         # Portable utf-8 string unescape.
-        if isinstance(s, six.text_type):
+        if isinstance(s, str):
             s = s.encode(IDENTITY_ENCODING)
         s = S(s.decode("unicode_escape"), IDENTITY_ENCODING)
         return S(s.bytes(IDENTITY_ENCODING))
@@ -435,7 +434,7 @@ class GittyupClient(object):
         index = self._get_index()
         to_stage = []
 
-        if isinstance(paths, (str, six.text_type)):
+        if isinstance(paths, str):
             paths = [paths]
 
         for path in paths:
@@ -483,7 +482,7 @@ class GittyupClient(object):
         index = self._get_index()
         tree = self._get_tree_index()
 
-        if isinstance(paths, (str, six.text_type)):
+        if isinstance(paths, str):
             paths = [paths]
 
         for path in paths:
@@ -1001,7 +1000,7 @@ class GittyupClient(object):
 
         to_stage = []
 
-        if isinstance(paths, (str, six.text_type)):
+        if isinstance(paths, str):
             paths = [paths]
 
         index = self._get_index()
@@ -1196,7 +1195,7 @@ class GittyupClient(object):
     def onUsername(self, window, username, remoteKey, originalRemoteUrl, isOk):
         if isOk == True:
             if username == "":
-                six.moves.tkinter_messagebox.showinfo(
+                tkinter.messagebox.showinfo(
                     "Error", "Please enter a username.", parent=window
                 )
                 return
@@ -1218,7 +1217,7 @@ class GittyupClient(object):
     def onPassword(self, window, password, remoteKey, originalRemoteUrl, isOk):
         if isOk == True:
             if password == "":
-                six.moves.tkinter_messagebox.showinfo(
+                tkinter.messagebox.showinfo(
                     "Error", "Please enter a password.", parent=window
                 )
                 return
@@ -1253,21 +1252,21 @@ class GittyupClient(object):
 
         if originalRemoteUrl.find("@") == -1:
             # No username or password. Prompt for both. Create dialog.
-            window = six.moves.tkinter.Tk()
+            window = tkinter.Tk()
 
             window.title("Please enter your username")
             window.resizable(0, 0)
             window["padx"] = 40
             window["pady"] = 20
-            textFrame = six.moves.tkinter.Frame(window)
+            textFrame = tkinter.Frame(window)
 
             # Create textbox label.
-            entryLabel = six.moves.tkinter.Label(textFrame)
+            entryLabel = tkinter.Label(textFrame)
             entryLabel["text"] = "Username:"
-            entryLabel.pack(side=six.moves.tkinter.LEFT)
+            entryLabel.pack(side=tkinter.LEFT)
 
             # Create textbox.
-            entryWidget = six.moves.tkinter.Entry(textFrame)
+            entryWidget = tkinter.Entry(textFrame)
             entryWidget["width"] = 25
             entryWidget.bind(
                 "<Return>",
@@ -1285,13 +1284,13 @@ class GittyupClient(object):
                     )
                 ),
             )
-            entryWidget.pack(side=six.moves.tkinter.LEFT)
+            entryWidget.pack(side=tkinter.LEFT)
             entryWidget.focus()
 
             textFrame.pack()
 
             # Create OK button.
-            button = six.moves.tkinter.Button(
+            button = tkinter.Button(
                 window,
                 width=5,
                 text="OK",
@@ -1301,10 +1300,10 @@ class GittyupClient(object):
                     )
                 ),
             )
-            button.pack(side=six.moves.tkinter.RIGHT)
+            button.pack(side=tkinter.RIGHT)
 
             # Create Cancel button.
-            button = six.moves.tkinter.Button(
+            button = tkinter.Button(
                 window,
                 width=5,
                 text="Cancel",
@@ -1314,7 +1313,7 @@ class GittyupClient(object):
                     )
                 ),
             )
-            button.pack(side=six.moves.tkinter.RIGHT)
+            button.pack(side=tkinter.RIGHT)
 
             # Position window in center of screen.
             self.center(window)
@@ -1343,21 +1342,21 @@ class GittyupClient(object):
         # If the url contains a username (@) without a password (:), then prompt for a password.
         if originalRemoteUrl.find("@") > -1 and originalRemoteUrl.rfind(":") <= 5:
             # Prompt for password. Create dialog.
-            window = six.moves.tkinter.Tk()
+            window = tkinter.Tk()
 
             window.title("Please enter your password")
             window.resizable(0, 0)
             window["padx"] = 40
             window["pady"] = 20
-            textFrame = six.moves.tkinter.Frame(window)
+            textFrame = tkinter.Frame(window)
 
             # Create textbox label.
-            entryLabel = six.moves.tkinter.Label(textFrame)
+            entryLabel = tkinter.Label(textFrame)
             entryLabel["text"] = "Password:"
-            entryLabel.pack(side=six.moves.tkinter.LEFT)
+            entryLabel.pack(side=tkinter.LEFT)
 
             # Create textbox.
-            entryWidget = six.moves.tkinter.Entry(textFrame)
+            entryWidget = tkinter.Entry(textFrame)
             entryWidget["show"] = "*"
             entryWidget["width"] = 25
             entryWidget.bind(
@@ -1376,13 +1375,13 @@ class GittyupClient(object):
                     )
                 ),
             )
-            entryWidget.pack(side=six.moves.tkinter.LEFT)
+            entryWidget.pack(side=tkinter.LEFT)
             entryWidget.focus()
 
             textFrame.pack()
 
             # Create OK button.
-            button = six.moves.tkinter.Button(
+            button = tkinter.Button(
                 window,
                 width=5,
                 text="OK",
@@ -1392,10 +1391,10 @@ class GittyupClient(object):
                     )
                 ),
             )
-            button.pack(side=six.moves.tkinter.RIGHT)
+            button.pack(side=tkinter.RIGHT)
 
             # Create Cancel button.
-            button = six.moves.tkinter.Button(
+            button = tkinter.Button(
                 window,
                 width=5,
                 text="Cancel",
@@ -1405,7 +1404,7 @@ class GittyupClient(object):
                     )
                 ),
             )
-            button.pack(side=six.moves.tkinter.RIGHT)
+            button.pack(side=tkinter.RIGHT)
 
             # Position window in center of screen.
             self.center(window)
