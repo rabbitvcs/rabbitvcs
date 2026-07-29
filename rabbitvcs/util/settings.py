@@ -25,7 +25,6 @@
 Everything related retrieving and storing configuration keys.
 
 """
-from __future__ import print_function
 
 __all__ = ['get_home_folder', 'SettingsManager']
 

@@ -25,7 +25,6 @@
 Our module for everything related to the Nautilus extension.
 
 """
-from __future__ import with_statement
 from rabbitvcs.util.contextmenu4 import (
     MenuBuilder,
     MainContextMenu,

@@ -1,4 +1,3 @@
-from __future__ import print_function
 from rabbitvcs import gettext
 import rabbitvcs.vcs
 import rabbitvcs.ui.widget
