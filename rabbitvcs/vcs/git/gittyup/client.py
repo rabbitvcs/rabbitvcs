@@ -744,16 +744,16 @@ class GittyupClient(object):
         List all branches
 
         """
-        """
-        refs = self.repo.get_refs()
-        branches = []
-        for ref,branch_sha in refs.items():
-            if ref.startswith("refs/heads"):
-                branch = Branch(ref[11:], branch_sha, self.repo[branch_sha])
-                branches.append(branch)
 
-        return branches
-        """
+        # refs = self.repo.get_refs()
+        # branches = []
+        # for ref,branch_sha in refs.items():
+        #     if ref.startswith("refs/heads"):
+        #         branch = Branch(ref[11:], branch_sha, self.repo[branch_sha])
+        #         branches.append(branch)
+
+        # return branches
+
         cmd = ["git", "branch", "-lv", "--no-abbrev", "-a"]
         if commit_sha:
             cmd += ["--contains", commit_sha]
