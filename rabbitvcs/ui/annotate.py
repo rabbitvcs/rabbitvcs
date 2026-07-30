@@ -265,8 +265,7 @@ class Annotate(InterfaceView):
         menu.popup_at_pointer(event)
         for menuitem in menu.get_children():
             w = menuitem.get_child().get_child_at(0, 0).get_allocation().width
-            if width < w:
-                width = w
+            width = max(width, w)
         width += 4
         for menuitem in menu.get_children():
             menuitem.get_child().get_child_at(0, 0).set_size_request(width, -1)

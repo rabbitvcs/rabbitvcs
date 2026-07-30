@@ -646,9 +646,7 @@ class SVNAction(VCSAction):
 
             if self.pbar_ticks is not None:
                 self.pbar_ticks_current += 1
-                frac = self.pbar_ticks_current / self.pbar_ticks
-                if frac > 1:
-                    frac = 1
+                frac = min(self.pbar_ticks_current / self.pbar_ticks, 1)
                 self.notification.pbar.update(frac)
 
             is_known_action = False
