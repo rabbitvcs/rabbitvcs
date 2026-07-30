@@ -23,15 +23,14 @@
 
 import os.path
 from rabbitvcs import gettext
+from rabbitvcs.util.log import Log
+from rabbitvcs.util.helper import get_exclude_paths
+from rabbitvcs.util.settings import SettingsManager
+
 
 _ = gettext.gettext
 
-from rabbitvcs.util.log import Log
-
 logger = Log("rabbitvcs.vcs")
-
-from rabbitvcs.util.helper import get_exclude_paths
-from rabbitvcs.util.settings import SettingsManager
 
 settings = SettingsManager()
 

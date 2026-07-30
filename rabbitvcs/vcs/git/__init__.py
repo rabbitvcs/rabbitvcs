@@ -28,8 +28,7 @@ import os.path
 import time
 from datetime import datetime
 
-from .gittyup.client import GittyupClient
-from .gittyup import objects
+from rabbitvcs import gettext
 
 from rabbitvcs.util import helper
 from rabbitvcs.util.strings import S
@@ -40,9 +39,11 @@ import rabbitvcs.vcs.log
 from rabbitvcs.vcs.branch import BranchEntry, LocalBranchEntry
 from rabbitvcs.util.log import Log
 
+from .gittyup.client import GittyupClient
+from .gittyup import objects
+
 log = Log("rabbitvcs.vcs.git")
 
-from rabbitvcs import gettext
 
 _ = gettext.gettext
 

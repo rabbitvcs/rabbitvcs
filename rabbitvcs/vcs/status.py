@@ -28,10 +28,10 @@ import rabbitvcs.vcs
 from rabbitvcs.util.strings import S
 
 from rabbitvcs.util.log import Log
+from rabbitvcs import gettext
 
 log = Log("rabbitvcs.vcs.status")
 
-from rabbitvcs import gettext
 
 _ = gettext.gettext
 
