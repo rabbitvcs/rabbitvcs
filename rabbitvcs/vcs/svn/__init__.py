@@ -24,8 +24,8 @@
 Concrete VCS implementation for Subversion functionality.
 """
 import subprocess
-import os
 import shutil
+import os
 import os.path
 from os.path import isdir, isfile, dirname, islink, realpath
 from datetime import datetime
@@ -39,9 +39,10 @@ from rabbitvcs.util import helper
 from rabbitvcs.util.log import Log
 from rabbitvcs.util.decorators import structure_map
 from rabbitvcs.util.strings import *
+from rabbitvcs import gettext
 log = Log("rabbitvcs.vcs.svn")
 
-from rabbitvcs import gettext
+
 
 _ = gettext.gettext
 
