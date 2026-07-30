@@ -200,7 +200,7 @@ class RabbitVCS(
 
         rabbitvcs_icon_path = get_icon_path()
         for rel_icon_path in rabbitvcs_icons:
-            icon_path = "%s/%s" % (rabbitvcs_icon_path, rel_icon_path)
+            icon_path = f"{rabbitvcs_icon_path}/{rel_icon_path}"
             file = os.path.basename(rel_icon_path)
             (root, ext) = os.path.splitext(file)
 
@@ -463,13 +463,13 @@ class RabbitVCS(
         path = S(gnomevfs.get_local_path_from_uri(item.get_uri())).replace("/", ":")
 
         profile_data_file = os.path.join(
-            get_home_folder(), "checkerservice_%s.stats" % path
+            get_home_folder(), f"checkerservice_{path}.stats"
         )
 
         prof = cProfile.Profile()
         retval = prof.runcall(self.get_background_items_real, window, item)
         prof.dump_stats(profile_data_file)
-        log.debug("Dumped: %s" % profile_data_file)
+        log.debug(f"Dumped: {profile_data_file}")
         return retval
 
     def get_background_items_full(self, provider, window, item):
@@ -576,12 +576,12 @@ class RabbitVCS(
 
     def execute_after_process_exit(self, proc, func=None):
         def is_process_still_alive():
-            log.debug("is_process_still_alive() for pid: %i" % proc.pid)
+            log.debug(f"is_process_still_alive() for pid: {proc.pid}")
             # First we need to see if the commit process is still running
 
             retval = proc.poll()
 
-            log.debug("%s" % retval)
+            log.debug(f"{retval}")
 
             still_going = retval is None
 
@@ -645,7 +645,7 @@ class RabbitVCS(
             if status.path in self.items_cache:
                 del self.items_cache[status.path]
         else:
-            log.debug("Path [%s] not found in file table" % status.path)
+            log.debug(f"Path [{status.path}] not found in file table")
 
     def get_property_pages(self, items):
         paths = []
