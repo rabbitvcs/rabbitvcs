@@ -39,9 +39,6 @@ from rabbitvcs.util import helper
 from rabbitvcs.util.log import Log
 from rabbitvcs.util.decorators import structure_map
 from rabbitvcs.util.strings import *
-import six
-from six.moves import map
-
 log = Log("rabbitvcs.vcs.svn")
 
 from rabbitvcs import gettext
@@ -58,12 +55,11 @@ def pure_unicode(obj):
     Map object string subclass components to real unicode type.
 
     Pysvn (using PyCXX) does not like string subclasses as arguments and
-    requires unsubclassed string/unicode objects. In addition, it fails on
-    Python2 non-ascii byte strings when converting them to utf-8.
-    This function is called each time there is a risk of passing string or
-    unicode objects to the pysvn API.
+    requires unsubclassed string/unicode objects.
+    This function is called each time there is a risk of passing string
+    objects to the pysvn API.
     """
-    if isinstance(obj, (six.string_types, six.text_type)):
+    if isinstance(obj, str):
         obj = S(obj).unicode()
     return obj
 

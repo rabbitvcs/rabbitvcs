@@ -40,7 +40,7 @@ For Debian-based distros you can run:
 
 For Fedora-based distros you can run:
 ```
-# dnf install python[23]-nautilus python[23]-pysvn python[23]-configobj python[23]-dbus python[23]-dulwich python[23]-tkinter python[23]-gtkspell3 python[23]-pygments subversion git meld
+# dnf install python3-nautilus python3-pysvn python3-configobj python3-dbus python3-dulwich python3-tkinter python3-gtkspell3 python3-pygments subversion git meld
 ```
 
 Manual Installation
@@ -89,8 +89,8 @@ Upgrade
 -------
 To upgrade an existing version manually, copy the contents of the repository
 to the rabbitvcs lib folder. Most likely it is located at
-`/usr/lib/pymodules/python2.7/rabbitvcs`. In case of Debian-based distros this
-is will be `/usr/lib/python2.7/dist-packages/rabbitvcs`.
+`/usr/lib/python3/dist-packages/rabbitvcs` or `/usr/local/lib/python3.*/dist-packages/rabbitvcs`.
+In case of Debian-based distros this will be `/usr/lib/python3/dist-packages/rabbitvcs`.
 For Fedora-based distros on 64-bit make sure to check `/usr/lib64`.
 
 

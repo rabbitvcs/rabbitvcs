@@ -39,7 +39,6 @@ from gi.repository import Gtk, GObject, Gdk
 #
 
 import os.path
-import six
 import locale
 from datetime import datetime
 
@@ -222,7 +221,7 @@ class SVNBrowser(InterfaceView, GtkContextMenuCaller):
         """
 
         filename = S(filename).unicode()
-        if filename == six.u(".."):
+        if filename == "..":
             return "dir"
 
         for item, locked in self.items:

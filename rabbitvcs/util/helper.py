@@ -41,8 +41,7 @@ import codecs
 
 from gi.repository import GLib
 
-import six
-import six.moves.urllib.parse
+import urllib.parse
 
 from rabbitvcs.util.settings import *
 from rabbitvcs.util.decorators import structure_map
@@ -69,7 +68,7 @@ DT_FORMAT_THISWEEK = _("%a %I:%M%p")
 DT_FORMAT_THISYEAR = _("%b %d")
 DT_FORMAT_ALL = _("%b %d %Y")
 
-LINE_BREAK_CHAR = six.unichr(0x23CE)
+LINE_BREAK_CHAR = chr(0x23CE)
 
 
 def compare_version(version1, version2, length=None):
@@ -98,7 +97,7 @@ def to_bytes(s, encoding=UTF8_ENCODING):
     """
     Convert string (whatever type it is) to bytes in the given encoding.
     """
-    if isinstance(s, six.text_type):
+    if isinstance(s, str):
         return S(s).bytes(encoding)
     if isinstance(s, bytearray):
         if encoding.lower() == UTF8_ENCODING:
@@ -182,13 +181,13 @@ def format_long_text(text, cols=None, line1only=False):
     line. If the param "cols" is given, the text
     beyond cols is replaced by "...".
     """
-    text = S(text.strip()).unicode().replace(six.u("\n"), LINE_BREAK_CHAR)
+    text = S(text.strip()).unicode().replace("\n", LINE_BREAK_CHAR)
     if line1only:
         i = text.find(LINE_BREAK_CHAR)
         if i >= 0:
             text = text[:i]
     if cols and len(text) > cols:
-        text = six.u("%s...") % text[0:cols]
+        text = "%s..." % text[0:cols]
 
     return text
 
@@ -910,25 +909,25 @@ def url_join(path, *args):
 
 
 def _quote(text):
-    return six.moves.urllib.parse.quote(
+    return urllib.parse.quote(
         text, encoding=UTF8_ENCODING, errors=SURROGATE_ESCAPE
     )
 
 
 def _quote_plus(text):
-    return six.moves.urllib.parse.quote_plus(
+    return urllib.parse.quote_plus(
         text, encoding=UTF8_ENCODING, errors=SURROGATE_ESCAPE
     )
 
 
 def _unquote(text):
-    return six.moves.urllib.parse.unquote(
+    return urllib.parse.unquote(
         text, encoding=UTF8_ENCODING, errors=SURROGATE_ESCAPE
     )
 
 
 def _unquote_plus(text):
-    return six.moves.urllib.parse.unquote_plus(
+    return urllib.parse.unquote_plus(
         text, encoding=UTF8_ENCODING, errors=SURROGATE_ESCAPE
     )
 
@@ -941,14 +940,14 @@ unquote_plus = _unquote_plus
 try:
     unquote("")
 except TypeError:
-    quote = six.moves.urllib.parse.quote
-    quote_plus = six.moves.urllib.parse.quote_plus
-    unquote = six.moves.urllib.parse.unquote
-    unquote_plus = six.moves.urllib.parse.unquote_plus
+    quote = urllib.parse.quote
+    quote_plus = urllib.parse.quote_plus
+    unquote = urllib.parse.unquote
+    unquote_plus = urllib.parse.unquote_plus
 
 
 def quote_url(url_text):
-    (scheme, netloc, path, params, query, fragment) = six.moves.urllib.parse.urlparse(
+    (scheme, netloc, path, params, query, fragment) = urllib.parse.urlparse(
         url_text
     )
     # netloc_quoted = quote(netloc)
@@ -957,7 +956,7 @@ def quote_url(url_text):
     query_quoted = quote_plus(query)
     fragment_quoted = quote(fragment)
 
-    url_quoted = six.moves.urllib.parse.urlunparse(
+    url_quoted = urllib.parse.urlunparse(
         (scheme, netloc, path_quoted, params_quoted, query_quoted, fragment_quoted)
     )
 
@@ -965,7 +964,7 @@ def quote_url(url_text):
 
 
 def unquote_url(url_text):
-    (scheme, netloc, path, params, query, fragment) = six.moves.urllib.parse.urlparse(
+    (scheme, netloc, path, params, query, fragment) = urllib.parse.urlparse(
         url_text
     )
     # netloc_unquoted = unquote(netloc)
@@ -974,7 +973,7 @@ def unquote_url(url_text):
     query_unquoted = unquote_plus(query)
     fragment_unquoted = unquote(fragment)
 
-    url_unquoted = six.moves.urllib.parse.urlunparse(
+    url_unquoted = urllib.parse.urlunparse(
         (
             scheme,
             netloc,
@@ -1241,7 +1240,7 @@ indirectly.
 class SanitizeArgv(object):
     def __init__(self):
         self.argmap = None
-        if len(sys.argv) and isinstance(sys.argv[0], six.text_type):
+        if len(sys.argv) and isinstance(sys.argv[0], str):
             argmap = []
             newargv = []
             for arg in sys.argv:

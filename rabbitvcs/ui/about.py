@@ -1,4 +1,3 @@
-from six.moves import map
 from rabbitvcs import gettext
 import configobj
 import pysvn
@@ -85,8 +84,8 @@ class About(object):
         self.about.set_logo(pixbuf)
 
         versions = []
-        versions.append("Subversion - %s" % ".".join(list(map(str, pysvn.svn_version))))
-        versions.append("Pysvn - %s" % ".".join(list(map(str, pysvn.version))))
+        versions.append("Subversion - %s" % ".".join(map(str, pysvn.svn_version)))
+        versions.append("Pysvn - %s" % ".".join(map(str, pysvn.version)))
         versions.append("ConfigObj - %s" % str(configobj.__version__))
 
         self.about.set_comments("\n".join(versions))
