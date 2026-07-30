@@ -486,8 +486,7 @@ class SVNLog(Log):
 
         # The first time the log items return, the rev_start will be as large
         # as it will ever be.  So set this to our maximum revision.
-        if self.rev_start > self.rev_max:
-            self.rev_max = self.rev_start
+        self.rev_max = max(self.rev_max, self.rev_start)
 
         self.display_items = []
 
@@ -674,10 +673,7 @@ class SVNLog(Log):
 
     def on_next_clicked(self, widget):
         self.previous_starts.append(self.rev_start)
-        self.rev_start = int(self.rev_end) - 1
-
-        if self.rev_start < 1:
-            self.rev_start = 1
+        self.rev_start = max(int(self.rev_end) - 1, 1)
 
         self.load_or_refresh()
 
@@ -813,14 +809,11 @@ class GitLog(Log):
         grapher = revision_grapher(self.display_items)
         max_columns = 1
         for (item, node, in_lines, out_lines) in grapher:
-            if max_columns < len(out_lines):
-                max_columns = len(out_lines)
+            max_columns = max(max_columns, len(out_lines))
 
         # Set the graph column width
         if not self.filter_text:
-            graph_width = 21 * max_columns
-            if graph_width < 55:
-                graph_width = 55
+            graph_width = max(21 * max_columns, 55)
 
             graph_column = self.revisions_table.get_column(0)
             graph_column.set_fixed_width(graph_width)
@@ -931,8 +924,7 @@ class GitLog(Log):
 
     def on_previous_clicked(self, widget):
         self.start_point -= self.limit
-        if self.start_point < 0:
-            self.start_point = 0
+        self.start_point = max(self.start_point, 0)
         self.load_or_refresh()
 
     def on_next_clicked(self, widget):

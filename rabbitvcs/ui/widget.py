@@ -1032,9 +1032,7 @@ class ProgressBar(object):
             if self.timer is not None:
                 self.stop_pulsate()
 
-            if fraction > 1:
-                fraction = 1
-            self.view.set_fraction(fraction)
+            self.view.set_fraction(min(fraction, 1))
             return False
         else:
             self.view.pulse()
