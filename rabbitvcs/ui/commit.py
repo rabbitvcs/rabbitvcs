@@ -294,7 +294,7 @@ class SVNCommit(Commit):
         )
 
         self.items = None
-        if len(self.paths):
+        if self.paths:
             self.initialize_items()
 
     def on_ok_clicked(self, widget, data=None):
@@ -364,7 +364,7 @@ class GitCommit(Commit):
             self.get_widget("to").set_text("No active branch")
 
         self.items = None
-        if len(self.paths):
+        if self.paths:
             self.initialize_items()
 
     def on_ok_clicked(self, widget, data=None):

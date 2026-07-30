@@ -284,7 +284,7 @@ class SVN:
             pysvn_statuses = self.client_status(
                 path, depth=pysvn.depth.infinity, update=update
             )
-            if not len(pysvn_statuses):
+            if not pysvn_statuses:
                 # This is NOT in the PySVN documentation, but sometimes it
                 # returns an empty list if the file goes missing...
                 return [on_error]

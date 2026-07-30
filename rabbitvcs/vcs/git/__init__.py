@@ -258,7 +258,7 @@ class Git:
 
         gittyup_statuses = self.client.status(path)
 
-        if not len(gittyup_statuses):
+        if not gittyup_statuses:
             return [rabbitvcs.vcs.status.Status.status_unknown(path)]
 
         statuses = []
