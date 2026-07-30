@@ -73,7 +73,7 @@ def deprecated(func):
         Print deprecated warning and execute original function.
         """
         warnings.warn(
-            "Call to deprecated function %s." % func.__name__,
+            f"Call to deprecated function {func.__name__}.",
             category=DeprecationWarning,
         )
         return func(*args, **kwargs)
@@ -98,7 +98,7 @@ def timeit(func):
         start_time = time.time()
         result = func(*args, **kwargs)
         duration = (time.time() - start_time) * 1000.0
-        log.info("%s() took %0.4f milliseconds" % (func.__name__, duration))
+        log.info(f"{func.__name__}() took {duration:0.4f} milliseconds")
         return result
 
     return update_func_meta(newfunc, func)
@@ -150,14 +150,12 @@ def debug_calls(caller_log, show_caller=False):
     def real_debug(func):
         def newfunc(*args, **kwargs):
             caller_log.debug(
-                "Calling: %s (%s)"
-                % (func.__name__, threading.current_thread().name)
+                f"Calling: {func.__name__} ({threading.current_thread().name})"
             )
 
             result = func(*args, **kwargs)
             caller_log.debug(
-                "Returned: %s (%s)"
-                % (func.__name__, threading.current_thread().name)
+                f"Returned: {func.__name__} ({threading.current_thread().name})"
             )
             return result
 

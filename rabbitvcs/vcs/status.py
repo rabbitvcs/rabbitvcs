@@ -287,13 +287,7 @@ class Status(object):
         return self.summary is not status_normal
 
     def __repr__(self):
-        return "<%s %s (%s) %s/%s>" % (
-            _("RabbitVCS status for"),
-            self.path,
-            self.vcs_type,
-            self.simple_content_status(),
-            self.simple_metadata_status(),
-        )
+        return f"<{_('RabbitVCS status for')} {self.path} ({self.vcs_type}) {self.simple_content_status()}/{self.simple_metadata_status()}>"
 
     def __getstate__(self):
         attrs = self.__dict__.copy()

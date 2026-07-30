@@ -58,15 +58,14 @@ class RabbitVCSTest(TestCase):
         for character in result:
             if not (character.isdigit() or character == "."):
                 self.fail(
-                    "Not all characters in package version "
-                    "'%s' were digits or dots." % result
+                    f"Not all characters in package version '{result}' were digits or dots."
                 )
 
     def test_package_identifier(self):
         """Make sure the package identifier is reported properly."""
         result = rabbitvcs.package_identifier()
         version = rabbitvcs.package_version()
-        self.assertEqual(result, "rabbitvcs-%s" % version)
+        self.assertEqual(result, f"rabbitvcs-{version}")
 
 
 class FakeVersion(object):

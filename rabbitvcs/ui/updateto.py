@@ -144,7 +144,7 @@ class GitUpdateToRevision(UpdateToRevision):
         )
 
         self.action.append(self.action.set_header, _("Checkout"))
-        self.action.append(self.action.set_status, _("Checking out %s..." % revision))
+        self.action.append(self.action.set_status, _("Checking out %s...") % revision)
         self.action.append(self.git.checkout, [self.path], revision)
         self.action.append(self.action.set_status, _("Completed Checkout"))
         self.action.append(self.action.finish)

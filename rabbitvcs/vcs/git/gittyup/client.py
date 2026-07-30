@@ -36,7 +36,7 @@ import tkinter.messagebox
 
 ENCODING = "UTF-8"
 
-RE_STATUS = re.compile("^([\sA-Z\?]+)\s(?:\S+\s->\s)?(.*?)$")
+RE_STATUS = re.compile(r"^([\sA-Z\?]+)\s(?:\S+\s->\s)?(.*?)$")
 
 
 def callback_notify_null(val):
@@ -52,7 +52,7 @@ def callback_get_user():
     fullname = pwuid[4]
     host = os.getenv("HOSTNAME")
 
-    return (fullname, "%s@%s" % (user, host))
+    return (fullname, f"{user}@{host}")
 
 
 def callback_get_cancel():
@@ -357,7 +357,7 @@ class GittyupClient(object):
         self._config_set(("user",), "name", config_user_name)
         self._config_set(("user",), "email", config_user_email)
         self.config.write_to_path()
-        return "%s <%s>" % (config_user_name, config_user_email)
+        return f"{config_user_name} <{config_user_email}>"
 
     def string_unescape(self, s):
         # Portable utf-8 string unescape.
@@ -647,7 +647,7 @@ class GittyupClient(object):
 
         """
 
-        ref_name = "refs/heads/%s" % name
+        ref_name = f"refs/heads/{name}"
         refs = self.repo.get_refs()
         if ref_name in refs:
             if self.is_tracking(ref_name):
@@ -675,8 +675,8 @@ class GittyupClient(object):
 
         """
 
-        old_ref_name = "refs/heads/%s" % old_name
-        new_ref_name = "refs/heads/%s" % new_name
+        old_ref_name = f"refs/heads/{old_name}"
+        new_ref_name = f"refs/heads/{new_name}"
         refs = self.repo.get_refs()
         if old_ref_name in refs:
             self.repo.refs[new_ref_name] = self.repo.refs[old_ref_name]
@@ -981,7 +981,7 @@ class GittyupClient(object):
             if branch_components != None:
                 branch = branch_components.group(1)
 
-                self.notify("[%s] -> %s" % (S(commit_id), S(branch)))
+                self.notify(f"[{S(commit_id)}] -> {S(branch)}")
                 self.notify("To branch: " + S(branch))
 
         # Print tree changes.
@@ -1595,7 +1595,7 @@ class GittyupClient(object):
 
         """
 
-        ref_name = S("refs/tags/%s" % name).bytes()
+        ref_name = S(f"refs/tags/{name}").bytes()
         refs = self.repo.get_refs()
         if ref_name in refs:
             del self.repo.refs[ref_name]
@@ -1870,7 +1870,7 @@ class GittyupClient(object):
 
         untracked_directories = []
         for line in stdout:
-            components = re.match("^(Would remove)\s(.*?)$", line)
+            components = re.match(r"^(Would remove)\s(.*?)$", line)
             if components:
                 untracked_path = components.group(2)
                 if untracked_path[-1] == "/":
@@ -1886,7 +1886,7 @@ class GittyupClient(object):
             self.callback_notify(e)
         ignored_directories = []
         for line in stdout:
-            components = re.match("^(Would remove)\s(.*?)$", line)
+            components = re.match(r"^(Would remove)\s(.*?)$", line)
             if components:
                 ignored_path = components.group(2)
                 if ignored_path[-1] == "/":
@@ -1929,13 +1929,13 @@ class GittyupClient(object):
                     d_status = UntrackedStatus(d)
                     break
 
-            dirPattern = "/%s/" % d
+            dirPattern = f"/{d}/"
             if len(d) == 0:
                 dirPattern = "/"
 
             # Check if directory includes modified files
             for file in modified_files:
-                if ("/%s" % file).startswith(
+                if (f"/{file}").startswith(
                     dirPattern
                 ):  # fix, when file startwith same prefix as directory, fix status for root repo path ""
                     d_status = ModifiedStatus(d)
@@ -2072,14 +2072,14 @@ class GittyupClient(object):
             cmd.append("--all")
 
         if limit:
-            cmd.append("-%s" % limit)
+            cmd.append(f"-{limit}")
         if skip:
-            cmd.append("--skip=%s" % skip)
+            cmd.append(f"--skip={skip}")
         if os.environ.get('RABBITVCS_REVISION_RANGE') is not None:
             cmd.append(os.environ.get('RABBITVCS_REVISION_RANGE'))
         elif revision:
             if showtype == "push":
-                cmd.append("%s.." % revision)
+                cmd.append(f"{revision}..")
             else:
                 cmd.append(revision)
 
@@ -2107,7 +2107,7 @@ class GittyupClient(object):
 
             if line[0:6] == "commit":
                 match = pattern_from.search(line)
-                commit_line = re.sub(" \(from.*\)", "", line).split(" ")
+                commit_line = re.sub(r" \(from.*\)", "", line).split(" ")
                 fromPath = ""
                 if match:
                     fromPath = match.group(1)
@@ -2126,7 +2126,7 @@ class GittyupClient(object):
                     changed_file = {
                         "additions": "-",
                         "removals": "-",
-                        "path": "Diff with parent : %s " % fromPath,
+                        "path": f"Diff with parent : {fromPath} ",
                     }
                     revision["changed_paths"].append(changed_file)
 
@@ -2240,7 +2240,7 @@ class GittyupClient(object):
 
         relative_path = self.get_relative_path(path)
 
-        cmd = ["git", "show", "%s:%s" % (revision_obj, relative_path)]
+        cmd = ["git", "show", f"{revision_obj}:{relative_path}"]
         try:
             (status, stdout, stderr) = GittyupCommand(
                 cmd, cwd=self.repo.path, notify=self.notify, cancel=self.get_cancel()
@@ -2345,7 +2345,7 @@ class GittyupClient(object):
             self.callback_notify(e)
             stdout = []
 
-        self.notify("%s at %s exported to %s" % (path, revision, dest_path))
+        self.notify(f"{path} at {revision} exported to {dest_path}")
         return "\n".join(stdout)
 
     def clean(
@@ -2389,7 +2389,7 @@ class GittyupClient(object):
 
         cmd = ["git", "reset"]
         if type:
-            cmd.append("--%s" % type)
+            cmd.append(f"--{type}")
 
         cmd.append(revision)
         if relative_path and not "soft" == type and not "hard" == type:
@@ -2459,7 +2459,7 @@ class GittyupClient(object):
             # Some messages have a strage tendancy to append a non-printable character,
             # followed by a right square brace and a capitol "K".  This tests for, and
             # strips these superfluous characters.
-            message_components = re.search("^(.+).\[K", message)
+            message_components = re.search(r"^(.+).\[K", message)
             if message_components != None:
                 returnData["path"] = message_components.group(1)
             else:
@@ -2523,7 +2523,7 @@ class GittyupClient(object):
             message_parsed = True
 
         # Look for "Branch" line (e.g. "* branch   master   -> FETCH_HEAD")
-        message_components = re.search("\* branch +([A-z0-9]+) +-> (.+)", data)
+        message_components = re.search(r"\* branch +([A-z0-9]+) +-> (.+)", data)
 
         if message_components != None:
             return_data["action"] = "Branch"
@@ -2533,7 +2533,7 @@ class GittyupClient(object):
             message_parsed = True
 
         # Look for a file line (e.g. "src/somefile.py       | 5 -++++")
-        message_components = re.search(" +(.+) +\| *([0-9]+) ([+-]+)", data)
+        message_components = re.search(r" +(.+) +\| *([0-9]+) ([+-]+)", data)
 
         if message_components != None:
             return_data["action"] = "Modified"
@@ -2579,7 +2579,7 @@ class GittyupClient(object):
 
         # Look for a "binary" line (e.g. "icons/file.png"    | Bin 0 -> 55555 bytes)
         message_components = re.search(
-            "^[ ](.+) +\| Bin ([0-9]+ -> [0-9]+ bytes)", data
+            r"^[ ](.+) +\| Bin ([0-9]+ -> [0-9]+ bytes)", data
         )
 
         if message_components != None:
@@ -2589,7 +2589,7 @@ class GittyupClient(object):
             message_parsed = True
 
         # Look for a "rename" line (e.g. "rename src/{foo.py => bar.py} (50%)")
-        message_components = re.search("rename (.+}) \([0-9]+%\)", data)
+        message_components = re.search(r"rename (.+}) \([0-9]+%\)", data)
 
         if message_components != None:
             return_data["action"] = "Rename"
@@ -2597,7 +2597,7 @@ class GittyupClient(object):
             message_parsed = True
 
         # Look for a "copy" line (e.g. "copy src/{foo.py => bar.py} (50%)")
-        message_components = re.search("copy (.+}) \([0-9]+%\)", data)
+        message_components = re.search(r"copy (.+}) \([0-9]+%\)", data)
 
         if message_components != None:
             return_data["action"] = "Copy"
@@ -2607,7 +2607,7 @@ class GittyupClient(object):
         # Prepend "Error" to conflict lines. e.g. :
         # CONFLICT (content): Merge conflict in file.py.
         # Automatic merge failed; fix conflicts and then commit the result.
-        message_components = re.search("^CONFLICT \(|Automatic merge failed", data)
+        message_components = re.search(r"^CONFLICT \(|Automatic merge failed", data)
 
         if message_components != None:
             return_data["action"] = "Error"
@@ -2634,7 +2634,7 @@ class GittyupClient(object):
             message_parsed = True
 
         # Look for "new branch" line. e.g. " * [new branch]   master -> master"
-        message_components = re.search("^ \* \[new branch\] +(.+) -> (.+)", data)
+        message_components = re.search(r"^ \* \[new branch\] +(.+) -> (.+)", data)
 
         if message_components != None:
             return_data["action"] = "New Branch"
@@ -2644,7 +2644,7 @@ class GittyupClient(object):
             message_parsed = True
 
         # Look for "rejected" line. e.g. " ![rejected]   master -> master (non-fast-forward)".
-        message_components = re.search("!\[rejected\] +(.+)", data)
+        message_components = re.search(r"!\[rejected\] +(.+)", data)
 
         if message_components != None:
             return_data["action"] = "Rejected"
@@ -2668,7 +2668,7 @@ class GittyupClient(object):
 
         x = (window.winfo_screenwidth() - window.winfo_reqwidth()) / 2
         y = (window.winfo_screenheight() - window.winfo_reqheight()) / 2
-        window.geometry("+%d+%d" % (x, y))
+        window.geometry(f"+{int(x)}+{int(y)}")
 
         # Draw the window frame immediately after setting correct window position.
         window.deiconify()

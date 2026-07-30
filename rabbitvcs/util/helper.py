@@ -142,11 +142,11 @@ def get_tmp_path(filename):
     day_string = S(str(day) + str(os.geteuid())).bytes()
     m = hashlib.md5(day_string).hexdigest()[0:10]
 
-    tmpdir = "/tmp/rabbitvcs-%s" % m
+    tmpdir = f"/tmp/rabbitvcs-{m}"
     if not os.path.isdir(tmpdir):
         os.mkdir(tmpdir)
 
-    return "%s/%s" % (tmpdir, filename)
+    return f"{tmpdir}/{filename}"
 
 
 def process_memory(pid):
@@ -192,7 +192,7 @@ def format_long_text(text, cols=None, line1only=False):
         if i >= 0:
             text = text[:i]
     if cols and len(text) > cols:
-        text = "%s..." % text[0:cols]
+        text = f"{text[0:cols]}..."
 
     return text
 
@@ -388,9 +388,9 @@ def encode_revisions(revision_array):
     # inner function.
     def append(start, last, list):
         if start == last:
-            result = "%s" % start
+            result = f"{start}"
         else:
-            result = "%s-%s" % (start, last)
+            result = f"{start}-{last}"
 
         list.append(result)
 
@@ -497,7 +497,7 @@ def launch_diff_tool(path1, path2=None):
     else:
         tmp_path = get_tmp_path(os.path.split(path1)[-1])
         os.popen(
-            "svn export --force -r BASE '%s' '%s'" % (path1, os.path.dirname(tmp_path))
+            f"svn export --force -r BASE '{path1}' '{os.path.dirname(tmp_path)}'"
         )
         (lhs, rhs) = (tmp_path, path1)
 
@@ -532,7 +532,7 @@ def launch_merge_tool(base="", mine="", theirs="", merged=""):
     if "%merged" in merge_tool:
         merge_tool = merge_tool.replace("%merged", merged)
 
-    log.debug("merge_tool: %s" % merge_tool)
+    log.debug(f"merge_tool: {merge_tool}")
     os.popen(merge_tool)
 
 
@@ -576,7 +576,7 @@ def open_item(path):
 
     for o in openers:
         for p in set(os.environ["PATH"].split(":")):
-            if os.path.exists("%s/%s" % (p, o)):
+            if os.path.exists(f"{p}/{o}"):
                 command = [o]
                 if o == "gio":
                     command.append("open")
@@ -678,15 +678,10 @@ def save_log_message(message):
     f = open(get_previous_messages_path(), "w")
     s = ""
     for m in messages:
-        s = """\
--- %s --
-%s
-%s
-""" % (
-            m[0],
-            m[1],
-            s,
-        )
+        s = f"""-- {m[0]} --
+{m[1]}
+{s}
+"""
 
     f.write(s)
     f.close()
@@ -737,7 +732,7 @@ def launch_ui_window(filename, args=[], block=False):
     basedir, head = os.path.split(os.path.dirname(os.path.realpath(__file__)))
 
     if not head == "util":
-        log.warning('Helper module (%s) not in "util" dir' % __file__)
+        log.warning(f'Helper module ({__file__}) not in "util" dir')
 
     # Puts the whole path together.
     # path = "%s/ui/%s.py" % (basedir, filename)
@@ -1086,7 +1081,7 @@ def walk_tree_depth_first(
 
 def urlize(path):
     if path.startswith("/"):
-        return "file://%s" % path
+        return f"file://{path}"
     return path
 
 
@@ -1119,7 +1114,7 @@ def parse_patch_output(patch_file, base_dir, strip=0):
     #    line in the patch; and assume that patches are
     #    reversed if they look like they are.
     env = os.environ.copy().update({"LC_ALL": "C"})
-    p = "-p%s" % strip
+    p = f"-p{strip}"
     patch_proc = subprocess.Popen(
         ["patch", "-N", "-t", p, "-i", str(patch_file), "--directory", base_dir],
         stdout=subprocess.PIPE,

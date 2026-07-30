@@ -403,7 +403,7 @@ class Git(object):
         return self.stage(paths)
 
     def is_tracking(self, name):
-        return self.client.is_tracking("refs/heads/%s" % name)
+        return self.client.is_tracking(f"refs/heads/{name}")
 
     #
     # Action Methods
@@ -920,10 +920,7 @@ class Git(object):
             changed_paths = []
             if "changed_paths" in item:
                 for changed_path in item["changed_paths"]:
-                    action = "+%s/-%s" % (
-                        changed_path["additions"],
-                        changed_path["removals"],
-                    )
+                    action = f"+{changed_path['additions']}/-{changed_path['removals']}"
 
                     changed_paths.append(
                         rabbitvcs.vcs.log.LogChangedPath(

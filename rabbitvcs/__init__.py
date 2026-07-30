@@ -36,7 +36,7 @@ except Exception as e:
 version = "0.19" # x-release-please-version
 APP_NAME = "RabbitVCS"
 TEMP_DIR_PREFIX = "rabbitvcs-"
-LOCALE_DIR = "%s/locale" % os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+LOCALE_DIR = f"{os.path.dirname(os.path.dirname(os.path.realpath(__file__)))}/locale"
 if not os.path.exists(LOCALE_DIR):
     LOCALE_DIR = "/usr/share/locale"
 
@@ -101,7 +101,7 @@ def package_identifier():
     Return a package identifier suitable for use in a package file.
 
     """
-    return "%s-%s" % (package_name(), package_version())
+    return f"{package_name()}-{package_version()}"
 
 
 def package_prefix():
@@ -129,6 +129,4 @@ def get_icon_path():
 
         return icon_path
     except ImportError as e:
-        return "%s/data/icons/hicolor" % os.path.dirname(
-            os.path.dirname(os.path.realpath(__file__))
-        )
+        return f"{os.path.dirname(os.path.dirname(os.path.realpath(__file__)))}/data/icons/hicolor"

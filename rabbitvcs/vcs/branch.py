@@ -31,7 +31,7 @@ class BranchEntry(object):
 
     def __str__(self):
         tracking = self.tracking and " (tracking)" or ""
-        return "<BranchEntry %s:%s%s>" % (self.name, self.revision, tracking)
+        return f"<BranchEntry {self.name}:{self.revision}{tracking}>"
 
 class LocalBranchEntry(BranchEntry):
     def __init__(self, name, tracking=False, revision="", upstream="", message=""):
@@ -40,4 +40,4 @@ class LocalBranchEntry(BranchEntry):
 
     def __str__(self):
         tracking = self.tracking and " (tracking)" or ""
-        return "<BranchEntry %s:%s%s>" % (self.name, self.revision, tracking)
+        return f"<BranchEntry {self.name}:{self.revision}{tracking}>"

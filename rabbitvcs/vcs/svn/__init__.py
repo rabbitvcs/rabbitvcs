@@ -306,7 +306,7 @@ class SVN(object):
         except pysvn.ClientError as ex:
             # TODO: uncommenting these might not be a good idea
             # ~ traceback.print_exc()
-            log.debug("Exception occurred in SVN.status() for %s" % path)
+            log.debug(f"Exception occurred in SVN.status() for {path}")
             log.exception(ex)
             return [on_error]
 
@@ -393,7 +393,7 @@ class SVN(object):
                 if self.is_in_a_or_a_working_copy(path) and self.client_info(path):
                     return True
             except Exception as e:
-                log.exception("is_versioned exception for %s" % path)
+                log.exception(f"is_versioned exception for {path}")
 
             return False
 
@@ -401,7 +401,7 @@ class SVN(object):
         try:
             status = self.status(path, summarize=False)
         except Exception as e:
-            log.exception("is_status exception for %s" % path)
+            log.exception(f"is_status exception for {path}")
             return False
 
         # If looking for "NORMAL", then both statuses must be normal (or propstatus=none)
@@ -563,10 +563,10 @@ class SVN(object):
         try:
             returner = info["commit_revision"].number
         except KeyError as e:
-            log.exception("KeyError exception in svn.py get_revision() for %s" % path)
+            log.exception(f"KeyError exception in svn.py get_revision() for {path}")
         except AttributeError as e:
             log.exception(
-                "AttributeError exception in svn.py get_revision() for %s" % path
+                f"AttributeError exception in svn.py get_revision() for {path}"
             )
 
         return returner
@@ -589,9 +589,9 @@ class SVN(object):
         try:
             returner = info["revision"].number
         except KeyError as e:
-            log.exception("KeyError exception in svn.py get_head() for %s" % path)
+            log.exception(f"KeyError exception in svn.py get_head() for {path}")
         except AttributeError as e:
-            log.exception("AttributeError exception in svn.py get_head() for %s" % path)
+            log.exception(f"AttributeError exception in svn.py get_head() for {path}")
 
         return returner
 
@@ -692,7 +692,7 @@ class SVN(object):
             props = prop_value
         else:
             props = self.propget(path, prop_name)
-            props = "%s%s" % (props, prop_value)
+            props = f"{props}{prop_value}"
 
         try:
             self.client.propset(
@@ -704,12 +704,11 @@ class SVN(object):
             return True
         except pysvn.ClientError as e:
             log.exception(
-                "pysvn.ClientError exception in svn.py propset() for %s"
-                % S(path).display()
+                f"pysvn.ClientError exception in svn.py propset() for {S(path).display()}"
             )
         except TypeError as e:
             log.exception(
-                "TypeError exception in svn.py propset() %s" % S(path).display()
+                f"TypeError exception in svn.py propset() {S(path).display()}"
             )
 
         return False
@@ -765,7 +764,7 @@ class SVN(object):
                 returner = self.client.propget(prop_name, path, recurse=True)
         except pysvn.ClientError as e:
             log.exception(
-                "pysvn.ClientError exception in svn.py propget() for %s" % path
+                f"pysvn.ClientError exception in svn.py propget() for {path}"
             )
             return ""
 
@@ -802,12 +801,11 @@ class SVN(object):
             returner = True
         except pysvn.ClientError as e:
             log.exception(
-                "pysvn.ClientError exception in svn.py propdel() for %s"
-                % S(path).display()
+                f"pysvn.ClientError exception in svn.py propdel() for {S(path).display()}"
             )
         except TypeError as e:
             log.exception(
-                "TypeError exception in svn.py propdel() %s" % S(path).display()
+                f"TypeError exception in svn.py propdel() {S(path).display()}"
             )
 
         return returner

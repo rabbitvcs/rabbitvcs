@@ -84,9 +84,9 @@ class About(object):
         self.about.set_logo(pixbuf)
 
         versions = []
-        versions.append("Subversion - %s" % ".".join(map(str, pysvn.svn_version)))
-        versions.append("Pysvn - %s" % ".".join(map(str, pysvn.version)))
-        versions.append("ConfigObj - %s" % str(configobj.__version__))
+        versions.append(f"Subversion - {'.'.join(map(str, pysvn.svn_version))}")
+        versions.append(f"Pysvn - {'.'.join(map(str, pysvn.version))}")
+        versions.append(f"ConfigObj - {configobj.__version__!s}")
 
         self.about.set_comments("\n".join(versions))
 

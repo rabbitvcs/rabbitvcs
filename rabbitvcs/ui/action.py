@@ -167,7 +167,7 @@ class MessageCallbackNotifier(VCSNotifier):
         self.set_title(header)
 
         self.get_widget("action").set_markup(
-            '<span size="xx-large"><b>%s</b></span>' % header
+            f'<span size="xx-large"><b>{header}</b></span>'
         )
 
     @gtk_unsafe
@@ -672,7 +672,7 @@ class SVNAction(VCSAction):
                 and data["revision"]
             ):
                 self.notification.append(
-                    ["", "Revision %s" % data["revision"].number, ""]
+                    ["", f"Revision {data['revision'].number}", ""]
                 )
             elif "path" in data:
                 self.notification.append([action, data["path"], data["mime_type"]])

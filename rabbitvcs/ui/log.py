@@ -378,9 +378,9 @@ class Log(InterfaceView):
             revision2 = revision1
 
         options = [
-            "%s@%s" % (url, revision2),
-            "%s@%s" % (url, revision1),
-            "--vcs=%s" % self.get_vcs_name(),
+            f"{url}@{revision2}",
+            f"{url}@{revision1}",
+            f"--vcs={self.get_vcs_name()}",
         ]
 
         if sidebyside:
@@ -609,22 +609,19 @@ class SVNLog(Log):
         for selected_row in self.revisions_table.get_selected_rows():
             item = self.display_items[selected_row]
 
-            text += "%s: %s\n" % (REVISION_LABEL, S(item.revision).display())
-            text += "%s: %s\n" % (AUTHOR_LABEL, S(item.author).display())
-            text += "%s: %s\n" % (DATE_LABEL, S(item.date).display())
-            text += "%s\n\n" % S(item.message).display()
+            text += f"{REVISION_LABEL}: {S(item.revision).display()}\n"
+            text += f"{AUTHOR_LABEL}: {S(item.author).display()}\n"
+            text += f"{DATE_LABEL}: {S(item.date).display()}\n"
+            text += f"{S(item.message).display()}\n\n"
             if item.changed_paths is not None:
                 for subitem in item.changed_paths:
-                    text += "%s\t%s" % (
-                        S(subitem.action).display(),
-                        S(subitem.path).display(),
-                    )
+                    text += f"{S(subitem.action).display()}\t{S(subitem.path).display()}"
 
                     if subitem.copy_from_path or subitem.copy_from_revision:
-                        text += " " + _("(Copied from %s r%s)") % (
+                        text += " " + (_("(Copied from %s r%s)") % (
                             S(subitem.copy_from_path).display(),
                             S(subitem.copy_from_revision).display(),
-                        )
+                        ))
 
                     text += "\n"
 
@@ -645,8 +642,7 @@ class SVNLog(Log):
             else:
                 indented_message = msg.replace("\n", "\n\t")
                 self.message.append_text(
-                    "%s %s:\n\t%s\n"
-                    % (REVISION_LABEL, S(item.revision).display(), indented_message)
+                    f"{REVISION_LABEL} {S(item.revision).display()}:\n\t{indented_message}\n"
                 )
             if item.changed_paths is not None:
                 for subitem in item.changed_paths:
@@ -836,9 +832,9 @@ class GitLog(Log):
 
             if item.head:
                 self.head_row = index
-                msg = "<b>%s</b>" % msg
-                author = "<b>%s</b>" % author
-                date = "<b>%s</b>" % date
+                msg = f"<b>{msg}</b>"
+                author = f"<b>{author}</b>"
+                date = f"<b>{date}</b>"
 
             graph_render = {}
             if not self.filter_text:
@@ -895,10 +891,10 @@ class GitLog(Log):
         for selected_row in self.revisions_table.get_selected_rows():
             item = self.display_items[selected_row]
 
-            text += "%s: %s\n" % (REVISION_LABEL, S(item.revision.short()).display())
-            text += "%s: %s\n" % (AUTHOR_LABEL, S(item.author).display())
-            text += "%s: %s\n" % (DATE_LABEL, S(item.date).display())
-            text += "%s\n\n" % S(item.message).display()
+            text += f"{REVISION_LABEL}: {S(item.revision.short()).display()}\n"
+            text += f"{AUTHOR_LABEL}: {S(item.author).display()}\n"
+            text += f"{DATE_LABEL}: {S(item.date).display()}\n"
+            text += f"{S(item.message).display()}\n\n"
 
         self.revision_clipboard.set_text(text, -1)
 
@@ -915,7 +911,7 @@ class GitLog(Log):
             else:
                 indented_message = msg.replace("\n", "\n\t")
                 self.message.append_text(
-                    "%s %s:\n\t%s\n" % (REVISION_LABEL, item.revision.short(), msg)
+                    f"{REVISION_LABEL} {item.revision.short()}:\n\t{msg}\n"
                 )
 
             for subitem in item.changed_paths:
@@ -1224,8 +1220,8 @@ class LogTopContextMenuCallbacks(object):
         helper.launch_ui_window(
             "diff",
             [
-                "%s@%s" % (self.path, S(self.revisions[0]["revision"])),
-                "--vcs=%s" % self.caller.get_vcs_name(),
+                f"{self.path}@{S(self.revisions[0]['revision'])}",
+                f"--vcs={self.caller.get_vcs_name()}",
             ],
         )
 
@@ -1238,9 +1234,9 @@ class LogTopContextMenuCallbacks(object):
         helper.launch_ui_window(
             "diff",
             [
-                "%s@%s" % (self.path, parent),
-                "%s@%s" % (self.path, S(self.revisions[0]["revision"])),
-                "--vcs=%s" % self.caller.get_vcs_name(),
+                f"{self.path}@{parent}",
+                f"{self.path}@{S(self.revisions[0]['revision'])}",
+                f"--vcs={self.caller.get_vcs_name()}",
             ],
         )
 
@@ -1252,9 +1248,9 @@ class LogTopContextMenuCallbacks(object):
         helper.launch_ui_window(
             "diff",
             [
-                "%s@%s" % (path_older, self.revisions[1]["revision"].value),
-                "%s@%s" % (self.path, S(self.revisions[0]["revision"])),
-                "--vcs=%s" % self.caller.get_vcs_name(),
+                f"{path_older}@{self.revisions[1]['revision'].value}",
+                f"{self.path}@{S(self.revisions[0]['revision'])}",
+                f"--vcs={self.caller.get_vcs_name()}",
             ],
         )
 
@@ -1267,9 +1263,9 @@ class LogTopContextMenuCallbacks(object):
             "diff",
             [
                 "-s",
-                "%s@%s" % (path_older, S(self.revisions[0]["revision"])),
-                "%s" % (self.path),
-                "--vcs=%s" % self.caller.get_vcs_name(),
+                f"{path_older}@{S(self.revisions[0]['revision'])}",
+                f"{self.path}",
+                f"--vcs={self.caller.get_vcs_name()}",
             ],
         )
 
@@ -1280,9 +1276,9 @@ class LogTopContextMenuCallbacks(object):
             "diff",
             [
                 "-s",
-                "%s@%s" % (self.path, parent),
-                "%s@%s" % (self.path, S(self.revisions[0]["revision"])),
-                "--vcs=%s" % self.caller.get_vcs_name(),
+                f"{self.path}@{parent}",
+                f"{self.path}@{S(self.revisions[0]['revision'])}",
+                f"--vcs={self.caller.get_vcs_name()}",
             ],
         )
 
@@ -1295,9 +1291,9 @@ class LogTopContextMenuCallbacks(object):
             "diff",
             [
                 "-s",
-                "%s@%s" % (path_older, self.revisions[1]["revision"].value),
-                "%s@%s" % (self.path, S(self.revisions[0]["revision"])),
-                "--vcs=%s" % self.caller.get_vcs_name(),
+                f"{path_older}@{self.revisions[1]['revision'].value}",
+                f"{self.path}@{S(self.revisions[0]['revision'])}",
+                f"--vcs={self.caller.get_vcs_name()}",
             ],
         )
 
@@ -1312,9 +1308,9 @@ class LogTopContextMenuCallbacks(object):
         helper.launch_ui_window(
             "changes",
             [
-                "%s@%s" % (path, parent),
-                "%s@%s" % (path, S(rev_first)),
-                "--vcs=%s" % self.caller.get_vcs_name(),
+                f"{path}@{parent}",
+                f"{path}@{S(rev_first)}",
+                f"--vcs={self.caller.get_vcs_name()}",
             ],
         )
 
@@ -1329,9 +1325,9 @@ class LogTopContextMenuCallbacks(object):
         helper.launch_ui_window(
             "changes",
             [
-                "%s@%s" % (path, S(rev_first)),
-                "%s@%s" % (path, S(rev_last)),
-                "--vcs=%s" % self.caller.get_vcs_name(),
+                f"{path}@{S(rev_first)}",
+                f"{path}@{S(rev_last)}",
+                f"--vcs={self.caller.get_vcs_name()}",
             ],
         )
 
@@ -1342,7 +1338,7 @@ class LogTopContextMenuCallbacks(object):
                 self.path,
                 "-r",
                 S(self.revisions[0]["revision"]),
-                "--vcs=%s" % self.caller.get_vcs_name(),
+                f"--vcs={self.caller.get_vcs_name()}",
             ],
         )
 
@@ -1354,7 +1350,7 @@ class LogTopContextMenuCallbacks(object):
                 S(self.revisions[0]["revision"])
                 + "-"
                 + str(int(S(self.revisions[0]["revision"])) - 1),
-                "--vcs=%s" % self.caller.get_vcs_name(),
+                f"--vcs={self.caller.get_vcs_name()}",
             ],
         )
 
@@ -1370,7 +1366,7 @@ class LogTopContextMenuCallbacks(object):
                 url,
                 "-r",
                 S(self.revisions[0]["revision"]),
-                "--vcs=%s" % self.caller.get_vcs_name(),
+                f"--vcs={self.caller.get_vcs_name()}",
             ],
         )
 
@@ -1381,7 +1377,7 @@ class LogTopContextMenuCallbacks(object):
                 self.path,
                 "-r",
                 S(self.revisions[0]["revision"]),
-                "--vcs=%s" % self.caller.get_vcs_name(),
+                f"--vcs={self.caller.get_vcs_name()}",
             ],
         )
 
@@ -1392,7 +1388,7 @@ class LogTopContextMenuCallbacks(object):
                 self.path,
                 "-r",
                 S(self.revisions[0]["revision"]),
-                "--vcs=%s" % self.caller.get_vcs_name(),
+                f"--vcs={self.caller.get_vcs_name()}",
             ],
         )
 
@@ -1403,7 +1399,7 @@ class LogTopContextMenuCallbacks(object):
                 self.path,
                 "-r",
                 S(self.revisions[0]["revision"]),
-                "--vcs=%s" % self.caller.get_vcs_name(),
+                f"--vcs={self.caller.get_vcs_name()}",
             ],
         )
 
@@ -1414,7 +1410,7 @@ class LogTopContextMenuCallbacks(object):
                 self.path,
                 "-r",
                 S(self.revisions[0]["revision"]),
-                "--vcs=%s" % self.caller.get_vcs_name(),
+                f"--vcs={self.caller.get_vcs_name()}",
             ],
         )
 
@@ -1428,7 +1424,7 @@ class LogTopContextMenuCallbacks(object):
             except IndexError as e:
                 pass
 
-        extra += ["--vcs=%s" % self.caller.get_vcs_name()]
+        extra += [f"--vcs={self.caller.get_vcs_name()}"]
 
         helper.launch_ui_window("merge", [self.path] + extra)
 
@@ -1439,7 +1435,7 @@ class LogTopContextMenuCallbacks(object):
                 self.path,
                 "-r",
                 S(self.revisions[0]["revision"]),
-                "--vcs=%s" % self.caller.get_vcs_name(),
+                f"--vcs={self.caller.get_vcs_name()}",
             ],
         )
 
@@ -1481,8 +1477,8 @@ class LogTopContextMenuCallbacks(object):
         helper.launch_ui_window(
             "revprops",
             [
-                "%s@%s" % (url, S(self.revisions[0]["revision"])),
-                "--vcs=%s" % self.caller.get_vcs_name(),
+                f"{url}@{S(self.revisions[0]['revision'])}",
+                f"--vcs={self.caller.get_vcs_name()}",
             ],
         )
 
@@ -1671,9 +1667,9 @@ class LogBottomContextMenuCallbacks(object):
         helper.launch_ui_window(
             "changes",
             [
-                "%s@%s" % (url, parent),
-                "%s@%s" % (url, rev_last),
-                "--vcs=%s" % self.caller.get_vcs_name(),
+                f"{url}@{parent}",
+                f"{url}@{rev_last}",
+                f"--vcs={self.caller.get_vcs_name()}",
             ],
         )
 
@@ -1686,9 +1682,9 @@ class LogBottomContextMenuCallbacks(object):
         helper.launch_ui_window(
             "changes",
             [
-                "%s@%s" % (url, rev_first),
-                "%s@%s" % (url, rev_last),
-                "--vcs=%s" % self.caller.get_vcs_name(),
+                f"{url}@{rev_first}",
+                f"{url}@{rev_last}",
+                f"--vcs={self.caller.get_vcs_name()}",
             ],
         )
 
@@ -1699,7 +1695,7 @@ class LogBottomContextMenuCallbacks(object):
                 "open",
                 [
                     path,
-                    "--vcs=%s" % self.vcs_name,
+                    f"--vcs={self.vcs_name}",
                     "-r",
                     S(self.revisions[0]["revision"]),
                 ],
@@ -1709,7 +1705,7 @@ class LogBottomContextMenuCallbacks(object):
         url = self.caller.root_url + S(self.paths[0]).unicode()
         helper.launch_ui_window(
             "annotate",
-            [url, "--vcs=%s" % self.vcs_name, "-r", S(self.revisions[0]["revision"])],
+            [url, f"--vcs={self.vcs_name}", "-r", S(self.revisions[0]["revision"])],
         )
 
 
