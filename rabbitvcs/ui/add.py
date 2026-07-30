@@ -33,7 +33,7 @@ from gi.repository import Gtk, GObject, Gdk
 #
 
 import os
-import six.moves._thread
+import threading
 from rabbitvcs.util import helper
 
 import gi
@@ -163,7 +163,7 @@ class Add(InterfaceView, GtkContextMenuCaller):
         """
 
         try:
-            six.moves._thread.start_new_thread(self.load, ())
+            threading.Thread(target=self.load).start()
         except Exception as e:
             log.exception(e)
 

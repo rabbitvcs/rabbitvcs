@@ -29,7 +29,7 @@ from gi.repository import Gtk
 # along with RabbitVCS;  If not, see <http://www.gnu.org/licenses/>.
 #
 
-import six.moves._thread
+import threading
 
 from rabbitvcs.util import helper
 
@@ -63,7 +63,7 @@ class SVNUnlock(Add):
         """
 
         try:
-            six.moves._thread.start_new_thread(self.load, ())
+            threading.Thread(target=self.load).start()
         except Exception as e:
             log.exception(e)
 
