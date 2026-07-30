@@ -539,12 +539,10 @@ class MenuExport(MenuItem):
 
 class MenuSVNExport(MenuExport):
     identifier = "RabbitVCS::SVN_Export"
-    pass
 
 
 class MenuGitExport(MenuExport):
     identifier = "RabbitVCS::Git_Export"
-    pass
 
 
 class MenuCreateRepository(MenuItem):

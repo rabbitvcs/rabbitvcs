@@ -20,4 +20,3 @@ class ColumnProvider(object):
 class NautilusVFSFile(object):
     def add_string_attribute(self, key, value):
         """Pretend to add a string attribute."""
-        pass
