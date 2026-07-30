@@ -116,13 +116,9 @@ documentation = [("share/doc/rabbitvcs", ["AUTHORS", "MAINTAINERS"])]
 
 # Save build information so we can access the prefix later
 path = "rabbitvcs/buildinfo.py"
-buildinfo = """rabbitvcs_prefix = "{}"
-icon_path = "{}/{}"
-""".format(
-    PREFIX,
-    PREFIX,
-    icon_theme_directory,
-)
+buildinfo = f"""rabbitvcs_prefix = "{PREFIX}"
+icon_path = "{PREFIX}/{icon_theme_directory}"
+"""
 fh = open(path, "w")
 fh.write(buildinfo)
 fh.close()
