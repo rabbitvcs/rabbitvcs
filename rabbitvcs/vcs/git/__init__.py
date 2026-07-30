@@ -65,6 +65,7 @@ class Revision(object):
     def __str__(self):
         if self.value:
             return S(self.value)
+
         return S(self.kind)
 
     def __unicode__(self):
@@ -73,8 +74,8 @@ class Revision(object):
     def short(self):
         if self.value:
             return S(self.value)[0:7]
-        else:
-            return self.kind
+
+        return self.kind
 
     def __repr__(self):
         return self.__str__()
@@ -259,25 +260,25 @@ class Git(object):
 
         if not len(gittyup_statuses):
             return [rabbitvcs.vcs.status.Status.status_unknown(path)]
-        else:
-            statuses = []
-            for st in gittyup_statuses:
-                # gittyup returns status paths relative to the repository root
-                # so we need to convert the path to an absolute path
-                st.path = self.client.get_absolute_path(st.path)
 
-                # If not recursing, only return the item in question (if a file)
-                # or items directly under the path (if a directory)
-                cmp_path = os.path.join(path, os.path.basename(st.path))
-                if not recurse and cmp_path != st.path and st.path != path:
-                    continue
+        statuses = []
+        for st in gittyup_statuses:
+            # gittyup returns status paths relative to the repository root
+            # so we need to convert the path to an absolute path
+            st.path = self.client.get_absolute_path(st.path)
 
-                rabbitvcs_status = rabbitvcs.vcs.status.GitStatus(st)
-                self.cache[st.path] = rabbitvcs_status
+            # If not recursing, only return the item in question (if a file)
+            # or items directly under the path (if a directory)
+            cmp_path = os.path.join(path, os.path.basename(st.path))
+            if not recurse and cmp_path != st.path and st.path != path:
+                continue
 
-                statuses.append(rabbitvcs_status)
+            rabbitvcs_status = rabbitvcs.vcs.status.GitStatus(st)
+            self.cache[st.path] = rabbitvcs_status
 
-            return statuses
+            statuses.append(rabbitvcs_status)
+
+        return statuses
 
     def _status_exact(self, path, summarize):
         """Return one exact-path status without starting another batch."""
@@ -383,10 +384,11 @@ class Git(object):
         value_upper = value.upper()
         if value_upper == "HEAD" or value_upper == "BASE":
             return Revision("HEAD")
-        elif value_upper == "WORKING":
+
+        if value_upper == "WORKING":
             return Revision("WORKING")
-        else:
-            return Revision("hash", value)
+
+        return Revision("hash", value)
 
     def add(self, paths, recurse=True):
         """

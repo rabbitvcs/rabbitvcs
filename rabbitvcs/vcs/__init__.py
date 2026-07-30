@@ -70,8 +70,8 @@ def guess(path):
     obj = _guess(path)
     if obj["vcs"] != VCS_DUMMY and settings.get("HideItem", obj["vcs"]):
         return {"vcs": VCS_DUMMY, "repo_path": path}
-    else:
-        return obj
+
+    return obj
 
 
 class VCS(object):
@@ -84,11 +84,11 @@ class VCS(object):
     def dummy(self):
         if VCS_DUMMY in self.clients:
             return self.clients[VCS_DUMMY]
-        else:
-            from rabbitvcs.vcs.dummy import Dummy
 
-            self.clients[VCS_DUMMY] = Dummy()
-            return self.clients[VCS_DUMMY]
+        from rabbitvcs.vcs.dummy import Dummy
+
+        self.clients[VCS_DUMMY] = Dummy()
+        return self.clients[VCS_DUMMY]
 
     def svn(self):
         if settings.get("HideItem", "svn"):
@@ -96,17 +96,17 @@ class VCS(object):
 
         if VCS_SVN in self.clients:
             return self.clients[VCS_SVN]
-        else:
-            try:
-                from rabbitvcs.vcs.svn import SVN
 
-                self.clients[VCS_SVN] = SVN()
-                return self.clients[VCS_SVN]
-            except Exception as e:
-                logger.debug("Unable to load SVN module: %s" % e)
-                logger.exception(e)
-                self.clients[VCS_SVN] = self.dummy()
-                return self.clients[VCS_SVN]
+        try:
+            from rabbitvcs.vcs.svn import SVN
+
+            self.clients[VCS_SVN] = SVN()
+            return self.clients[VCS_SVN]
+        except Exception as e:
+            logger.debug("Unable to load SVN module: %s" % e)
+            logger.exception(e)
+            self.clients[VCS_SVN] = self.dummy()
+            return self.clients[VCS_SVN]
 
     def git(self, path=None, is_repo_path=False):
         if settings.get("HideItem", "git"):
@@ -125,26 +125,26 @@ class VCS(object):
                     git.set_repository(repo_path)
 
             return git
-        else:
-            try:
-                from rabbitvcs.vcs.git import Git
 
-                git = Git()
+        try:
+            from rabbitvcs.vcs.git import Git
 
-                if path:
-                    if is_repo_path:
-                        git.set_repository(path)
-                    else:
-                        repo_path = git.find_repository_path(path)
-                        git.set_repository(repo_path)
+            git = Git()
 
-                self.clients[VCS_GIT] = git
-                return self.clients[VCS_GIT]
-            except Exception as e:
-                logger.debug("Unable to load Git module: %s" % e)
-                logger.exception(e)
-                self.clients[VCS_GIT] = self.dummy()
-                return self.clients[VCS_GIT]
+            if path:
+                if is_repo_path:
+                    git.set_repository(path)
+                else:
+                    repo_path = git.find_repository_path(path)
+                    git.set_repository(repo_path)
+
+            self.clients[VCS_GIT] = git
+            return self.clients[VCS_GIT]
+        except Exception as e:
+            logger.debug("Unable to load Git module: %s" % e)
+            logger.exception(e)
+            self.clients[VCS_GIT] = self.dummy()
+            return self.clients[VCS_GIT]
 
     def mercurial(self, path=None, is_repo_path=False):
         if settings.get("HideItem", "hg"):
@@ -161,26 +161,26 @@ class VCS(object):
                     mercurial.set_repository(repo_path)
 
             return mercurial
-        else:
-            try:
-                from rabbitvcs.vcs.mercurial import Mercurial
 
-                mercurial = Mercurial()
+        try:
+            from rabbitvcs.vcs.mercurial import Mercurial
 
-                if path:
-                    if is_repo_path:
-                        mercurial.set_repository(path)
-                    else:
-                        repo_path = mercurial.find_repository_path(path)
-                        mercurial.set_repository(repo_path)
+            mercurial = Mercurial()
 
-                self.clients[VCS_MERCURIAL] = mercurial
-                return self.clients[VCS_MERCURIAL]
-            except Exception as e:
-                logger.debug("Unable to load Mercurial module: %s" % e)
-                logger.exception(e)
-                self.clients[VCS_MERCURIAL] = self.dummy()
-                return self.clients[VCS_MERCURIAL]
+            if path:
+                if is_repo_path:
+                    mercurial.set_repository(path)
+                else:
+                    repo_path = mercurial.find_repository_path(path)
+                    mercurial.set_repository(repo_path)
+
+            self.clients[VCS_MERCURIAL] = mercurial
+            return self.clients[VCS_MERCURIAL]
+        except Exception as e:
+            logger.debug("Unable to load Mercurial module: %s" % e)
+            logger.exception(e)
+            self.clients[VCS_MERCURIAL] = self.dummy()
+            return self.clients[VCS_MERCURIAL]
 
     def client(self, path, vcs=None):
         if self.should_exclude(path):
@@ -191,20 +191,20 @@ class VCS(object):
         if vcs:
             if vcs == VCS_SVN:
                 return self.svn()
-            elif vcs == VCS_GIT:
+            if vcs == VCS_GIT:
                 return self.git(path)
-            elif vcs == VCS_MERCURIAL:
+            if vcs == VCS_MERCURIAL:
                 return self.mercurial(path)
 
         guess = self.guess(path)
         if guess["vcs"] == VCS_GIT:
             return self.git(guess["repo_path"], is_repo_path=True)
-        elif guess["vcs"] == VCS_SVN:
+        if guess["vcs"] == VCS_SVN:
             return self.svn()
-        elif guess["vcs"] == VCS_MERCURIAL:
+        if guess["vcs"] == VCS_MERCURIAL:
             return self.mercurial(guess["repo_path"], is_repo_path=False)
-        else:
-            return self.dummy()
+
+        return self.dummy()
 
     def should_exclude(self, path):
         for exclude_path in self.exclude_paths:

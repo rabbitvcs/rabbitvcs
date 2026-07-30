@@ -71,8 +71,8 @@ class Revision(object):
     def short(self):
         if self.value:
             return S(self.value)[0:7]
-        else:
-            return self.kind
+
+        return self.kind
 
     def __repr__(self):
         return self.__str__()

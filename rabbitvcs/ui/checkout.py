@@ -234,11 +234,12 @@ def checkout_factory(vcs, path=None, url=None, revision=None, quiet=False):
 
     if vcs == rabbitvcs.vcs.VCS_DUMMY:
         return SVNCheckout(path, url, revision)
-    elif vcs == rabbitvcs.vcs.VCS_GIT:
+
+    if vcs == rabbitvcs.vcs.VCS_GIT:
         if quiet:
             return GitCheckoutQuiet(path)
-        else:
-            return GitCheckout(path, url, revision)
+
+        return GitCheckout(path, url, revision)
 
     return classes_map[vcs](path, url, revision)
 
