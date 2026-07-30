@@ -23,12 +23,12 @@
 """
 Concrete VCS implementation for Subversion functionality.
 """
-import subprocess
-import os
-import shutil
-import os.path
-from os.path import isdir, isfile, dirname, islink, realpath
 from datetime import datetime
+import os
+import os.path
+from os.path import dirname, isdir, isfile, islink, realpath
+import shutil
+import subprocess
 
 import pysvn
 

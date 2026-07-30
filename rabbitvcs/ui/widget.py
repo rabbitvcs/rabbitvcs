@@ -1,12 +1,18 @@
-from rabbitvcs.ui import STATUS_EMBLEMS
-from rabbitvcs.util.log import Log
-from rabbitvcs import gettext
-import rabbitvcs.vcs
-from rabbitvcs.util.strings import S
-from rabbitvcs.util._locale import get_locale
-from rabbitvcs.util import helper
-from rabbitvcs.util.decorators import gtk_unsafe
+import gi
 from gi.repository import Gtk, Gdk, GObject, Pango
+
+from locale import strxfrm
+import os
+import os.path
+
+from rabbitvcs import gettext
+from rabbitvcs.ui import STATUS_EMBLEMS
+from rabbitvcs.util import helper
+from rabbitvcs.util._locale import get_locale
+from rabbitvcs.util.decorators import gtk_unsafe
+from rabbitvcs.util.log import Log
+from rabbitvcs.util.strings import S
+import rabbitvcs.vcs
 
 #
 # This is an extension to the Nautilus file manager to allow better
@@ -30,12 +36,6 @@ from gi.repository import Gtk, Gdk, GObject, Pango
 # along with RabbitVCS;  If not, see <http://www.gnu.org/licenses/>.
 #
 
-import os
-import os.path
-from locale import strxfrm
-
-import gi
-
 try:
     gi.require_version("Gtk", "3.0")
 except:
@@ -44,7 +44,7 @@ except:
 HAS_GTKSPELL = False
 try:
     gi.require_version("GtkSpell", "3.0")
-    from gi.repository import GtkSpell
+    from gi.repository import GtkSpell # pylint: disable=ungrouped-imports
 
     HAS_GTKSPELL = True
 except (ImportError, ValueError):

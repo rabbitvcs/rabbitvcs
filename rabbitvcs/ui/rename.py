@@ -1,8 +1,17 @@
-from rabbitvcs import gettext
-import rabbitvcs.vcs
-from rabbitvcs.ui.dialog import MessageBox, OneLineTextChange
-from rabbitvcs.ui import InterfaceNonView
+import gi
+gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
+
+import os.path
+
+from rabbitvcs import gettext
+from rabbitvcs.ui import InterfaceNonView
+from rabbitvcs.ui.dialog import MessageBox, OneLineTextChange
+from rabbitvcs.util import helper
+import rabbitvcs.vcs
+
+sa = helper.SanitizeArgv()
+sa.restore()
 
 #
 # This is an extension to the Nautilus file manager to allow better
@@ -25,17 +34,6 @@ from gi.repository import Gtk
 # You should have received a copy of the GNU General Public License
 # along with RabbitVCS;  If not, see <http://www.gnu.org/licenses/>.
 #
-
-import os.path
-
-from rabbitvcs.util import helper
-
-import gi
-
-gi.require_version("Gtk", "3.0")
-sa = helper.SanitizeArgv()
-sa.restore()
-
 
 _ = gettext.gettext
 

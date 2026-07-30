@@ -1,14 +1,24 @@
+import gi
+gi.require_version("Gtk", "3.0")
+from gi.repository import Gtk, GObject, Gdk
+
+import os
+import threading
+
 from rabbitvcs import gettext
-from rabbitvcs.vcs.status import Status
+from rabbitvcs.ui import InterfaceView
+from rabbitvcs.util import helper
+from rabbitvcs.util.contextmenu import GtkFilesContextMenu, GtkContextMenuCaller
 from rabbitvcs.util.log import Log
-import rabbitvcs.vcs
 from rabbitvcs.util.strings import S
+from rabbitvcs.vcs.status import Status
 import rabbitvcs.ui.action
 import rabbitvcs.ui.dialog
 import rabbitvcs.ui.widget
-from rabbitvcs.util.contextmenu import GtkFilesContextMenu, GtkContextMenuCaller
-from rabbitvcs.ui import InterfaceView
-from gi.repository import Gtk, GObject, Gdk
+import rabbitvcs.vcs
+
+sa = helper.SanitizeArgv()
+sa.restore()
 
 #
 # This is an extension to the Nautilus file manager to allow better
@@ -31,17 +41,6 @@ from gi.repository import Gtk, GObject, Gdk
 # You should have received a copy of the GNU General Public License
 # along with RabbitVCS;  If not, see <http://www.gnu.org/licenses/>.
 #
-
-import os
-import threading
-from rabbitvcs.util import helper
-
-import gi
-
-gi.require_version("Gtk", "3.0")
-sa = helper.SanitizeArgv()
-sa.restore()
-
 
 log = Log("rabbitvcs.ui.add")
 

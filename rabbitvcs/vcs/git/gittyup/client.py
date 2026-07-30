@@ -2,18 +2,16 @@
 # client.py
 #
 
-import os
+from datetime import datetime
 import errno
+import fnmatch
+from mimetypes import guess_type
+import os
 import os.path
 import re
 import shutil
-import fnmatch
-import time
-from datetime import datetime
-from mimetypes import guess_type
-import time
-
 import subprocess
+import time
 
 import dulwich.errors
 import dulwich.repo

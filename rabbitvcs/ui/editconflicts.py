@@ -1,9 +1,20 @@
+import gi
+gi.require_version("Gtk", "3.0")
+
+import os
+import os.path
+import shutil
+
 from rabbitvcs import gettext
+from rabbitvcs.ui import InterfaceNonView
+from rabbitvcs.util import helper
 from rabbitvcs.util.log import Log
 import rabbitvcs.ui.action
 import rabbitvcs.ui.dialog
 import rabbitvcs.ui.widget
-from rabbitvcs.ui import InterfaceNonView
+
+sa = helper.SanitizeArgv()
+sa.restore()
 
 #
 # This is an extension to the Nautilus file manager to allow better
@@ -26,19 +37,6 @@ from rabbitvcs.ui import InterfaceNonView
 # You should have received a copy of the GNU General Public License
 # along with RabbitVCS;  If not, see <http://www.gnu.org/licenses/>.
 #
-
-import os
-import os.path
-import shutil
-
-from rabbitvcs.util import helper
-
-import gi
-
-gi.require_version("Gtk", "3.0")
-sa = helper.SanitizeArgv()
-sa.restore()
-
 
 log = Log("rabbitvcs.ui.editconflicts")
 

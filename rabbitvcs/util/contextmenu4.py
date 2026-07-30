@@ -23,28 +23,27 @@
 import os
 import os.path
 
+import gi
+
+from gi.repository import GLib
+
 # Yes, * imports are bad. You write it out then.
 from .contextmenuitems4 import *
 
-from rabbitvcs.util import helper
-
-import gi
-
-sa = helper.SanitizeArgv()
-from gi.repository import GLib
-
-sa.restore()
-
+from rabbitvcs import gettext
+import rabbitvcs.vcs
 from rabbitvcs.vcs import (
     create_vcs_instance,
     VCS_SVN,
     VCS_GIT,
     VCS_MERCURIAL,
 )
+from rabbitvcs.util import helper
 from rabbitvcs.util.log import Log
-from rabbitvcs import gettext
 from rabbitvcs.util.settings import SettingsManager
-import rabbitvcs.vcs
+
+sa = helper.SanitizeArgv()
+sa.restore()
 
 log = Log("rabbitvcs.util.contextmenu")
 _ = gettext.gettext

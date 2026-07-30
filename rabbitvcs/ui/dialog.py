@@ -1,9 +1,15 @@
-from rabbitvcs.util.strings import S
-import rabbitvcs.util.helper
-import rabbitvcs.ui.wraplabel
-import rabbitvcs.ui.widget
-from rabbitvcs.ui import InterfaceView
+import gi
+gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk, GObject, Gdk, Pango
+
+from gettext import gettext as _
+import os.path
+
+from rabbitvcs.ui import InterfaceView
+from rabbitvcs.util.strings import S
+import rabbitvcs.ui.widget
+import rabbitvcs.ui.wraplabel
+import rabbitvcs.util.helper
 
 #
 # This is an extension to the Nautilus file manager to allow better
@@ -26,13 +32,6 @@ from gi.repository import Gtk, GObject, Gdk, Pango
 # You should have received a copy of the GNU General Public License
 # along with RabbitVCS;  If not, see <http://www.gnu.org/licenses/>.
 #
-
-from gettext import gettext as _
-import os.path
-import gi
-
-gi.require_version("Gtk", "3.0")
-
 
 ERROR_NOTICE = _(
     """\

@@ -1,3 +1,24 @@
+import gi
+gi.require_version("Gtk", "3.0")
+from gi.repository import Gtk, GObject, Gdk
+
+import os.path
+
+from rabbitvcs import gettext
+from rabbitvcs.ui import InterfaceView
+from rabbitvcs.util import helper
+from rabbitvcs.util.contextmenu import GtkContextMenu, GtkContextMenuCaller
+from rabbitvcs.util.log import Log
+from rabbitvcs.util.strings import S
+import rabbitvcs.ui.dialog
+import rabbitvcs.ui.widget
+import rabbitvcs.ui.wraplabel
+import rabbitvcs.util.contextmenuitems
+import rabbitvcs.vcs
+
+sa = helper.SanitizeArgv()
+sa.restore()
+
 #
 # This is an extension to the Nautilus file manager to allow better
 # integration with the Subversion source control system.
@@ -17,39 +38,14 @@
 # You should have received a copy of the GNU General Public License
 # along with RabbitVCS;  If not, see <http://www.gnu.org/licenses/>.
 #
-
-"""
-A note to anyone intending to work on this in the future... This dialog is
-designed to be as stateless as possible. That is, all the information about
-properties being changed, deleted, added, etc. should be kept in the SVN admin
-system, not in this dialog. SVN should be keeping track of this info, not us!
-
-To this effect, changes are applied immediately... no saving lists of changes to
-apply later, no trying to keep track of what was done recursively and what
-wasn't; just do the work and make sure the UI is sensible.
-"""
-from rabbitvcs import gettext
-from rabbitvcs.util.log import Log
-from rabbitvcs.util.strings import S
-import rabbitvcs.vcs
-import rabbitvcs.ui.dialog
-import rabbitvcs.ui.widget
-import rabbitvcs.util.contextmenuitems
-import rabbitvcs.ui.wraplabel
-from rabbitvcs.util.contextmenu import GtkContextMenu, GtkContextMenuCaller
-from rabbitvcs.ui import InterfaceView
-from gi.repository import Gtk, GObject, Gdk
-
-import os.path
-
-from rabbitvcs.util import helper
-
-import gi
-
-gi.require_version("Gtk", "3.0")
-sa = helper.SanitizeArgv()
-sa.restore()
-
+# A note to anyone intending to work on this in the future... This dialog is
+# designed to be as stateless as possible. That is, all the information about
+# properties being changed, deleted, added, etc. should be kept in the SVN admin
+# system, not in this dialog. SVN should be keeping track of this info, not us!
+#
+# To this effect, changes are applied immediately... no saving lists of changes to
+# apply later, no trying to keep track of what was done recursively and what
+# wasn't; just do the work and make sure the UI is sensible.
 
 log = Log("rabbitvcs.ui.property_editor")
 
