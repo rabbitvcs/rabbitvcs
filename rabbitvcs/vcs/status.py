@@ -1,4 +1,3 @@
-
 #
 # This is an extension to the Nautilus file manager to allow better
 # integration with the Subversion source control system.
@@ -257,7 +256,7 @@ class Status:
         """Summarises statuses for directories."""
         summary = status_unknown
 
-        status_set = set([st.single for st in child_statuses])
+        status_set = {st.single for st in child_statuses}
 
         if not status_set:
             self.summary = self.single
@@ -384,7 +383,7 @@ class GitStatus(Status):
     metadata_status_map = {"normal": status_normal, None: status_normal}
 
     def __init__(self, gittyup_status):
-        super(GitStatus, self).__init__(
+        super().__init__(
             gittyup_status.path, content=str(gittyup_status.identifier), metadata=None
         )
 
@@ -405,7 +404,7 @@ class MercurialStatus(Status):
     metadata_status_map = {"normal": status_normal, None: status_normal}
 
     def __init__(self, mercurial_status):
-        super(MercurialStatus, self).__init__(
+        super().__init__(
             mercurial_status["path"],
             content=str(mercurial_status["content"]),
             metadata=None,

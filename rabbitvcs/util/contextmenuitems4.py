@@ -1,4 +1,3 @@
-
 #
 # This is an extension to the Nautilus file manager to allow better
 # integration with the Subversion source control system.
@@ -253,7 +252,7 @@ class MenuSeparator(MenuItem):
         menuitem.set_property("sensitive", False)
 
     def make_thunar_action(self, id_magic=None):
-        menuitem = super(MenuSeparator, self).make_thunar_action(id_magic)
+        menuitem = super().make_thunar_action(id_magic)
         self.make_insensitive(menuitem)
         return menuitem
         # FIXME: I thought that this would work to create separators,
@@ -271,7 +270,7 @@ class MenuSeparator(MenuItem):
         # ~ return action
 
     def make_nautilus_menu_item(self, id_magic=None):
-        menuitem = super(MenuSeparator, self).make_nautilus_menu_item(id_magic)
+        menuitem = super().make_nautilus_menu_item(id_magic)
         self.make_insensitive(menuitem)
         return menuitem
 
