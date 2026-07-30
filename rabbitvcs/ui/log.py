@@ -43,7 +43,6 @@ import rabbitvcs.ui.widget
 from rabbitvcs.ui.action import SVNAction, GitAction
 from rabbitvcs.ui import InterfaceView
 from gi.repository import Gtk, GObject, Gdk
-import six
 from locale import strxfrm
 
 import os
@@ -1672,8 +1671,8 @@ class LogBottomContextMenuCallbacks(object):
         helper.launch_ui_window(
             "changes",
             [
-                six.u("%s@%s") % (url, parent),
-                six.u("%s@%s") % (url, rev_last),
+                "%s@%s" % (url, parent),
+                "%s@%s" % (url, rev_last),
                 "--vcs=%s" % self.caller.get_vcs_name(),
             ],
         )
@@ -1687,8 +1686,8 @@ class LogBottomContextMenuCallbacks(object):
         helper.launch_ui_window(
             "changes",
             [
-                six.u("%s@%s") % (url, rev_first),
-                six.u("%s@%s") % (url, rev_last),
+                "%s@%s" % (url, rev_first),
+                "%s@%s" % (url, rev_last),
                 "--vcs=%s" % self.caller.get_vcs_name(),
             ],
         )

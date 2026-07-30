@@ -1,4 +1,3 @@
-import six
 from rabbitvcs import gettext
 from rabbitvcs.util.strings import S
 import rabbitvcs.vcs
@@ -62,7 +61,7 @@ class SVNOpen(InterfaceNonView):
         self.vcs = rabbitvcs.vcs.VCS()
         self.svn = self.vcs.svn()
 
-        if revision and isinstance(revision, (str, six.text_type)):
+        if revision and isinstance(revision, str):
             revision_obj = self.svn.revision("number", number=revision)
         else:
             revision_obj = self.svn.revision("HEAD")

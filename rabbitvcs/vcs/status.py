@@ -23,7 +23,6 @@
 
 import os.path
 import unittest
-import six
 
 import rabbitvcs.vcs
 from rabbitvcs.util.strings import S
@@ -300,7 +299,7 @@ class Status(object):
         attrs = self.__dict__.copy()
         # Force strings to Unicode to avoid json implicit conversion.
         for key in attrs:
-            if isinstance(attrs[key], (six.string_types, six.text_type)):
+            if isinstance(attrs[key], str):
                 attrs[key] = S(attrs[key]).unicode()
         attrs["__type__"] = type(self).__name__
         attrs["__module__"] = type(self).__module__
@@ -311,7 +310,7 @@ class Status(object):
         del state_dict["__module__"]
         # Store strings in native str type.
         for key in state_dict:
-            if isinstance(state_dict[key], (six.string_types, six.text_type)):
+            if isinstance(state_dict[key], str):
                 state_dict[key] = str(S(state_dict[key]))
         self.__dict__ = state_dict
 

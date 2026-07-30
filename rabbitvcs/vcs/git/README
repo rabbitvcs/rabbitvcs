@@ -4,4 +4,4 @@ this should supply the basic functionality needed to work with Git.
 Dependencies
 ------------
 * dulwich >= 0.19.0
-* python >= 2.4
+* python >= 3.0
