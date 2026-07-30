@@ -138,11 +138,11 @@ class SVNEditConflicts(InterfaceNonView):
                 ancestorPath = os.path.join(baseDir, revisionPaths[1][1])
                 theirsPath = os.path.join(baseDir, revisionPaths[0][1])
             return (ancestorPath, theirsPath)
-        else:
-            log.error(
-                "Unexpected number (%d) of revision paths found" % len(revisionPaths)
-            )
-            return ("", "")
+
+        log.error(
+            "Unexpected number (%d) of revision paths found" % len(revisionPaths)
+        )
+        return ("", "")
 
 
 class GitEditConflicts(InterfaceNonView):

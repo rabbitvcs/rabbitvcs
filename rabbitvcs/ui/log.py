@@ -329,8 +329,8 @@ class Log(InterfaceView):
             return self.revisions_table.get_row(
                 self.revisions_table.get_selected_rows()[0]
             )[self.revision_number_column]
-        else:
-            return ""
+
+        return ""
 
     @gtk_unsafe
     def set_start_revision(self, rev):

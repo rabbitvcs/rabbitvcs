@@ -186,8 +186,8 @@ class Authentication(InterfaceView):
 
         if result == Gtk.ResponseType.OK:
             return (True, login, password, save)
-        else:
-            return (False, "", "", False)
+
+        return (False, "", "", False)
 
 
 class CertAuthentication(InterfaceView):
@@ -209,8 +209,8 @@ class CertAuthentication(InterfaceView):
 
         if result == Gtk.ResponseType.OK:
             return (True, password, save)
-        else:
-            return (False, "", False)
+
+        return (False, "", False)
 
 
 class SSLClientCertPrompt(InterfaceView):
@@ -238,8 +238,8 @@ class SSLClientCertPrompt(InterfaceView):
 
         if result == Gtk.ResponseType.OK:
             return (True, cert, save)
-        else:
-            return (False, "", False)
+
+        return (False, "", False)
 
 
 class Property(InterfaceView):
@@ -458,8 +458,8 @@ class NewFolder(InterfaceView):
 
         if result == Gtk.ResponseType.OK:
             return fields_text
-        else:
-            return None
+
+        return None
 
 
 class ErrorNotification(InterfaceView):
@@ -505,8 +505,8 @@ class NameEmailPrompt(InterfaceView):
 
         if result == Gtk.ResponseType.OK:
             return (name, email)
-        else:
-            return (None, None)
+
+        return (None, None)
 
 
 class MarkResolvedPrompt(InterfaceView):

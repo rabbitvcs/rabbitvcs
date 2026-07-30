@@ -146,8 +146,8 @@ def path_filter(row, column, user_data=None):
         if relpath == "":
             relpath = os.path.basename(row[column])
         return relpath
-    else:
-        return row[column]
+
+    return row[column]
 
 
 def long_text_filter(row, column, user_data=None):
@@ -209,10 +209,11 @@ def compare_items(model, iter1, iter2, user_data=None):
 
     if value1 == value2:
         return 0
-    elif value1 < value2:
+
+    if value1 < value2:
         return -1
-    else:
-        return 1
+
+    return 1
 
 
 class TableBase(object):
@@ -1034,9 +1035,9 @@ class ProgressBar(object):
 
             self.view.set_fraction(min(fraction, 1))
             return False
-        else:
-            self.view.pulse()
-            return True
+
+        self.view.pulse()
+        return True
 
     @gtk_unsafe
     def set_text(self, text):
@@ -1304,14 +1305,16 @@ class RevisionSelector(object):
             url = self.url_combobox.get_active_text()
             if url is None:
                 return ""
-            else:
-                return url
-        elif self.url_entry:
+
+            return url
+
+        if self.url_entry:
             return self.url_entry.get_text()
-        elif self.url:
+
+        if self.url:
             return self.url
-        else:
-            return ""
+
+        return ""
 
     def set_url(self, url):
         self.url = url
@@ -1332,15 +1335,19 @@ class RevisionSelector(object):
 
         if index == 0:
             return self.client.revision("head")
-        elif index == 1:
+
+        if index == 1:
             if self.client.vcs == rabbitvcs.vcs.VCS_SVN:
                 return self.client.revision("number", self.revision_entry.get_text())
-            elif self.client.vcs == rabbitvcs.vcs.VCS_GIT:
+
+            if self.client.vcs == rabbitvcs.vcs.VCS_GIT:
                 return self.client.revision(self.revision_entry.get_text())
-        elif index == 2:
+
+        if index == 2:
             if self.client.vcs == rabbitvcs.vcs.VCS_SVN:
                 return self.client.revision("working")
-            elif self.client.vcs == rabbitvcs.vcs.VCS_GIT:
+
+            if self.client.vcs == rabbitvcs.vcs.VCS_GIT:
                 return self.client.revision(self.branch_selector.get_branch())
 
     def set_kind_head(self):

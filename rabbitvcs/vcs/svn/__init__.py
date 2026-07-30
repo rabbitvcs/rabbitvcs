@@ -288,21 +288,21 @@ class SVN(object):
                 # This is NOT in the PySVN documentation, but sometimes it
                 # returns an empty list if the file goes missing...
                 return [on_error]
-            else:
-                statuslist = []
-                for st in pysvn_statuses:
-                    # If not recursing, only return the item in question (if a file)
-                    # or items directly under the path (if a directory)
-                    st_path = S(st.path)
-                    cmp_path = os.path.join(path, os.path.basename(st_path))
-                    if not recurse and cmp_path != st_path and st_path != path:
-                        continue
 
-                    rabbitvcs_status = rabbitvcs.vcs.status.SVNStatus(st)
-                    self.cache[st_path] = rabbitvcs_status
-                    statuslist.append(rabbitvcs_status)
+            statuslist = []
+            for st in pysvn_statuses:
+                # If not recursing, only return the item in question (if a file)
+                # or items directly under the path (if a directory)
+                st_path = S(st.path)
+                cmp_path = os.path.join(path, os.path.basename(st_path))
+                if not recurse and cmp_path != st_path and st_path != path:
+                    continue
 
-                return statuslist
+                rabbitvcs_status = rabbitvcs.vcs.status.SVNStatus(st)
+                self.cache[st_path] = rabbitvcs_status
+                statuslist.append(rabbitvcs_status)
+
+            return statuslist
         except pysvn.ClientError as ex:
             # TODO: uncommenting these might not be a good idea
             # ~ traceback.print_exc()
@@ -387,15 +387,15 @@ class SVN(object):
     def is_versioned(self, path):
         if self.is_working_copy(path):
             return True
-        else:
-            try:
-                # info will return nothing for an unversioned file inside a working copy
-                if self.is_in_a_or_a_working_copy(path) and self.client_info(path):
-                    return True
-            except Exception as e:
-                log.exception("is_versioned exception for %s" % path)
 
-            return False
+        try:
+            # info will return nothing for an unversioned file inside a working copy
+            if self.is_in_a_or_a_working_copy(path) and self.client_info(path):
+                return True
+        except Exception as e:
+            log.exception("is_versioned exception for %s" % path)
+
+        return False
 
     def is_status(self, path, status_kind):
         try:
@@ -411,13 +411,12 @@ class SVN(object):
                 status.data["prop_status"] == status_kind
                 or status.data["prop_status"] == pysvn.wc_status_kind.none
             )
-        else:
-            return (
-                status.data["text_status"] == status_kind
-                or status.data["prop_status"] == status_kind
-            )
 
-        return False
+        return (
+            status.data["text_status"] == status_kind
+            or status.data["prop_status"] == status_kind
+        )
+
 
     def is_locked(self, path):
         is_locked = False
@@ -1423,8 +1422,8 @@ class SVN(object):
         dest_url_or_path = pure_unicode(dest_url_or_path)
         if hasattr(self.client, "move2"):
             return self.client.move2([src_url_or_path], dest_url_or_path)
-        else:
-            return self.client.move(src_url_or_path, dest_url_or_path, force=True)
+
+        return self.client.move(src_url_or_path, dest_url_or_path, force=True)
 
     def move_all(
         self, sources, dest_url_or_path, move_as_child=False, make_parents=False

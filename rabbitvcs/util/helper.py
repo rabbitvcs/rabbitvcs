@@ -753,8 +753,8 @@ def launch_ui_window(filename, args=[], block=False):
             proc.wait()
 
         return proc
-    else:
-        return None
+
+    return None
 
 
 def get_log_messages_limit():
@@ -810,24 +810,24 @@ def pretty_timedelta(time1, time2, resolution=None):
     # explicitely within an ngettext call
     if age_s <= 60 * 1.9:
         return ngettext("%i second", "%i seconds", age_s) % age_s
-    elif age_s <= 3600 * 1.9:
+    if age_s <= 3600 * 1.9:
         r = age_s / 60
         return ngettext("%i minute", "%i minutes", r) % r
-    elif age_s <= 3600 * 24 * 1.9:
+    if age_s <= 3600 * 24 * 1.9:
         r = age_s / 3600
         return ngettext("%i hour", "%i hours", r) % r
-    elif age_s <= 3600 * 24 * 7 * 1.9:
+    if age_s <= 3600 * 24 * 7 * 1.9:
         r = age_s / (3600 * 24)
         return ngettext("%i day", "%i days", r) % r
-    elif age_s <= 3600 * 24 * 30 * 1.9:
+    if age_s <= 3600 * 24 * 30 * 1.9:
         r = age_s / (3600 * 24 * 7)
         return ngettext("%i week", "%i weeks", r) % r
-    elif age_s <= 3600 * 24 * 365 * 1.9:
+    if age_s <= 3600 * 24 * 365 * 1.9:
         r = age_s / (3600 * 24 * 30)
         return ngettext("%i month", "%i months", r) % r
-    else:
-        r = age_s / (3600 * 24 * 365)
-        return ngettext("%i year", "%i years", r) % r
+
+    r = age_s / (3600 * 24 * 365)
+    return ngettext("%i year", "%i years", r) % r
 
 
 def utc_offset(timestamp=None):
@@ -896,15 +896,15 @@ def parse_path_revision_string(pathrev):
     index = pathrev.rfind("@")
     if index == -1:
         return (pathrev, None)
-    else:
-        return (pathrev[0:index], pathrev[index + 1 :])
+
+    return (pathrev[0:index], pathrev[index + 1 :])
 
 
 def create_path_revision_string(path, revision=None):
     if revision:
         return path + "@" + str(revision)
-    else:
-        return path
+
+    return path
 
 
 def url_join(path, *args):
@@ -993,11 +993,14 @@ def unquote_url(url_text):
 def pretty_filesize(bytes):
     if bytes >= 1073741824:
         return str(int(bytes / 1073741824)) + " GB"
-    elif bytes >= 1048576:
+
+    if bytes >= 1048576:
         return str(int(bytes / 1048576)) + " MB"
-    elif bytes >= 1024:
+
+    if bytes >= 1024:
         return str(int(bytes / 1024)) + " KB"
-    elif bytes < 1024:
+
+    if bytes < 1024:
         return str(bytes) + " bytes"
 
 
@@ -1005,8 +1008,8 @@ def get_node_kind(path):
     if os.path.exists(path):
         if os.path.isfile(path):
             return "file"
-        else:
-            return "dir"
+
+        return "dir"
 
     return "none"
 

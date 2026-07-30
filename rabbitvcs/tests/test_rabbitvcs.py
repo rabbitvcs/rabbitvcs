@@ -110,8 +110,8 @@ class FakeClient(object):
     def info(self, path):
         if self.send_empty_info:
             return None
-        else:
-            return FakeInfo()
+
+        return FakeInfo()
 
     def status(self, path, recurse=False):
         """Return a fake status, as a list."""

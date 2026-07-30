@@ -42,10 +42,11 @@ class FileInfo():
 
         if vcs_type == rabbitvcs.vcs.VCS_SVN:
             return self.get_additional_info_svn()
-        elif vcs_type == rabbitvcs.vcs.VCS_GIT:
+
+        if vcs_type == rabbitvcs.vcs.VCS_GIT:
             return self.get_additional_info_git()
-        else:
-            return None, None
+
+        return None, None
 
     def get_additional_info_svn(self):
         repo_url = S(self.vcs.svn().get_repo_url(self.path))

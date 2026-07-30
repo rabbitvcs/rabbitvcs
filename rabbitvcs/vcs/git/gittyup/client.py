@@ -159,19 +159,19 @@ class GittyupClient(object):
 
         if self.git_version:
             return self.git_version
-        else:
-            try:
-                proc = subprocess.Popen(
-                    ["git", "--version"],
-                    stdout=subprocess.PIPE,
-                    universal_newlines=True,
-                )
-                response = proc.communicate()[0].split()
-                version = [int(x) for x in response[2].split(".")]
-                self.git_version = version
-                return self.git_version
-            except Exception as e:
-                return None
+
+        try:
+            proc = subprocess.Popen(
+                ["git", "--version"],
+                stdout=subprocess.PIPE,
+                universal_newlines=True,
+            )
+            response = proc.communicate()[0].split()
+            version = [int(x) for x in response[2].split(".")]
+            self.git_version = version
+            return self.git_version
+        except Exception as e:
+            return None
 
     def _get_global_ignore_patterns(self):
         """
@@ -1199,17 +1199,17 @@ class GittyupClient(object):
                     "Error", "Please enter a username.", parent=window
                 )
                 return
-            else:
-                # Insert password into url.
-                newRemoteUrl = originalRemoteUrl.replace("://", "://" + username + "@")
 
-                if remoteKey.find("://") == -1:
-                    # Write url temporarily back to config.
-                    self._config_set(remoteKey, "url", newRemoteUrl)
-                    self.config.write_to_path()
-                else:
-                    # Change the url in memory, since we don't have a config yet.
-                    self.modifiedHost = newRemoteUrl
+            # Insert password into url.
+            newRemoteUrl = originalRemoteUrl.replace("://", "://" + username + "@")
+
+            if remoteKey.find("://") == -1:
+                # Write url temporarily back to config.
+                self._config_set(remoteKey, "url", newRemoteUrl)
+                self.config.write_to_path()
+            else:
+                # Change the url in memory, since we don't have a config yet.
+                self.modifiedHost = newRemoteUrl
 
         # Close dialog.
         window.destroy()
@@ -1221,17 +1221,17 @@ class GittyupClient(object):
                     "Error", "Please enter a password.", parent=window
                 )
                 return
-            else:
-                # Insert password into url.
-                newRemoteUrl = originalRemoteUrl.replace("@", ":" + password + "@")
 
-                if remoteKey.find("://") == -1:
-                    # Write url temporarily back to config.
-                    self._config_set(remoteKey, "url", newRemoteUrl)
-                    self.config.write_to_path()
-                else:
-                    # Change the url in memory, since we don't have a config yet.
-                    self.modifiedHost = newRemoteUrl
+            # Insert password into url.
+            newRemoteUrl = originalRemoteUrl.replace("@", ":" + password + "@")
+
+            if remoteKey.find("://") == -1:
+                # Write url temporarily back to config.
+                self._config_set(remoteKey, "url", newRemoteUrl)
+                self.config.write_to_path()
+            else:
+                # Change the url in memory, since we don't have a config yet.
+                self.modifiedHost = newRemoteUrl
 
         # Close dialog.
         window.destroy()
