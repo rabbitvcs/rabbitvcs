@@ -335,7 +335,11 @@ class PythonConsole(Gtk.ScrolledWindow):
         except SystemExit:
             self.exit()
         except:
-            if hasattr(sys, "last_type") and sys.last_type == SystemExit:
+            last_exc = getattr(sys, "last_exc", None)
+            last_type = getattr(sys, "last_type", None)
+            if last_exc is not None and isinstance(last_exc, SystemExit):
+                self.exit()
+            elif last_type == SystemExit:
                 self.exit()
             else:
                 traceback.print_exc()

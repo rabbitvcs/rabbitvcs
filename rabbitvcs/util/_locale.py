@@ -51,6 +51,19 @@ def set_locale(language, encoding):
 
 
 def initialize_locale():
-    sane_default = locale.getdefaultlocale(["LANG", "LANGUAGE"])
+    import os
+    localename = os.environ.get("LANG") or os.environ.get("LANGUAGE", "").split(":")[0] or "C"
+    if localename in ("C", "POSIX"):
+        sane_default = (None, None)
+    else:
+        try:
+            norm = locale.normalize(localename)
+            parts = norm.split(".", 1)
+            if len(parts) == 1:
+                parts.append(None)
+            sane_default = tuple(parts)
+        except Exception:
+            sane_default = (None, None)
+
     # Just try to set the default locale for the user
     set_locale(*sane_default)
