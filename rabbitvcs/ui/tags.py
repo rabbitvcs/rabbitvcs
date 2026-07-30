@@ -1,11 +1,20 @@
-from rabbitvcs import gettext
-import rabbitvcs.vcs
-import rabbitvcs.util.settings
-from rabbitvcs.util.strings import S
-from rabbitvcs.ui.log import log_dialog_factory
-import rabbitvcs.ui.widget
-from rabbitvcs.ui import InterfaceView
+import gi
+gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk, GObject, Gdk
+
+from datetime import datetime
+
+from rabbitvcs import gettext
+from rabbitvcs.ui import InterfaceView
+from rabbitvcs.ui.log import log_dialog_factory
+from rabbitvcs.util import helper
+from rabbitvcs.util.strings import S
+import rabbitvcs.ui.widget
+import rabbitvcs.util.settings
+import rabbitvcs.vcs
+
+sa = helper.SanitizeArgv()
+sa.restore()
 
 #
 # This is an extension to the Nautilus file manager to allow better
@@ -28,17 +37,6 @@ from gi.repository import Gtk, GObject, Gdk
 # You should have received a copy of the GNU General Public License
 # along with RabbitVCS;  If not, see <http://www.gnu.org/licenses/>.
 #
-
-from datetime import datetime
-
-from rabbitvcs.util import helper
-
-import gi
-
-gi.require_version("Gtk", "3.0")
-sa = helper.SanitizeArgv()
-sa.restore()
-
 
 _ = gettext.gettext
 

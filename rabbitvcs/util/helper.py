@@ -26,43 +26,33 @@ All sorts of helper functions.
 
 """
 
+import codecs
 from collections import deque
+import datetime
+import hashlib
+from html import escape as html_escape
 import os
 import os.path
-import sys
-import subprocess
 import re
-import datetime
-import time
 import shutil
-import hashlib
+import subprocess
+import sys
 import threading
-import codecs
-
-from gi.repository import GLib
-
+import time
 import urllib.parse
 
-from rabbitvcs.util.settings import *
-from rabbitvcs.util.decorators import structure_map
-from rabbitvcs.util.strings import *
+from gi.repository import GLib, GObject
 
+from rabbitvcs import gettext
+from rabbitvcs.util.decorators import structure_map
 from rabbitvcs.util.log import Log
+from rabbitvcs.util.settings import *
+from rabbitvcs.util.strings import *
 
 log = Log("rabbitvcs.util.helper")
 
-from rabbitvcs import gettext
-
-ngettext = gettext.ngettext
-
-
-from html import escape as html_escape
-
-from gi.repository import GObject
-
-from rabbitvcs import gettext
-
 _ = gettext.gettext
+ngettext = gettext.ngettext
 
 LOG_DATETIME_FORMAT = "%Y-%m-%d %H:%M"  # for log files
 

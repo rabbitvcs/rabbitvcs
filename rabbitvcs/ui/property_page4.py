@@ -1,3 +1,8 @@
+from rabbitvcs import gettext
+from rabbitvcs.services.checkerservice import StatusCheckerStub as StatusChecker
+from rabbitvcs.util.strings import S
+import rabbitvcs.vcs
+
 #
 # This is an extension to the Nautilus file manager to allow better
 # integration with the Subversion source control system.
@@ -17,10 +22,6 @@
 # You should have received a copy of the GNU General Public License
 # along with RabbitVCS;  If not, see <http://www.gnu.org/licenses/>.
 #
-from rabbitvcs import gettext
-from rabbitvcs.util.strings import S
-from rabbitvcs.services.checkerservice import StatusCheckerStub as StatusChecker
-import rabbitvcs.vcs
 
 _ = gettext.gettext
 

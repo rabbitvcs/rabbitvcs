@@ -1,3 +1,38 @@
+import gi
+gi.require_version("Gtk", "3.0")
+from gi.repository import Gtk, GObject, Gdk
+
+from locale import strxfrm
+import os
+import os.path
+
+from rabbitvcs import gettext
+from rabbitvcs.ui import InterfaceView
+from rabbitvcs.ui.action import SVNAction, GitAction
+from rabbitvcs.util import helper
+from rabbitvcs.util.contextmenu import GtkContextMenu
+from rabbitvcs.util.contextmenuitems import (
+    MenuItem,
+    MenuSeparator,
+    MenuCheckout,
+    MenuBranches,
+    MenuTags,
+    MenuBranchTag,
+    MenuExport,
+    MenuMerge,
+    MenuReset,
+    MenuOpen,
+    MenuAnnotate,
+)
+from rabbitvcs.util.decorators import gtk_unsafe
+from rabbitvcs.util.strings import S
+import rabbitvcs.ui.widget
+import rabbitvcs.util.settings
+import rabbitvcs.vcs
+
+sa = helper.SanitizeArgv()
+sa.restore()
+
 #
 # This is an extension to the Nautilus file manager to allow better
 # integration with the Subversion source control system.
@@ -19,43 +54,6 @@
 # You should have received a copy of the GNU General Public License
 # along with RabbitVCS;  If not, see <http://www.gnu.org/licenses/>.
 #
-
-from rabbitvcs import gettext
-import rabbitvcs.vcs
-import rabbitvcs.util.settings
-from rabbitvcs.util.strings import S
-from rabbitvcs.util.decorators import gtk_unsafe
-from rabbitvcs.util.contextmenuitems import (
-    MenuItem,
-    MenuSeparator,
-    MenuCheckout,
-    MenuBranches,
-    MenuTags,
-    MenuBranchTag,
-    MenuExport,
-    MenuMerge,
-    MenuReset,
-    MenuOpen,
-    MenuAnnotate,
-)
-from rabbitvcs.util.contextmenu import GtkContextMenu
-import rabbitvcs.ui.widget
-from rabbitvcs.ui.action import SVNAction, GitAction
-from rabbitvcs.ui import InterfaceView
-from gi.repository import Gtk, GObject, Gdk
-from locale import strxfrm
-
-import os
-import os.path
-
-from rabbitvcs.util import helper
-
-import gi
-
-gi.require_version("Gtk", "3.0")
-sa = helper.SanitizeArgv()
-sa.restore()
-
 
 _ = gettext.gettext
 

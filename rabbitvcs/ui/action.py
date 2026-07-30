@@ -1,3 +1,21 @@
+import gi
+gi.require_version("Gtk", "3.0")
+from gi.repository import Gtk, GObject
+
+import threading
+
+from rabbitvcs import gettext
+from rabbitvcs.ui import InterfaceView
+from rabbitvcs.ui.dialog import MessageBox
+from rabbitvcs.util import helper
+from rabbitvcs.util.decorators import gtk_unsafe
+from rabbitvcs.util.log import Log
+from rabbitvcs.util.strings import S
+import rabbitvcs.ui.dialog
+import rabbitvcs.ui.widget
+import rabbitvcs.util
+import rabbitvcs.vcs
+
 #
 # This is an extension to the Nautilus file manager to allow better
 # integration with the Subversion source control system.
@@ -19,25 +37,6 @@
 # You should have received a copy of the GNU General Public License
 # along with RabbitVCS;  If not, see <http://www.gnu.org/licenses/>.
 #
-
-from rabbitvcs.util.log import Log
-from rabbitvcs import gettext
-from rabbitvcs.util.decorators import gtk_unsafe
-from rabbitvcs.ui.dialog import MessageBox
-from rabbitvcs.util.strings import S
-from rabbitvcs.util import helper
-import rabbitvcs.vcs
-import rabbitvcs.util
-import rabbitvcs.ui.dialog
-import rabbitvcs.ui.widget
-from rabbitvcs.ui import InterfaceView
-from gi.repository import Gtk, GObject
-import threading
-
-import gi
-
-gi.require_version("Gtk", "3.0")
-
 
 _ = gettext.gettext
 

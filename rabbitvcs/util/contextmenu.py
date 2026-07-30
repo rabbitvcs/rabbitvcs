@@ -23,32 +23,31 @@
 import os
 import os.path
 
-# Yes, * imports are bad. You write it out then.
-from .contextmenuitems import *
-
-from rabbitvcs.util import helper
-
 import gi
 
 try:
     gi.require_version("Gtk", "3.0")
 except:
     gi.require_version("Gtk", "4.0")
-sa = helper.SanitizeArgv()
 from gi.repository import Gtk, GLib
 
-sa.restore()
+# Yes, * imports are bad. You write it out then.
+from .contextmenuitems import *
 
+from rabbitvcs import gettext
+import rabbitvcs.vcs
 from rabbitvcs.vcs import (
     create_vcs_instance,
     VCS_SVN,
     VCS_GIT,
     VCS_MERCURIAL,
 )
+from rabbitvcs.util import helper
 from rabbitvcs.util.log import Log
-from rabbitvcs import gettext
 from rabbitvcs.util.settings import SettingsManager
-import rabbitvcs.vcs
+
+sa = helper.SanitizeArgv()
+sa.restore()
 
 log = Log("rabbitvcs.util.contextmenu")
 _ = gettext.gettext

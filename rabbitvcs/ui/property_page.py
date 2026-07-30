@@ -1,12 +1,18 @@
+import gi
+gi.require_version("Gtk", "3.0")
+from gi.repository import Gtk
+
+import os
+import os.path
+
 from rabbitvcs import gettext
+from rabbitvcs.services.checkerservice import StatusCheckerStub as StatusChecker
+from rabbitvcs.ui import STATUS_EMBLEMS
 from rabbitvcs.util.log import Log
 from rabbitvcs.util.strings import S
-from rabbitvcs.ui import STATUS_EMBLEMS
-from rabbitvcs.services.checkerservice import StatusCheckerStub as StatusChecker
-import rabbitvcs.vcs
-import rabbitvcs.ui.widget
 import rabbitvcs.ui
-from gi.repository import Gtk
+import rabbitvcs.ui.widget
+import rabbitvcs.vcs
 
 #
 # This is an extension to the Nautilus file manager to allow better
@@ -27,14 +33,6 @@ from gi.repository import Gtk
 # You should have received a copy of the GNU General Public License
 # along with RabbitVCS;  If not, see <http://www.gnu.org/licenses/>.
 #
-
-import os
-import os.path
-
-import gi
-
-gi.require_version("Gtk", "3.0")
-
 
 log = Log("rabbitvcs.ui.property_page")
 

@@ -1,5 +1,8 @@
-from rabbitvcs.util.strings import S
+import gi
+gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk, Pango
+
+from rabbitvcs.util.strings import S
 
 # This file was originally obtained from:
 # http://git.gnome.org/cgit/meld/tree/meld/ui/wraplabel.py
@@ -24,12 +27,7 @@ from gi.repository import Gtk, Pango
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-
 # Python translation from wrapLabel.{cc|h} by Gian Mario Tagliaretti
-import gi
-
-gi.require_version("Gtk", "3.0")
-
 
 class WrapLabel(Gtk.Label):
     __gtype_name__ = "WrapLabel"

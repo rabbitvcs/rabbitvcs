@@ -1,11 +1,22 @@
+import gi
+gi.require_version("Gtk", "3.0")
+from gi.repository import GLib
+
+from shutil import rmtree
+import os
+import tempfile
+
+from rabbitvcs import TEMP_DIR_PREFIX
 from rabbitvcs import gettext
+from rabbitvcs.ui import InterfaceNonView
+from rabbitvcs.ui.action import SVNAction, GitAction
+from rabbitvcs.util import helper
 from rabbitvcs.util.log import Log
 from rabbitvcs.util.strings import S
-from rabbitvcs.ui.action import SVNAction, GitAction
 import rabbitvcs.vcs
-from rabbitvcs.ui import InterfaceNonView
-from rabbitvcs import TEMP_DIR_PREFIX
-from gi.repository import GLib
+
+sa = helper.SanitizeArgv()
+sa.restore()
 
 #
 # This is an extension to the Nautilus file manager to allow better
@@ -28,19 +39,6 @@ from gi.repository import GLib
 # You should have received a copy of the GNU General Public License
 # along with RabbitVCS;  If not, see <http://www.gnu.org/licenses/>.
 #
-
-import os
-from shutil import rmtree
-import tempfile
-
-from rabbitvcs.util import helper
-
-import gi
-
-gi.require_version("Gtk", "3.0")
-sa = helper.SanitizeArgv()
-sa.restore()
-
 
 log = Log("rabbitvcs.ui.diff")
 

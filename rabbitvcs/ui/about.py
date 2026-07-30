@@ -1,13 +1,15 @@
-from rabbitvcs import gettext
-import configobj
-import pysvn
-import rabbitvcs.ui.widget
-import rabbitvcs
-from gi.repository import Gtk, GdkPixbuf
 import gi
-from rabbitvcs.util import helper
-import re
+from gi.repository import Gtk, GdkPixbuf
+
+import configobj
 import os.path
+import pysvn
+import re
+
+from rabbitvcs import gettext
+from rabbitvcs.util import helper
+import rabbitvcs
+import rabbitvcs.ui.widget
 
 #
 # This is an extension to the Nautilus file manager to allow better
@@ -17,6 +19,7 @@ import os.path
 # Copyright (C) 2007-2008 by Bruce van der Kooij <brucevdkooij@gmail.com>
 # Copyright (C) 2008-2010 by Adam Plumb <adamplumb@gmail.com>
 #
+
 license = """\
 RabbitVCS is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by

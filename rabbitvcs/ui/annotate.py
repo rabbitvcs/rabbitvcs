@@ -1,17 +1,27 @@
-from rabbitvcs.util.log import Log
-from rabbitvcs import gettext
-import rabbitvcs.vcs
-from rabbitvcs.util.settings import SettingsManager
-from rabbitvcs.util.highlighter import highlight
-from rabbitvcs.util.strings import S
-from rabbitvcs.util.contextmenuitems import *
-from rabbitvcs.util.contextmenu import GtkContextMenu
-from rabbitvcs.ui.dialog import MessageBox, Loading
-from rabbitvcs.ui.widget import Clickable, Table, TYPE_MARKUP, TYPE_HIDDEN
-from rabbitvcs.ui.action import SVNAction, GitAction
-from rabbitvcs.ui.log import log_dialog_factory
-from rabbitvcs.ui import InterfaceView
+from gi import require_version
+require_version("Gtk", "3.0")
 from gi.repository import Gtk, GObject, Gdk, GLib
+
+from random import uniform
+import os
+
+from rabbitvcs import gettext
+from rabbitvcs.ui import InterfaceView
+from rabbitvcs.ui.action import SVNAction, GitAction
+from rabbitvcs.ui.dialog import MessageBox, Loading
+from rabbitvcs.ui.log import log_dialog_factory
+from rabbitvcs.ui.widget import Clickable, Table, TYPE_MARKUP, TYPE_HIDDEN
+from rabbitvcs.util import helper
+from rabbitvcs.util.contextmenu import GtkContextMenu
+from rabbitvcs.util.contextmenuitems import *
+from rabbitvcs.util.highlighter import highlight
+from rabbitvcs.util.log import Log
+from rabbitvcs.util.settings import SettingsManager
+from rabbitvcs.util.strings import S
+import rabbitvcs.vcs
+
+sa = helper.SanitizeArgv()
+sa.restore()
 
 #
 # This is an extension to the Nautilus file manager to allow better
@@ -34,18 +44,6 @@ from gi.repository import Gtk, GObject, Gdk, GLib
 # You should have received a copy of the GNU General Public License
 # along with RabbitVCS;  If not, see <http://www.gnu.org/licenses/>.
 #
-
-import os
-from random import uniform
-
-from rabbitvcs.util import helper
-
-from gi import require_version
-
-require_version("Gtk", "3.0")
-sa = helper.SanitizeArgv()
-sa.restore()
-
 
 _ = gettext.gettext
 
