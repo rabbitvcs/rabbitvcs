@@ -52,7 +52,7 @@ def callback_get_user():
     fullname = pwuid[4]
     host = os.getenv("HOSTNAME")
 
-    return (fullname, "%s@%s" % (user, host))
+    return (fullname, f"{user}@{host}")
 
 
 def callback_get_cancel():
@@ -357,7 +357,7 @@ class GittyupClient:
         self._config_set(("user",), "name", config_user_name)
         self._config_set(("user",), "email", config_user_email)
         self.config.write_to_path()
-        return "%s <%s>" % (config_user_name, config_user_email)
+        return f"{config_user_name} <{config_user_email}>"
 
     def string_unescape(self, s):
         # Portable utf-8 string unescape.
@@ -647,7 +647,7 @@ class GittyupClient:
 
         """
 
-        ref_name = "refs/heads/%s" % name
+        ref_name = f"refs/heads/{name}"
         refs = self.repo.get_refs()
         if ref_name in refs:
             if self.is_tracking(ref_name):
@@ -675,8 +675,8 @@ class GittyupClient:
 
         """
 
-        old_ref_name = "refs/heads/%s" % old_name
-        new_ref_name = "refs/heads/%s" % new_name
+        old_ref_name = f"refs/heads/{old_name}"
+        new_ref_name = f"refs/heads/{new_name}"
         refs = self.repo.get_refs()
         if old_ref_name in refs:
             self.repo.refs[new_ref_name] = self.repo.refs[old_ref_name]
@@ -981,7 +981,7 @@ class GittyupClient:
             if branch_components != None:
                 branch = branch_components.group(1)
 
-                self.notify("[%s] -> %s" % (S(commit_id), S(branch)))
+                self.notify(f"[{S(commit_id)}] -> {S(branch)}")
                 self.notify("To branch: " + S(branch))
 
         # Print tree changes.
@@ -1595,7 +1595,7 @@ class GittyupClient:
 
         """
 
-        ref_name = S("refs/tags/%s" % name).bytes()
+        ref_name = S(f"refs/tags/{name}").bytes()
         refs = self.repo.get_refs()
         if ref_name in refs:
             del self.repo.refs[ref_name]
@@ -1929,13 +1929,13 @@ class GittyupClient:
                     d_status = UntrackedStatus(d)
                     break
 
-            dirPattern = "/%s/" % d
+            dirPattern = f"/{d}/"
             if len(d) == 0:
                 dirPattern = "/"
 
             # Check if directory includes modified files
             for file in modified_files:
-                if ("/%s" % file).startswith(
+                if (f"/{file}").startswith(
                     dirPattern
                 ):  # fix, when file startwith same prefix as directory, fix status for root repo path ""
                     d_status = ModifiedStatus(d)
@@ -2072,14 +2072,14 @@ class GittyupClient:
             cmd.append("--all")
 
         if limit:
-            cmd.append("-%s" % limit)
+            cmd.append(f"-{limit}")
         if skip:
-            cmd.append("--skip=%s" % skip)
+            cmd.append(f"--skip={skip}")
         if os.environ.get('RABBITVCS_REVISION_RANGE') is not None:
             cmd.append(os.environ.get('RABBITVCS_REVISION_RANGE'))
         elif revision:
             if showtype == "push":
-                cmd.append("%s.." % revision)
+                cmd.append(f"{revision}..")
             else:
                 cmd.append(revision)
 
@@ -2126,7 +2126,7 @@ class GittyupClient:
                     changed_file = {
                         "additions": "-",
                         "removals": "-",
-                        "path": "Diff with parent : %s " % fromPath,
+                        "path": f"Diff with parent : {fromPath} ",
                     }
                     revision["changed_paths"].append(changed_file)
 
@@ -2240,7 +2240,7 @@ class GittyupClient:
 
         relative_path = self.get_relative_path(path)
 
-        cmd = ["git", "show", "%s:%s" % (revision_obj, relative_path)]
+        cmd = ["git", "show", f"{revision_obj}:{relative_path}"]
         try:
             (status, stdout, stderr) = GittyupCommand(
                 cmd, cwd=self.repo.path, notify=self.notify, cancel=self.get_cancel()
@@ -2345,7 +2345,7 @@ class GittyupClient:
             self.callback_notify(e)
             stdout = []
 
-        self.notify("%s at %s exported to %s" % (path, revision, dest_path))
+        self.notify(f"{path} at {revision} exported to {dest_path}")
         return "\n".join(stdout)
 
     def clean(
@@ -2389,7 +2389,7 @@ class GittyupClient:
 
         cmd = ["git", "reset"]
         if type:
-            cmd.append("--%s" % type)
+            cmd.append(f"--{type}")
 
         cmd.append(revision)
         if relative_path and not "soft" == type and not "hard" == type:
@@ -2668,7 +2668,7 @@ class GittyupClient:
 
         x = (window.winfo_screenwidth() - window.winfo_reqwidth()) / 2
         y = (window.winfo_screenheight() - window.winfo_reqheight()) / 2
-        window.geometry("+%d+%d" % (x, y))
+        window.geometry(f"+{int(x)}+{int(y)}")
 
         # Draw the window frame immediately after setting correct window position.
         window.deiconify()

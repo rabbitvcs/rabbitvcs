@@ -49,7 +49,7 @@ class SVNEditConflicts(InterfaceNonView):
     def __init__(self, path):
         InterfaceNonView.__init__(self)
 
-        log.debug("incoming path: %s" % path)
+        log.debug(f"incoming path: {path}")
         self.path = path
         self.vcs = rabbitvcs.vcs.VCS()
         self.svn = self.vcs.svn()
@@ -89,8 +89,7 @@ class SVNEditConflicts(InterfaceNonView):
             ancestor, theirs = self.get_revisioned_paths(path)
 
             log.debug(
-                "launching merge tool with base: %s, mine: %s, theirs: %s, merged: %s"
-                % (ancestor, working, theirs, path)
+                f"launching merge tool with base: {ancestor}, mine: {working}, theirs: {theirs}, merged: {path}"
             )
             helper.launch_merge_tool(
                 base=ancestor, mine=working, theirs=theirs, merged=path
@@ -106,7 +105,7 @@ class SVNEditConflicts(InterfaceNonView):
         self.close()
 
     def get_working_path(self, path):
-        paths = ["%s.mine" % path, "%s.working" % path]
+        paths = [f"{path}.mine", f"{path}.working"]
 
         for working in paths:
             if os.path.exists(working):
@@ -121,14 +120,14 @@ class SVNEditConflicts(InterfaceNonView):
         theirsPath = ""
         revisionPaths = []
         baseDir, baseName = os.path.split(path)
-        log.debug("baseDir: %s, baseName: %s" % (baseDir, baseName))
+        log.debug(f"baseDir: {baseDir}, baseName: {baseName}")
         for name in os.listdir(baseDir):
             if baseName in name:
                 extension = name.split(".")[-1]
-                log.debug("extension: %s" % extension)
+                log.debug(f"extension: {extension}")
                 if extension.startswith("r"):
                     revision = extension[1:]
-                    log.debug("revision: %s" % revision)
+                    log.debug(f"revision: {revision}")
                     revisionPaths.append((revision, name))
         if len(revisionPaths) == 2:
             if int(revisionPaths[0][0]) < int(revisionPaths[1][0]):
@@ -140,7 +139,7 @@ class SVNEditConflicts(InterfaceNonView):
             return (ancestorPath, theirsPath)
 
         log.error(
-            "Unexpected number (%d) of revision paths found" % len(revisionPaths)
+            f"Unexpected number ({len(revisionPaths)}) of revision paths found"
         )
         return ("", "")
 

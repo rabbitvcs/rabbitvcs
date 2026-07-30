@@ -11,7 +11,7 @@ class GittyupStatus:
         self.path = path
 
     def __repr__(self):
-        return "<Status %s %s>" % (self.path, self.identifier)
+        return f"<Status {self.path} {self.identifier}>"
 
     def __eq__(self, other):
         return self.identifier == other.identifier
@@ -73,7 +73,7 @@ class Commit(GittyupObject):
         self.changed_paths = changed_paths
 
     def __repr__(self):
-        return "<Commit %s>" % self.sha
+        return f"<Commit {self.sha}>"
 
     @property
     def parents(self):
@@ -117,7 +117,7 @@ class Commit(GittyupObject):
 
 class Tag(GittyupObject):
     def __repr__(self):
-        return "<Tag %s>" % self.sha
+        return f"<Tag {self.sha}>"
 
     @property
     def name(self):
@@ -151,7 +151,7 @@ class CommitTag(Commit):
         self.obj = obj
 
     def __repr__(self):
-        return "<Tag %s %s>" % (self.name, self.sha)
+        return f"<Tag {self.name} {self.sha}>"
 
     @property
     def name(self):
@@ -183,7 +183,7 @@ class CommitTag(Commit):
 
 class Tree(GittyupObject):
     def __repr__(self):
-        return "<Tree %s>" % self.sha
+        return f"<Tree {self.sha}>"
 
 
 class Branch(Commit):
@@ -193,7 +193,7 @@ class Branch(Commit):
         self.obj = obj
 
     def __repr__(self):
-        return "<Branch %s %s>" % (self.name, self.sha)
+        return f"<Branch {self.name} {self.sha}>"
 
     @property
     def name(self):

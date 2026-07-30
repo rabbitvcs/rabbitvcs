@@ -76,7 +76,7 @@ def start_service(script_file, dbus_service_name, dbus_object_path):
             [sys.executable, script_file], stdin=subprocess.PIPE, stdout=subprocess.PIPE
         )
         pid = proc.pid
-        log.debug("Started process: %i" % pid)
+        log.debug(f"Started process: {pid}")
 
         # Wait for subprocess to send a newline, to tell us it's ready
         proc.stdout.readline()  # We don't care what the message is

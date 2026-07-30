@@ -61,7 +61,7 @@ class CellRendererGraph(Gtk.CellRenderer):
             self.in_lines = value["in_lines"]
             self.out_lines = value["out_lines"]
         else:
-            raise AttributeError("no such property: '%s'" % property.name)
+            raise AttributeError(f"no such property: '{property.name}'")
 
     def box_size(self, widget):
         """Calculate box size based on widget's font.

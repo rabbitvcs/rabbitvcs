@@ -200,10 +200,10 @@ class Changes(InterfaceView):
             helper.launch_ui_window(
                 "diff",
                 [
-                    "%s@%s" % (url1, S(rev1)),
-                    "%s@%s" % (url2, S(rev2)),
-                    "%s" % (sidebyside and "-s" or ""),
-                    "--vcs=%s" % self.get_vcs_name(),
+                    f"{url1}@{S(rev1)}",
+                    f"{url2}@{S(rev2)}",
+                    "-s" if sidebyside else "",
+                    f"--vcs={self.get_vcs_name()}",
                 ],
             )
 
@@ -220,9 +220,9 @@ class Changes(InterfaceView):
         helper.launch_ui_window(
             "diff",
             [
-                "%s@%s" % (url1, S(rev1)),
-                "%s@%s" % (url2, S(rev2)),
-                "--vcs=%s" % self.get_vcs_name(),
+                f"{url1}@{S(rev1)}",
+                f"{url2}@{S(rev2)}",
+                f"--vcs={self.get_vcs_name()}",
             ],
         )
 
@@ -458,7 +458,7 @@ class ChangesContextMenuCallbacks:
         rev = self.caller.get_first_revision()
 
         helper.launch_ui_window(
-            "open", ["--vcs=%s" % self.caller.get_vcs_name(), url, "-r%s" % S(rev)]
+            "open", [f"--vcs={self.caller.get_vcs_name()}", url, f"-r{S(rev)}"]
         )
 
     def open_second(self, widget, data=None):
@@ -469,7 +469,7 @@ class ChangesContextMenuCallbacks:
         url = helper.url_join(self.caller.second_urls.get_active_text(), path)
         rev = self.caller.get_second_revision()
         helper.launch_ui_window(
-            "open", ["--vcs=%s" % self.caller.get_vcs_name(), url, "-r%s" % S(rev)]
+            "open", [f"--vcs={self.caller.get_vcs_name()}", url, f"-r{S(rev)}"]
         )
 
     def view_diff(self, widget, data=None):
@@ -491,10 +491,10 @@ class ChangesContextMenuCallbacks:
             helper.launch_ui_window(
                 "diff",
                 [
-                    "%s@%s" % (url1, S(rev1)),
-                    "%s@%s" % (url2, S(rev2)),
+                    f"{url1}@{S(rev1)}",
+                    f"{url2}@{S(rev2)}",
                     "-s",
-                    "--vcs=%s" % self.caller.get_vcs_name(),
+                    f"--vcs={self.caller.get_vcs_name()}",
                 ],
             )
 

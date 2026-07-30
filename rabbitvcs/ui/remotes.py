@@ -114,7 +114,7 @@ class GitRemotes(InterfaceView):
         selected = self.items_treeview.get_selected_row_items(0)
 
         confirm = rabbitvcs.ui.dialog.Confirmation(
-            _("Are you sure you want to delete %s?" % ", ".join(selected))
+            _("Are you sure you want to delete %s?") % ", ".join(selected)
         )
         result = confirm.run()
 

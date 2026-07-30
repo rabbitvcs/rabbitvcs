@@ -67,7 +67,7 @@ def get_home_folder():
     return config_home
 
 
-SETTINGS_FILE = "%s/settings.conf" % get_home_folder()
+SETTINGS_FILE = f"{get_home_folder()}/settings.conf"
 
 
 def find_configspec():
@@ -158,7 +158,7 @@ class SettingsManager:
         try:
             returner = self.settings[section][keyword]
         except KeyError:
-            print("Error: section %s:%s doesn't exist" % (section, keyword))
+            print(f"Error: section {section}:{keyword} doesn't exist")
 
         return returner
 
@@ -271,7 +271,7 @@ class SettingsManager:
         try:
             returner = DEFAULT_SETTINGS[section][keyword]
         except KeyError:
-            print("Error: section %s:%s doesn't exist" % (section, keyword))
+            print(f"Error: section {section}:{keyword} doesn't exist")
 
         return returner
 
@@ -290,7 +290,7 @@ class SettingsManager:
         renumber = 0
 
         while not new_file_free:
-            new_name = "%s.%02i" % (SETTINGS_FILE, renumber)
+            new_name = f"{SETTINGS_FILE}.{renumber:02d}"
 
             # FIXME: is this too paranoid?
             if not os.path.exists(new_name):

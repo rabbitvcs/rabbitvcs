@@ -226,7 +226,7 @@ class Settings(InterfaceView):
             memory = checker_service.MemoryUsage()
 
             if memory:
-                self.get_widget("memory_usage").set_text("%s KB" % memory)
+                self.get_widget("memory_usage").set_text(f"{memory} KB")
             else:
                 self.get_widget("memory_usage").set_text(CHECKER_UNKNOWN_INFO)
 
@@ -406,11 +406,11 @@ class Settings(InterfaceView):
                 "/.subversion/auth/svn.username",
             ]
             for subpath in subpaths:
-                path = "%s%s" % (home_dir, subpath)
+                path = f"{home_dir}{subpath}"
                 if os.path.exists(path):
                     files = os.listdir(path)
                     for filename in files:
-                        filepath = "%s/%s" % (path, filename)
+                        filepath = f"{path}/{filename}"
                         os.remove(filepath)
 
             rabbitvcs.ui.dialog.MessageBox(_("Authentication information cleared"))
