@@ -1395,7 +1395,7 @@ class KeyValueTable(Gtk.Grid):
                       tuple is the key/label, and the second element is the
                       information
         """
-        super(KeyValueTable, self).__init__()
+        super().__init__()
         if stuff and len(stuff):
             row = 0
 
@@ -1662,7 +1662,7 @@ class MultiFileTextEditor:
 
     def load_file(self, path):
         if os.path.exists(path):
-            fh = open(path, "r")
+            fh = open(path)
             self.textview.set_text(S(fh.read()).display())
             fh.close()
         else:

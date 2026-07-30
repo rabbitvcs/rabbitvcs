@@ -922,7 +922,7 @@ class Git:
             changed_paths = []
             if "changed_paths" in item:
                 for changed_path in item["changed_paths"]:
-                    action = "+%s/-%s" % (
+                    action = "+{}/-{}".format(
                         changed_path["additions"],
                         changed_path["removals"],
                     )

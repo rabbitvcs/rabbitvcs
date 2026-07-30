@@ -121,7 +121,7 @@ class SVNEditConflicts(InterfaceNonView):
         theirsPath = ""
         revisionPaths = []
         baseDir, baseName = os.path.split(path)
-        log.debug("baseDir: %s, baseName: %s" % (baseDir, baseName))
+        log.debug("baseDir: {}, baseName: {}".format(baseDir, baseName))
         for name in os.listdir(baseDir):
             if baseName in name:
                 extension = name.split(".")[-1]

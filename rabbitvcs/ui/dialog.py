@@ -147,7 +147,7 @@ class Certificate(InterfaceView):
         self.get_widget("cert_issuer").set_label(issuer)
         to_str = _("to")
         self.get_widget("cert_valid").set_label(
-            "%s %s %s" % (valid_from, to_str, valid_until)
+            "{} {} {}".format(valid_from, to_str, valid_until)
         )
         self.get_widget("cert_fingerprint").set_label(fingerprint)
 

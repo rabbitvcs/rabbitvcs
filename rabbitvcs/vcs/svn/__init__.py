@@ -691,7 +691,7 @@ class SVN:
             props = prop_value
         else:
             props = self.propget(path, prop_name)
-            props = "%s%s" % (props, prop_value)
+            props = "{}{}".format(props, prop_value)
 
         try:
             self.client.propset(

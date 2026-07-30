@@ -653,7 +653,7 @@ class NautilusContextMenu(MenuBuilder):
         MenuBuilder.__init__(self, structure, conditions, callbacks)
 
     def make_menu_item(self, item, id_magic):
-        unique_id_magic = "%s-%s" % (self._menu_generation_id, id_magic)
+        unique_id_magic = "{}-{}".format(self._menu_generation_id, id_magic)
         return item.make_nautilus_menu_item(unique_id_magic)
 
     def attach_submenu(self, menu_node, submenu_list):

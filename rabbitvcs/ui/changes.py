@@ -200,8 +200,8 @@ class Changes(InterfaceView):
             helper.launch_ui_window(
                 "diff",
                 [
-                    "%s@%s" % (url1, S(rev1)),
-                    "%s@%s" % (url2, S(rev2)),
+                    "{}@{}".format(url1, S(rev1)),
+                    "{}@{}".format(url2, S(rev2)),
                     "%s" % (sidebyside and "-s" or ""),
                     "--vcs=%s" % self.get_vcs_name(),
                 ],
@@ -220,8 +220,8 @@ class Changes(InterfaceView):
         helper.launch_ui_window(
             "diff",
             [
-                "%s@%s" % (url1, S(rev1)),
-                "%s@%s" % (url2, S(rev2)),
+                "{}@{}".format(url1, S(rev1)),
+                "{}@{}".format(url2, S(rev2)),
                 "--vcs=%s" % self.get_vcs_name(),
             ],
         )
@@ -491,8 +491,8 @@ class ChangesContextMenuCallbacks:
             helper.launch_ui_window(
                 "diff",
                 [
-                    "%s@%s" % (url1, S(rev1)),
-                    "%s@%s" % (url2, S(rev2)),
+                    "{}@{}".format(url1, S(rev1)),
+                    "{}@{}".format(url2, S(rev2)),
                     "-s",
                     "--vcs=%s" % self.caller.get_vcs_name(),
                 ],

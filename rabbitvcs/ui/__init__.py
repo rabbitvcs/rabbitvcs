@@ -94,7 +94,7 @@ class GtkBuilderWidgetWrapper:
         self.tree.connect_signals(self)
 
     def get_tree(self):
-        path = "%s/xml/%s.xml" % (
+        path = "{}/xml/{}.xml".format(
             os.path.dirname(os.path.realpath(__file__)),
             self.gtkbuilder_filename,
         )

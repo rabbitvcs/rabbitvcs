@@ -1,4 +1,3 @@
-
 #
 # This is an extension to the Nautilus file manager to allow better
 # integration with the Subversion source control system.
@@ -101,7 +100,7 @@ def package_identifier():
     Return a package identifier suitable for use in a package file.
 
     """
-    return "%s-%s" % (package_name(), package_version())
+    return "{}-{}".format(package_name(), package_version())
 
 
 def package_prefix():

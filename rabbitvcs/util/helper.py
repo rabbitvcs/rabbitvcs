@@ -144,7 +144,7 @@ def get_tmp_path(filename):
     if not os.path.isdir(tmpdir):
         os.mkdir(tmpdir)
 
-    return "%s/%s" % (tmpdir, filename)
+    return "{}/{}".format(tmpdir, filename)
 
 
 def process_memory(pid):
@@ -279,7 +279,7 @@ def get_repository_paths():
     returner = []
     paths_file = get_repository_paths_path()
     if os.path.exists(paths_file):
-        returner = [x.strip() for x in open(paths_file, "r").readlines()]
+        returner = [x.strip() for x in open(paths_file).readlines()]
 
     return returner
 
@@ -309,7 +309,7 @@ def get_previous_messages():
     if not os.path.exists(path):
         return
 
-    lines = open(path, "r").readlines()
+    lines = open(path).readlines()
 
     cur_entry = ""
     returner = []
@@ -344,7 +344,7 @@ def get_exclude_paths():
     if not os.path.exists(path):
         return []
 
-    f = open(path, "r")
+    f = open(path)
     paths = []
     for l in f:
         paths.append(l.strip())
@@ -388,7 +388,7 @@ def encode_revisions(revision_array):
         if start == last:
             result = "%s" % start
         else:
-            result = "%s-%s" % (start, last)
+            result = "{}-{}".format(start, last)
 
         list.append(result)
 
@@ -495,7 +495,7 @@ def launch_diff_tool(path1, path2=None):
     else:
         tmp_path = get_tmp_path(os.path.split(path1)[-1])
         os.popen(
-            "svn export --force -r BASE '%s' '%s'" % (path1, os.path.dirname(tmp_path))
+            "svn export --force -r BASE '{}' '{}'".format(path1, os.path.dirname(tmp_path))
         )
         (lhs, rhs) = (tmp_path, path1)
 
@@ -574,7 +574,7 @@ def open_item(path):
 
     for o in openers:
         for p in set(os.environ["PATH"].split(":")):
-            if os.path.exists("%s/%s" % (p, o)):
+            if os.path.exists("{}/{}".format(p, o)):
                 command = [o]
                 if o == "gio":
                     command.append("open")
@@ -677,10 +677,10 @@ def save_log_message(message):
     s = ""
     for m in messages:
         s = """\
--- %s --
-%s
-%s
-""" % (
+-- {} --
+{}
+{}
+""".format(
             m[0],
             m[1],
             s,

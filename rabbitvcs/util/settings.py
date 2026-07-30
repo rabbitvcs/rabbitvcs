@@ -83,7 +83,7 @@ def find_configspec():
         if os.path.exists(path):
             return path
 
-    raise IOError("Cannot find a configspec.ini file")
+    raise OSError("Cannot find a configspec.ini file")
 
 
 SETTINGS_SPEC = find_configspec()
@@ -158,7 +158,7 @@ class SettingsManager:
         try:
             returner = self.settings[section][keyword]
         except KeyError:
-            print("Error: section %s:%s doesn't exist" % (section, keyword))
+            print("Error: section {}:{} doesn't exist".format(section, keyword))
 
         return returner
 
@@ -271,7 +271,7 @@ class SettingsManager:
         try:
             returner = DEFAULT_SETTINGS[section][keyword]
         except KeyError:
-            print("Error: section %s:%s doesn't exist" % (section, keyword))
+            print("Error: section {}:{} doesn't exist".format(section, keyword))
 
         return returner
 
@@ -302,7 +302,7 @@ class SettingsManager:
                 try:
                     os.rename(SETTINGS_FILE, new_name)
                     created = True
-                except IOError:
+                except OSError:
                     # Paranoid again?
                     print("Could not back up user configuration.")
 

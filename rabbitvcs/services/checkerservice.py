@@ -497,7 +497,7 @@ def Main():
     """
     global log
     log = Log("rabbitvcs.services.checkerservice:main")
-    log.debug("Checker: starting service: %s (%s)" % (OBJECT_PATH, os.getpid()))
+    log.debug("Checker: starting service: {} ({})".format(OBJECT_PATH, os.getpid()))
 
     # We need this to for the client to be able to do asynchronous calls
     dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
@@ -519,7 +519,7 @@ def Main():
 
     mainloop.run()
 
-    log.debug("Checker: ended service: %s (%s)" % (OBJECT_PATH, os.getpid()))
+    log.debug("Checker: ended service: {} ({})".format(OBJECT_PATH, os.getpid()))
 
 
 if __name__ == "__main__":

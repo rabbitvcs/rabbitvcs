@@ -1,4 +1,3 @@
-
 #
 # This is an extension to the Nautilus file manager to allow better
 # integration with the Subversion source control system.
@@ -31,7 +30,7 @@ class BranchEntry:
 
     def __str__(self):
         tracking = self.tracking and " (tracking)" or ""
-        return "<BranchEntry %s:%s%s>" % (self.name, self.revision, tracking)
+        return "<BranchEntry {}:{}{}>".format(self.name, self.revision, tracking)
 
 class LocalBranchEntry(BranchEntry):
     def __init__(self, name, tracking=False, revision="", upstream="", message=""):
@@ -40,4 +39,4 @@ class LocalBranchEntry(BranchEntry):
 
     def __str__(self):
         tracking = self.tracking and " (tracking)" or ""
-        return "<BranchEntry %s:%s%s>" % (self.name, self.revision, tracking)
+        return "<BranchEntry {}:{}{}>".format(self.name, self.revision, tracking)

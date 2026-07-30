@@ -115,7 +115,7 @@ class GitOpen(InterfaceNonView):
         if path.startswith(repo_path):
             relative_path = path[len(repo_path) + 1 :]
 
-        dest_path = "%s/%s" % (dest_dir, relative_path)
+        dest_path = "{}/{}".format(dest_dir, relative_path)
 
         helper.open_item(dest_path)
 

@@ -191,7 +191,7 @@ class RabbitVCS(
 
         rabbitvcs_icon_path = get_icon_path()
         for rel_icon_path in rabbitvcs_icons:
-            icon_path = "%s/%s" % (rabbitvcs_icon_path, rel_icon_path)
+            icon_path = "{}/{}".format(rabbitvcs_icon_path, rel_icon_path)
             file = os.path.basename(rel_icon_path)
             (root, ext) = os.path.splitext(file)
 
