@@ -287,7 +287,7 @@ class MenuSeparator(MenuItem):
         menuitem.set_property("sensitive", False)
 
     def make_thunar_action(self, id_magic=None):
-        menuitem = super(MenuSeparator, self).make_thunar_action(id_magic)
+        menuitem = super().make_thunar_action(id_magic)
         self.make_insensitive(menuitem)
         return menuitem
         # FIXME: I thought that this would work to create separators,
@@ -316,7 +316,7 @@ class MenuSeparator(MenuItem):
         return menuitem
 
     def make_nautilus_menu_item(self, id_magic=None):
-        menuitem = super(MenuSeparator, self).make_nautilus_menu_item(id_magic)
+        menuitem = super().make_nautilus_menu_item(id_magic)
         self.make_insensitive(menuitem)
         return menuitem
 
@@ -893,7 +893,7 @@ class RabbitVCSAction(Action):
         self.sub_actions = sub_actions
 
     def create_menu_item(self):
-        menu_item = super(RabbitVCSAction, self).create_menu_item()
+        menu_item = super().create_menu_item()
         if self.sub_actions is not None:
             menu = Gtk.Menu()
             menu_item.set_submenu(menu)

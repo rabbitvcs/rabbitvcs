@@ -1395,7 +1395,7 @@ class KeyValueTable(Gtk.Grid):
                       tuple is the key/label, and the second element is the
                       information
         """
-        super(KeyValueTable, self).__init__()
+        super().__init__()
         if stuff and len(stuff):
             row = 0
 
