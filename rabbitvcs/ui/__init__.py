@@ -136,7 +136,7 @@ class InterfaceView(GtkBuilderWidgetWrapper):
             try:
                 import subprocess
 
-                subprocess.Popen(
+                subprocess.Popen(  # pylint: disable=consider-using-with
                     'osascript -e "tell application \\"Python\\" to activate"',
                     shell=True,
                 )

@@ -1662,9 +1662,8 @@ class MultiFileTextEditor:
 
     def load_file(self, path):
         if os.path.exists(path):
-            fh = open(path, "r")
-            self.textview.set_text(S(fh.read()).display())
-            fh.close()
+            with open(path, "r") as fh:
+                self.textview.set_text(S(fh.read()).display())
         else:
             self.textview.set_text("")
 
@@ -1683,6 +1682,5 @@ class MultiFileTextEditor:
                 if not os.path.exists(os.path.dirname(tmppath)):
                     os.mkdir(os.path.dirname(tmppath))
 
-                fh = open(tmppath, "w")
-                fh.write(self.cache[tmppath])
-                fh.close()
+                with open(tmppath, "w") as fh:
+                    fh.write(self.cache[tmppath])

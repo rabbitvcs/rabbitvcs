@@ -339,7 +339,8 @@ class ContextMenuCallbacks:
                 "--title=RabbitVCS",
                 "--text=Emblem to add:",
             ]
-            emblem = S(Popen(command, stdout=PIPE).communicate()[0]).replace("\n", "")
+            with Popen(command, stdout=PIPE) as proc:
+                emblem = S(proc.communicate()[0]).replace("\n", "")
 
             rabbitvcs_extension = self.caller
             VFSFile_table = rabbitvcs_extension.VFSFile_table

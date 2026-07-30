@@ -309,9 +309,8 @@ class Annotate(InterfaceView):
             path = dialog.run()
 
         if path is not None:
-            fh = open(path, "w")
-            fh.write(self.generate_string_from_result())
-            fh.close()
+            with open(path, "w") as fh:
+                fh.write(self.generate_string_from_result())
 
     def launch_loading(self):
         self.loading_dialog = Loading()

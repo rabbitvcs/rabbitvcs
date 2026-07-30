@@ -220,14 +220,11 @@ class GitDiff(Diff):
         if not data:
             data = ""
 
-        file = open(path, "wb")
-        try:
+        with open(path, "wb") as file:
             try:
                 file.write(S(data).bytes())
             except Exception as e:
                 log.exception(e)
-        finally:
-            file.close()
 
     def launch_unified_diff(self):
         """

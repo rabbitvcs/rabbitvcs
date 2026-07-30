@@ -378,9 +378,8 @@ class Settings(InterfaceView):
         )
         if confirmation.run() == Gtk.ResponseType.OK:
             path = helper.get_repository_paths_path()
-            fh = open(path, "w")
-            fh.write("")
-            fh.close()
+            with open(path, "w") as fh:
+                fh.write("")
             rabbitvcs.ui.dialog.MessageBox(_("Repository paths cleared"))
 
     def on_cache_clear_messages_clicked(self, widget):
@@ -389,9 +388,8 @@ class Settings(InterfaceView):
         )
         if confirmation.run() == Gtk.ResponseType.OK:
             path = helper.get_previous_messages_path()
-            fh = open(path, "w")
-            fh.write("")
-            fh.close()
+            with open(path, "w") as fh:
+                fh.write("")
             rabbitvcs.ui.dialog.MessageBox(_("Previous messages cleared"))
 
     def on_cache_clear_authentication_clicked(self, widget):
