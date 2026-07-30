@@ -41,7 +41,6 @@ from rabbitvcs.util.decorators import structure_map
 from rabbitvcs.util.strings import *
 import six
 from six.moves import map
-from six.moves import range
 
 log = Log("rabbitvcs.vcs.svn")
 

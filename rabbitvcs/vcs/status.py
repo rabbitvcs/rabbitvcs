@@ -29,7 +29,6 @@ import rabbitvcs.vcs
 from rabbitvcs.util.strings import S
 
 from rabbitvcs.util.log import Log
-from six.moves import range
 
 log = Log("rabbitvcs.vcs.status")
 

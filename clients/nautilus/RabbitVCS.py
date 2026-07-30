@@ -49,7 +49,6 @@ import datetime
 from os.path import dirname
 import os.path
 import os
-from six.moves import range
 from gi.repository import Gio
 
 

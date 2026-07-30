@@ -42,7 +42,6 @@ import codecs
 from gi.repository import GLib
 
 import six
-from six.moves import range
 import six.moves.urllib.parse
 
 from rabbitvcs.util.settings import *
