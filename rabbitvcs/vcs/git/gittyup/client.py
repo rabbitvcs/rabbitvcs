@@ -654,14 +654,14 @@ class GittyupClient(object):
                 self.track("refs/heads/master")
 
             del self.repo.refs[ref_name]
-            
+
         cmd = ["git", "branch"]
         cmd += ["-d", name]
 
         try:
             (status, stdout, stderr) = GittyupCommand(cmd, cwd=self.repo.path, notify=self.notify, cancel=self.get_cancel()).execute()
         except GittyupCommandError as e:
-            self.callback_notify(e)                  
+            self.callback_notify(e)
 
     def branch_rename(self, old_name, new_name):
         """
