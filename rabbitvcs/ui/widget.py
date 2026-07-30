@@ -146,8 +146,8 @@ def path_filter(row, column, user_data=None):
         if relpath == "":
             relpath = os.path.basename(row[column])
         return relpath
-    else:
-        return row[column]
+
+    return row[column]
 
 
 def long_text_filter(row, column, user_data=None):
@@ -209,13 +209,14 @@ def compare_items(model, iter1, iter2, user_data=None):
 
     if value1 == value2:
         return 0
-    elif value1 < value2:
+
+    if value1 < value2:
         return -1
-    else:
-        return 1
+
+    return 1
 
 
-class TableBase(object):
+class TableBase:
     def __init__(
         self,
         treeview,
@@ -826,7 +827,7 @@ class Tree(TableBase):
                 self.populate(node[1], root)
 
 
-class Box(object):
+class Box:
     def __init__(self, box=None, vertical=False, spacing=-1):
         if not box:
             box = Gtk.Grid()
@@ -914,7 +915,7 @@ class Box(object):
         return getattr(self.box, name)
 
 
-class ComboBox(object):
+class ComboBox:
     def __init__(self, cb, items=None, columns=1, textcolumn=0):
 
         self.cb = cb
@@ -971,7 +972,7 @@ class ComboBox(object):
         self.cb.get_child().connect(signal, callback, userdata)
 
 
-class TextView(object):
+class TextView:
     def __init__(self, widget=None, value="", spellcheck=True):
         if widget is None:
             self.view = Gtk.TextView()
@@ -1007,7 +1008,7 @@ class TextView(object):
         self.buffer.set_text(S(self.get_text() + text).display())
 
 
-class ProgressBar(object):
+class ProgressBar:
     def __init__(self, pbar):
         if pbar is None:
             self.view = Gtk.ProgressBar()
@@ -1032,20 +1033,18 @@ class ProgressBar(object):
             if self.timer is not None:
                 self.stop_pulsate()
 
-            if fraction > 1:
-                fraction = 1
-            self.view.set_fraction(fraction)
+            self.view.set_fraction(min(fraction, 1))
             return False
-        else:
-            self.view.pulse()
-            return True
+
+        self.view.pulse()
+        return True
 
     @gtk_unsafe
     def set_text(self, text):
         self.view.set_text(S(text).display())
 
 
-class Clickable(object):
+class Clickable:
     """
     Handle mouse button events for any click on an event-sensitive widget.
     Supports the following additional signals:
@@ -1141,7 +1140,7 @@ class Clickable(object):
         return getattr(self.widget, name)
 
 
-class RevisionSelector(object):
+class RevisionSelector:
     """
     Provides a standard way to generate a revision object from the UI.
 
@@ -1306,14 +1305,16 @@ class RevisionSelector(object):
             url = self.url_combobox.get_active_text()
             if url is None:
                 return ""
-            else:
-                return url
-        elif self.url_entry:
+
+            return url
+
+        if self.url_entry:
             return self.url_entry.get_text()
-        elif self.url:
+
+        if self.url:
             return self.url
-        else:
-            return ""
+
+        return ""
 
     def set_url(self, url):
         self.url = url
@@ -1334,15 +1335,19 @@ class RevisionSelector(object):
 
         if index == 0:
             return self.client.revision("head")
-        elif index == 1:
+
+        if index == 1:
             if self.client.vcs == rabbitvcs.vcs.VCS_SVN:
                 return self.client.revision("number", self.revision_entry.get_text())
-            elif self.client.vcs == rabbitvcs.vcs.VCS_GIT:
+
+            if self.client.vcs == rabbitvcs.vcs.VCS_GIT:
                 return self.client.revision(self.revision_entry.get_text())
-        elif index == 2:
+
+        if index == 2:
             if self.client.vcs == rabbitvcs.vcs.VCS_SVN:
                 return self.client.revision("working")
-            elif self.client.vcs == rabbitvcs.vcs.VCS_GIT:
+
+            if self.client.vcs == rabbitvcs.vcs.VCS_GIT:
                 return self.client.revision(self.branch_selector.get_branch())
 
     def set_kind_head(self):
@@ -1417,7 +1422,7 @@ class KeyValueTable(Gtk.Grid):
         self.set_row_spacing(self.default_row_spacing)
 
 
-class GitRepositorySelector(object):
+class GitRepositorySelector:
     def __init__(self, container, git, changed_callback=None):
         self.git = git
         self.changed_callback = changed_callback
@@ -1518,7 +1523,7 @@ class GitRepositorySelector(object):
             )
 
 
-class GitBranchSelector(object):
+class GitBranchSelector:
     def __init__(self, container, git, changed_callback=None):
         self.git = git
         self.changed_callback = changed_callback
@@ -1562,7 +1567,7 @@ class GitBranchSelector(object):
         self.vbox.hide()
 
 
-class MultiFileTextEditor(object):
+class MultiFileTextEditor:
     """
     Edit a set of text/config/ignore files
     """

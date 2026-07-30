@@ -22,7 +22,7 @@
 #
 
 
-class BranchEntry(object):
+class BranchEntry:
     def __init__(self, name, tracking=False, revision="", message=""):
         self.name = name
         self.tracking = tracking

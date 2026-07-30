@@ -134,10 +134,11 @@ class FileInfoPane(rabbitvcs.ui.GtkBuilderWidgetWrapper):
 
         if vcs_type == rabbitvcs.vcs.VCS_SVN:
             return self.get_additional_info_svn()
-        elif vcs_type == rabbitvcs.vcs.VCS_GIT:
+
+        if vcs_type == rabbitvcs.vcs.VCS_GIT:
             return self.get_additional_info_git()
-        else:
-            return []
+
+        return []
 
     def get_additional_info_svn(self):
 

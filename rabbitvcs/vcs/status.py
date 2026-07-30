@@ -62,7 +62,7 @@ MODIFIED_CHILD_STATUSES = [
 ]
 
 
-class StatusCache(object):
+class StatusCache:
     keys = [
         None,
         status_normal,
@@ -160,7 +160,7 @@ class StatusCache(object):
         return statuses
 
 
-class Status(object):
+class Status:
     @staticmethod
     def status_unknown(path):
         return Status(path, status_unknown, summary=status_unknown)
@@ -244,14 +244,14 @@ class Status(object):
     def simple_content_status(self):
         if self.content_status_map:
             return self.content_status_map.get(self.content, self.content)
-        else:
-            return self.content
+
+        return self.content
 
     def simple_metadata_status(self):
         if self.metadata and self.metadata_status_map:
             return self.metadata_status_map.get(self.metadata)
-        else:
-            return self.metadata
+
+        return self.metadata
 
     def make_summary(self, child_statuses=[]):
         """Summarises statuses for directories."""

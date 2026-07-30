@@ -44,7 +44,7 @@ _ = gettext.gettext
 SEPARATOR = "\u2015" * 10
 
 
-class MenuItem(object):
+class MenuItem:
     """
     This is the base class for a definition of a menu item. Consider this
     "abstract" (in the language of Java) - it makes no sense to instantiate it
@@ -854,7 +854,7 @@ def get_ignore_list_items(paths):
     return ignore_items
 
 
-class Action(object):
+class Action:
     def __init__(self, name, label, tooltip, icon_name):
         self.name = name
         self.label = label

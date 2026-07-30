@@ -247,7 +247,7 @@ class StatusCheckerService(dbus.service.Object):
         return self.PID()
 
 
-class StatusCheckerStub(object):
+class StatusCheckerStub:
     """StatusCheckerStub objects contain methods that call an actual status
     checker running in another process.
 
@@ -398,8 +398,8 @@ class StatusCheckerStub(object):
                 self.check_status_later, path, callback, recurse, invalidate, summary
             )
             return rabbitvcs.vcs.status.Status.status_calc(path)
-        else:
-            return self.check_status_now(path, recurse, invalidate, summary)
+
+        return self.check_status_now(path, recurse, invalidate, summary)
 
     def generate_menu_conditions(self, provider, base_dir, paths, callback):
         def real_reply_handler(obj):

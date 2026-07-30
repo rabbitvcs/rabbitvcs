@@ -75,7 +75,7 @@ class VCSNotifier(InterfaceView):
         pass
 
 
-class DummyNotifier(object):
+class DummyNotifier:
     def __init__(self):
         pass
 
@@ -466,10 +466,10 @@ class VCSAction(threading.Thread):
         if result == 0:
             # Deny
             return (False, 0, False)
-        elif result == 1:
+        if result == 1:
             # Accept Once
             return (True, data["failures"], False)
-        elif result == 2:
+        if result == 2:
             # Accept Forever
             return (True, data["failures"], True)
 
@@ -646,9 +646,7 @@ class SVNAction(VCSAction):
 
             if self.pbar_ticks is not None:
                 self.pbar_ticks_current += 1
-                frac = self.pbar_ticks_current / self.pbar_ticks
-                if frac > 1:
-                    frac = 1
+                frac = min(self.pbar_ticks_current / self.pbar_ticks, 1)
                 self.notification.pbar.update(frac)
 
             is_known_action = False
@@ -766,5 +764,5 @@ def vcs_action_factory(
 
     if client.vcs == rabbitvcs.vcs.VCS_GIT:
         return GitAction(client, register_gtk_quit, notification, run_in_thread)
-    else:
-        return SVNAction(client, register_gtk_quit, notification, run_in_thread)
+
+    return SVNAction(client, register_gtk_quit, notification, run_in_thread)

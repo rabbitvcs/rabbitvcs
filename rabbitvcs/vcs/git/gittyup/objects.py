@@ -3,7 +3,7 @@
 #
 
 
-class GittyupStatus(object):
+class GittyupStatus:
     path = None
     is_staged = False
 
@@ -60,7 +60,7 @@ class NoStatus(GittyupStatus):
         return self.path == other.path
 
 
-class GittyupObject(object):
+class GittyupObject:
     def __init__(self, sha, obj):
         self.sha = sha
         self.obj = obj

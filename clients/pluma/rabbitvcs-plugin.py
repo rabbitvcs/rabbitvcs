@@ -431,7 +431,7 @@ class MenuIgnoreByFileExtension(MenuItem):
     tooltip = _("Ignore item by extension")
 
 
-class PlumaMenuBuilder(object):
+class PlumaMenuBuilder:
     """
     Generalised menu builder class. Subclasses must provide:
 
@@ -510,7 +510,7 @@ class PlumaMenuBuilder(object):
         return function
 
 
-class PlumaMenu(object):
+class PlumaMenu:
     def __init__(self, caller, vcs_client, base_dir, paths):
         """
         @param  caller: The calling object

@@ -40,7 +40,7 @@ sa.restore()
 _ = gettext.gettext
 
 
-class About(object):
+class About:
     """
     This class provides an interface to the About window.
 

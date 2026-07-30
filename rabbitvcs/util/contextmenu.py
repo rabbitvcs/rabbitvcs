@@ -56,7 +56,7 @@ _ = gettext.gettext
 settings = SettingsManager()
 
 
-class MenuBuilder(object):
+class MenuBuilder:
     """
     Generalised menu builder class. Subclasses must provide:
 
@@ -224,7 +224,7 @@ class GtkContextMenu(MenuBuilder):
         return self.menu
 
 
-class GtkContextMenuCaller(object):
+class GtkContextMenuCaller:
     """
     Provides an abstract interface to be inherited by dialogs/windows that call
     a GtkContextMenu.  Allows us to have a standard common set of methods we can
@@ -263,7 +263,7 @@ class GtkContextMenuCaller(object):
         GLib.timeout_add_seconds(1, is_process_still_alive)
 
 
-class ContextMenuCallbacks(object):
+class ContextMenuCallbacks:
     """
     The base class for context menu callbacks. This is inherited by sub-classes.
     """
@@ -612,7 +612,7 @@ class ContextMenuCallbacks(object):
         self.caller.rescan_after_process_exit(proc, [self.paths[0]])
 
 
-class ContextMenuConditions(object):
+class ContextMenuConditions:
     """
     Provides a standard interface to checking conditions for menu items.
 
@@ -689,10 +689,10 @@ class ContextMenuConditions(object):
                     self.path_dict["is_in_a_or_a_working_copy"]
                     and self.path_dict["is_versioned"]
                 )
-            else:
-                return (
-                    self.path_dict["is_dir"] and not self.path_dict["is_working_copy"]
-                )
+
+            return (
+                self.path_dict["is_dir"] and not self.path_dict["is_working_copy"]
+            )
 
         return False
 
@@ -710,8 +710,10 @@ class ContextMenuConditions(object):
                     or not self.path_dict["is_versioned"]
                 ):
                     return True
-                elif self.path_dict["is_dir"]:
+
+                if self.path_dict["is_dir"]:
                     return True
+
         return False
 
     def diff_menu(self, data=None):
@@ -802,12 +804,14 @@ class ContextMenuConditions(object):
 
         if self.path_dict["is_dir"] and self.path_dict["is_in_a_or_a_working_copy"]:
             return True
-        elif (
+
+        if (
             not self.path_dict["is_dir"]
             and self.path_dict["is_in_a_or_a_working_copy"]
             and not self.path_dict["is_versioned"]
         ):
             return True
+
         return False
 
     def check_for_modifications(self, data=None):
@@ -834,14 +838,14 @@ class ContextMenuConditions(object):
                 or self.path_dict["is_deleted"]
             ):
                 return True
-            else:
-                if self.path_dict["is_dir"] and (
-                    self.path_dict["has_added"]
-                    or self.path_dict["has_modified"]
-                    or self.path_dict["has_deleted"]
-                    or self.path_dict["has_missing"]
-                ):
-                    return True
+
+            if self.path_dict["is_dir"] and (
+                self.path_dict["has_added"]
+                or self.path_dict["has_modified"]
+                or self.path_dict["has_deleted"]
+                or self.path_dict["has_missing"]
+            ):
+                return True
         return False
 
     def annotate(self, data=None):
@@ -869,7 +873,8 @@ class ContextMenuConditions(object):
                 or not self.path_dict["is_versioned"]
             ):
                 return True
-            elif self.path_dict["is_dir"] and (
+
+            if self.path_dict["is_dir"] and (
                 self.path_dict["has_added"]
                 or self.path_dict["has_modified"]
                 or self.path_dict["has_deleted"]
@@ -1053,24 +1058,28 @@ class ContextMenuConditions(object):
         if self.path_dict["is_git"]:
             if self.path_dict["is_dir"] and self.path_dict["is_in_a_or_a_working_copy"]:
                 return True
-            elif (
+
+            if (
                 not self.path_dict["is_dir"]
                 and self.path_dict["is_in_a_or_a_working_copy"]
                 and not self.path_dict["is_versioned"]
             ):
                 return True
+
         return False
 
     def unstage(self, data=None):
         if self.path_dict["is_git"]:
             if self.path_dict["is_dir"] and self.path_dict["is_in_a_or_a_working_copy"]:
                 return True
-            elif (
+
+            if (
                 not self.path_dict["is_dir"]
                 and self.path_dict["is_in_a_or_a_working_copy"]
                 and self.path_dict["is_added"]
             ):
                 return True
+
         return False
 
     def edit_conflicts(self, data=None):
@@ -1193,7 +1202,7 @@ class GtkFilesContextMenuConditions(ContextMenuConditions):
         ]
 
 
-class GtkFilesContextMenu(object):
+class GtkFilesContextMenu:
     """
     Defines context menu items for a table with files
 
@@ -1340,7 +1349,7 @@ class MainContextMenuConditions(ContextMenuConditions):
         self._set_statuses(statuses)
 
 
-class MainContextMenu(object):
+class MainContextMenu:
     """
     Defines and composes the main context menu.
 

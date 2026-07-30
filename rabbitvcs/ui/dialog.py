@@ -102,7 +102,7 @@ class PreviousMessages(InterfaceView):
             self.message.set_text(S(selected_message).display())
 
 
-class FolderChooser(object):
+class FolderChooser:
     def __init__(self):
         self.dialog = Gtk.FileChooserDialog(
             title=_("Select a Folder"),
@@ -185,8 +185,8 @@ class Authentication(InterfaceView):
 
         if result == Gtk.ResponseType.OK:
             return (True, login, password, save)
-        else:
-            return (False, "", "", False)
+
+        return (False, "", "", False)
 
 
 class CertAuthentication(InterfaceView):
@@ -208,8 +208,8 @@ class CertAuthentication(InterfaceView):
 
         if result == Gtk.ResponseType.OK:
             return (True, password, save)
-        else:
-            return (False, "", False)
+
+        return (False, "", False)
 
 
 class SSLClientCertPrompt(InterfaceView):
@@ -237,8 +237,8 @@ class SSLClientCertPrompt(InterfaceView):
 
         if result == Gtk.ResponseType.OK:
             return (True, cert, save)
-        else:
-            return (False, "", False)
+
+        return (False, "", False)
 
 
 class Property(InterfaceView):
@@ -291,7 +291,7 @@ class Property(InterfaceView):
         self.save_recurse = self.recurse.get_active()
 
 
-class FileChooser(object):
+class FileChooser:
     def __init__(self, title=_("Select a File"), folder=None):
         self.dialog = Gtk.FileChooserDialog(
             title=title, parent=None, action=Gtk.FileChooserAction.OPEN
@@ -311,7 +311,7 @@ class FileChooser(object):
         return returner
 
 
-class FileSaveAs(object):
+class FileSaveAs:
     def __init__(self, title=_("Save As..."), folder=None):
         self.dialog = Gtk.FileChooserDialog(
             title=title, parent=None, action=Gtk.FileChooserAction.SAVE
@@ -457,8 +457,8 @@ class NewFolder(InterfaceView):
 
         if result == Gtk.ResponseType.OK:
             return fields_text
-        else:
-            return None
+
+        return None
 
 
 class ErrorNotification(InterfaceView):
@@ -504,8 +504,8 @@ class NameEmailPrompt(InterfaceView):
 
         if result == Gtk.ResponseType.OK:
             return (name, email)
-        else:
-            return (None, None)
+
+        return (None, None)
 
 
 class MarkResolvedPrompt(InterfaceView):
