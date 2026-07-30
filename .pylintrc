@@ -447,7 +447,6 @@ disable=raw-checker-failed,
         redefined-outer-name,           # W0621
         attribute-defined-outside-init,  # W0201
         broad-exception-caught,
-        consider-using-f-string,
         consider-using-in,
         fixme,
         import-error,

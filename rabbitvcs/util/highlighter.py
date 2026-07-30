@@ -68,9 +68,9 @@ else:
             for token, style in self.style:
                 start = end = ""
                 if style["color"]:
-                    start += ' foreground="#%s"' % style["color"]
+                    start += f" foreground=\"#{style['color']}\""
                 if style["bgcolor"]:
-                    start += ' background="#%s"' % style["bgcolor"]
+                    start += f" background=\"#{style['bgcolor']}\""
                 if style["bold"]:
                     start += ' weight="bold"'
                 if style["italic"]:
@@ -93,7 +93,7 @@ else:
                 elif start == ' face="monospace"':
                     start, end = "<tt>", "</tt>"
                 elif start:
-                    start = "<span%s>" % start
+                    start = f"<span{start}>"
                     end = "</span>"
                 self.styles[token] = (start, end)
 

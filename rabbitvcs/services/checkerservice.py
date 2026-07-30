@@ -102,7 +102,7 @@ def decode_status(json_dict):
         st = cl.__new__(cl)
         st.__setstate__(json_dict)
     elif "path" in json_dict:
-        log.warning("Could not deduce status class: %s" % json_dict["__type__"])
+        log.warning(f"Could not deduce status class: {json_dict['__type__']}")
         st = rabbitvcs.vcs.status.Status.status_error(json_dict["path"])
     else:
         raise TypeError("RabbitVCS status object has no path")
@@ -213,7 +213,7 @@ class StatusCheckerService(dbus.service.Object):
         if not self.CheckVersion(version):
             log.warning(
                 "Version mismatch, quitting checker service "
-                "(service: %s, extension: %s)" % (SERVICE_VERSION, version)
+                f"(service: {SERVICE_VERSION}, extension: {version})"
             )
             return self.Quit()
 
@@ -352,7 +352,7 @@ class StatusCheckerStub:
             path2 = S(status.path)
             assert path1 == path2, (
                 "Status check returned the wrong path "
-                "(asked about %s, got back %s)" % (path1.display(), path2.display())
+                f"(asked about {path1.display()}, got back {path2.display()})"
             )
             callback(status)
 
@@ -497,7 +497,7 @@ def Main():
     """
     global log
     log = Log("rabbitvcs.services.checkerservice:main")
-    log.debug("Checker: starting service: %s (%s)" % (OBJECT_PATH, os.getpid()))
+    log.debug(f"Checker: starting service: {OBJECT_PATH} ({os.getpid()})")
 
     # We need this to for the client to be able to do asynchronous calls
     dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
@@ -519,7 +519,7 @@ def Main():
 
     mainloop.run()
 
-    log.debug("Checker: ended service: %s (%s)" % (OBJECT_PATH, os.getpid()))
+    log.debug(f"Checker: ended service: {OBJECT_PATH} ({os.getpid()})")
 
 
 if __name__ == "__main__":

@@ -1400,10 +1400,10 @@ class KeyValueTable(Gtk.Grid):
             row = 0
 
             for key, value in stuff:
-                label_key = Gtk.Label(label="<b>%s:</b>" % key)
+                label_key = Gtk.Label(label=f"<b>{key}:</b>")
                 label_key.set_properties(xalign=0, use_markup=True)
 
-                label_value = Gtk.Label(label="%s" % value)
+                label_value = Gtk.Label(label=f"{value}")
                 label_value.set_properties(
                     xalign=0, ellipsize=Pango.EllipsizeMode.MIDDLE, selectable=True
                 )
@@ -1507,7 +1507,7 @@ class GitRepositorySelector:
                 S(self.git.config_get(("remote", repo), "url")).display()
             )
         except KeyError as e:
-            log.error("Missing remote %s config key" % repo)
+            log.error(f"Missing remote {repo} config key")
 
     def __repository_changed(self, repository_opt):
         if self.changed_callback:

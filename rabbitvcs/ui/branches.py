@@ -194,7 +194,7 @@ class GitBranchManager(InterfaceView):
         for item in self.branch_list:
             name = saxutils.escape(item.name)
             if item.tracking:
-                name = "<b>%s</b>" % name
+                name = f"<b>{name}</b>"
             self.items_treeview.append([name])
 
     def on_add_clicked(self, widget):
@@ -210,7 +210,7 @@ class GitBranchManager(InterfaceView):
             )
 
         confirm = rabbitvcs.ui.dialog.Confirmation(
-            _("Are you sure you want to delete %s?" % ", ".join(selected))
+            _("Are you sure you want to delete %s?") % ", ".join(selected)
         )
         result = confirm.run()
 

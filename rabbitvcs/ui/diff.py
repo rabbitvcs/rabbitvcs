@@ -77,8 +77,7 @@ class Diff(InterfaceNonView):
 
     def _build_export_path(self, index, revision, path):
         dest = helper.get_tmp_path(
-            "rabbitvcs-%s-%s-%s"
-            % (str(index), str(revision)[:5], os.path.basename(path))
+            f"rabbitvcs-{index!s}-{str(revision)[:5]}-{os.path.basename(path)}"
         )
         if os.path.exists(dest):
             if os.path.isdir(dest):

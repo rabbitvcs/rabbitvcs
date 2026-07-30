@@ -231,7 +231,7 @@ class ContextMenuCallbacks:
         rabbitvcs_extension = self.caller
         VFSFile_table = rabbitvcs_extension.VFSFile_table
         for path in self.paths:
-            log.debug("callback_debug_invalidate() called for %s" % path)
+            log.debug(f"callback_debug_invalidate() called for {path}")
             if path in VFSFile_table:
                 VFSFile_table[path].invalidate_extension_info()
 
@@ -308,7 +308,7 @@ class ContextMenuCallbacks:
             pathrev2 = helper.create_path_revision_string(self.paths[0], "working")
 
             proc = helper.launch_ui_window(
-                "diff", ["-s", pathrev1, pathrev2, "--vcs=%s" % rabbitvcs.vcs.VCS_SVN]
+                "diff", ["-s", pathrev1, pathrev2, f"--vcs={rabbitvcs.vcs.VCS_SVN}"]
             )
             self.caller.rescan_after_process_exit(proc, self.paths)
 
@@ -337,7 +337,7 @@ class ContextMenuCallbacks:
             pathrev2 = helper.create_path_revision_string(self.paths[0], "working")
 
             proc = helper.launch_ui_window(
-                "diff", ["-s", pathrev1, pathrev2, "--vcs=%s" % rabbitvcs.vcs.VCS_SVN]
+                "diff", ["-s", pathrev1, pathrev2, f"--vcs={rabbitvcs.vcs.VCS_SVN}"]
             )
             self.caller.rescan_after_process_exit(proc, self.paths)
 
@@ -388,7 +388,7 @@ class ContextMenuCallbacks:
 
     def ignore_by_file_extension(self, widget, data1=None, data2=None):
         path = self.paths[0]
-        pattern = "*%s" % helper.get_file_extension(path)
+        pattern = f"*{helper.get_file_extension(path)}"
         base_dir = os.path.join(self.base_dir, os.path.dirname(path))
         proc = helper.launch_ui_window("ignore", [base_dir, pattern])
         self.caller.rescan_after_process_exit(proc, self.paths)
@@ -1292,12 +1292,12 @@ def TestMenuItemFunctions():
         if not item.found_condition:
             print(
                 "Did not find condition function in ContextMenuConditions "
-                "for %s (type: %s)" % (item.identifier, cls)
+                f"for {item.identifier} (type: {cls})"
             )
         if not item.callback:
             print(
                 "Did not find callback function in ContextMenuCallbacks "
-                "for %s (type: %s)" % (item.identifier, cls)
+                f"for {item.identifier} (type: {cls})"
             )
 
 

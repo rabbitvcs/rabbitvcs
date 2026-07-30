@@ -819,10 +819,10 @@ def get_ignore_list_items(paths):
     for path in paths:
         basename = os.path.basename(path)
         if basename not in added_ignore_labels:
-            key = "IgnoreByFileName%s" % str(ignorebyfilename_index)
+            key = f"IgnoreByFileName{ignorebyfilename_index!s}"
 
             class MenuIgnoreFilenameClass(MenuItem):
-                identifier = "RabbitVCS::%s" % key
+                identifier = f"RabbitVCS::{key}"
                 label = basename
                 tooltip = _("Ignore item by filename")
                 callback_name = "ignore_by_filename"
@@ -837,11 +837,11 @@ def get_ignore_list_items(paths):
     for path in paths:
         extension = helper.get_file_extension(path)
 
-        ext_str = "*%s" % extension
+        ext_str = f"*{extension}"
         if ext_str not in added_ignore_labels:
 
             class MenuIgnoreFileExtClass(MenuItem):
-                identifier = "RabbitVCS::%s" % key
+                identifier = f"RabbitVCS::{key}"
                 label = ext_str
                 tooltip = _("Ignore item by file extension")
                 callback_name = "ignore_by_file_extension"

@@ -23,15 +23,14 @@
 
 import os.path
 from rabbitvcs import gettext
+from rabbitvcs.util.log import Log
+from rabbitvcs.util.helper import get_exclude_paths
+from rabbitvcs.util.settings import SettingsManager
+
 
 _ = gettext.gettext
 
-from rabbitvcs.util.log import Log
-
 logger = Log("rabbitvcs.vcs")
-
-from rabbitvcs.util.helper import get_exclude_paths
-from rabbitvcs.util.settings import SettingsManager
 
 settings = SettingsManager()
 
@@ -103,7 +102,7 @@ class VCS:
             self.clients[VCS_SVN] = SVN()
             return self.clients[VCS_SVN]
         except Exception as e:
-            logger.debug("Unable to load SVN module: %s" % e)
+            logger.debug(f"Unable to load SVN module: {e}")
             logger.exception(e)
             self.clients[VCS_SVN] = self.dummy()
             return self.clients[VCS_SVN]
@@ -125,7 +124,6 @@ class VCS:
                     git.set_repository(repo_path)
 
             return git
-
         try:
             from rabbitvcs.vcs.git import Git
 
@@ -141,7 +139,7 @@ class VCS:
             self.clients[VCS_GIT] = git
             return self.clients[VCS_GIT]
         except Exception as e:
-            logger.debug("Unable to load Git module: %s" % e)
+            logger.debug(f"Unable to load Git module: {e}")
             logger.exception(e)
             self.clients[VCS_GIT] = self.dummy()
             return self.clients[VCS_GIT]
@@ -177,14 +175,14 @@ class VCS:
             self.clients[VCS_MERCURIAL] = mercurial
             return self.clients[VCS_MERCURIAL]
         except Exception as e:
-            logger.debug("Unable to load Mercurial module: %s" % e)
+            logger.debug(f"Unable to load Mercurial module: {e}")
             logger.exception(e)
             self.clients[VCS_MERCURIAL] = self.dummy()
             return self.clients[VCS_MERCURIAL]
 
     def client(self, path, vcs=None):
         if self.should_exclude(path):
-            logger.debug("Excluding path: %s" % path)
+            logger.debug(f"Excluding path: {path}")
             return self.dummy()
 
         # Determine the VCS instance based on the vcs parameter

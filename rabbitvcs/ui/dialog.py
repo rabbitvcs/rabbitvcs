@@ -38,8 +38,7 @@ ERROR_NOTICE = _(
     """\
 An error has occurred in the RabbitVCS Nautilus extension. Please contact the \
 <a href="%s">RabbitVCS team</a> with the error details listed below:"""
-    % (rabbitvcs.WEBSITE)
-)
+) % rabbitvcs.WEBSITE
 
 
 class PreviousMessages(InterfaceView):
@@ -147,7 +146,7 @@ class Certificate(InterfaceView):
         self.get_widget("cert_issuer").set_label(issuer)
         to_str = _("to")
         self.get_widget("cert_valid").set_label(
-            "%s %s %s" % (valid_from, to_str, valid_until)
+            f"{valid_from} {to_str} {valid_until}"
         )
         self.get_widget("cert_fingerprint").set_label(fingerprint)
 
@@ -363,7 +362,7 @@ class DeleteConfirmation(InterfaceView):
         )
 
         if path:
-            path = '"%s"' % os.path.basename(path)
+            path = f'"{os.path.basename(path)}"'
         else:
             path = _("the selected item(s)")
 

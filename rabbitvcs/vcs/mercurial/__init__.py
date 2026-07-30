@@ -37,10 +37,9 @@ import rabbitvcs.vcs.log
 import rabbitvcs.vcs.mercurial.util
 from rabbitvcs.vcs.branch import BranchEntry
 from rabbitvcs.util.log import Log
+from rabbitvcs import gettext
 
 log = Log("rabbitvcs.vcs.mercurial")
-
-from rabbitvcs import gettext
 
 _ = gettext.gettext
 

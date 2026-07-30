@@ -454,13 +454,7 @@ class SVNAnnotate(Annotate):
         for item in blamedict:
             revision, date, author, linenumber = self.blame_info(item)
 
-            text += "%s\t%s\t%s\t%s\t%s\n" % (
-                linenumber,
-                revision,
-                author,
-                date,
-                item["line"],
-            )
+            text += f"{linenumber}\t{revision}\t{author}\t{date}\t{item['line']}\n"
 
         return text
 
@@ -534,13 +528,7 @@ class GitAnnotate(Annotate):
 
         text = ""
         for item in blamedict:
-            text += "%s\t%s\t%s\t%s\t%s\n" % (
-                str(item["number"]),
-                item["revision"][:7],
-                item["author"],
-                helper.format_datetime(item["date"], self.datetime_format),
-                item["line"],
-            )
+            text += f"{item['number']}\t{item['revision'][:7]}\t{item['author']}\t{helper.format_datetime(item['date'], self.datetime_format)}\t{item['line']}\n"
 
         return text
 
@@ -683,7 +671,7 @@ class AnnotateContextMenuCallbacks:
             "annotate",
             [
                 self.path,
-                "--vcs=%s" % self.caller.get_vcs_name(),
+                f"--vcs={self.caller.get_vcs_name()}",
                 "-r",
                 self.revisions[0],
             ],
@@ -696,8 +684,8 @@ class AnnotateContextMenuCallbacks:
         helper.launch_ui_window(
             "diff",
             [
-                "%s@%s" % (self.path, S(self.revisions[0])),
-                "--vcs=%s" % self.caller.get_vcs_name(),
+                f"{self.path}@{S(self.revisions[0])}",
+                f"--vcs={self.caller.get_vcs_name()}",
             ],
         )
 
@@ -710,9 +698,9 @@ class AnnotateContextMenuCallbacks:
             "diff",
             [
                 "-s",
-                "%s@%s" % (path_older, S(self.revisions[0])),
+                f"{path_older}@{S(self.revisions[0])}",
                 self.path,
-                "--vcs=%s" % self.caller.get_vcs_name(),
+                f"--vcs={self.caller.get_vcs_name()}",
             ],
         )
 
@@ -721,9 +709,9 @@ class AnnotateContextMenuCallbacks:
         helper.launch_ui_window(
             "diff",
             [
-                "%s@%s" % (self.path, S(prev)),
-                "%s@%s" % (self.path, S(self.revisions[0])),
-                "--vcs=%s" % self.caller.get_vcs_name(),
+                f"{self.path}@{S(prev)}",
+                f"{self.path}@{S(self.revisions[0])}",
+                f"--vcs={self.caller.get_vcs_name()}",
             ],
         )
 
@@ -737,9 +725,9 @@ class AnnotateContextMenuCallbacks:
             "diff",
             [
                 "-s",
-                "%s@%s" % (path_older, S(prev)),
-                "%s@%s" % (self.path, S(self.revisions[0])),
-                "--vcs=%s" % self.caller.get_vcs_name(),
+                f"{path_older}@{S(prev)}",
+                f"{self.path}@{S(self.revisions[0])}",
+                f"--vcs={self.caller.get_vcs_name()}",
             ],
         )
 
@@ -751,9 +739,9 @@ class AnnotateContextMenuCallbacks:
         helper.launch_ui_window(
             "diff",
             [
-                "%s@%s" % (self.path, S(rev1)),
-                "%s@%s" % (self.path, S(rev2)),
-                "--vcs=%s" % self.caller.get_vcs_name(),
+                f"{self.path}@{S(rev1)}",
+                f"{self.path}@{S(rev2)}",
+                f"--vcs={self.caller.get_vcs_name()}",
             ],
         )
 
@@ -769,9 +757,9 @@ class AnnotateContextMenuCallbacks:
             "diff",
             [
                 "-s",
-                "%s@%s" % (path_older, S(rev1)),
-                "%s@%s" % (self.path, S(rev2)),
-                "--vcs=%s" % self.caller.get_vcs_name(),
+                f"{path_older}@{S(rev1)}",
+                f"{self.path}@{S(rev2)}",
+                f"--vcs={self.caller.get_vcs_name()}",
             ],
         )
 

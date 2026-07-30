@@ -28,8 +28,7 @@ import os.path
 import time
 from datetime import datetime
 
-from .gittyup.client import GittyupClient
-from .gittyup import objects
+from rabbitvcs import gettext
 
 from rabbitvcs.util import helper
 from rabbitvcs.util.strings import S
@@ -40,9 +39,11 @@ import rabbitvcs.vcs.log
 from rabbitvcs.vcs.branch import BranchEntry, LocalBranchEntry
 from rabbitvcs.util.log import Log
 
+from .gittyup.client import GittyupClient
+from .gittyup import objects
+
 log = Log("rabbitvcs.vcs.git")
 
-from rabbitvcs import gettext
 
 _ = gettext.gettext
 
@@ -405,7 +406,7 @@ class Git:
         return self.stage(paths)
 
     def is_tracking(self, name):
-        return self.client.is_tracking("refs/heads/%s" % name)
+        return self.client.is_tracking(f"refs/heads/{name}")
 
     #
     # Action Methods
@@ -922,10 +923,7 @@ class Git:
             changed_paths = []
             if "changed_paths" in item:
                 for changed_path in item["changed_paths"]:
-                    action = "+%s/-%s" % (
-                        changed_path["additions"],
-                        changed_path["removals"],
-                    )
+                    action = f"+{changed_path['additions']}/-{changed_path['removals']}"
 
                     changed_paths.append(
                         rabbitvcs.vcs.log.LogChangedPath(

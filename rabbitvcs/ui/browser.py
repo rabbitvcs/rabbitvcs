@@ -459,14 +459,14 @@ class BrowserContextMenuCallbacks:
         self.caller._open(self.paths)
 
     def show_log(self, data=None, user_data=None):
-        helper.launch_ui_window("log", ["--vcs=%s" % self.guess, self.paths[0]])
+        helper.launch_ui_window("log", [f"--vcs={self.guess}", self.paths[0]])
 
     def annotate(self, data=None, user_data=None):
         urlrev = self.paths[0]
         revision = self.__get_browser_revision()
         if revision.kind == "number":
             urlrev += "@" + revision.value
-        helper.launch_ui_window("annotate", ["--vcs=%s" % self.guess, urlrev])
+        helper.launch_ui_window("annotate", [f"--vcs={self.guess}", urlrev])
 
     def checkout(self, data=None, user_data=None):
         args = [self.paths[0]]
