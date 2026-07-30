@@ -80,7 +80,7 @@ STATUS_EMBLEMS = {
 }
 
 
-class GtkBuilderWidgetWrapper(object):
+class GtkBuilderWidgetWrapper:
     def __init__(self, gtkbuilder_filename=None, gtkbuilder_id=None, claim_domain=True):
         if gtkbuilder_filename:
             self.gtkbuilder_filename = gtkbuilder_filename
@@ -232,7 +232,7 @@ class InterfaceView(GtkBuilderWidgetWrapper):
             button.set_image(image)
 
 
-class InterfaceNonView(object):
+class InterfaceNonView:
     """
     Provides a way for an interface to handle quitting, etc without having
     to have a visible interface.

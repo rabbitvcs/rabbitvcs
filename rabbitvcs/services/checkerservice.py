@@ -247,7 +247,7 @@ class StatusCheckerService(dbus.service.Object):
         return self.PID()
 
 
-class StatusCheckerStub(object):
+class StatusCheckerStub:
     """StatusCheckerStub objects contain methods that call an actual status
     checker running in another process.
 

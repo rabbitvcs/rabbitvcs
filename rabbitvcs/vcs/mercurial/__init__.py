@@ -45,7 +45,7 @@ from rabbitvcs import gettext
 _ = gettext.gettext
 
 
-class Revision(object):
+class Revision:
     """
     Implements a simple revision object as a wrapper around the gittyup revision
     object.  This allows us to provide a standard interface to the object data.
@@ -81,7 +81,7 @@ class Revision(object):
         return self.value
 
 
-class Mercurial(object):
+class Mercurial:
     STATUS = {
         "normal": "C",
         "added": "A",

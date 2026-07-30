@@ -260,7 +260,7 @@ def add_factory(paths, base_dir):
     return classes_map[guess["vcs"]](paths, base_dir)
 
 
-class AddQuiet(object):
+class AddQuiet:
     def __init__(self, paths):
         self.vcs = rabbitvcs.vcs.VCS()
         self.svn = self.vcs.svn()

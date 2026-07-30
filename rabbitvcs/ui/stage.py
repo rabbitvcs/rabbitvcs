@@ -77,7 +77,7 @@ class GitStage(Add):
         self.action.schedule()
 
 
-class GitStageQuiet(object):
+class GitStageQuiet:
     def __init__(self, paths, base_dir=None):
         self.vcs = rabbitvcs.vcs.VCS()
         self.git = self.vcs.git(paths[0])
