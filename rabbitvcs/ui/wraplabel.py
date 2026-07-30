@@ -41,7 +41,7 @@ class WrapLabel(Gtk.Label):
         self.layout = self.get_layout()
         self.layout.set_wrap(Pango.WrapMode.WORD_CHAR)
 
-        if str != None:
+        if str is not None:
             self.set_text(S(str).display())
 
         self.set_alignment(0.0, 0.0)

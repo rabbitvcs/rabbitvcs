@@ -374,7 +374,7 @@ class Log(InterfaceView):
     #
 
     def view_diff_for_path(self, url, revision1, revision2=None, sidebyside=False):
-        if revision2 == None:
+        if revision2 is None:
             revision2 = revision1
 
         options = [

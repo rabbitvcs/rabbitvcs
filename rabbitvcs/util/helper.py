@@ -509,10 +509,10 @@ def launch_merge_tool(base="", mine="", theirs="", merged=""):
     merge_tool = get_merge_tool()
 
     if (
-        mine == None
+        mine is None
         or mine == ""
         or not os.path.exists(mine)
-        or theirs == None
+        or theirs is None
         or theirs == ""
         or not os.path.exists(theirs)
     ):

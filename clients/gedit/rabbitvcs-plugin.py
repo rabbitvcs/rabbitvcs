@@ -293,7 +293,7 @@ class RabbitVCSWindowHelper(GtkContextMenuCaller):
 
         document = self._window.get_active_document()
         self._action_group.set_sensitive(document != None)
-        if document != None:
+        if document is not None:
             manager = self._window.get_ui_manager()
             manager.get_widget("/MenuBar/ExtraMenu_1/RabbitVCSMenu").set_sensitive(True)
             self._menubar_menu.set_paths([self._get_document_path()])

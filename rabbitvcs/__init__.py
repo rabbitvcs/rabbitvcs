@@ -46,7 +46,7 @@ langs = []
 language = os.environ.get("LANGUAGE", None)
 if language:
     langs += language.split(":")
-if getlocale()[0] != None:
+if getlocale()[0] is not None:
     langs += [getlocale()[0]]
 
 _gettext.bindtextdomain(APP_NAME, LOCALE_DIR)

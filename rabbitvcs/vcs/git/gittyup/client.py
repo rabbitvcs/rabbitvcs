@@ -349,9 +349,9 @@ class GittyupClient:
             if config_user_name == "" or config_user_email == "":
                 raise KeyError()
         except KeyError:
-            (config_user_name, config_user_email) = self.callback_get_user()
+            config_user_name, config_user_email = self.callback_get_user()
 
-            if config_user_name == None and config_user_email == None:
+            if config_user_name is None and config_user_email is None:
                 return None
 
         self._config_set(("user",), "name", config_user_name)
@@ -501,7 +501,7 @@ class GittyupClient:
                         blob_id,
                         flags,
                     ) = index[relative_path]
-                    (mode, blob_id) = tree[relative_path]
+                    mode, blob_id = tree[relative_path]
 
                     # If the file is locally modified, set these vars to 0
                     # I'm not sure yet why this needs to happen, but it does
@@ -577,7 +577,7 @@ class GittyupClient:
 
         if len(tree) > 0:
             for item in index.changes_from_tree(self.repo.object_store, tree.id):
-                ((old_name, new_name), (old_mode, new_mode), (old_sha, new_sha)) = item
+                (old_name, new_name), (old_mode, new_mode), (old_sha, new_sha) = item
 
                 if new_name:
                     staged.append(new_name)
@@ -632,7 +632,7 @@ class GittyupClient:
         cmd += [name, commit_sha]
 
         try:
-            (status, stdout, stderr) = GittyupCommand(
+            status, stdout, stderr = GittyupCommand(
                 cmd, cwd=self.repo.path, notify=self.notify, cancel=self.get_cancel()
             ).execute()
         except GittyupCommandError as e:
@@ -659,7 +659,9 @@ class GittyupClient:
         cmd += ["-d", name]
 
         try:
-            (status, stdout, stderr) = GittyupCommand(cmd, cwd=self.repo.path, notify=self.notify, cancel=self.get_cancel()).execute()
+            status, stdout, stderr = GittyupCommand(
+                cmd, cwd=self.repo.path, notify=self.notify, cancel=self.get_cancel()
+            ).execute()
         except GittyupCommandError as e:
             self.callback_notify(e)
 
@@ -696,7 +698,7 @@ class GittyupClient:
             cmd += ["--contains", commit_sha]
 
         try:
-            (status, stdout, stderr) = GittyupCommand(
+            status, stdout, stderr = GittyupCommand(
                 cmd, cwd=self.repo.path, notify=self.notify, cancel=self.get_cancel()
             ).execute()
         except GittyupCommandError as e:
@@ -722,7 +724,7 @@ class GittyupClient:
             if components[0].startswith("["):
                 upstream = components.pop(0)
                 try:
-                    upstream = upstream[1:upstream.find("/")]
+                    upstream = upstream[1 : upstream.find("/")]
                 except:
                     upstream = None
             message = " ".join(components)
@@ -759,7 +761,7 @@ class GittyupClient:
             cmd += ["--contains", commit_sha]
 
         try:
-            (status, stdout, stderr) = GittyupCommand(
+            status, stdout, stderr = GittyupCommand(
                 cmd, cwd=self.repo.path, notify=self.notify, cancel=self.get_cancel()
             ).execute()
         except GittyupCommandError as e:
@@ -814,7 +816,7 @@ class GittyupClient:
         cmd = ["git", "checkout", "-m", revision] + paths
 
         try:
-            (status, stdout, stderr) = GittyupCommand(
+            status, stdout, stderr = GittyupCommand(
                 cmd, cwd=self.repo.path, notify=self.notify, cancel=self.get_cancel()
             ).execute()
         except GittyupCommandError as e:
@@ -853,7 +855,7 @@ class GittyupClient:
         self.modifiedHost = host
 
         try:
-            (status, stdout, stderr) = GittyupCommand(
+            status, stdout, stderr = GittyupCommand(
                 cmd,
                 cwd=base_dir,
                 notify=self.notify_and_parse_progress,
@@ -875,7 +877,7 @@ class GittyupClient:
                 cmd = ["git", "clone", self.modifiedHost, path] + more
 
                 # Try again.
-                (status, stdout, stderr) = GittyupCommand(
+                status, stdout, stderr = GittyupCommand(
                     cmd,
                     cwd=base_dir,
                     notify=self.notify_and_parse_progress,
@@ -978,7 +980,7 @@ class GittyupClient:
         if branch_full is not None:
             branch_components = re.search(b"refs/heads/(.+)", branch_full)
 
-            if branch_components != None:
+            if branch_components is not None:
                 branch = branch_components.group(1)
 
                 self.notify("[%s] -> %s" % (S(commit_id), S(branch)))
@@ -1009,11 +1011,13 @@ class GittyupClient:
             relative_path = self.get_relative_path(path)
             absolute_path = self.get_absolute_path(path)
 
-            self.notify({
-                "action": "Deleted",
-                "path": absolute_path,
-                "mime_type": guess_type(absolute_path)[0]
-            })
+            self.notify(
+                {
+                    "action": "Deleted",
+                    "path": absolute_path,
+                    "mime_type": guess_type(absolute_path)[0],
+                }
+            )
             os.remove(absolute_path)
             to_stage.append(S(relative_path))
 
@@ -1077,7 +1081,7 @@ class GittyupClient:
 
         cmd = ["git", "pull", "--progress"]
 
-        if options != None:
+        if options is not None:
             if options.count("rebase"):
                 cmd.append("--rebase")
 
@@ -1093,7 +1097,7 @@ class GittyupClient:
         isPassword = False
 
         try:
-            (status, stdout, stderr) = GittyupCommand(
+            status, stdout, stderr = GittyupCommand(
                 cmd,
                 cwd=self.repo.path,
                 notify=self.notify_and_parse_git_push,
@@ -1111,7 +1115,7 @@ class GittyupClient:
 
             if isUsername == True or isPassword == True:
                 # Try again.
-                (status, stdout, stderr) = GittyupCommand(
+                status, stdout, stderr = GittyupCommand(
                     cmd,
                     cwd=self.repo.path,
                     notify=self.notify_and_parse_git_push,
@@ -1159,7 +1163,7 @@ class GittyupClient:
         isPassword = False
 
         try:
-            (status, stdout, stderr) = GittyupCommand(
+            status, stdout, stderr = GittyupCommand(
                 cmd,
                 cwd=self.repo.path,
                 notify=self.notify_and_parse_git_push,
@@ -1177,7 +1181,7 @@ class GittyupClient:
 
             if isUsername == True or isPassword == True:
                 # Try again.
-                (status, stdout, stderr) = GittyupCommand(
+                status, stdout, stderr = GittyupCommand(
                     cmd,
                     cwd=self.repo.path,
                     notify=self.notify_and_parse_git_push,
@@ -1433,7 +1437,7 @@ class GittyupClient:
             cmd.append(branch)
 
         try:
-            (status, stdout, stderr) = GittyupCommand(
+            status, stdout, stderr = GittyupCommand(
                 cmd, cwd=self.repo.path, notify=self.notify, cancel=self.get_cancel()
             ).execute()
         except GittyupCommandError as e:
@@ -1442,7 +1446,7 @@ class GittyupClient:
     def fetch_all(self):
         cmd = ["git", "fetch", "--all"]
         try:
-            (status, stdout, stderr) = GittyupCommand(
+            status, stdout, stderr = GittyupCommand(
                 cmd, cwd=self.repo.path, notify=self.notify, cancel=self.get_cancel()
             ).execute()
         except GittyupCommandError as e:
@@ -1451,7 +1455,7 @@ class GittyupClient:
     def merge(self, branch):
         cmd = ["git", "merge", branch]
         try:
-            (status, stdout, stderr) = GittyupCommand(
+            status, stdout, stderr = GittyupCommand(
                 cmd, cwd=self.repo.path, notify=self.notify, cancel=self.get_cancel()
             ).execute()
         except GittyupCommandError as e:
@@ -1471,7 +1475,7 @@ class GittyupClient:
 
         cmd = ["git", "remote", "add", name, host]
         try:
-            (status, stdout, stderr) = GittyupCommand(
+            status, stdout, stderr = GittyupCommand(
                 cmd, cwd=self.repo.path, notify=self.notify, cancel=self.get_cancel()
             ).execute()
         except GittyupCommandError as e:
@@ -1491,7 +1495,7 @@ class GittyupClient:
 
         cmd = ["git", "remote", "rename", current_name, new_name]
         try:
-            (status, stdout, stderr) = GittyupCommand(
+            status, stdout, stderr = GittyupCommand(
                 cmd, cwd=self.repo.path, notify=self.notify, cancel=self.get_cancel()
             ).execute()
         except GittyupCommandError as e:
@@ -1511,7 +1515,7 @@ class GittyupClient:
 
         cmd = ["git", "remote", "set-url", name, url]
         try:
-            (status, stdout, stderr) = GittyupCommand(
+            status, stdout, stderr = GittyupCommand(
                 cmd, cwd=self.repo.path, notify=self.notify, cancel=self.get_cancel()
             ).execute()
         except GittyupCommandError as e:
@@ -1528,7 +1532,7 @@ class GittyupClient:
 
         cmd = ["git", "remote", "rm", name]
         try:
-            (status, stdout, stderr) = GittyupCommand(
+            status, stdout, stderr = GittyupCommand(
                 cmd, cwd=self.repo.path, notify=self.notify, cancel=self.get_cancel()
             ).execute()
         except GittyupCommandError as e:
@@ -1546,7 +1550,7 @@ class GittyupClient:
         cmd = ["git", "remote", "-v"]
 
         try:
-            (status, stdout, stderr) = GittyupCommand(
+            status, stdout, stderr = GittyupCommand(
                 cmd, cwd=self.repo.path, notify=self.notify, cancel=self.get_cancel()
             ).execute()
         except GittyupCommandError as e:
@@ -1647,7 +1651,7 @@ class GittyupClient:
             base_dir,
         ]
         try:
-            (_status, stdout, _stderr) = GittyupCommand(
+            _status, stdout, _stderr = GittyupCommand(
                 cmd, cwd=self.repo.path, notify=self.notify
             ).execute()
         except GittyupCommandError as error:
@@ -1688,7 +1692,7 @@ class GittyupClient:
         untracked_directories = []
         cmd = ["git", "clean", "-nd", self.repo.path]
         try:
-            (_status, stdout, _stderr) = GittyupCommand(
+            _status, stdout, _stderr = GittyupCommand(
                 cmd, cwd=self.repo.path, notify=self.notify
             ).execute()
         except GittyupCommandError as error:
@@ -1706,7 +1710,7 @@ class GittyupClient:
         ignored_directories = []
         cmd = ["git", "clean", "-ndX", self.repo.path]
         try:
-            (_status, stdout, _stderr) = GittyupCommand(
+            _status, stdout, _stderr = GittyupCommand(
                 cmd, cwd=self.repo.path, notify=self.notify
             ).execute()
         except GittyupCommandError as error:
@@ -1733,8 +1737,7 @@ class GittyupClient:
             if relative_path in ignored_files:
                 return True
             return any(
-                under(relative_path, ignored_dir)
-                for ignored_dir in ignored_directories
+                under(relative_path, ignored_dir) for ignored_dir in ignored_directories
             )
 
         result = {}
@@ -1814,7 +1817,7 @@ class GittyupClient:
 
     def status_porcelain(self, path):
         if os.path.isdir(path):
-            (files, directories) = self._read_directory_tree(path)
+            files, directories = self._read_directory_tree(path)
         else:
             files = [self.get_relative_path(path)]
             directories = []
@@ -1825,7 +1828,7 @@ class GittyupClient:
 
         cmd = ["git", "status", "--porcelain", path]
         try:
-            (status, stdout, stderr) = GittyupCommand(
+            status, stdout, stderr = GittyupCommand(
                 cmd, cwd=self.repo.path, notify=self.notify
             ).execute()
         except GittyupCommandError as e:
@@ -1862,7 +1865,7 @@ class GittyupClient:
         # Determine untracked directories
         cmd = ["git", "clean", "-nd", self.repo.path]
         try:
-            (status, stdout, stderr) = GittyupCommand(
+            status, stdout, stderr = GittyupCommand(
                 cmd, cwd=self.repo.path, notify=self.notify
             ).execute()
         except GittyupCommandError as e:
@@ -1879,7 +1882,7 @@ class GittyupClient:
         # Determine the ignored files and directories in Repo
         cmd = ["git", "clean", "-ndX", self.repo.path]
         try:
-            (status, stdout, stderr) = GittyupCommand(
+            status, stdout, stderr = GittyupCommand(
                 cmd, cwd=self.repo.path, notify=self.notify
             ).execute()
         except GittyupCommandError as e:
@@ -1955,7 +1958,7 @@ class GittyupClient:
         index = self._get_index()
 
         if os.path.isdir(path):
-            (files, directories) = self._read_directory_tree(path)
+            files, directories = self._read_directory_tree(path)
         else:
             files = [self.get_relative_path(path)]
             directories = []
@@ -2068,15 +2071,15 @@ class GittyupClient:
             "-m",
         ]
 
-        if showtype == "all" and os.environ.get('RABBITVCS_REVISION_RANGE') is None:
+        if showtype == "all" and os.environ.get("RABBITVCS_REVISION_RANGE") is None:
             cmd.append("--all")
 
         if limit:
             cmd.append("-%s" % limit)
         if skip:
             cmd.append("--skip=%s" % skip)
-        if os.environ.get('RABBITVCS_REVISION_RANGE') is not None:
-            cmd.append(os.environ.get('RABBITVCS_REVISION_RANGE'))
+        if os.environ.get("RABBITVCS_REVISION_RANGE") is not None:
+            cmd.append(os.environ.get("RABBITVCS_REVISION_RANGE"))
         elif revision:
             if showtype == "push":
                 cmd.append("%s.." % revision)
@@ -2089,7 +2092,7 @@ class GittyupClient:
             cmd += ["--", path]
 
         try:
-            (status, stdout, stderr) = GittyupCommand(
+            status, stdout, stderr = GittyupCommand(
                 cmd, cwd=self.repo.path, notify=self.notify
             ).execute()
         except GittyupCommandError as e:
@@ -2192,7 +2195,7 @@ class GittyupClient:
         cmd = ["git", "annotate", "-l", revision_obj, relative_path]
 
         try:
-            (status, stdout, stderr) = GittyupCommand(
+            status, stdout, stderr = GittyupCommand(
                 cmd, cwd=self.repo.path, notify=self.notify, cancel=self.get_cancel()
             ).execute()
         except GittyupCommandError as e:
@@ -2242,7 +2245,7 @@ class GittyupClient:
 
         cmd = ["git", "show", "%s:%s" % (revision_obj, relative_path)]
         try:
-            (status, stdout, stderr) = GittyupCommand(
+            status, stdout, stderr = GittyupCommand(
                 cmd, cwd=self.repo.path, notify=self.notify, cancel=self.get_cancel()
             ).execute()
         except GittyupCommandError as e:
@@ -2292,7 +2295,7 @@ class GittyupClient:
             cmd += [relative_path2]
 
         try:
-            (status, stdout, stderr) = GittyupCommand(
+            status, stdout, stderr = GittyupCommand(
                 cmd, cwd=self.repo.path, notify=self.notify, cancel=self.get_cancel()
             ).execute()
         except GittyupCommandError as e:
@@ -2308,7 +2311,7 @@ class GittyupClient:
             if not line:
                 continue
 
-            (action, path) = (line + "\t").split("\t")[:2]
+            action, path = (line + "\t").split("\t")[:2]
             summary.append({"action": action, "path": path})
 
         return summary
@@ -2335,10 +2338,10 @@ class GittyupClient:
         mkdir_p(dest_path)
 
         try:
-            (status, stdout, stderr) = GittyupCommand(
+            status, stdout, stderr = GittyupCommand(
                 cmd1, cwd=self.repo.path, notify=self.notify, cancel=self.get_cancel()
             ).execute()
-            (status, stdout, stderr) = GittyupCommand(
+            status, stdout, stderr = GittyupCommand(
                 cmd2, cwd=self.repo.path, notify=self.notify, cancel=self.get_cancel()
             ).execute()
         except GittyupCommandError as e:
@@ -2378,7 +2381,7 @@ class GittyupClient:
         cmd.append(relative_path)
 
         try:
-            (status, stdout, stderr) = GittyupCommand(
+            status, stdout, stderr = GittyupCommand(
                 cmd, cwd=self.repo.path, notify=self.notify, cancel=self.get_cancel()
             ).execute()
         except GittyupCommandError as e:
@@ -2396,7 +2399,7 @@ class GittyupClient:
             cmd.append(relative_path)
 
         try:
-            (status, stdout, stderr) = GittyupCommand(
+            status, stdout, stderr = GittyupCommand(
                 cmd, cwd=self.repo.path, notify=self.notify, cancel=self.get_cancel()
             ).execute()
         except GittyupCommandError as e:
@@ -2437,7 +2440,7 @@ class GittyupClient:
         # Is this an error?
         message_components = re.search("^([eE]rror|[fF]atal): (.+)", data)
 
-        if message_components != None:
+        if message_components is not None:
             returnData["action"] = "Error"
             returnData["path"] = message_components.group(2)
             self.notify(returnData)
@@ -2446,7 +2449,7 @@ class GittyupClient:
         # Check to see if this is a remote command.
         remote_check = re.search("^(remote: )(.+)$", data)
 
-        if remote_check != None:
+        if remote_check is not None:
             returnData["action"] = "Remote"
             message = remote_check.group(2)
 
@@ -2460,7 +2463,7 @@ class GittyupClient:
             # followed by a right square brace and a capitol "K".  This tests for, and
             # strips these superfluous characters.
             message_components = re.search(r"^(.+).\[K", message)
-            if message_components != None:
+            if message_components is not None:
                 returnData["path"] = message_components.group(1)
             else:
                 returnData["path"] = message
@@ -2472,7 +2475,7 @@ class GittyupClient:
         # prior to '%'.
         message_components = re.search("^(.+): +([0-9]+)%", message)
 
-        if message_components == None:
+        if message_components is None:
             print("Error: failed to parse git string: " + data)
             return
 
@@ -2499,7 +2502,7 @@ class GittyupClient:
             self.numberOfCommandStagesExecuted += 1
 
         # If we've registered a callback for progress, update with the new fraction.
-        if self.callback_progress_update != None:
+        if self.callback_progress_update is not None:
             # print "setting pbar: " + str(fraction)
             self.callback_progress_update(fraction)
 
@@ -2517,7 +2520,7 @@ class GittyupClient:
         # Look for "From" line (e.g. "From ssh://server:22/my_project")
         message_components = re.search("^From (.+)", data)
 
-        if message_components != None:
+        if message_components is not None:
             return_data["action"] = "From"
             return_data["path"] = message_components.group(1)
             message_parsed = True
@@ -2525,7 +2528,7 @@ class GittyupClient:
         # Look for "Branch" line (e.g. "* branch   master   -> FETCH_HEAD")
         message_components = re.search(r"\* branch +([A-z0-9]+) +-> (.+)", data)
 
-        if message_components != None:
+        if message_components is not None:
             return_data["action"] = "Branch"
             return_data["path"] = (
                 message_components.group(1) + " -> " + message_components.group(2)
@@ -2535,7 +2538,7 @@ class GittyupClient:
         # Look for a file line (e.g. "src/somefile.py       | 5 -++++")
         message_components = re.search(r" +(.+) +\| *([0-9]+) ([+-]+)", data)
 
-        if message_components != None:
+        if message_components is not None:
             return_data["action"] = "Modified"
             return_data["path"] = message_components.group(1)
             return_data["mime_type"] = (
@@ -2546,7 +2549,7 @@ class GittyupClient:
         # Look for a updating line (e.g. "Updating ffffff..ffffff")
         message_components = re.search("^Updating ([a-f0-9.]+)", data)
 
-        if message_components != None:
+        if message_components is not None:
             return_data["action"] = "Updating"
             return_data["path"] = message_components.group(1)
             message_parsed = True
@@ -2554,7 +2557,7 @@ class GittyupClient:
         # Look for a "create mode" line (e.g. "create mode 100755 file.py")
         message_components = re.search("create mode ([0-9]+) (.+)", data)
 
-        if message_components != None:
+        if message_components is not None:
             return_data["action"] = "Create"
             return_data["path"] = message_components.group(2)
             return_data["mime_type"] = "mode: " + message_components.group(1)
@@ -2563,7 +2566,7 @@ class GittyupClient:
         # Look for a "delete mode" line (e.g. "create mode 100755 file.py")
         message_components = re.search("delete mode ([0-9]+) (.+)", data)
 
-        if message_components != None:
+        if message_components is not None:
             return_data["action"] = "Delete"
             return_data["path"] = message_components.group(2)
             return_data["mime_type"] = "mode: " + message_components.group(1)
@@ -2572,7 +2575,7 @@ class GittyupClient:
         # Look for an "Auto-merging" line (e.g. "Auto-merging src/file.py")
         message_components = re.search("^Auto-merging (.+)", data)
 
-        if message_components != None:
+        if message_components is not None:
             return_data["action"] = "Merging"
             return_data["path"] = message_components.group(1)
             message_parsed = True
@@ -2582,7 +2585,7 @@ class GittyupClient:
             r"^[ ](.+) +\| Bin ([0-9]+ -> [0-9]+ bytes)", data
         )
 
-        if message_components != None:
+        if message_components is not None:
             return_data["action"] = "Binary"
             return_data["path"] = message_components.group(1)
             return_data["mime_type"] = message_components.group(2)
@@ -2591,7 +2594,7 @@ class GittyupClient:
         # Look for a "rename" line (e.g. "rename src/{foo.py => bar.py} (50%)")
         message_components = re.search(r"rename (.+}) \([0-9]+%\)", data)
 
-        if message_components != None:
+        if message_components is not None:
             return_data["action"] = "Rename"
             return_data["path"] = message_components.group(1)
             message_parsed = True
@@ -2599,7 +2602,7 @@ class GittyupClient:
         # Look for a "copy" line (e.g. "copy src/{foo.py => bar.py} (50%)")
         message_components = re.search(r"copy (.+}) \([0-9]+%\)", data)
 
-        if message_components != None:
+        if message_components is not None:
             return_data["action"] = "Copy"
             return_data["path"] = message_components.group(1)
             message_parsed = True
@@ -2609,7 +2612,7 @@ class GittyupClient:
         # Automatic merge failed; fix conflicts and then commit the result.
         message_components = re.search(r"^CONFLICT \(|Automatic merge failed", data)
 
-        if message_components != None:
+        if message_components is not None:
             return_data["action"] = "Error"
             return_data["path"] = data
             message_parsed = True
@@ -2628,7 +2631,7 @@ class GittyupClient:
         # lines that include a space (as this could be a message about something else)
         message_components = re.search("^To ([^ ]+$)", data)
 
-        if message_components != None:
+        if message_components is not None:
             return_data["action"] = "To"
             return_data["path"] = message_components.group(1)
             message_parsed = True
@@ -2636,7 +2639,7 @@ class GittyupClient:
         # Look for "new branch" line. e.g. " * [new branch]   master -> master"
         message_components = re.search(r"^ \* \[new branch\] +(.+) -> (.+)", data)
 
-        if message_components != None:
+        if message_components is not None:
             return_data["action"] = "New Branch"
             return_data["path"] = (
                 message_components.group(1) + " -> " + message_components.group(2)
@@ -2646,7 +2649,7 @@ class GittyupClient:
         # Look for "rejected" line. e.g. " ![rejected]   master -> master (non-fast-forward)".
         message_components = re.search(r"!\[rejected\] +(.+)", data)
 
-        if message_components != None:
+        if message_components is not None:
             return_data["action"] = "Rejected"
             return_data["path"] = message_components.group(1)
             message_parsed = True

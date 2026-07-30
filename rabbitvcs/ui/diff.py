@@ -96,7 +96,7 @@ class Diff(InterfaceNonView):
 
         # Sometimes the launching will be too fast, and the dialog we're trusted with
         # cleaning up, may not even have been created!
-        while self.dialog == None:
+        while self.dialog is None:
             # Wait for dialog's creation.
             pass
 
