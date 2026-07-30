@@ -1228,16 +1228,14 @@ def html_color(r, g, b, a=None):
     return "#" + color
 
 
-"""
-In Python 3, Gdk.init_check() encodes sys.argv without handling surrogates,
-causing an UnicodeEncodeError exception while importing Gdk.
-The following class implements a mechanism to avoid that:
-- The first Gdk import performed by a program should be preceded by
-  a SanitizeArgv object creation.
-- After Gdk import, call this object's method restore().
-For this reason, the current module MAY NOT import Gdk, directly or
-indirectly.
-"""
+# In Python 3, Gdk.init_check() encodes sys.argv without handling surrogates,
+# causing an UnicodeEncodeError exception while importing Gdk.
+# The following class implements a mechanism to avoid that:
+# - The first Gdk import performed by a program should be preceded by
+#   a SanitizeArgv object creation.
+# - After Gdk import, call this object's method restore().
+# For this reason, the current module MAY NOT import Gdk, directly or
+# indirectly.
 
 
 class SanitizeArgv(object):

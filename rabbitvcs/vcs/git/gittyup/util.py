@@ -44,7 +44,7 @@ def relativepath(fromdir, tofile):
     f1parts = splitall(f1dirname)
     f2parts = splitall(f2dirname)
     if hasdrive and (f1parts[0].lower() != f2parts[0].lower()):
-        "Return absolute path since we are on different drives."
+        # Return absolute path since we are on different drives.
         return f1name
     while f1parts and f2parts:
         if hasdrive:
