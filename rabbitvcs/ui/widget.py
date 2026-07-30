@@ -7,7 +7,6 @@ from rabbitvcs.util._locale import get_locale
 from rabbitvcs.util import helper
 from rabbitvcs.util.decorators import gtk_unsafe
 from gi.repository import Gtk, Gdk, GObject, Pango
-from six.moves import range
 
 #
 # This is an extension to the Nautilus file manager to allow better

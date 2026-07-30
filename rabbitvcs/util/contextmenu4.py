@@ -22,7 +22,6 @@
 
 import os
 import os.path
-from six.moves import range
 
 # Yes, * imports are bad. You write it out then.
 from .contextmenuitems4 import *

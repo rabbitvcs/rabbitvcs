@@ -29,7 +29,6 @@ import rabbitvcs.vcs.status
 from rabbitvcs import APP_NAME, LOCALE_DIR, gettext
 
 import os
-from six.moves import range
 
 from rabbitvcs.util import helper
 

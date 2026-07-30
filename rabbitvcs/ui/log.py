@@ -20,7 +20,6 @@
 # along with RabbitVCS;  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from six.moves import range
 from rabbitvcs import gettext
 import rabbitvcs.vcs
 import rabbitvcs.util.settings
