@@ -262,12 +262,12 @@ class RabbitVCS(GObject.GObject, Thunarx.MenuProvider, Thunarx.PropertyPageProvi
 
     def execute_after_process_exit(self, proc, func=None):
         def is_process_still_alive():
-            log.debug("is_process_still_alive() for pid: %i" % proc.pid)
+            log.debug(f"is_process_still_alive() for pid: {proc.pid}")
             # First we need to see if the commit process is still running
 
             retval = proc.poll()
 
-            log.debug("%s" % retval)
+            log.debug(f"{retval}")
 
             still_going = retval is None
 

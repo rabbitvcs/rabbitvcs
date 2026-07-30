@@ -371,13 +371,13 @@ class RabbitVCS(
         path = S(gnomevfs.get_local_path_from_uri(item.get_uri())).replace("/", ":")
 
         profile_data_file = os.path.join(
-            helper.get_home_folder(), "checkerservice_%s.stats" % path
+            helper.get_home_folder(), f"checkerservice_{path}.stats"
         )
 
         prof = cProfile.Profile()
         retval = prof.runcall(self.get_background_items_real, item)
         prof.dump_stats(profile_data_file)
-        log.debug("Dumped: %s" % profile_data_file)
+        log.debug(f"Dumped: {profile_data_file}")
         return retval
 
     def get_background_items_full(self, provider, item):
@@ -501,12 +501,12 @@ class RabbitVCS(
 
     def execute_after_process_exit(self, proc, func=None):
         def is_process_still_alive():
-            log.debug("is_process_still_alive() for pid: %i" % proc.pid)
+            log.debug(f"is_process_still_alive() for pid: {proc.pid}")
             # First we need to see if the commit process is still running
 
             retval = proc.poll()
 
-            log.debug("%s" % retval)
+            log.debug(f"{retval}")
 
             still_going = retval is None
 
@@ -578,7 +578,7 @@ class RabbitVCS(
                     # log.error ("Remove path from cache: "+status.path)
                     del self.items_cache[status.path]
         else:
-            log.debug("Path [%s] not found in file table" % status.path)
+            log.debug(f"Path [{status.path}] not found in file table")
 
     def get_models(self, items):
         paths = []
@@ -653,7 +653,7 @@ class NautilusContextMenu(MenuBuilder):
         MenuBuilder.__init__(self, structure, conditions, callbacks)
 
     def make_menu_item(self, item, id_magic):
-        unique_id_magic = "%s-%s" % (self._menu_generation_id, id_magic)
+        unique_id_magic = f"{self._menu_generation_id}-{id_magic}"
         return item.make_nautilus_menu_item(unique_id_magic)
 
     def attach_submenu(self, menu_node, submenu_list):
