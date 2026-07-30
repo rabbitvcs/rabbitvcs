@@ -69,7 +69,6 @@ class Annotate(InterfaceView):
         if os.path.isdir(path):
             MessageBox(_("Cannot annotate a directory"))
             raise SystemExit()
-            return
 
         InterfaceView.__init__(self, "annotate", "Annotate")
 
