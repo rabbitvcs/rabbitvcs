@@ -1238,7 +1238,7 @@ def html_color(r, g, b, a=None):
 # indirectly.
 
 
-class SanitizeArgv(object):
+class SanitizeArgv:
     def __init__(self):
         self.argmap = None
         if len(sys.argv) and isinstance(sys.argv[0], str):

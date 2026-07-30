@@ -69,7 +69,7 @@ class RabbitVCSTest(TestCase):
         self.assertEqual(result, "rabbitvcs-%s" % version)
 
 
-class FakeVersion(object):
+class FakeVersion:
     """
     Fake revision info for FakeInfo, below.
 
@@ -79,7 +79,7 @@ class FakeVersion(object):
         self.number = number
 
 
-class FakeInfo(object):
+class FakeInfo:
     """
     Fake pysvn.Client.info() response.
 
@@ -95,7 +95,7 @@ class FakeInfo(object):
         }
 
 
-class FakeClient(object):
+class FakeClient:
     """
     Fake pysvn.Client that can have its behavior controlled.
 
@@ -118,7 +118,7 @@ class FakeClient(object):
         return [FakeInfo()]
 
 
-class FakeLog(object):
+class FakeLog:
     """
     Fake logger that allows us to pick the log messages out from
     within unit tests.

@@ -18,7 +18,7 @@ def cancel_func():
     return False
 
 
-class GittyupCommand(object):
+class GittyupCommand:
     def __init__(self, command, cwd=None, notify=None, cancel=None):
         self.command = command
 

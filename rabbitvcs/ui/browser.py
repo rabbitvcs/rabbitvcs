@@ -428,7 +428,7 @@ class BrowserContextMenuConditions(GtkFilesContextMenuConditions):
         return revision.kind == "head" and not self.is_parent_selected()
 
 
-class BrowserContextMenuCallbacks(object):
+class BrowserContextMenuCallbacks:
     def __init__(self, caller, base_dir, vcs, paths=[]):
         self.caller = caller
         self.base_dir = base_dir
@@ -577,7 +577,7 @@ class BrowserContextMenuCallbacks(object):
         self.caller.action.schedule()
 
 
-class BrowserContextMenu(object):
+class BrowserContextMenu:
     def __init__(self, caller, event, base_dir, vcs, paths=[]):
 
         self.caller = caller

@@ -26,7 +26,7 @@ from rabbitvcs.util.log import Log
 logger = Log("rabbitvcs.util.__init__")
 
 
-class Function(object):
+class Function:
     """
     Provides an interface to define and call a function.
 
@@ -56,7 +56,7 @@ class Function(object):
         return self.result
 
 
-class FunctionQueue(object):
+class FunctionQueue:
     """
     Provides an interface to generate a queue of function calls.
 

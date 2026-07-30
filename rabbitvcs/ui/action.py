@@ -75,7 +75,7 @@ class VCSNotifier(InterfaceView):
         pass
 
 
-class DummyNotifier(object):
+class DummyNotifier:
     def __init__(self):
         pass
 

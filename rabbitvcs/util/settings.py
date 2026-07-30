@@ -89,7 +89,7 @@ def find_configspec():
 SETTINGS_SPEC = find_configspec()
 
 
-class SettingsManager(object):
+class SettingsManager:
     """
     This class provides an shallow interface for the rest of the program to use
     to interact with our configuration file.

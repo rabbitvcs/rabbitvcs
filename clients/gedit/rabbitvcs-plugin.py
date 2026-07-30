@@ -426,7 +426,7 @@ class MenuIgnoreByFileExtension(MenuItem):
     tooltip = _("Ignore item by extension")
 
 
-class GeditMenuBuilder(object):
+class GeditMenuBuilder:
     """
     Generalised menu builder class. Subclasses must provide:
 
@@ -509,7 +509,7 @@ class GeditMenuBuilder(object):
         return function
 
 
-class GeditMenu(object):
+class GeditMenu:
     def __init__(self, caller, vcs_client, base_dir, paths):
         """
         @param  caller: The calling object

@@ -612,7 +612,7 @@ class MenuCompareRevisions(MenuItem):
     icon = "rabbitvcs-compare"
 
 
-class AnnotateContextMenuConditions(object):
+class AnnotateContextMenuConditions:
     def __init__(self, caller, vcs, path, revisions):
         self.caller = caller
         self.vcs = vcs
@@ -667,7 +667,7 @@ class AnnotateContextMenuConditions(object):
         )
 
 
-class AnnotateContextMenuCallbacks(object):
+class AnnotateContextMenuCallbacks:
     def __init__(self, caller, vcs, path, revisions):
         self.caller = caller
         self.vcs = vcs
@@ -776,7 +776,7 @@ class AnnotateContextMenuCallbacks(object):
         )
 
 
-class AnnotateContextMenu(object):
+class AnnotateContextMenu:
     """
     Defines context menu items for a table's rows
 

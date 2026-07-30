@@ -62,7 +62,7 @@ MODIFIED_CHILD_STATUSES = [
 ]
 
 
-class StatusCache(object):
+class StatusCache:
     keys = [
         None,
         status_normal,
@@ -160,7 +160,7 @@ class StatusCache(object):
         return statuses
 
 
-class Status(object):
+class Status:
     @staticmethod
     def status_unknown(path):
         return Status(path, status_unknown, summary=status_unknown)

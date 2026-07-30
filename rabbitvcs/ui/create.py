@@ -40,7 +40,7 @@ sa.restore()
 _ = gettext.gettext
 
 
-class SVNCreate(object):
+class SVNCreate:
     """
     Provides an interface to create a svn repository
     """
@@ -63,7 +63,7 @@ class SVNCreate(object):
             )
 
 
-class GitCreate(object):
+class GitCreate:
     # Also, might want to just launch a terminal window instead of this
     def __init__(self, path):
         self.vcs = rabbitvcs.vcs.VCS()

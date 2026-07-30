@@ -28,7 +28,7 @@ import rabbitvcs.vcs
 import rabbitvcs.vcs.status
 
 
-class Dummy(object):
+class Dummy:
     def __init__(self):
         pass
 

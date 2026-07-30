@@ -32,7 +32,7 @@ _ = gettext.gettext
 log = Log("rabbitvcs.services.statuschecker")
 
 
-class StatusChecker(object):
+class StatusChecker:
     """A class for performing status checks."""
 
     # All subclasses should override this! This is to be displayed in the
