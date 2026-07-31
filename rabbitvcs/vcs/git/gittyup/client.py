@@ -3,17 +3,19 @@
 #
 
 import os
-import errno
 import os.path
+import errno
 import re
 import shutil
 import fnmatch
 import time
 from datetime import datetime
 from mimetypes import guess_type
-import time
 
 import subprocess
+
+import tkinter
+import tkinter.messagebox
 
 import dulwich.errors
 import dulwich.repo
@@ -21,18 +23,14 @@ import dulwich.porcelain
 import dulwich.objects
 from dulwich.index import write_index_dict, SHA1Writer
 
-# from dulwich.patch import write_tree_diff
+from rabbitvcs.util import helper
+from rabbitvcs.util.strings import *
 
 from .exceptions import *
 from . import util
 from .objects import *
 from .command import GittyupCommand
 
-from rabbitvcs.util import helper
-from rabbitvcs.util.strings import *
-
-import tkinter
-import tkinter.messagebox
 
 ENCODING = "UTF-8"
 
