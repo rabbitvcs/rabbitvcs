@@ -272,18 +272,14 @@ class PropMenuConditions:
 
     def all_modified(self):
         return all(
-            [
-                detail["status"] != "unchanged"
-                for (propname, detail) in list(self.propdetails.items())
-            ]
+            detail["status"] != "unchanged"
+            for (propname, detail) in self.propdetails.items()
         )
 
     def all_not_deleted(self):
         return all(
-            [
-                detail["status"] != "deleted"
-                for (propname, detail) in list(self.propdetails.items())
-            ]
+            detail["status"] != "deleted"
+            for (propname, detail) in self.propdetails.items()
         )
 
     def property_revert(self):
