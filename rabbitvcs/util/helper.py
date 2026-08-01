@@ -279,7 +279,7 @@ def get_repository_paths():
     returner = []
     paths_file = get_repository_paths_path()
     if os.path.exists(paths_file):
-        returner = [x.strip() for x in open(paths_file, "r").readlines()]
+        returner = [x.strip() for x in open(paths_file).readlines()]
 
     return returner
 
@@ -309,7 +309,7 @@ def get_previous_messages():
     if not os.path.exists(path):
         return
 
-    lines = open(path, "r").readlines()
+    lines = open(path).readlines()
 
     cur_entry = ""
     returner = []
@@ -344,7 +344,7 @@ def get_exclude_paths():
     if not os.path.exists(path):
         return []
 
-    f = open(path, "r")
+    f = open(path)
     paths = []
     for l in f:
         paths.append(l.strip())

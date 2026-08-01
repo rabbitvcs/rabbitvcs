@@ -1,4 +1,3 @@
-
 #
 # This is an extension to the Nautilus file manager to allow better
 # integration with the Subversion source control system.
@@ -257,7 +256,7 @@ class Status:
         """Summarises statuses for directories."""
         summary = status_unknown
 
-        status_set = set([st.single for st in child_statuses])
+        status_set = {st.single for st in child_statuses}
 
         if not status_set:
             self.summary = self.single

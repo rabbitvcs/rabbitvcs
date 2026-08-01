@@ -1662,7 +1662,7 @@ class MultiFileTextEditor:
 
     def load_file(self, path):
         if os.path.exists(path):
-            fh = open(path, "r")
+            fh = open(path)
             self.textview.set_text(S(fh.read()).display())
             fh.close()
         else:
