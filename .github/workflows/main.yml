@@ -29,11 +29,12 @@ jobs:
           python-version: '3.12' # Version range or exact version of a Python version to use, using SemVer's version range syntax
       - name: Install dependencies
         run: |
+          sudo apt-get update && sudo apt install libcairo2-dev python3-gi python3-gi-cairo gobject-introspection
           python -m pip install --upgrade pip
           pip install flake8 pytest configobj setuptools
+          pip install six
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
       # Runs a single command using the runners shell
-      # Temporarily disabled
-      # - run: pytest
+      - run: pytest
       # Runs a single command using the runners shell
       - run: python3 setup.py build
