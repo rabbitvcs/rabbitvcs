@@ -110,14 +110,12 @@ class GittyupClient:
 
     def _initialize_index(self):
         index_path = self.repo.index_path()
-        f = open(index_path, "wb")
-        try:
-            f = SHA1Writer(f)
-            write_index_dict(f, {})
-        except:
-            pass
-
-        f.close()
+        with open(index_path, "wb") as f_raw:
+            try:
+                f = SHA1Writer(f_raw)
+                write_index_dict(f, {})
+            except:
+                pass
 
     def _get_index(self):
         if not self.repo.has_index():
@@ -159,15 +157,15 @@ class GittyupClient:
             return self.git_version
 
         try:
-            proc = subprocess.Popen(
+            with subprocess.Popen(
                 ["git", "--version"],
                 stdout=subprocess.PIPE,
                 universal_newlines=True,
-            )
-            response = proc.communicate()[0].split()
-            version = [int(x) for x in response[2].split(".")]
-            self.git_version = version
-            return self.git_version
+            ) as proc:
+                response = proc.communicate()[0].split()
+                version = [int(x) for x in response[2].split(".")]
+                self.git_version = version
+                return self.git_version
         except Exception as e:
             return None
 
@@ -226,17 +224,15 @@ class GittyupClient:
 
         patterns = []
         if os.path.isfile(path):
-            file = open(path, "r")
-            try:
-                for line in file:
-                    if line == "" or line.startswith("#"):
-                        continue
+            with open(path, "r") as file:
+                try:
+                    for line in file:
+                        if line == "" or line.startswith("#"):
+                            continue
 
-                    patterns.append(line.rstrip("\n"))
-            except:
-                pass
-
-            file.close()
+                        patterns.append(line.rstrip("\n"))
+                except:
+                    pass
 
         return patterns
 
@@ -288,12 +284,8 @@ class GittyupClient:
         return (sorted(files), directories)
 
     def _get_blob_from_file(self, path):
-        file = open(path, "rb")
-        try:
+        with open(path, "rb") as file:
             blob = dulwich.objects.Blob.from_string(file.read())
-        finally:
-            file.close()
-
         return blob
 
     def _write_blob_to_file(self, path, blob):
@@ -301,11 +293,8 @@ class GittyupClient:
         if not os.path.isdir(dirname):
             os.makedirs(dirname)
 
-        file = open(path, "wb")
-        try:
+        with open(path, "wb") as file:
             file.write(blob.data)
-        finally:
-            file.close()
 
     def _load_config(self):
         self.config = self.repo.get_config()

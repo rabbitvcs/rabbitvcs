@@ -74,7 +74,8 @@ class About:
             doc_path = "/".join(doc_path[:-2])
             authors_path = os.path.join(doc_path, "AUTHORS")
 
-        authors = open(authors_path, "r").read()
+        with open(authors_path, "r") as f:
+            authors = f.read()
 
         self.about.set_authors(authors.split("\n"))
 

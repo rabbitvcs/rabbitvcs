@@ -76,7 +76,8 @@ if changed:
 
 LOG_PATH = os.path.join(get_home_folder(), "RabbitVCS.log")
 if not os.path.exists(LOG_PATH):
-    open(LOG_PATH, "a").close()
+    with open(LOG_PATH, "a"):
+        pass
 DEFAULT_FORMAT = "%(message)s"
 FILE_FORMAT = "%(asctime)s %(levelname)s\t%(name)s\t%(message)s"
 CONSOLE_FORMAT = "%(levelname)s\t%(name)s\t%(message)s"

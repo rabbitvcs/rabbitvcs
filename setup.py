@@ -168,7 +168,8 @@ if installing:
     if os.uname()[0] != "Darwin":
         print("Running gtk-update-icon-cache")
 
-        subprocess.Popen(
+        with subprocess.Popen(
             ["gtk-update-icon-cache", os.path.join(PREFIX, icon_theme_directory)],
             stdout=subprocess.PIPE,
-        ).communicate()[0]
+        ) as proc:
+            proc.communicate()[0]

@@ -196,9 +196,8 @@ class MessageCallbackNotifier(VCSNotifier):
             path = dialog.run()
 
         if path is not None:
-            fh = open(path, "w")
-            fh.write(self.table.generate_string_from_data())
-            fh.close()
+            with open(path, "w") as fh:
+                fh.write(self.table.generate_string_from_data())
 
 
 class LoadingNotifier(VCSNotifier):

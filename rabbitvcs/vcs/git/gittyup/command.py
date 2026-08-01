@@ -48,7 +48,7 @@ class GittyupCommand:
         env["PYTHONIOENCODING"] = "UTF-8"
         env["GIT_TERMINAL_PROMPT"] = "0"
         env["GIT_SSL_CERT_PASSWORD_PROTECTED"] = ""
-        proc = subprocess.Popen(
+        with subprocess.Popen(
             self.command,
             cwd=self.cwd,
             stdin=None,
@@ -57,21 +57,21 @@ class GittyupCommand:
             env=env,
             close_fds=True,
             preexec_fn=os.setsid,
-        )
+        ) as proc:
 
-        out = codecs.getreader(UTF8_ENCODING)(proc.stdout, SURROGATE_ESCAPE)
-        stdout = []
+            out = codecs.getreader(UTF8_ENCODING)(proc.stdout, SURROGATE_ESCAPE)
+            stdout = []
 
-        while True:
-            line = out.readline()
+            while True:
+                line = out.readline()
 
-            if line == "":
-                break
-            line = line.rstrip("\r\n")  # Strip trailing newline.
-            self.notify(line)
-            stdout.append(line)
+                if line == "":
+                    break
+                line = line.rstrip("\r\n")  # Strip trailing newline.
+                self.notify(line)
+                stdout.append(line)
 
-            if self.cancel():
-                proc.kill()
+                if self.cancel():
+                    proc.kill()
 
-        return (0, stdout, None)
+            return (0, stdout, None)

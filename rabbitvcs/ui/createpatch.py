@@ -178,26 +178,23 @@ class SVNCreatePatch(CreatePatch, SVNCommit):
         self.action.append(self.action.set_status, _("Creating Patch File..."))
 
         def create_patch_action(patch_path, patch_items, base_dir):
-            fileObj = open(patch_path, "w")
-
             # PySVN takes a path to create its own temp files...
             temp_dir = tempfile.mkdtemp(prefix=rabbitvcs.TEMP_DIR_PREFIX)
 
             os.chdir(base_dir)
 
-            # Add to the Patch file only the selected items
-            for item in patch_items:
-                rel_path = helper.get_relative_path(base_dir, item)
-                diff_text = self.svn.diff(
-                    temp_dir,
-                    rel_path,
-                    self.svn.revision("base"),
-                    rel_path,
-                    self.svn.revision("working"),
-                )
-                fileObj.write(diff_text)
-
-            fileObj.close()
+            with open(patch_path, "w") as fileObj:
+                # Add to the Patch file only the selected items
+                for item in patch_items:
+                    rel_path = helper.get_relative_path(base_dir, item)
+                    diff_text = self.svn.diff(
+                        temp_dir,
+                        rel_path,
+                        self.svn.revision("base"),
+                        rel_path,
+                        self.svn.revision("working"),
+                    )
+                    fileObj.write(diff_text)
 
             # Note: if we don't want to ignore errors here, we could define a
             # function that logs failures.
@@ -245,25 +242,22 @@ class GitCreatePatch(CreatePatch, GitCommit):
         self.action.append(self.action.set_status, _("Creating Patch File..."))
 
         def create_patch_action(patch_path, patch_items, base_dir):
-            fileObj = open(patch_path, "w")
-
             # PySVN takes a path to create its own temp files...
             temp_dir = tempfile.mkdtemp(prefix=rabbitvcs.TEMP_DIR_PREFIX)
 
             os.chdir(base_dir)
 
-            # Add to the Patch file only the selected items
-            for item in patch_items:
-                rel_path = helper.get_relative_path(base_dir, item)
-                diff_text = self.git.diff(
-                    rel_path,
-                    self.git.revision("HEAD"),
-                    rel_path,
-                    self.git.revision("WORKING"),
-                )
-                fileObj.write(diff_text)
-
-            fileObj.close()
+            with open(patch_path, "w") as fileObj:
+                # Add to the Patch file only the selected items
+                for item in patch_items:
+                    rel_path = helper.get_relative_path(base_dir, item)
+                    diff_text = self.git.diff(
+                        rel_path,
+                        self.git.revision("HEAD"),
+                        rel_path,
+                        self.git.revision("WORKING"),
+                    )
+                    fileObj.write(diff_text)
 
             # Note: if we don't want to ignore errors here, we could define a
             # function that logs failures.

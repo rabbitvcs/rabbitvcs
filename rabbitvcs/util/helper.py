@@ -149,7 +149,7 @@ def get_tmp_path(filename):
 
 def process_memory(pid):
     # ps -p 5205 -w -w -o rss --no-headers
-    psproc = subprocess.Popen(
+    with subprocess.Popen(
         [
             "ps",
             "-p",
@@ -162,9 +162,9 @@ def process_memory(pid):
             "--no-headers",
         ],
         stdout=subprocess.PIPE,
-    )
+    ) as psproc:
 
-    (output, stdin) = psproc.communicate()
+        (output, stdin) = psproc.communicate()
 
     mem_in_kb = 0
 
@@ -279,7 +279,8 @@ def get_repository_paths():
     returner = []
     paths_file = get_repository_paths_path()
     if os.path.exists(paths_file):
-        returner = [x.strip() for x in open(paths_file, "r").readlines()]
+        with open(paths_file, "r") as f:
+            returner = [x.strip() for x in f.readlines()]
 
     return returner
 
@@ -309,7 +310,8 @@ def get_previous_messages():
     if not os.path.exists(path):
         return
 
-    lines = open(path, "r").readlines()
+    with open(path, "r") as f:
+        lines = f.readlines()
 
     cur_entry = ""
     returner = []
@@ -344,11 +346,10 @@ def get_exclude_paths():
     if not os.path.exists(path):
         return []
 
-    f = open(path, "r")
     paths = []
-    for l in f:
-        paths.append(l.strip())
-    f.close()
+    with open(path, "r") as f:
+        for l in f:
+            paths.append(l.strip())
 
     return paths
 
@@ -566,7 +567,7 @@ def open_item(path):
 
     if platform.system() == "Darwin":
         openers.append("open")
-        subprocess.Popen(["open", os.path.abspath(path)])
+        subprocess.Popen(["open", os.path.abspath(path)])  # pylint: disable=consider-using-with
     else:
         openers.append("gio")
         openers.append("gvfs-open")
@@ -580,7 +581,7 @@ def open_item(path):
                     command.append("open")
                 command.append(os.path.abspath(path))
 
-                subprocess.Popen(command)
+                subprocess.Popen(command)  # pylint: disable=consider-using-with
                 return
 
 
@@ -596,9 +597,9 @@ def browse_to_item(path):
     import platform
 
     if platform.system() == "Darwin":
-        subprocess.Popen(["open", "--reveal", os.path.dirname(os.path.abspath(path))])
+        subprocess.Popen(["open", "--reveal", os.path.dirname(os.path.abspath(path))])  # pylint: disable=consider-using-with
     else:
-        subprocess.Popen(
+        subprocess.Popen(  # pylint: disable=consider-using-with
             [
                 "nautilus",
                 "--no-desktop",
@@ -673,7 +674,6 @@ def save_log_message(message):
     t = time.strftime(LOG_DATETIME_FORMAT)
     messages.insert(0, (t, message))
 
-    f = open(get_previous_messages_path(), "w")
     s = ""
     for m in messages:
         s = f"""-- {m[0]} --
@@ -681,8 +681,8 @@ def save_log_message(message):
 {s}
 """
 
-    f.write(s)
-    f.close()
+    with open(get_previous_messages_path(), "w") as f:
+        f.write(s)
 
 
 def save_repository_path(path):
@@ -705,9 +705,8 @@ def save_repository_path(path):
     while len(paths) > limit:
         paths.pop()
 
-    f = open(get_repository_paths_path(), "w")
-    f.write(S("\n".join(paths)))
-    f.close()
+    with open(get_repository_paths_path(), "w") as f:
+        f.write(S("\n".join(paths)))
 
 
 def launch_ui_window(filename, args=[], block=False):
@@ -742,7 +741,7 @@ def launch_ui_window(filename, args=[], block=False):
             executable = os.environ["PYTHON"]
         # Give all subprocesses the name 'RabbitVCS' to give Ubuntu desktop files the possibility
         # to group those windows in the launcher on WM_CLASS.
-        proc = subprocess.Popen([executable, path] + ["--name", "RabbitVCS"] + args)
+        proc = subprocess.Popen([executable, path] + ["--name", "RabbitVCS"] + args)  # pylint: disable=consider-using-with
 
         if block:
             proc.wait()
@@ -878,7 +877,7 @@ def launch_repo_browser(uri):
     repo_browser = sm.get("external", "repo_browser")
 
     if repo_browser is not None:
-        subprocess.Popen([repo_browser, uri])
+        subprocess.Popen([repo_browser, uri])  # pylint: disable=consider-using-with
 
 
 def launch_url_in_webbrowser(url):
@@ -1116,70 +1115,70 @@ def parse_patch_output(patch_file, base_dir, strip=0):
     #    reversed if they look like they are.
     env = os.environ.copy().update({"LC_ALL": "C"})
     p = f"-p{strip}"
-    patch_proc = subprocess.Popen(
+    with subprocess.Popen(
         ["patch", "-N", "-t", p, "-i", str(patch_file), "--directory", base_dir],
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
         env=env,
-    )
+    ) as patch_proc:
 
-    # Intialise things...
-    out = codecs.getreader(UTF8_ENCODING)(patch_proc.stdout, SURROGATE_ESCAPE)
-    line = out.readline()
-    patch_match = PATCHING_RE.match(line)
-
-    current_file = None
-    if patch_match:
-        current_file = patch_match.group(1)
-    elif line:  # and not patch_match
-        # There was output, but unexpected. Almost certainly an error of some
-        # sort.
-        patch_proc.wait()
-        output = line + out.read()
-        raise rabbitvcs.vcs.ExternalUtilError("patch", output)
-        # Note the excluded case: empty line. This falls through, skips the loop
-        # and returns.
-
-    any_errors = False
-    reject_file = None
-
-    while current_file:
-
-        line = out.readline().rstrip(" \t\r\n")
-        while not line and patch_proc.poll() is None:
-            line = out.readline().rstrip(" \t\r\n")
-
-        # Does patch tell us we're starting a new file?
+        # Intialise things...
+        out = codecs.getreader(UTF8_ENCODING)(patch_proc.stdout, SURROGATE_ESCAPE)
+        line = out.readline()
         patch_match = PATCHING_RE.match(line)
 
-        # Starting a new file => that's it for the last one, so return the value
-        # No line => End of patch output => ditto
-        if patch_match or not line:
-
-            yield (current_file, not any_errors, reject_file)
-
-            if not line:
-                # That's it from patch, so end the generator
-                break
-
-            # Starting a new file...
+        current_file = None
+        if patch_match:
             current_file = patch_match.group(1)
-            any_errors = False
-            reject_file = None
+        elif line:  # and not patch_match
+            # There was output, but unexpected. Almost certainly an error of some
+            # sort.
+            patch_proc.wait()
+            output = line + out.read()
+            raise rabbitvcs.vcs.ExternalUtilError("patch", output)
+            # Note the excluded case: empty line. This falls through, skips the loop
+            # and returns.
 
-        else:
-            # Doesn't matter why we're here, anything else means ERROR
+        any_errors = False
+        reject_file = None
 
-            any_errors = True
+        while current_file:
 
-            reject_match = REJECT_RE.match(line)
+            line = out.readline().rstrip(" \t\r\n")
+            while not line and patch_proc.poll() is None:
+                line = out.readline().rstrip(" \t\r\n")
 
-            if reject_match:
-                # Have current file, getting reject file info
-                reject_file = reject_match.group(1)
-            # else: we have an unknown error
+            # Does patch tell us we're starting a new file?
+            patch_match = PATCHING_RE.match(line)
 
-    patch_proc.wait()  # Don't leave process running...
+            # Starting a new file => that's it for the last one, so return the value
+            # No line => End of patch output => ditto
+            if patch_match or not line:
+
+                yield (current_file, not any_errors, reject_file)
+
+                if not line:
+                    # That's it from patch, so end the generator
+                    break
+
+                # Starting a new file...
+                current_file = patch_match.group(1)
+                any_errors = False
+                reject_file = None
+
+            else:
+                # Doesn't matter why we're here, anything else means ERROR
+
+                any_errors = True
+
+                reject_match = REJECT_RE.match(line)
+
+                if reject_match:
+                    # Have current file, getting reject file info
+                    reject_file = reject_match.group(1)
+                # else: we have an unknown error
+
+        patch_proc.wait()  # Don't leave process running...
 
 
 def HSLtoRGB(h, s, l):
