@@ -35,7 +35,7 @@ from rabbitvcs.util.contextmenu import (
     MenuBuilder,
     GtkContextMenuCaller,
 )
-from rabbitvcs.util.contextmenuitems import *
+from rabbitvcs.util.contextmenuitems import MenuItem
 
 # Menu item example, insert a new item in the Tools menu
 ui_str = """<ui>

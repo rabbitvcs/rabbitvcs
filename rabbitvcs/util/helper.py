@@ -43,9 +43,9 @@ from gi.repository import GLib
 
 import urllib.parse
 
-from rabbitvcs.util.settings import *
+from rabbitvcs.util.settings import SettingsManager, get_home_folder
 from rabbitvcs.util.decorators import structure_map
-from rabbitvcs.util.strings import *
+from rabbitvcs.util.strings import S, UTF8_ENCODING, SURROGATE_ESCAPE
 
 from rabbitvcs.util.log import Log
 

@@ -45,7 +45,7 @@ import logging
 import logging.handlers
 
 from rabbitvcs.util.settings import SettingsManager, get_home_folder
-from rabbitvcs.util.strings import *
+from rabbitvcs.util.strings import UTF8_ENCODING
 
 LEVELS = {
     "debug": logging.DEBUG,

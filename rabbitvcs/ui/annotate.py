@@ -4,7 +4,7 @@ import rabbitvcs.vcs
 from rabbitvcs.util.settings import SettingsManager
 from rabbitvcs.util.highlighter import highlight
 from rabbitvcs.util.strings import S
-from rabbitvcs.util.contextmenuitems import *
+from rabbitvcs.util.contextmenuitems import MenuItem
 from rabbitvcs.util.contextmenu import GtkContextMenu
 from rabbitvcs.ui.dialog import MessageBox, Loading
 from rabbitvcs.ui.widget import Clickable, Table, TYPE_MARKUP, TYPE_HIDDEN

@@ -1,7 +1,7 @@
 from rabbitvcs import gettext
 import rabbitvcs.ui.action
 from rabbitvcs.util.strings import S
-from rabbitvcs.util.contextmenuitems import *
+from rabbitvcs.util.contextmenuitems import MenuItem
 from rabbitvcs.util.contextmenu import GtkContextMenu
 import rabbitvcs.ui.widget
 from rabbitvcs.ui import InterfaceView

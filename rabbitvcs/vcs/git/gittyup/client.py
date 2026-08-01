@@ -24,11 +24,21 @@ import dulwich.objects
 from dulwich.index import write_index_dict, SHA1Writer
 
 from rabbitvcs.util import helper
-from rabbitvcs.util.strings import *
+from rabbitvcs.util.strings import S, UTF8_ENCODING, IDENTITY_ENCODING
 
-from .exceptions import *
+from .exceptions import NotRepositoryError, GittyupCommandError
 from . import util
-from .objects import *
+from .objects import (
+    AddedStatus,
+    CommitTag,
+    IgnoredStatus,
+    MissingStatus,
+    ModifiedStatus,
+    NormalStatus,
+    RemovedStatus,
+    Tag,
+    UntrackedStatus,
+)
 from .command import GittyupCommand
 
 

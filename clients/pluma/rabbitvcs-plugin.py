@@ -1,4 +1,4 @@
-from rabbitvcs.util.contextmenuitems import *
+from rabbitvcs.util.contextmenuitems import MenuItem
 from rabbitvcs.util.contextmenu import (
     GtkFilesContextMenuConditions,
     GtkFilesContextMenuCallbacks,

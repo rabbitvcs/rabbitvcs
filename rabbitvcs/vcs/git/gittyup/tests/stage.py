@@ -8,7 +8,7 @@ from sys import argv
 from optparse import OptionParser
 
 from gittyup.client import GittyupClient
-from gittyup.objects import *
+from gittyup.objects import AddedStatus, UntrackedStatus, ModifiedStatus
 from util import touch, change
 
 parser = OptionParser()

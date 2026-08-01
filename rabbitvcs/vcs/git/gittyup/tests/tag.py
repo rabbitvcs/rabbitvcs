@@ -8,7 +8,6 @@ from sys import argv
 from optparse import OptionParser
 
 from gittyup.client import GittyupClient
-from gittyup.objects import *
 from util import touch
 
 parser = OptionParser()
