@@ -27,7 +27,6 @@ Our module for everything related to the Nemo extension.
 """
 
 
-from rabbitvcs.util.contextmenuitems import *
 from rabbitvcs.services.checkerservice import StatusCheckerStub as StatusChecker
 import rabbitvcs.services.service
 from rabbitvcs.util.settings import SettingsManager

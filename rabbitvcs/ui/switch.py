@@ -1,5 +1,5 @@
 from rabbitvcs import gettext
-from rabbitvcs.util.strings import *
+from rabbitvcs.util.strings import S
 import rabbitvcs.ui.dialog
 import rabbitvcs.ui.widget
 from rabbitvcs.ui import InterfaceView

@@ -7,7 +7,17 @@ import rabbitvcs.vcs
 import rabbitvcs.ui.action
 import rabbitvcs.ui.dialog
 import rabbitvcs.ui.widget
-from rabbitvcs.util.contextmenuitems import *
+from rabbitvcs.util.contextmenuitems import (
+    MenuItem,
+    MenuOpen,
+    MenuSeparator,
+    MenuShowLog,
+    MenuAnnotate,
+    MenuExport,
+    MenuCheckout,
+    MenuRename,
+    MenuDelete,
+)
 from rabbitvcs.util.contextmenu import (
     GtkContextMenu,
     GtkContextMenuCaller,

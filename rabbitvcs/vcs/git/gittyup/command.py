@@ -7,7 +7,7 @@ import subprocess
 import codecs
 import os
 
-from rabbitvcs.util.strings import *
+from rabbitvcs.util.strings import UTF8_ENCODING, SURROGATE_ESCAPE
 
 
 def notify_func(data):
