@@ -24,7 +24,6 @@
 Concrete VCS dummy implementation.
 """
 
-import rabbitvcs.vcs
 import rabbitvcs.vcs.status
 
 

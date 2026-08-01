@@ -44,7 +44,6 @@ from gi.repository import GLib
 import urllib.parse
 
 from rabbitvcs.util.settings import *
-from rabbitvcs.util.decorators import structure_map
 from rabbitvcs.util.strings import *
 
 from rabbitvcs.util.log import Log
@@ -93,6 +92,46 @@ def gobject_threads_init():
 
     if compare_version(GObject.pygobject_version, [3, 10, 2]) < 0:
         GObject.threads_init()
+
+
+def update_func_meta(fake_func, real_func):
+    """
+    Set meta information (eg. __doc__) of fake function to that of the real
+    function.
+
+    @rtype: function
+    @return Fake function with metadata of the real function.
+    """
+
+    fake_func.__module__ = real_func.__module__
+    fake_func.__name__ = real_func.__name__
+    fake_func.__doc__ = real_func.__doc__
+    fake_func.__dict__.update(real_func.__dict__)
+
+    return fake_func
+
+
+def structure_map(func):
+    """
+    Descend recursively into object if it is a list, a tuple, a set or a dict
+    and build the equivalent structure with func results.
+    Do not apply function to None.
+    """
+
+    def newfunc(obj, *args, **kwargs):
+        if obj is None:
+            return obj
+        if isinstance(obj, list):
+            return [newfunc(item, *args, **kwargs) for item in obj]
+        if isinstance(obj, tuple):
+            return tuple(newfunc(item, *args, **kwargs) for item in obj)
+        if isinstance(obj, set):
+            return {newfunc(item, *args, **kwargs) for item in obj}
+        if isinstance(obj, dict):
+            return {key: newfunc(obj[key], *args, **kwargs) for key in obj}
+        return func(obj, *args, **kwargs)
+
+    return update_func_meta(newfunc, func)
 
 
 @structure_map

@@ -164,24 +164,3 @@ def debug_calls(caller_log, show_caller=False):
     return real_debug
 
 
-def structure_map(func):
-    """
-    Descend recursively into object if it is a list, a tuple, a set or a dict
-    and build the equivalent structure with func results.
-    Do not apply function to None.
-    """
-
-    def newfunc(obj, *args, **kwargs):
-        if obj is None:
-            return obj
-        if isinstance(obj, list):
-            return [newfunc(item, *args, **kwargs) for item in obj]
-        if isinstance(obj, tuple):
-            return tuple(newfunc(item, *args, **kwargs) for item in obj)
-        if isinstance(obj, set):
-            return {newfunc(item, *args, **kwargs) for item in obj}
-        if isinstance(obj, dict):
-            return {key: newfunc(obj[key], *args, **kwargs) for key in obj}
-        return func(obj, *args, **kwargs)
-
-    return update_func_meta(newfunc, func)

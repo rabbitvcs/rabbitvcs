@@ -31,7 +31,6 @@ from mercurial import commands, ui, hg
 
 from rabbitvcs.util.strings import S
 
-import rabbitvcs.vcs
 import rabbitvcs.vcs.status
 import rabbitvcs.vcs.log
 import rabbitvcs.vcs.mercurial.util
@@ -108,7 +107,7 @@ class Mercurial:
     STATUSES_FOR_UNSTAGE = ["added"]
 
     def __init__(self, repo=None):
-        self.vcs = rabbitvcs.vcs.VCS_MERCURIAL
+        self.vcs = "mercurial"
         self.interface = "mercurial"
 
         self.ui = ui.ui()
