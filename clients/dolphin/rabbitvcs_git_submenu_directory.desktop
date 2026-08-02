@@ -1,6 +1,7 @@
 [Desktop Entry]
 Type=Service
 ServiceTypes=KonqPopupMenu/Plugin,inode/directory
+MimeType=inode/directory
 Actions=Update;Commit;Push;_SEPARATOR_;Changes;Log;_SEPARATOR_;Delete;Revert;Clean;Reset;Checkout;_SEPARATOR_;Branches;Tags;Remotes;_SEPARATOR_;Export;Merge;_SEPARATOR_;CreatePatch;ApplyPatch;_SEPARATOR_;CreateRepo;Clone;_SEPARATOR_;Settings;About;
 Icon=/usr/share/icons/hicolor/scalable/actions/rabbitvcs.svg
 

@@ -5,7 +5,8 @@ from __future__ import print_function
 # client.py
 #
 
-import os, errno
+import os
+import errno
 import os.path
 import re
 import shutil
@@ -40,7 +41,7 @@ import six
 
 ENCODING = "UTF-8"
 
-RE_STATUS = re.compile("^([\sA-Z\?]+)\s(?:\S+\s->\s)?(.*?)$")
+RE_STATUS = re.compile(r"^([\sA-Z\?]+)\s(?:\S+\s->\s)?(.*?)$")
 
 
 def callback_notify_null(val):
@@ -316,6 +317,18 @@ class GittyupClient(object):
     def _load_config(self):
         self.config = self.repo.get_config()
 
+    def _stage_paths(self, paths):
+        if hasattr(self.repo, "stage"):
+            self.repo.stage(paths)
+        else:
+            self.repo.get_worktree().stage(paths)
+
+    def _commit_changes(self, **kwargs):
+        if hasattr(self.repo, "do_commit"):
+            return self.repo.do_commit(**kwargs)
+
+        return self.repo.get_worktree().commit(**kwargs)
+
     def _config_normalize_section(self, section):
         # If some old code is using string sections, convert to a tuple
         if isinstance(section, six.string_types):
@@ -441,7 +454,8 @@ class GittyupClient(object):
                 }
             )
             to_stage.append(S(relative_path))
-        self.repo.stage(to_stage)
+
+        self._stage_paths(to_stage)
 
     def stage_all(self):
         """
@@ -645,6 +659,14 @@ class GittyupClient(object):
                 self.track("refs/heads/master")
 
             del self.repo.refs[ref_name]
+
+        cmd = ["git", "branch"]
+        cmd += ["-d", name]
+
+        try:
+            (status, stdout, stderr) = GittyupCommand(cmd, cwd=self.repo.path, notify=self.notify, cancel=self.get_cancel()).execute()
+        except GittyupCommandError as e:
+            self.callback_notify(e)
 
     def branch_rename(self, old_name, new_name):
         """
@@ -939,7 +961,7 @@ class GittyupClient(object):
         if commit_timezone is None:
             commit_timezone = helper.utc_offset()
 
-        commit_id = self.repo.do_commit(
+        commit_id = self._commit_changes(
             **helper.to_bytes(
                 {
                     "message": message,
@@ -981,6 +1003,8 @@ class GittyupClient(object):
 
         """
 
+        to_stage = []
+
         if isinstance(paths, (str, six.text_type)):
             paths = [paths]
 
@@ -988,11 +1012,17 @@ class GittyupClient(object):
 
         for path in paths:
             relative_path = self.get_relative_path(path)
-            if relative_path in index:
-                del index[relative_path]
-                os.remove(path)
+            absolute_path = self.get_absolute_path(path)
 
-        index.write()
+            self.notify({
+                "action": "Deleted",
+                "path": absolute_path,
+                "mime_type": guess_type(absolute_path)[0]
+            })
+            os.remove(absolute_path)
+            to_stage.append(S(relative_path))
+
+        self._stage_paths(to_stage)
 
     def move(self, source, dest):
         """
@@ -1594,6 +1624,199 @@ class GittyupClient(object):
 
         return tags
 
+    # RABBITVCS_GROUPED_SPARSE_MENU_SNAPSHOT_V8G
+    def menu_statuses_batch(self, base_dir, paths):
+        # Return per-path status lists without recursively enumerating every
+        # normal file below base_dir.
+        requested = []
+        for absolute_path in paths:
+            relative_path = S(self.get_relative_path(absolute_path))
+            if relative_path == ".":
+                relative_path = ""
+            requested.append(
+                {
+                    "absolute": absolute_path,
+                    "relative": relative_path,
+                    "is_dir": os.path.isdir(absolute_path),
+                }
+            )
+
+        changed = {}
+        changed_order = []
+
+        cmd = [
+            "git",
+            "status",
+            "--porcelain",
+            "--untracked-files=all",
+            base_dir,
+        ]
+        try:
+            (_status, stdout, _stderr) = GittyupCommand(
+                cmd, cwd=self.repo.path, notify=self.notify
+            ).execute()
+        except GittyupCommandError as error:
+            self.callback_notify(error)
+            stdout = []
+
+        for line in stdout:
+            components = RE_STATUS.match(line)
+            if not components:
+                continue
+
+            raw_status = components.group(1)
+            strip_status = raw_status.strip()
+            relative_path = self.string_unescape(components.group(2))
+            if (
+                len(relative_path) >= 2
+                and relative_path[0] == '"'
+                and relative_path[-1] == '"'
+            ):
+                relative_path = relative_path[1:-1]
+
+            if raw_status == " D":
+                status_class = MissingStatus
+            elif any(code in strip_status for code in ["M", "R", "U"]):
+                status_class = ModifiedStatus
+            elif strip_status in ["A", "C"]:
+                status_class = AddedStatus
+            elif strip_status == "D":
+                status_class = RemovedStatus
+            elif strip_status == "??":
+                status_class = UntrackedStatus
+            else:
+                continue
+
+            changed[relative_path] = status_class
+            changed_order.append(relative_path)
+
+        untracked_directories = []
+        cmd = ["git", "clean", "-nd", self.repo.path]
+        try:
+            (_status, stdout, _stderr) = GittyupCommand(
+                cmd, cwd=self.repo.path, notify=self.notify
+            ).execute()
+        except GittyupCommandError as error:
+            self.callback_notify(error)
+            stdout = []
+
+        for line in stdout:
+            components = re.match(r"^(Would remove)\s(.*?)$", line)
+            if components:
+                relative_path = components.group(2)
+                if relative_path.endswith("/"):
+                    untracked_directories.append(relative_path[:-1])
+
+        ignored_files = []
+        ignored_directories = []
+        cmd = ["git", "clean", "-ndX", self.repo.path]
+        try:
+            (_status, stdout, _stderr) = GittyupCommand(
+                cmd, cwd=self.repo.path, notify=self.notify
+            ).execute()
+        except GittyupCommandError as error:
+            self.callback_notify(error)
+            stdout = []
+
+        for line in stdout:
+            components = re.match(r"^(Would remove)\s(.*?)$", line)
+            if not components:
+                continue
+            relative_path = components.group(2)
+            if relative_path.endswith("/"):
+                ignored_directories.append(relative_path[:-1])
+            else:
+                ignored_files.append(relative_path)
+
+        def under(path, directory):
+            if directory in ("", "."):
+                return True
+            prefix = directory.rstrip("/") + "/"
+            return path == directory or path.startswith(prefix)
+
+        def ignored_exact(relative_path):
+            if relative_path in ignored_files:
+                return True
+            return any(
+                under(relative_path, ignored_dir)
+                for ignored_dir in ignored_directories
+            )
+
+        result = {}
+
+        for item in requested:
+            relative_path = item["relative"]
+            is_dir = item["is_dir"]
+
+            exact_class = changed.get(relative_path)
+
+            if ignored_exact(relative_path):
+                exact_class = IgnoredStatus
+            elif is_dir:
+                descendants = [
+                    changed_path
+                    for changed_path in changed_order
+                    if under(changed_path, relative_path)
+                ]
+                if descendants:
+                    exact_class = ModifiedStatus
+                elif any(
+                    under(relative_path, untracked_dir)
+                    for untracked_dir in untracked_directories
+                ):
+                    # An untracked child directory does not make its tracked
+                    # parent unversioned. Only the untracked directory itself
+                    # and paths below it receive UntrackedStatus.
+                    exact_class = UntrackedStatus
+
+            if exact_class is None:
+                exact_class = NormalStatus
+
+            statuses = [exact_class(relative_path)]
+            seen = {relative_path}
+
+            if is_dir:
+                for changed_path in changed_order:
+                    if not under(changed_path, relative_path):
+                        continue
+                    if changed_path in seen:
+                        continue
+                    statuses.append(changed[changed_path](changed_path))
+                    seen.add(changed_path)
+
+            # Preserve the existing repository-wide ignored-file semantics.
+            for ignored_path in ignored_files:
+                if ignored_path in seen:
+                    continue
+                statuses.append(IgnoredStatus(ignored_path))
+                seen.add(ignored_path)
+
+            if is_dir:
+                # Preserve has_unversioned for empty/untracked child
+                # directories. They must be child statuses, not the exact
+                # status of a tracked parent directory.
+                for untracked_dir in untracked_directories:
+                    if not under(untracked_dir, relative_path):
+                        continue
+                    if untracked_dir in seen:
+                        continue
+                    statuses.append(UntrackedStatus(untracked_dir))
+                    seen.add(untracked_dir)
+
+                # Ignored directories below a selected directory make
+                # has_ignored true in the old recursive calculation.
+                for ignored_dir in ignored_directories:
+                    if not under(ignored_dir, relative_path):
+                        continue
+                    if ignored_dir in seen:
+                        continue
+                    statuses.append(IgnoredStatus(ignored_dir))
+                    seen.add(ignored_dir)
+
+            result[item["absolute"]] = statuses
+
+        return result
+
     def status_porcelain(self, path):
         if os.path.isdir(path):
             (files, directories) = self._read_directory_tree(path)
@@ -1652,7 +1875,7 @@ class GittyupClient(object):
 
         untracked_directories = []
         for line in stdout:
-            components = re.match("^(Would remove)\s(.*?)$", line)
+            components = re.match(r"^(Would remove)\s(.*?)$", line)
             if components:
                 untracked_path = components.group(2)
                 if untracked_path[-1] == "/":
@@ -1668,7 +1891,7 @@ class GittyupClient(object):
             self.callback_notify(e)
         ignored_directories = []
         for line in stdout:
-            components = re.match("^(Would remove)\s(.*?)$", line)
+            components = re.match(r"^(Would remove)\s(.*?)$", line)
             if components:
                 ignored_path = components.group(2)
                 if ignored_path[-1] == "/":
@@ -1850,14 +2073,16 @@ class GittyupClient(object):
             "-m",
         ]
 
-        if showtype == "all":
+        if showtype == "all" and os.environ.get('RABBITVCS_REVISION_RANGE') is None:
             cmd.append("--all")
 
         if limit:
             cmd.append("-%s" % limit)
         if skip:
             cmd.append("--skip=%s" % skip)
-        if revision:
+        if os.environ.get('RABBITVCS_REVISION_RANGE') is not None:
+            cmd.append(os.environ.get('RABBITVCS_REVISION_RANGE'))
+        elif revision:
             if showtype == "push":
                 cmd.append("%s.." % revision)
             else:
@@ -1887,7 +2112,7 @@ class GittyupClient(object):
 
             if line[0:6] == "commit":
                 match = pattern_from.search(line)
-                commit_line = re.sub(" \(from.*\)", "", line).split(" ")
+                commit_line = re.sub(r" \(from.*\)", "", line).split(" ")
                 fromPath = ""
                 if match:
                     fromPath = match.group(1)
@@ -2163,7 +2388,6 @@ class GittyupClient(object):
             ).execute()
         except GittyupCommandError as e:
             self.callback_notify(e)
-            return
 
     def reset(self, path, revision, type=None):
         relative_path = self.get_relative_path(path)
@@ -2173,7 +2397,7 @@ class GittyupClient(object):
             cmd.append("--%s" % type)
 
         cmd.append(revision)
-        if relative_path:
+        if relative_path and not "soft" == type and not "hard" == type:
             cmd.append(relative_path)
 
         try:
@@ -2182,7 +2406,6 @@ class GittyupClient(object):
             ).execute()
         except GittyupCommandError as e:
             self.callback_notify(e)
-            return
 
     def set_callback_notify(self, func):
         self.callback_notify = func
@@ -2241,7 +2464,7 @@ class GittyupClient(object):
             # Some messages have a strage tendancy to append a non-printable character,
             # followed by a right square brace and a capitol "K".  This tests for, and
             # strips these superfluous characters.
-            message_components = re.search("^(.+).\[K", message)
+            message_components = re.search(r"^(.+).\[K", message)
             if message_components != None:
                 returnData["path"] = message_components.group(1)
             else:
@@ -2305,7 +2528,7 @@ class GittyupClient(object):
             message_parsed = True
 
         # Look for "Branch" line (e.g. "* branch   master   -> FETCH_HEAD")
-        message_components = re.search("\* branch +([A-z0-9]+) +-> (.+)", data)
+        message_components = re.search(r"\* branch +([A-z0-9]+) +-> (.+)", data)
 
         if message_components != None:
             return_data["action"] = "Branch"
@@ -2315,7 +2538,7 @@ class GittyupClient(object):
             message_parsed = True
 
         # Look for a file line (e.g. "src/somefile.py       | 5 -++++")
-        message_components = re.search(" +(.+) +\| *([0-9]+) ([+-]+)", data)
+        message_components = re.search(r" +(.+) +\| *([0-9]+) ([+-]+)", data)
 
         if message_components != None:
             return_data["action"] = "Modified"
@@ -2361,7 +2584,7 @@ class GittyupClient(object):
 
         # Look for a "binary" line (e.g. "icons/file.png"    | Bin 0 -> 55555 bytes)
         message_components = re.search(
-            "^[ ](.+) +\| Bin ([0-9]+ -> [0-9]+ bytes)", data
+            r"^[ ](.+) +\| Bin ([0-9]+ -> [0-9]+ bytes)", data
         )
 
         if message_components != None:
@@ -2371,7 +2594,7 @@ class GittyupClient(object):
             message_parsed = True
 
         # Look for a "rename" line (e.g. "rename src/{foo.py => bar.py} (50%)")
-        message_components = re.search("rename (.+}) \([0-9]+%\)", data)
+        message_components = re.search(r"rename (.+}) \([0-9]+%\)", data)
 
         if message_components != None:
             return_data["action"] = "Rename"
@@ -2379,7 +2602,7 @@ class GittyupClient(object):
             message_parsed = True
 
         # Look for a "copy" line (e.g. "copy src/{foo.py => bar.py} (50%)")
-        message_components = re.search("copy (.+}) \([0-9]+%\)", data)
+        message_components = re.search(r"copy (.+}) \([0-9]+%\)", data)
 
         if message_components != None:
             return_data["action"] = "Copy"
@@ -2389,7 +2612,7 @@ class GittyupClient(object):
         # Prepend "Error" to conflict lines. e.g. :
         # CONFLICT (content): Merge conflict in file.py.
         # Automatic merge failed; fix conflicts and then commit the result.
-        message_components = re.search("^CONFLICT \(|Automatic merge failed", data)
+        message_components = re.search(r"^CONFLICT \(|Automatic merge failed", data)
 
         if message_components != None:
             return_data["action"] = "Error"
@@ -2416,7 +2639,7 @@ class GittyupClient(object):
             message_parsed = True
 
         # Look for "new branch" line. e.g. " * [new branch]   master -> master"
-        message_components = re.search("^ \* \[new branch\] +(.+) -> (.+)", data)
+        message_components = re.search(r"^ \* \[new branch\] +(.+) -> (.+)", data)
 
         if message_components != None:
             return_data["action"] = "New Branch"
@@ -2426,7 +2649,7 @@ class GittyupClient(object):
             message_parsed = True
 
         # Look for "rejected" line. e.g. " ![rejected]   master -> master (non-fast-forward)".
-        message_components = re.search("!\[rejected\] +(.+)", data)
+        message_components = re.search(r"!\[rejected\] +(.+)", data)
 
         if message_components != None:
             return_data["action"] = "Rejected"

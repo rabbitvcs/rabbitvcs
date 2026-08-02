@@ -1,6 +1,7 @@
 [Desktop Entry]
 Type=Service
 ServiceTypes=KonqPopupMenu/Plugin,application/octet-stream
+MimeType=application/octet-stream
 Actions=Update;Commit;_SEPARATOR_;Changes;Log;Browser;CheckMods;_SEPARATOR_;EditConflicts;Resolve;UpdateToRev;Rename;Delete;Revert;GetLock;ReleaseLock;_SEPARATOR_;BranchTag;Switch;Merge;_SEPARATOR_;Annotate;_SEPARATOR_;CreatePatch;Properties;_SEPARATOR_;Add;Ignore;_SEPARATOR_;Settings;About;
 Icon=/usr/share/icons/hicolor/scalable/actions/rabbitvcs.svg
 
@@ -11,6 +12,7 @@ X-KDE-Submenu=RabbitVCS SVN
 Name=Update
 Name[de]=Aktualisieren
 Name[fr]=Mettre à jour
+Name[ru]=Обновить
 
 Icon=/usr/share/icons/hicolor/scalable/actions/rabbitvcs-update.svg
 Exec=rabbitvcs update %U
@@ -19,6 +21,7 @@ Exec=rabbitvcs update %U
 Name=Commit...
 Name[de]=Committen …
 Name[fr]=Envoyer …
+Name[ru]=Зафиксировать...
 
 Icon=/usr/share/icons/hicolor/scalable/actions/rabbitvcs-commit.svg
 Exec=rabbitvcs commit %U
@@ -28,6 +31,7 @@ Exec=rabbitvcs commit %U
 [Desktop Action Changes]
 Name=Show Changes...
 Name[fr]=Voir les modifications …
+Name[ru]=Показать изменения...
 
 Icon=/usr/share/icons/hicolor/scalable/actions/rabbitvcs-changes.svg
 Exec=rabbitvcs changes %U
@@ -37,6 +41,7 @@ Name=Show log
 Name[de]=Historie anzeigen
 Name[fr]=Consulter le journal
 Name[pl]=Pokaz Log
+Name[ru]=Показать журнал
 
 Icon=/usr/share/icons/hicolor/scalable/actions/rabbitvcs-show_log.svg
 Exec=rabbitvcs log %U
@@ -45,6 +50,7 @@ Exec=rabbitvcs log %U
 Name=Repo-browser
 Name[de]=Repository-Browser
 Name[fr]=Navigateur de dépôt
+Name[ru]=Обозреватель хранилища
 
 Icon=/usr/share/icons/hicolor/scalable/actions/rabbitvcs-drive.svg
 Exec=rabbitvcs browser %U
@@ -53,6 +59,7 @@ Exec=rabbitvcs browser %U
 Name=Check for modifications
 Name[de]=Auf Änderungen prüfen
 Name[fr]=Vérifier les modifications
+Name[ru]=Проверить на наличие изменений
 
 Icon=/usr/share/icons/hicolor/scalable/actions/rabbitvcs-checkmods.svg
 Exec=rabbitvcs checkmods %U
@@ -62,6 +69,7 @@ Exec=rabbitvcs checkmods %U
 [Desktop Action EditConflicts]
 Name=Edit conflicts
 Name[fr]=Editer les conflits …
+Name[ru]=Редактировать конфликты
 
 Icon=/usr/share/icons/hicolor/scalable/actions/rabbitvcs-editconflicts.svg
 Exec=rabbitvcs editconflicts %U
@@ -70,6 +78,7 @@ Exec=rabbitvcs editconflicts %U
 Name=Resolve...
 Name[de]=Konflikte lösen …
 Name[fr]=Résoudre les conflits …
+Name[ru]=Уладить...
 
 Icon=/usr/share/icons/hicolor/scalable/actions/rabbitvcs-resolve.svg
 Exec=rabbitvcs resolve %U
@@ -78,6 +87,7 @@ Exec=rabbitvcs resolve %U
 Name=Update to revision...
 Name[de]=Auf Revision aktualisieren …
 Name[fr]=Mettre à jour à la révision …
+Name[ru]=Обновить до ревизии
 
 Icon=/usr/share/icons/hicolor/scalable/actions/rabbitvcs-update.svg
 Exec=rabbitvcs updateto %U
@@ -86,6 +96,7 @@ Exec=rabbitvcs updateto %U
 Name=Rename...
 Name[de]=Umbenennen …
 Name[fr]=Renommer …
+Name[ru]=Переименовать
 
 Icon=/usr/share/icons/hicolor/scalable/actions/rabbitvcs-rename.svg
 Exec=rabbitvcs rename %U
@@ -94,6 +105,7 @@ Exec=rabbitvcs rename %U
 Name=Delete
 Name[de]=Löschen
 Name[fr]=Supprimer
+Name[ru]=Удалить
 
 Icon=/usr/share/icons/hicolor/scalable/actions/rabbitvcs-delete.svg
 Exec=rabbitvcs delete %U
@@ -102,6 +114,7 @@ Exec=rabbitvcs delete %U
 Name=Revert...
 Name[de]=Rückgängig machen …
 Name[fr]=Rétablir …
+Name[ru]=Убрать изменения...
 
 Icon=/usr/share/icons/hicolor/scalable/actions/rabbitvcs-revert.svg
 Exec=rabbitvcs revert %U
@@ -110,6 +123,7 @@ Exec=rabbitvcs revert %U
 Name=Get lock...
 Name[de]=Sperren …
 Name[fr]=Obtenir le verrou …
+Name[ru]=Заблокировать...
 
 Icon=/usr/share/icons/hicolor/scalable/actions/rabbitvcs-lock.svg
 Exec=rabbitvcs lock %U
@@ -118,6 +132,7 @@ Exec=rabbitvcs lock %U
 Name=Release lock...
 Name[de]=Sperrung aufheben …
 Name[fr]=Relâcher le verrou …
+Name[ru]=Снять блокировку...
 
 Icon=/usr/share/icons/hicolor/scalable/actions/rabbitvcs-unlock.svg
 Exec=rabbitvcs unlock %U
@@ -128,6 +143,7 @@ Exec=rabbitvcs unlock %U
 Name=Branch/tag...
 Name[de]=Verzweigen/markieren …
 Name[fr]=Brancher/Taguer …
+Name[ru]=Ответвление/метка
 
 Icon=/usr/share/icons/hicolor/scalable/actions/rabbitvcs-branch.svg
 Exec=rabbitvcs branch %U
@@ -136,6 +152,7 @@ Exec=rabbitvcs branch %U
 Name=Switch...
 Name[de]=Wechseln …
 Name[fr]=Basculer …
+Name[ru]=Переключить...
 
 Icon=/usr/share/icons/hicolor/scalable/actions/rabbitvcs-switch.svg
 Exec=rabbitvcs switch %U
@@ -144,6 +161,7 @@ Exec=rabbitvcs switch %U
 Name=Merge...
 Name[de]=Zusammenführen …
 Name[fr]=Fusionner …
+Name[ru]=Слить...
 
 Icon=/usr/share/icons/hicolor/scalable/actions/rabbitvcs-merge.svg
 Exec=rabbitvcs merge %U
@@ -154,6 +172,7 @@ Exec=rabbitvcs merge %U
 Name=Annotate...
 Name[de]=Annotiere …
 Name[fr]=Annoter …
+Name[ru]=Авторство
 
 Icon=/usr/share/icons/hicolor/scalable/actions/rabbitvcs-annotate.svg
 Exec=rabbitvcs annotate %U
@@ -164,6 +183,7 @@ Exec=rabbitvcs annotate %U
 Name=Create patch...
 Name[de]=Patch erstellen …
 Name[fr]=Créer un correctif …
+Name[ru]=Создать заплатку...
 
 Icon=/usr/share/icons/hicolor/scalable/actions/rabbitvcs-createpatch.svg
 Exec=rabbitvcs createpatch %U
@@ -172,6 +192,7 @@ Exec=rabbitvcs createpatch %U
 Name=Properties
 Name[de]=Eigenschaften
 Name[fr]=Propriétés
+Name[ru]=Свойства
 
 Icon=/usr/share/icons/hicolor/scalable/actions/rabbitvcs-properties.svg
 Exec=rabbitvcs properties %U
@@ -183,6 +204,7 @@ Name=Add...
 Name[de]=Hinzufuegen …
 Name[fr]=Ajouter …
 Name[pl]=Dodaj...
+Name[ru]=Добавить...
 
 Icon=/usr/share/icons/hicolor/scalable/actions/rabbitvcs-add.svg
 Exec=rabbitvcs add %U
@@ -191,6 +213,7 @@ Exec=rabbitvcs add %U
 Name=Add to ignore list
 Name[de]=Zur Ignorierliste hinzufügen
 Name[fr]=Ajouter à la liste de fichiers ignorés
+Name[ru]=Добавить в список игнорирования
 
 Exec=rabbitvcs ignore %U
 
@@ -200,6 +223,7 @@ Exec=rabbitvcs ignore %U
 Name=Settings
 Name[de]=Einstellungen
 Name[fr]=Paramètres
+Name[ru]=Настройки
 
 Icon=/usr/share/icons/hicolor/scalable/actions/rabbitvcs-settings.svg
 Exec=rabbitvcs settings
@@ -208,6 +232,7 @@ Exec=rabbitvcs settings
 Name=About
 Name[de]=Über
 Name[fr]=À propos
+Name[ru]=О программе
 
 Icon=/usr/share/icons/hicolor/scalable/actions/rabbitvcs-about.svg
 Exec=rabbitvcs about

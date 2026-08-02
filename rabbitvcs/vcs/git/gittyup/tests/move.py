@@ -12,7 +12,6 @@ from optparse import OptionParser
 
 from gittyup.client import GittyupClient
 from gittyup.objects import *
-from util import touch, change
 
 parser = OptionParser()
 parser.add_option("-c", "--cleanup", action="store_true", default=False)

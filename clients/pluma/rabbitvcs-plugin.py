@@ -9,7 +9,7 @@ from rabbitvcs.util.contextmenu import (
     GtkContextMenuCaller,
 )
 from rabbitvcs.vcs import create_vcs_instance
-from gi.repository import Pluma, GObject, Peas
+from gi.repository import GObject, Peas
 from gi.repository import Gtk
 
 #
