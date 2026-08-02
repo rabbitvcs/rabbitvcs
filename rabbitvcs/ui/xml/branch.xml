@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<interface>
+<interface domain="RabbitVCS">
   <template class="BranchWidget" parent="GtkGrid">
     <property name="margin-start">6</property>
     <property name="margin-end">6</property>

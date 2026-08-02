@@ -48,7 +48,7 @@ from six.moves import filter
 from six.moves import range
 import six.moves.urllib.parse
 
-import rabbitvcs.util.settings
+from rabbitvcs.util.settings import *
 from rabbitvcs.util.decorators import structure_map
 from rabbitvcs.util.strings import *
 
@@ -60,10 +60,8 @@ from rabbitvcs import gettext
 
 ngettext = gettext.ngettext
 
-try:
-    from html import escape as html_escape
-except ImportError:
-    from cgi import escape as html_escape
+
+from html import escape as html_escape
 
 import gi
 from gi.repository import GObject
@@ -249,33 +247,6 @@ def in_rich_compare(item, list):
                 pass
 
     return in_list
-
-
-# FIXME: this function is duplicated in settings.py
-def get_home_folder():
-    """
-    Returns the location of the hidden folder we use in the home dir.
-    This is used for storing things like previous commit messages and
-    peviously used repositories.
-
-    @rtype:     string
-    @return:    The location of our main user storage folder.
-
-    """
-
-    # Make sure we adher to the freedesktop.org XDG Base Directory
-    # Specifications. $XDG_CONFIG_HOME if set, by default ~/.config
-    xdg_config_home = os.environ.get(
-        "XDG_CONFIG_HOME", os.path.join(os.path.expanduser("~"), ".config")
-    )
-    config_home = os.path.join(xdg_config_home, "rabbitvcs")
-
-    # Make sure the directories are there
-    if not os.path.isdir(config_home):
-        # FIXME: what if somebody places a file in there?
-        os.makedirs(config_home, 0o700)
-
-    return config_home
 
 
 def get_user_path():
@@ -482,7 +453,7 @@ def get_diff_tool():
     @return:    A dictionary with the diff tool path and swap boolean value.
     """
 
-    sm = rabbitvcs.util.settings.SettingsManager()
+    sm = SettingsManager()
     diff_tool = sm.get("external", "diff_tool")
     diff_tool_swap = sm.get("external", "diff_tool_swap")
 
@@ -497,7 +468,7 @@ def get_merge_tool():
     @return:    A string with the path and arguments to launch the merge tool.
     """
 
-    sm = rabbitvcs.util.settings.SettingsManager()
+    sm = SettingsManager()
     return sm.get("external", "merge_tool")
 
 
@@ -793,12 +764,12 @@ def launch_ui_window(filename, args=[], block=False):
 
 
 def get_log_messages_limit():
-    sm = rabbitvcs.util.settings.SettingsManager()
+    sm = SettingsManager()
     return int(sm.get("cache", "number_messages"))
 
 
 def get_repository_paths_limit():
-    sm = rabbitvcs.util.settings.SettingsManager()
+    sm = SettingsManager()
     return int(sm.get("cache", "number_repositories"))
 
 
@@ -914,7 +885,7 @@ def get_relative_path(from_path, to_path):
 
 
 def launch_repo_browser(uri):
-    sm = rabbitvcs.util.settings.SettingsManager()
+    sm = SettingsManager()
     repo_browser = sm.get("external", "repo_browser")
 
     if repo_browser is not None:
@@ -990,7 +961,7 @@ def quote_url(url_text):
     )
     # netloc_quoted = quote(netloc)
     path_quoted = quote(path)
-    params_quoted = quote(query)
+    params_quoted = quote(params)
     query_quoted = quote_plus(query)
     fragment_quoted = quote(fragment)
 
@@ -1007,7 +978,7 @@ def unquote_url(url_text):
     )
     # netloc_unquoted = unquote(netloc)
     path_unquoted = unquote(path)
-    params_unquoted = unquote(query)
+    params_unquoted = unquote(params)
     query_unquoted = unquote_plus(query)
     fragment_unquoted = unquote(fragment)
 
@@ -1217,7 +1188,6 @@ def parse_patch_output(patch_file, base_dir, strip=0):
             # else: we have an unknown error
 
     patch_proc.wait()  # Don't leave process running...
-    return
 
 
 def HSLtoRGB(h, s, l):

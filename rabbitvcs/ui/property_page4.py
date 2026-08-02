@@ -34,7 +34,7 @@ class FileInfo():
         self.path = path
         self.vcs = vcs or rabbitvcs.vcs.VCS()
         self.checker = StatusChecker()
-        
+
     def get_status(self, path):
         status = self.checker.check_status(
             path, recurse=False, invalidate=False, summary=False
