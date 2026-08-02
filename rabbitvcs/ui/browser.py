@@ -205,18 +205,19 @@ class SVNBrowser(GtkTemplateHelper, GtkContextMenuCaller):
         from rabbitvcs.ui.dialog import NewFolder
 
         dialog = NewFolder()
-        result = dialog.run()
-        if result is None:
-            return
 
-        (folder_name, log_message) = result
-        new_url = where.rstrip("/") + "/" + folder_name
+        def on_response(response_id):
+            if response_id == Gtk.ResponseType.OK or response_id == True:
+                (folder_name, log_message) = dialog.get_values()
+                new_url = where.rstrip("/") + "/" + folder_name
 
-        self.action = rabbitvcs.ui.action.SVNAction(self.svn, notification=False)
-        self.action.append(self.svn.mkdir, new_url, log_message)
-        self.action.append(self.svn.list, where, recurse=False)
-        self.action.append(self.populate_table, 1)
-        self.action.schedule()
+                self.action = rabbitvcs.ui.action.SVNAction(self.svn, notification=False)
+                self.action.append(self.svn.mkdir, new_url, log_message)
+                self.action.append(self.svn.list, where, recurse=False)
+                self.action.append(self.populate_table, 1)
+                self.action.schedule()
+
+        dialog.run(self.widget, on_response)
 
     def on_create_folder_here_clicked(self, widget):
         self.create_folder(self.urls.get_active_text())
@@ -514,22 +515,23 @@ class BrowserContextMenuCallbacks(object):
         from rabbitvcs.ui.dialog import OneLineTextChange
 
         dialog = OneLineTextChange(_("Rename"), _("New Name:"), filename)
-        (result, new_name) = dialog.run()
 
-        if result == Gtk.ResponseType.CANCEL:
-            return
+        def on_response(response_id):
+            if response_id == Gtk.ResponseType.OK or response_id == True:
+                new_name = dialog.get_values()
+                new_url = base.rstrip("/") + "/" + new_name
+                path_to_refresh = self.caller.get_url()
+                if self.paths[0] == path_to_refresh:
+                    path_to_refresh = new_url
+                    self.__update_browser_url(path_to_refresh)
 
-        new_url = base.rstrip("/") + "/" + new_name
-        path_to_refresh = self.caller.get_url()
-        if self.paths[0] == path_to_refresh:
-            path_to_refresh = new_url
-            self.__update_browser_url(path_to_refresh)
+                self.caller.action = rabbitvcs.ui.action.SVNAction(self.svn, notification=False)
+                self.caller.action.append(self.svn.move, self.paths[0], new_url)
+                self.caller.action.append(self.svn.list, path_to_refresh, recurse=False)
+                self.caller.action.append(self.caller.populate_table, 1)
+                self.caller.action.schedule()
 
-        self.caller.action = rabbitvcs.ui.action.SVNAction(self.svn, notification=False)
-        self.caller.action.append(self.svn.move, self.paths[0], new_url)
-        self.caller.action.append(self.svn.list, path_to_refresh, recurse=False)
-        self.caller.action.append(self.caller.populate_table, 1)
-        self.caller.action.schedule()
+        dialog.run(self.caller.widget, on_response)
 
     def delete(self, data=None, user_data=None):
         path_to_refresh = self.caller.get_url()
@@ -557,23 +559,21 @@ class BrowserContextMenuCallbacks(object):
             _("New Location:"),
             self.caller.get_url(),
         )
-        result = dialog.run()
-        if result is None:
-            return
 
-        (response, new_url) = result
-        if response == Gtk.ResponseType.CANCEL:
-            return
+        def on_response(response_id):
+            if response_id == Gtk.ResponseType.OK or response_id == True:
+                new_url = dialog.get_values()
+                sources = self.__generate_sources_list()
 
-        sources = self.__generate_sources_list()
+                self.caller.action = rabbitvcs.ui.action.SVNAction(self.svn, notification=False)
+                self.caller.action.append(
+                    self.svn.copy_all, sources, new_url, copy_as_child=True
+                )
+                self.caller.action.append(self.svn.list, self.caller.get_url(), recurse=False)
+                self.caller.action.append(self.caller.populate_table, 1)
+                self.caller.action.schedule()
 
-        self.caller.action = rabbitvcs.ui.action.SVNAction(self.svn, notification=False)
-        self.caller.action.append(
-            self.svn.copy_all, sources, new_url, copy_as_child=True
-        )
-        self.caller.action.append(self.svn.list, self.caller.get_url(), recurse=False)
-        self.caller.action.append(self.caller.populate_table, 1)
-        self.caller.action.schedule()
+        dialog.run(self.caller.widget, on_response)
 
     def browser_copy_url_to_clipboard(self, data=None, user_data=None):
         self.caller.set_url_clipboard(self.paths[0])
@@ -586,21 +586,20 @@ class BrowserContextMenuCallbacks(object):
             _("New Location:"),
             self.caller.get_url(),
         )
-        result = dialog.run()
-        if result is None:
-            return
 
-        (response, new_url) = result
-        if response == Gtk.ResponseType.CANCEL:
-            return
+        def on_response(response_id):
+            if response_id == Gtk.ResponseType.OK or response_id == True:
+                new_url = dialog.get_values()
 
-        self.caller.action = rabbitvcs.ui.action.SVNAction(self.svn, notification=False)
-        self.caller.action.append(
-            self.svn.move_all, self.paths, new_url, move_as_child=True
-        )
-        self.caller.action.append(self.svn.list, self.caller.get_url(), recurse=False)
-        self.caller.action.append(self.caller.populate_table, 1)
-        self.caller.action.schedule()
+                self.caller.action = rabbitvcs.ui.action.SVNAction(self.svn, notification=False)
+                self.caller.action.append(
+                    self.svn.move_all, self.paths, new_url, move_as_child=True
+                )
+                self.caller.action.append(self.svn.list, self.caller.get_url(), recurse=False)
+                self.caller.action.append(self.caller.populate_table, 1)
+                self.caller.action.schedule()
+
+        dialog.run(self.caller.widget, on_response)
 
 
 class BrowserContextMenu(object):

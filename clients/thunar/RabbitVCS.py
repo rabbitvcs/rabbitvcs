@@ -35,11 +35,15 @@ from rabbitvcs.util.log import Log, reload_log_settings
 from rabbitvcs.util.contextmenu import MenuBuilder, MainContextMenu
 from rabbitvcs.util.decorators import timeit
 from rabbitvcs.util.strings import S
+from rabbitvcs.util.helper import pretty_timedelta
+from rabbitvcs.util.helper import get_file_extension, get_common_directory
+from rabbitvcs.util.helper import launch_ui_window, launch_diff_tool
 import rabbitvcs.ui.property_page
 import rabbitvcs.ui
 from rabbitvcs.vcs.svn import SVN
 from gi.repository import GObject, Thunarx
 import copy
+import os.path
 from os.path import realpath
 import threading
 
@@ -140,7 +144,7 @@ class RabbitVCS(GObject.GObject, Thunarx.MenuProvider, Thunarx.PropertyPageProvi
     )
 
     def __init__(self):
-        threading.current_thread().name = "RabbitVCS extension thread"
+        threading.currentThread().setName("RabbitVCS extension thread")
 
         self.status_checker = StatusChecker()
 

@@ -1593,7 +1593,7 @@ class SVN(object):
 
         """
 
-        return self.client.annotate2(
+        return self.client.annotate(
             pure_unicode(url_or_path),
             from_revision.primitive(),
             to_revision.primitive(),

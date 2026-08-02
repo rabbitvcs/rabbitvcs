@@ -5,8 +5,7 @@ from __future__ import print_function
 # client.py
 #
 
-import os
-import errno
+import os, errno
 import os.path
 import re
 import shutil
@@ -317,18 +316,6 @@ class GittyupClient(object):
     def _load_config(self):
         self.config = self.repo.get_config()
 
-    def _stage_paths(self, paths):
-        if hasattr(self.repo, "stage"):
-            self.repo.stage(paths)
-        else:
-            self.repo.get_worktree().stage(paths)
-
-    def _commit_changes(self, **kwargs):
-        if hasattr(self.repo, "do_commit"):
-            return self.repo.do_commit(**kwargs)
-
-        return self.repo.get_worktree().commit(**kwargs)
-
     def _config_normalize_section(self, section):
         # If some old code is using string sections, convert to a tuple
         if isinstance(section, six.string_types):
@@ -454,8 +441,7 @@ class GittyupClient(object):
                 }
             )
             to_stage.append(S(relative_path))
-
-        self._stage_paths(to_stage)
+        self.repo.stage(to_stage)
 
     def stage_all(self):
         """
@@ -659,14 +645,6 @@ class GittyupClient(object):
                 self.track("refs/heads/master")
 
             del self.repo.refs[ref_name]
-
-        cmd = ["git", "branch"]
-        cmd += ["-d", name]
-
-        try:
-            (status, stdout, stderr) = GittyupCommand(cmd, cwd=self.repo.path, notify=self.notify, cancel=self.get_cancel()).execute()
-        except GittyupCommandError as e:
-            self.callback_notify(e)
 
     def branch_rename(self, old_name, new_name):
         """
@@ -961,7 +939,7 @@ class GittyupClient(object):
         if commit_timezone is None:
             commit_timezone = helper.utc_offset()
 
-        commit_id = self._commit_changes(
+        commit_id = self.repo.do_commit(
             **helper.to_bytes(
                 {
                     "message": message,
@@ -1003,8 +981,6 @@ class GittyupClient(object):
 
         """
 
-        to_stage = []
-
         if isinstance(paths, (str, six.text_type)):
             paths = [paths]
 
@@ -1012,17 +988,11 @@ class GittyupClient(object):
 
         for path in paths:
             relative_path = self.get_relative_path(path)
-            absolute_path = self.get_absolute_path(path)
+            if relative_path in index:
+                del index[relative_path]
+                os.remove(path)
 
-            self.notify({
-                "action": "Deleted",
-                "path": absolute_path,
-                "mime_type": guess_type(absolute_path)[0]
-            })
-            os.remove(absolute_path)
-            to_stage.append(S(relative_path))
-
-        self._stage_paths(to_stage)
+        index.write()
 
     def move(self, source, dest):
         """
@@ -1624,199 +1594,6 @@ class GittyupClient(object):
 
         return tags
 
-    # RABBITVCS_GROUPED_SPARSE_MENU_SNAPSHOT_V8G
-    def menu_statuses_batch(self, base_dir, paths):
-        # Return per-path status lists without recursively enumerating every
-        # normal file below base_dir.
-        requested = []
-        for absolute_path in paths:
-            relative_path = S(self.get_relative_path(absolute_path))
-            if relative_path == ".":
-                relative_path = ""
-            requested.append(
-                {
-                    "absolute": absolute_path,
-                    "relative": relative_path,
-                    "is_dir": os.path.isdir(absolute_path),
-                }
-            )
-
-        changed = {}
-        changed_order = []
-
-        cmd = [
-            "git",
-            "status",
-            "--porcelain",
-            "--untracked-files=all",
-            base_dir,
-        ]
-        try:
-            (_status, stdout, _stderr) = GittyupCommand(
-                cmd, cwd=self.repo.path, notify=self.notify
-            ).execute()
-        except GittyupCommandError as error:
-            self.callback_notify(error)
-            stdout = []
-
-        for line in stdout:
-            components = RE_STATUS.match(line)
-            if not components:
-                continue
-
-            raw_status = components.group(1)
-            strip_status = raw_status.strip()
-            relative_path = self.string_unescape(components.group(2))
-            if (
-                len(relative_path) >= 2
-                and relative_path[0] == '"'
-                and relative_path[-1] == '"'
-            ):
-                relative_path = relative_path[1:-1]
-
-            if raw_status == " D":
-                status_class = MissingStatus
-            elif any(code in strip_status for code in ["M", "R", "U"]):
-                status_class = ModifiedStatus
-            elif strip_status in ["A", "C"]:
-                status_class = AddedStatus
-            elif strip_status == "D":
-                status_class = RemovedStatus
-            elif strip_status == "??":
-                status_class = UntrackedStatus
-            else:
-                continue
-
-            changed[relative_path] = status_class
-            changed_order.append(relative_path)
-
-        untracked_directories = []
-        cmd = ["git", "clean", "-nd", self.repo.path]
-        try:
-            (_status, stdout, _stderr) = GittyupCommand(
-                cmd, cwd=self.repo.path, notify=self.notify
-            ).execute()
-        except GittyupCommandError as error:
-            self.callback_notify(error)
-            stdout = []
-
-        for line in stdout:
-            components = re.match(r"^(Would remove)\s(.*?)$", line)
-            if components:
-                relative_path = components.group(2)
-                if relative_path.endswith("/"):
-                    untracked_directories.append(relative_path[:-1])
-
-        ignored_files = []
-        ignored_directories = []
-        cmd = ["git", "clean", "-ndX", self.repo.path]
-        try:
-            (_status, stdout, _stderr) = GittyupCommand(
-                cmd, cwd=self.repo.path, notify=self.notify
-            ).execute()
-        except GittyupCommandError as error:
-            self.callback_notify(error)
-            stdout = []
-
-        for line in stdout:
-            components = re.match(r"^(Would remove)\s(.*?)$", line)
-            if not components:
-                continue
-            relative_path = components.group(2)
-            if relative_path.endswith("/"):
-                ignored_directories.append(relative_path[:-1])
-            else:
-                ignored_files.append(relative_path)
-
-        def under(path, directory):
-            if directory in ("", "."):
-                return True
-            prefix = directory.rstrip("/") + "/"
-            return path == directory or path.startswith(prefix)
-
-        def ignored_exact(relative_path):
-            if relative_path in ignored_files:
-                return True
-            return any(
-                under(relative_path, ignored_dir)
-                for ignored_dir in ignored_directories
-            )
-
-        result = {}
-
-        for item in requested:
-            relative_path = item["relative"]
-            is_dir = item["is_dir"]
-
-            exact_class = changed.get(relative_path)
-
-            if ignored_exact(relative_path):
-                exact_class = IgnoredStatus
-            elif is_dir:
-                descendants = [
-                    changed_path
-                    for changed_path in changed_order
-                    if under(changed_path, relative_path)
-                ]
-                if descendants:
-                    exact_class = ModifiedStatus
-                elif any(
-                    under(relative_path, untracked_dir)
-                    for untracked_dir in untracked_directories
-                ):
-                    # An untracked child directory does not make its tracked
-                    # parent unversioned. Only the untracked directory itself
-                    # and paths below it receive UntrackedStatus.
-                    exact_class = UntrackedStatus
-
-            if exact_class is None:
-                exact_class = NormalStatus
-
-            statuses = [exact_class(relative_path)]
-            seen = {relative_path}
-
-            if is_dir:
-                for changed_path in changed_order:
-                    if not under(changed_path, relative_path):
-                        continue
-                    if changed_path in seen:
-                        continue
-                    statuses.append(changed[changed_path](changed_path))
-                    seen.add(changed_path)
-
-            # Preserve the existing repository-wide ignored-file semantics.
-            for ignored_path in ignored_files:
-                if ignored_path in seen:
-                    continue
-                statuses.append(IgnoredStatus(ignored_path))
-                seen.add(ignored_path)
-
-            if is_dir:
-                # Preserve has_unversioned for empty/untracked child
-                # directories. They must be child statuses, not the exact
-                # status of a tracked parent directory.
-                for untracked_dir in untracked_directories:
-                    if not under(untracked_dir, relative_path):
-                        continue
-                    if untracked_dir in seen:
-                        continue
-                    statuses.append(UntrackedStatus(untracked_dir))
-                    seen.add(untracked_dir)
-
-                # Ignored directories below a selected directory make
-                # has_ignored true in the old recursive calculation.
-                for ignored_dir in ignored_directories:
-                    if not under(ignored_dir, relative_path):
-                        continue
-                    if ignored_dir in seen:
-                        continue
-                    statuses.append(IgnoredStatus(ignored_dir))
-                    seen.add(ignored_dir)
-
-            result[item["absolute"]] = statuses
-
-        return result
-
     def status_porcelain(self, path):
         if os.path.isdir(path):
             (files, directories) = self._read_directory_tree(path)
@@ -2073,16 +1850,14 @@ class GittyupClient(object):
             "-m",
         ]
 
-        if showtype == "all" and os.environ.get('RABBITVCS_REVISION_RANGE') is None:
+        if showtype == "all":
             cmd.append("--all")
 
         if limit:
             cmd.append("-%s" % limit)
         if skip:
             cmd.append("--skip=%s" % skip)
-        if os.environ.get('RABBITVCS_REVISION_RANGE') is not None:
-            cmd.append(os.environ.get('RABBITVCS_REVISION_RANGE'))
-        elif revision:
+        if revision:
             if showtype == "push":
                 cmd.append("%s.." % revision)
             else:
@@ -2388,6 +2163,7 @@ class GittyupClient(object):
             ).execute()
         except GittyupCommandError as e:
             self.callback_notify(e)
+            return
 
     def reset(self, path, revision, type=None):
         relative_path = self.get_relative_path(path)
@@ -2397,7 +2173,7 @@ class GittyupClient(object):
             cmd.append("--%s" % type)
 
         cmd.append(revision)
-        if relative_path and not "soft" == type and not "hard" == type:
+        if relative_path:
             cmd.append(relative_path)
 
         try:
@@ -2406,6 +2182,7 @@ class GittyupClient(object):
             ).execute()
         except GittyupCommandError as e:
             self.callback_notify(e)
+            return
 
     def set_callback_notify(self, func):
         self.callback_notify = func
@@ -2475,7 +2252,7 @@ class GittyupClient(object):
 
         # Extract the percentage, which will be all numerals directly
         # prior to '%'.
-        message_components = re.search("^(.+): +([0-9]+)%", message)
+        message_components = re.search(r"^(.+): +([0-9]+)%", message)
 
         if message_components == None:
             print("Error: failed to parse git string: " + data)

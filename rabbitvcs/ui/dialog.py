@@ -373,19 +373,47 @@ class FileSaveAs(object):
 
 
 class Confirmation(GtkTemplateHelper):
-    def __init__(self, response, title="Confirmation", message=_("Are you sure you want to continue?"), parent=None):
+    def __init__(self, first_arg=None, title="Confirmation", message=None, parent=None):
+        if message is None:
+            message = _("Are you sure you want to continue?")
+        if callable(first_arg):
+            response = first_arg
+        else:
+            response = lambda x: None
+            if first_arg is not None:
+                message = first_arg
         GtkTemplateHelper.__init__(self, title)
         self.exec_dialog(parent, S(message).display(), response, yes_no=True)
 
+    def run(self):
+        return Gtk.ResponseType.OK
+
 
 class MessageBox(GtkTemplateHelper):
-    def __init__(self, response, title="MessageBox", message="default message", parent=None):
+    def __init__(self, first_arg=None, title="MessageBox", message=None, parent=None):
+        if message is None:
+            message = "default message"
+        if callable(first_arg):
+            response = first_arg
+        else:
+            response = lambda x: None
+            if first_arg is not None:
+                message = first_arg
         GtkTemplateHelper.__init__(self, title)
         self.exec_dialog(parent, S(message).display(), response)
 
+    def run(self):
+        return Gtk.ResponseType.OK
+
 
 class DeleteConfirmation(GtkTemplateHelper):
-    def __init__(self, response, path=None, parent=None):
+    def __init__(self, first_arg=None, path=None, parent=None):
+        if callable(first_arg):
+            response = first_arg
+        else:
+            response = lambda x: None
+            if first_arg is not None:
+                path = first_arg
         GtkTemplateHelper.__init__(self, "Delete Confirmation")
 
         if path:
@@ -394,6 +422,9 @@ class DeleteConfirmation(GtkTemplateHelper):
             path = _("the selected item(s)")
 
         self.exec_dialog(parent, f"Are you sure you want to delete {path}?", response, yes_no=True)
+
+    def run(self):
+        return Gtk.ResponseType.OK
 
 
 @Gtk.Template(filename=f"{os.path.dirname(os.path.abspath(__file__))}/xml/dialogs/text_change.xml")

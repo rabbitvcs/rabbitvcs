@@ -156,13 +156,13 @@ def debug_calls(caller_log, show_caller=False):
         def newfunc(*args, **kwargs):
             caller_log.debug(
                 "Calling: %s (%s)"
-                % (func.__name__, threading.current_thread().name)
+                % (func.__name__, threading.currentThread().getName())
             )
 
             result = func(*args, **kwargs)
             caller_log.debug(
                 "Returned: %s (%s)"
-                % (func.__name__, threading.current_thread().name)
+                % (func.__name__, threading.currentThread().getName())
             )
             return result
 

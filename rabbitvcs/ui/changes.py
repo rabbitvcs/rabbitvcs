@@ -157,9 +157,14 @@ class Changes(GtkTemplateHelper):
             self.on_changes_table_event(self.widget.changes_table, gesture, pressed)
 
     def on_changes_table_event(self, treeview, gesture, pressed):
-        self.selected_rows = self.changes_table.get_selected_rows()
+        selection = treeview.get_selection()
+        (liststore, indexes) = selection.get_selected_rows()
 
-        if gesture is not None:
+        self.selected_rows = []
+        for tup in indexes:
+            self.selected_rows.append(tup[0])
+
+        if not gesture is None:
             if gesture.get_current_button() == 3 and not pressed:
                 # self.show_changes_table_popup_menu(treeview, event)
                 pass # TODO
@@ -175,7 +180,12 @@ class Changes(GtkTemplateHelper):
             callback()
 
     def on_changes_table_row_doubleclicked(self, treeview, data=None, col=None):
-        self.selected_rows = self.changes_table.get_selected_rows()
+        selection = treeview.get_selection()
+        (liststore, indexes) = selection.get_selected_rows()
+
+        self.selected_rows = []
+        for tup in indexes:
+            self.selected_rows.append(tup[0])
 
         self.view_selected_diff(sidebyside=True)
 

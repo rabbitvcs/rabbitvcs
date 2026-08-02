@@ -30,6 +30,7 @@ Our module for everything related to the Caja extension.
 from __future__ import with_statement
 from __future__ import absolute_import
 from rabbitvcs.util.contextmenuitems import *
+import copy
 from rabbitvcs.services.checkerservice import StatusCheckerStub as StatusChecker
 import rabbitvcs.services.service
 from rabbitvcs.util.settings import SettingsManager
@@ -45,13 +46,17 @@ from rabbitvcs.util.contextmenu import (
     SEPARATOR,
     ContextMenuConditions,
 )
+from rabbitvcs.util.decorators import timeit, disable
 from rabbitvcs.util.helper import pretty_timedelta
+from rabbitvcs.util.helper import get_file_extension, get_common_directory
+from rabbitvcs.util.helper import launch_ui_window, launch_diff_tool
 import rabbitvcs.vcs.status
 from rabbitvcs.vcs import VCS
+import pysvn
 from gi.repository import Caja, GObject, Gtk, GdkPixbuf
 from rabbitvcs.util import helper
 import datetime
-from os.path import dirname
+from os.path import isdir, isfile, realpath, basename, dirname
 import os.path
 import os
 from six.moves import range

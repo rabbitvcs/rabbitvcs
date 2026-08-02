@@ -199,7 +199,7 @@ class VCS(object):
 
         guess = self.guess(path)
         if guess["vcs"] == VCS_GIT:
-            return self.git(guess["repo_path"], is_repo_path=True)
+            return self.git(guess["repo_path"], is_repo_path=False)
         elif guess["vcs"] == VCS_SVN:
             return self.svn()
         elif guess["vcs"] == VCS_MERCURIAL:

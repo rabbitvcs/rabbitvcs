@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<interface domain="RabbitVCS">
+<interface>
   <requires lib="gtk" version="4.0"/>
   <template class="ResetWidget" parent="GtkBox">
     <property name="margin-start">12</property>

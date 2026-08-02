@@ -50,6 +50,7 @@ import os.path
 import sys
 import json
 
+from gi.repository import GObject
 from gi.repository import GLib
 
 import dbus
@@ -190,18 +191,6 @@ class StatusCheckerService(dbus.service.Object):
 
         path_dict = self.status_checker.generate_menu_conditions(upaths)
         return json.dumps(path_dict)
-    # RABBITVCS_BATCHED_MENU_WARMUP_V8
-    @dbus.service.method(
-        INTERFACE, in_signature="ayaay", out_signature="s"
-    )
-    def GenerateMenuConditionsBatch(self, base_dir, paths):
-        ubase_dir = S(bytearray(base_dir))
-        upaths = [S(bytearray(path)) for path in paths]
-        path_dicts = self.status_checker.generate_menu_conditions_batch(
-            ubase_dir, upaths
-        )
-        return json.dumps(path_dicts)
-
 
     @dbus.service.method(INTERFACE)
     def CheckVersionOrDie(self, version):
@@ -439,48 +428,6 @@ class StatusCheckerStub(object):
             self.generate_menu_conditions, provider, base_dir, paths, callback
         )
         return {}
-    def generate_menu_conditions_batch(
-        self, provider, base_dir, paths, callback
-    ):
-        def real_reply_handler(obj):
-            path_dicts = json.loads(obj)
-            callback(provider, base_dir, paths, path_dicts)
-
-        def reply_handler(*args, **kwargs):
-            GLib.idle_add(real_reply_handler, *args, **kwargs)
-
-        def error_handler(dbus_ex):
-            log.exception(dbus_ex)
-            self._connect_to_checker()
-            callback(provider, base_dir, paths, [{} for path in paths])
-
-        bbase_dir = bytearray(S(base_dir).bytes())
-        bpaths = [bytearray(S(path).bytes()) for path in paths]
-        try:
-            self.status_checker.GenerateMenuConditionsBatch(
-                bbase_dir,
-                bpaths,
-                dbus_interface=INTERFACE,
-                timeout=TIMEOUT,
-                reply_handler=reply_handler,
-                error_handler=error_handler,
-            )
-        except dbus.DBusException as ex:
-            log.exception(ex)
-            callback(provider, base_dir, paths, [{} for path in paths])
-            self._connect_to_checker()
-
-    def generate_menu_conditions_batch_async(
-        self, provider, base_dir, paths, callback
-    ):
-        GLib.idle_add(
-            self.generate_menu_conditions_batch,
-            provider,
-            base_dir,
-            paths,
-            callback,
-        )
-        return []
 
 
 def start():

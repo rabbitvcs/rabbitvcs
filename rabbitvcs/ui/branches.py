@@ -236,17 +236,18 @@ class GitBranchManager(GtkTemplateHelper):
                 saxutils.unescape(branch).replace("<b>", "").replace("</b>", "")
             )
 
-        confirm = rabbitvcs.ui.dialog.Confirmation(
-            _("Are you sure you want to delete %s?" % ", ".join(selected))
+        def on_confirm(response_id):
+            if response_id == Gtk.ResponseType.OK or response_id == True:
+                for branch in selected:
+                    self.git.branch_delete(branch)
+                self.load()
+                self.show_add()
+
+        rabbitvcs.ui.dialog.Confirmation(
+            on_confirm,
+            message=_("Are you sure you want to delete %s?" % ", ".join(selected)),
+            parent=self.widget
         )
-        result = confirm.run()
-
-        if result == Gtk.ResponseType.OK or result == True:
-            for branch in selected:
-                self.git.branch_delete(branch)
-
-            self.load()
-            self.show_add()
 
     def on_save_clicked(self, widget):
         if self.state == STATE_ADD:

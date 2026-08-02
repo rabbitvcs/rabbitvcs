@@ -11,6 +11,7 @@ from sys import argv
 from optparse import OptionParser
 
 from gittyup.client import GittyupClient
+from util import touch
 
 parser = OptionParser()
 parser.add_option("-c", "--cleanup", action="store_true", default=False)

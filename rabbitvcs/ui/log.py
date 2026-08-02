@@ -38,7 +38,6 @@ import six
 import threading
 from locale import strxfrm
 
-import os
 import os.path
 
 from rabbitvcs.util import helper
@@ -579,25 +578,14 @@ class SVNLog(Log):
         start = self.svn.revision("head")
         if self.rev_start:
             start = self.svn.revision("number", number=self.rev_start)
-        if os.environ.get('RABBITVCS_REVISION_START') is not None:
-            start = self.svn.revision("number", number=os.environ.get('RABBITVCS_REVISION_START'))
 
-        if os.environ.get('RABBITVCS_REVISION_END') is None:
-            self.action.append(
-                self.svn.log,
-                self.path,
-                revision_start=start,
-                limit=self.limit,
-                discover_changed_paths=True,
-            )
-        else:
-            self.action.append(
-                self.svn.log,
-                self.path,
-                revision_start=start,
-                revision_end=self.svn.revision("number", number=os.environ.get('RABBITVCS_REVISION_END')),
-                discover_changed_paths=True,
-            )
+        self.action.append(
+            self.svn.log,
+            self.path,
+            revision_start=start,
+            limit=self.limit,
+            discover_changed_paths=True,
+        )
         self.action.append(self.refresh)
         self.action.schedule()
 
@@ -646,7 +634,7 @@ class SVNLog(Log):
                     )
 
                     if subitem.copy_from_path or subitem.copy_from_revision:
-                        text += " " + _("(Copied from %s r%s)") % (
+                        text += " (Copied from %s %s)" % (
                             S(subitem.copy_from_path).display(),
                             S(subitem.copy_from_revision).display(),
                         )
@@ -793,7 +781,7 @@ class GitLog(Log):
 
         # Load tags.
         self.tagItems = []
-        for tag in self.tagAction.get_result(0) or []:
+        for tag in self.tagAction.get_result(0):
             name = tag.name
 
             # Determine the type of tag, so we know which id to use.

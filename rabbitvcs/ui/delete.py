@@ -67,27 +67,26 @@ class Delete():
 
         # If there are unversioned files, confirm that the user wants to
         # delete those.  Default to true.
-        result = True
+        def do_delete(result_id):
+            if result_id == Gtk.ResponseType.OK or result_id == True:
+                if versioned:
+                    try:
+                        self.vcs_remove(versioned, force=True)
+                    except Exception as e:
+                        log.exception()
+                        return
+
+                if unversioned:
+                    for path in unversioned:
+                        helper.delete_item(path)
+
         if unversioned:
             item = None
             if len(unversioned) == 1:
                 item = unversioned[0]
-            confirm = rabbitvcs.ui.dialog.DeleteConfirmation(item)
-            result = confirm.run()
-
-        # If the user wants to continue (or there are no unversioned files)
-        # remove or delete the given files
-        if result == Gtk.ResponseType.OK or result == True:
-            if versioned:
-                try:
-                    self.vcs_remove(versioned, force=True)
-                except Exception as e:
-                    log.exception()
-                    return
-
-            if unversioned:
-                for path in unversioned:
-                    helper.delete_item(path)
+            rabbitvcs.ui.dialog.DeleteConfirmation(do_delete, path=item)
+        else:
+            do_delete(True)
 
 
 class SVNDelete(Delete):

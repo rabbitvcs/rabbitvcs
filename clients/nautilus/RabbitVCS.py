@@ -30,25 +30,31 @@ from __future__ import absolute_import
 from rabbitvcs.util.contextmenu4 import (
     MenuBuilder,
     MainContextMenu,
+    SEPARATOR,
     ContextMenuConditions,
 )
+import copy
 from rabbitvcs.services.checkerservice import StatusCheckerStub as StatusChecker
 import rabbitvcs.services.service
 from rabbitvcs.util.settings import SettingsManager
 from rabbitvcs import version as EXT_VERSION
-from rabbitvcs import gettext
+from rabbitvcs import gettext, get_icon_path
 from rabbitvcs.util.log import Log, reload_log_settings
 from rabbitvcs.ui.property_page4 import FileInfo
 import rabbitvcs.ui
 from rabbitvcs.util.strings import S
 
+from rabbitvcs.util.decorators import timeit, disable
 from rabbitvcs.util.helper import pretty_timedelta
+from rabbitvcs.util.helper import get_file_extension, get_common_directory
+from rabbitvcs.util.helper import launch_ui_window, launch_diff_tool
 import rabbitvcs.vcs.status
 from rabbitvcs.vcs import VCS
-from gi.repository import Nautilus, GObject
+import pysvn
+from gi.repository import Nautilus, GObject, Gtk, GdkPixbuf
 from rabbitvcs.util import helper
 import datetime
-from os.path import dirname
+from os.path import isdir, isfile, realpath, basename, dirname
 import os.path
 import os
 from six.moves import range
@@ -407,21 +413,13 @@ class RabbitVCS(
             return ()
 
         # Schedule menu conditions computation for directory contents.
-        # RABBITVCS_BATCHED_MENU_WARMUP_V8
-        uncached_paths = []
         for file in os.listdir(path):
             subpath = os.path.join(path, file)
-            if subpath not in self.items_cache:
+            if not subpath in self.items_cache:
                 self.items_cache[subpath] = "in-progress"
-                uncached_paths.append(subpath)
-
-        if uncached_paths:
-            self.status_checker.generate_menu_conditions_batch_async(
-                provider,
-                path,
-                uncached_paths,
-                self.update_background_items_batch,
-            )
+                self.status_checker.generate_menu_conditions_async(
+                    provider, path, [subpath], self.update_background_items
+                )
 
         conditions_dict = None
         if path in self.items_cache:
@@ -440,18 +438,6 @@ class RabbitVCS(
             self.items_cache[path] = "in-progress"
 
         return ()
-
-    def update_background_items_batch(
-        self, provider, base_dir, paths, path_dicts
-    ):
-        for index, path in enumerate(paths):
-            if index < len(path_dicts):
-                self.items_cache[path] = path_dicts[index]
-            else:
-                self.items_cache[path] = {}
-
-        # One signal replaces one signal for every directory entry.
-        Nautilus.MenuProvider.emit_items_updated_signal(provider)
 
     def update_background_items(self, provider, base_dir, paths, conditions_dict):
         paths_str = "-".join(paths)
@@ -645,19 +631,8 @@ class NautilusContextMenu(MenuBuilder):
 
     signal = "activate"
 
-    # Nautilus menu item names outlive one menu construction. MenuBuilder's
-    # local item index starts at zero for every menu, so include a monotonically
-    # increasing menu generation to avoid reusing an older callback.
-    _menu_generation = 0
-
-    def __init__(self, structure, conditions, callbacks):
-        type(self)._menu_generation += 1
-        self._menu_generation_id = type(self)._menu_generation
-        MenuBuilder.__init__(self, structure, conditions, callbacks)
-
     def make_menu_item(self, item, id_magic):
-        unique_id_magic = "%s-%s" % (self._menu_generation_id, id_magic)
-        return item.make_nautilus_menu_item(unique_id_magic)
+        return item.make_nautilus_menu_item(id_magic)
 
     def attach_submenu(self, menu_node, submenu_list):
         submenu = Nautilus.Menu()

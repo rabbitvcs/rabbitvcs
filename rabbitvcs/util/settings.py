@@ -28,8 +28,6 @@ Everything related retrieving and storing configuration keys.
 from __future__ import absolute_import
 from __future__ import print_function
 
-__all__ = ['get_home_folder', 'SettingsManager']
-
 import os
 from os.path import dirname
 
@@ -49,6 +47,9 @@ def get_home_folder():
     Returns the location of the hidden folder we use in the home dir.
     This is used for storing things like previous commit messages and
     previously used repositories.
+
+    FIXME: This is a copy of the helper module's function, because I can't
+    have a circular module reference (helper imports Settings right now).
 
     @rtype:     string
     @return:    The location of our main user storage folder.

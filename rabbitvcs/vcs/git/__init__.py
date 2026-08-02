@@ -26,7 +26,6 @@ Concrete VCS implementation for Git functionality.
 from __future__ import absolute_import
 
 import os.path
-import time
 from datetime import datetime
 
 from .gittyup.client import GittyupClient
@@ -133,28 +132,9 @@ class Git(object):
             self.client = GittyupClient()
 
         self.cache = rabbitvcs.vcs.status.StatusCache()
-        # Nautilus sends many invalidating requests during one refresh. Treat
-        # requests for the same displayed directory as one short burst.
-        self._status_refresh_last_request = {}
-        self._status_refresh_gap = 0.5
 
     def set_repository(self, path):
-        try:
-            current_path = self.client.get_repository()
-        except (AttributeError, TypeError):
-            current_path = None
-
-        if current_path is not None:
-            current_path = os.path.normcase(
-                os.path.realpath(os.fsdecode(current_path))
-            )
-        new_path = os.path.normcase(os.path.realpath(os.fsdecode(path)))
-
-        if current_path != new_path:
-            self.client.set_repository(path)
-            self.cache = rabbitvcs.vcs.status.StatusCache()
-            self._status_refresh_last_request = {}
-
+        self.client.set_repository(path)
         self.config = self.client.config
 
     def config_get(self, key1, key2):
@@ -166,79 +146,9 @@ class Git(object):
     def find_repository_path(self, path):
         return self.client.find_repository_path(path)
 
-    def _status_refresh_directory(self, path):
-        path_text = os.fsdecode(path)
-        repository = os.path.normcase(
-            os.path.realpath(os.fsdecode(self.client.get_repository()))
-        )
-        normalized_path = os.path.normcase(os.path.realpath(path_text))
-
-        if normalized_path == repository:
-            return path_text
-
-        stripped_path = path_text.rstrip(os.sep)
-        if not stripped_path:
-            return os.sep
-        return os.path.dirname(stripped_path)
-
-    def _status_from_refresh_batch(self, path, summarize):
-        directory = self._status_refresh_directory(path)
-        directory_key = os.path.normcase(os.path.realpath(directory))
-        now = time.monotonic()
-        previous_request = self._status_refresh_last_request.get(directory_key)
-
-        # Nautilus requests status once per visible item, often with duplicate
-        # and out-of-order paths. Treat closely grouped requests for the same
-        # displayed directory as one refresh snapshot.
-        if (
-            previous_request is None
-            or now - previous_request > self._status_refresh_gap
-        ):
-            self.statuses(directory, recurse=False, invalidate=True)
-            now = time.monotonic()
-
-            cutoff = now - 60.0
-            for old_directory, timestamp in list(
-                self._status_refresh_last_request.items()
-            ):
-                if timestamp < cutoff:
-                    del self._status_refresh_last_request[old_directory]
-
-        self._status_refresh_last_request[directory_key] = now
-
-        if path in self.cache:
-            status = self.cache[path]
-            if summarize:
-                status.summary = status.single
-            return status
-
-        # Preserve the original exact-path handling for deleted paths,
-        # unusual symlinks and nested repositories absent from the snapshot.
-        return self._status_exact(path, summarize)
-
     #
     # Status Methods
     #
-
-    # RABBITVCS_GROUPED_SPARSE_MENU_SNAPSHOT_V8G
-    def menu_statuses_batch(self, base_dir, paths):
-        raw_batches = self.client.menu_statuses_batch(base_dir, paths)
-        result = {}
-
-        for requested_path, raw_statuses in raw_batches.items():
-            converted = []
-            for raw_status in raw_statuses:
-                raw_copy = type(raw_status)(raw_status.path)
-                raw_copy.path = self.client.get_absolute_path(raw_copy.path)
-                status = rabbitvcs.vcs.status.GitStatus(raw_copy)
-                converted.append(status)
-
-                if raw_copy.path == requested_path:
-                    self.cache[requested_path] = status
-
-            result[requested_path] = converted
-
-        return result
 
     def statuses(self, path, recurse=False, invalidate=False):
         """
@@ -280,32 +190,33 @@ class Git(object):
 
             return statuses
 
-    def _status_exact(self, path, summarize):
-        """Return one exact-path status without starting another batch."""
-        if path in self.cache:
-            status = self.cache[path]
-            if summarize:
-                status.summary = status.single
-            return status
-
-        all_statuses = self.statuses(path, invalidate=False)
-        if not summarize:
-            return all_statuses[0]
-
-        for status in all_statuses:
-            if status.path == path:
-                status.summary = status.single
-                return status
-
-        return rabbitvcs.vcs.status.Status.status_unknown(path)
-
     def status(self, path, summarize=True, invalidate=False):
-        # Initial Nautilus population uses invalidate=False. A cache miss is
-        # therefore also the beginning of a per-directory request burst.
-        if invalidate or path not in self.cache:
-            return self._status_from_refresh_batch(path, summarize)
+        if path in self.cache:
+            if invalidate:
+                del self.cache[path]
+            else:
+                st = self.cache[path]
+                if summarize:
+                    st.summary = st.single
+                return st
 
-        return self._status_exact(path, summarize)
+        all_statuses = self.statuses(path, invalidate=invalidate)
+
+        if summarize:
+            path_status = None
+            for st in all_statuses:
+                if st.path == path:
+                    path_status = st
+                    break
+
+            if path_status:
+                path_status.summary = path_status.single
+            else:
+                path_status = rabbitvcs.vcs.status.Status.status_unknown(path)
+        else:
+            path_status = all_statuses[0]
+
+        return path_status
 
     def is_working_copy(self, path):
         if os.path.isdir(path) and os.path.isdir(os.path.join(path, ".git")):

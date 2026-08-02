@@ -441,21 +441,27 @@ class SVNAnnotate(Annotate):
 
     def blame_info(self, item):
         revision = item["revision"].number
-        linenumber = str(int(item["number"]) + 1)
-
         if revision <= 0:
-            return ("", "", "", linenumber)
+            return ("", "", "")
 
         revision = str(revision)
 
+        # remove fractional seconds and timezone information from
+        # the end of the string provided by pysvn:
+        # * timezone should be always "Z" (for UTC), "%Z" is not yet
+        #   yet supported by strptime
+        # * fractional could be parsed with "%f" since python 2.6
+        #   but this precision is not needed anyway
+        # * the datetime module does not include strptime until python 2.4
+        #   so this workaround is required for now
+        datestr = item["date"][0:-8]
         try:
-            author = self.log_by_revision[revision].author
-            date = helper.format_datetime(self.log_by_revision[revision].date, self.datetime_format)
+            date = datetime(*time.strptime(datestr, "%Y-%m-%dT%H:%M:%S")[:-2])
+            date = helper.format_datetime(date, self.datetime_format)
         except:
-            author = ""
             date = ""
 
-        return revision, date, author, linenumber
+        return revision, date, S(item["author"].strip())
 
     def populate_table(self):
         blamedict = self.action.get_result(0)
@@ -463,7 +469,7 @@ class SVNAnnotate(Annotate):
 
         self.table.clear()
         for i, item in enumerate(blamedict):
-            revision, date, author, linenumber = self.blame_info(item)
+            revision, date, author = self.blame_info(item)
             author_color = self.author_background.get(author, "#FFFFFF")
             try:
                 revision_color = self.log_by_revision[revision].background
@@ -475,7 +481,7 @@ class SVNAnnotate(Annotate):
                     revision,
                     author,
                     date,
-                    linenumber,
+                    str(int(item["number"]) + 1),
                     lines[i],
                     revision_color,
                     author_color,
@@ -487,10 +493,10 @@ class SVNAnnotate(Annotate):
 
         text = ""
         for item in blamedict:
-            revision, date, author, linenumber = self.blame_info(item)
+            revision, date, author = self.blame_info(item)
 
             text += "%s\t%s\t%s\t%s\t%s\n" % (
-                linenumber,
+                str(int(item["number"]) + 1),
                 revision,
                 author,
                 date,

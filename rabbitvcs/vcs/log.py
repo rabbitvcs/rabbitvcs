@@ -22,6 +22,8 @@ from __future__ import absolute_import
 # along with RabbitVCS;  If not, see <http://www.gnu.org/licenses/>.
 #
 
+import rabbitvcs.vcs
+
 
 class LogChangedPath(object):
     path = ""

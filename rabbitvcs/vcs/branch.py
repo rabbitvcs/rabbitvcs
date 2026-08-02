@@ -22,6 +22,9 @@ from __future__ import absolute_import
 # along with RabbitVCS;  If not, see <http://www.gnu.org/licenses/>.
 #
 
+import rabbitvcs.util.helper
+import rabbitvcs.vcs
+
 
 class BranchEntry(object):
     def __init__(self, name, tracking=False, revision="", message=""):
