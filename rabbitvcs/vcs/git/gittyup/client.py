@@ -21,7 +21,8 @@ import dulwich.errors
 import dulwich.repo
 import dulwich.porcelain
 import dulwich.objects
-from dulwich.index import write_index_dict, SHA1Writer
+from dulwich.index import write_index_dict
+from dulwich.pack import SHA1Writer
 
 from rabbitvcs.util import helper
 from rabbitvcs.util.strings import *
